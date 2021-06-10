@@ -40,7 +40,7 @@ public class DataInitializer implements ApplicationRunner {
                                     .toList();
                             var data = Post.builder()
                                     .id(UUID.randomUUID().toString())
-                                    .title("title #" + i)
+                                    .title("Dgs post #" + i)
                                     .content("test content of #" + i)
                                     .comments(comments)
                                     .authorId(author.getId())

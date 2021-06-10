@@ -1,13 +1,28 @@
 package com.example.demo;
 
+import com.netflix.graphql.dgs.DgsQueryExecutor;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
-@SpringBootTest
+import java.util.List;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+@SpringBootTest()
+//@SpringBootTest(classes = {DgsAutoConfiguration.class, PostsDatafetcher.class})
 class DemoApplicationTests {
 
-	@Test
-	void contextLoads() {
-	}
+    @Autowired
+    DgsQueryExecutor dgsQueryExecutor;
+
+    @Test
+    void allPosts() {
+        List<String> titles = dgsQueryExecutor.executeAndExtractJsonPath(
+                " { allPosts { title content }}",
+                "data.allPosts[*].title");
+
+        assertThat(titles).anyMatch(s -> s.startsWith("Dgs post"));
+    }
 
 }
