@@ -12,7 +12,7 @@ TBD
 
 ## Example Codes
 
-* [Netflix DGS Framework](./dgs) - Simple Domain Graph Service Framework example
+* [dgs](./dgs) - Simple Netflix Domain Graph Service framework example
 * 
 
 ## Prerequisites
@@ -35,8 +35,8 @@ git clone https://github.com/hantsy/spring-graphql-sample/
 Open a terminal, and switch to the root folder of the project, and run the following command to build the whole project.
 
 ```bash
-docker-compose up postgres // start up a postgres it is required.
-cd examplename
+docker-compose up postgres // start up a postgres it is required
+cd examplename // change to the example folder
 mvn clean install // build the project
 //or
 ./gradlew build
