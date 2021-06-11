@@ -22,7 +22,7 @@ public class PostsDataFetcher {
     }
 
     @DgsData(parentType = "Post", field = "author")
-    public Author actors(DgsDataFetchingEnvironment dfe) {
+    public Author author(DgsDataFetchingEnvironment dfe) {
         Post post = dfe.getSource();
         String authorId = post.getAuthorId();
         return this.authorService.getAuthorById(authorId)

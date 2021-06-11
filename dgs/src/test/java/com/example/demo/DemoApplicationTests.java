@@ -10,7 +10,7 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest()
-//@SpringBootTest(classes = {DgsAutoConfiguration.class, PostsDatafetcher.class})
+//@SpringBootTest(classes = {DgsAutoConfiguration.class, PostsDataFetcher.class})
 class DemoApplicationTests {
 
     @Autowired
