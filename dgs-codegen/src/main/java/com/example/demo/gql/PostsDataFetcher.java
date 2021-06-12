@@ -1,13 +1,16 @@
-package com.example.demo;
+package com.example.demo.gql;
 
-import com.example.demo.gql.DgsConstants;
 import com.example.demo.gql.types.Author;
+import com.example.demo.gql.types.Comment;
 import com.example.demo.gql.types.CreatePostInput;
 import com.example.demo.gql.types.Post;
+import com.example.demo.service.AuthorService;
+import com.example.demo.service.PostService;
 import com.netflix.graphql.dgs.*;
 import lombok.RequiredArgsConstructor;
 
 import java.util.List;
+import java.util.UUID;
 
 @DgsComponent
 @RequiredArgsConstructor
@@ -22,7 +25,7 @@ public class PostsDataFetcher {
 
     @DgsQuery
     public Post postById(@InputArgument String postId) {
-        return this.postService.getPostById(postId).orElseThrow(() -> new PostNotFoundException(postId));
+        return this.postService.getPostById(postId);
     }
 
     @DgsData(
@@ -32,12 +35,20 @@ public class PostsDataFetcher {
     public Author author(DgsDataFetchingEnvironment dfe) {
         Post post = dfe.getSource();
         String authorId = post.getAuthorId();
-        return this.authorService.getAuthorById(authorId)
-                .orElseThrow(() -> new AuthorNotFoundException(authorId));
+        return this.authorService.getAuthorById(authorId);
+    }
+
+    @DgsData(
+            parentType = DgsConstants.POST.TYPE_NAME,
+            field = DgsConstants.POST.Comments
+    )
+    public List<Comment> comments(DgsDataFetchingEnvironment dfe) {
+        Post post = dfe.getSource();
+        return this.postService.getCommentsByPostId(post.getId());
     }
 
     @DgsMutation
-    public Post createPost(@InputArgument("createPostInput") CreatePostInput input) {
+    public UUID createPost(@InputArgument("createPostInput") CreatePostInput input) {
         return this.postService.createPost(input);
     }
 }

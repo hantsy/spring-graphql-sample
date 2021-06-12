@@ -3,13 +3,9 @@ type Post{
     title: String!
     content: String
     comments: [Comment]
-    status: PostStatus
-    createdAt: DateTime
     authorId:String
     author:Author
 }
-
-
 type Author{
     id:ID!
     name:String!
@@ -32,18 +28,16 @@ input CommentInput{
     content: String!
 }
 
-type Query {
+type Query{
     allPosts: [Post!]!
     postById(postId: String!): Post
 }
 
-type Mutation {
-    createPost(createPostInput: CreatePostInput!): UUID!
+type Mutation{
+    createPost(createPostInput: CreatePostInput!): Post!
+    addComment(commentInput: CommentInput!): Comment!
 }
 
-enum PostStatus {
-    DRAFT, PENDING_MODERATION, PUBLISHED
+type Subscription{
+    commentAdded: Comment!
 }
-
-scalar DateTime
-scalar UUID

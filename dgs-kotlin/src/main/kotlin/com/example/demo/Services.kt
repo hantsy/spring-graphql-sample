@@ -13,7 +13,6 @@ class AuthorService(val authors: AuthorRepository) {
     fun getAuthorById(id: String): Author = this.authors.findById(UUID.fromString(id))
         .map { it.asGqlType() }
         .orElseThrow { AuthorNotFoundException(id) }
-
 }
 
 @Service
