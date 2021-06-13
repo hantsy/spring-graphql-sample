@@ -1,12 +1,19 @@
 package com.example.demo;
 
 import lombok.*;
+import org.hibernate.validator.constraints.Length;
+
+import javax.validation.constraints.NotEmpty;
 
 @Getter
 @Setter
 @ToString
 @RequiredArgsConstructor
 public class CreatePostInput {
+    @NotEmpty
+    @Length(min = 5, max = 100)
     String title;
+
+    @NotEmpty
     String content;
 }

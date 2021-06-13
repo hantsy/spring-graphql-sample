@@ -14,6 +14,8 @@ public class Post {
     String id;
     String title;
     String content;
+
+    @Builder.Default
     List<Comment> comments = new ArrayList<>();
     String authorId;
     Author author;

@@ -2,13 +2,19 @@ package com.example.demo;
 
 import com.netflix.graphql.dgs.*;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.reactivestreams.Publisher;
+import org.springframework.validation.annotation.Validated;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.core.publisher.Sinks;
 
-import java.util.List;
+import javax.validation.Valid;
 
 @DgsComponent
 @RequiredArgsConstructor
+@Slf4j
+@Validated
 public class PostsDataFetcher {
     private final PostService postService;
     private final AuthorService authorService;
@@ -33,7 +39,24 @@ public class PostsDataFetcher {
     }
 
     @DgsMutation
-    public Mono<Post> createPost(@InputArgument("createPostInput") CreatePostInput input) {
+    public Mono<Post> createPost(@InputArgument("createPostInput") @Valid CreatePostInput input) {
         return this.postService.createPost(input);
+    }
+
+    @DgsMutation
+    public Mono<Comment> addComment(@InputArgument("commentInput") @Valid CommentInput input) {
+        Mono<Comment> comment = this.postService.addComment(input)
+                .doOnNext(
+                        c -> sink.emitNext(c, Sinks.EmitFailureHandler.FAIL_FAST)
+                );
+
+        return comment;
+    }
+
+    private final Sinks.Many<Comment> sink = Sinks.many().replay().limit(100);
+
+    @DgsSubscription
+    Publisher<Comment> commentAdded() {
+        return sink.asFlux();
     }
 }

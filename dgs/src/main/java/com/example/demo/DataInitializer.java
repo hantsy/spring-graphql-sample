@@ -6,6 +6,7 @@ import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 import java.util.UUID;
@@ -42,7 +43,7 @@ public class DataInitializer implements ApplicationRunner {
                                     .id(UUID.randomUUID().toString())
                                     .title("Dgs post #" + i)
                                     .content("test content of #" + i)
-                                    .comments(comments)
+                                    .comments(new ArrayList<>(comments))//make it mutable.
                                     .authorId(author.getId())
                                     .build();
                             return data;
@@ -51,8 +52,6 @@ public class DataInitializer implements ApplicationRunner {
                 .toList();
 
         this.postService.init(initData);
-
         this.postService.getAllPosts().forEach(p -> log.info("post data : {}", p));
-
     }
 }
