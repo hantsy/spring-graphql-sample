@@ -8,6 +8,8 @@ import graphql.execution.DataFetcherExceptionHandlerParameters;
 import graphql.execution.DataFetcherExceptionHandlerResult;
 import org.springframework.stereotype.Component;
 
+import javax.validation.ConstraintViolation;
+import javax.validation.ConstraintViolationException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -17,13 +19,33 @@ public class CustomDataFetchingExceptionHandler implements DataFetcherExceptionH
 
     @Override
     public DataFetcherExceptionHandlerResult onException(DataFetcherExceptionHandlerParameters handlerParameters) {
-        if(handlerParameters.getException() instanceof PostNotFoundException ex) {
+        Throwable exception = handlerParameters.getException();
+        if (exception instanceof PostNotFoundException || exception instanceof AuthorNotFoundException) {
             Map<String, Object> debugInfo = new HashMap<>();
 
             GraphQLError graphqlError = TypedGraphQLError.newNotFoundBuilder()
-                    .message(ex.getMessage())
+                    .message(exception.getMessage())
                     .debugInfo(debugInfo)
                     .path(handlerParameters.getPath())
+                    .build();
+            return DataFetcherExceptionHandlerResult.newResult()
+                    .error(graphqlError)
+                    .build();
+        } else if (exception instanceof ConstraintViolationException ex) {
+            Map<String, Object> debugInfo = new HashMap<>();
+
+            Map<String, Object> extensions = new HashMap<>();
+            for (ConstraintViolation<?> violation : ex.getConstraintViolations()) {
+                String path = violation.getPropertyPath().toString();
+                String message = violation.getMessage();
+                extensions.put(path, message);
+            }
+
+            GraphQLError graphqlError = TypedGraphQLError.newBadRequestBuilder()
+                    .message("validation failed")
+                    .debugInfo(debugInfo)
+                    .path(handlerParameters.getPath())
+                    .extensions(extensions)
                     .build();
             return DataFetcherExceptionHandlerResult.newResult()
                     .error(graphqlError)
