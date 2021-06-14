@@ -5,8 +5,6 @@ import com.example.demo.repository.AuthorRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -22,6 +20,7 @@ public class AuthorService {
                         .id(a.id().toString())
                         .name(a.name())
                         .email(a.email())
+                        .createdAt(a.createdAt())
                         .build()
                 )
                 .orElseThrow(() -> new AuthorNotFoundException(id));

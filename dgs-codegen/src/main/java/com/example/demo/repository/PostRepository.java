@@ -1,7 +1,6 @@
 package com.example.demo.repository;
 
 import com.example.demo.model.PostEntity;
-import com.example.demo.model.PostStatus;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.RowMapper;
@@ -24,7 +23,7 @@ public class PostRepository {
             rs.getObject("id", UUID.class),
             rs.getString("title"),
             rs.getString("content"),
-            PostStatus.valueOf(rs.getString("status")),
+            rs.getString("status"),
             rs.getObject("created_at", LocalDateTime.class),
             rs.getObject("author_id", UUID.class)
     );
@@ -52,7 +51,7 @@ public class PostRepository {
         );
     }
 
-    public UUID create(String title, String content, PostStatus status, UUID authorId) {
+    public UUID create(String title, String content, String status, UUID authorId) {
         String insert = """
                 INSERT INTO  posts (title, content, status, author_id, created_at) 
                 VALUES (:title, :content, :status, :author_id, :created_at) 
@@ -61,7 +60,7 @@ public class PostRepository {
         GeneratedKeyHolder generatedKeyHolder = new GeneratedKeyHolder();
         int inserted = this.jdbcTemplate.update(
                 insert,
-                new MapSqlParameterSource(Map.of("title", title, "content", content, "status", status.name(), "author_id", authorId, "created_at", LocalDateTime.now())),
+                new MapSqlParameterSource(Map.of("title", title, "content", content, "status", status, "author_id", authorId, "created_at", LocalDateTime.now())),
                 generatedKeyHolder
         );
         log.info("inserted rows: {}", inserted);

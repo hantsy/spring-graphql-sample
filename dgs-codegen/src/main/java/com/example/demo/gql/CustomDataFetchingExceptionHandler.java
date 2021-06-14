@@ -1,5 +1,6 @@
 package com.example.demo.gql;
 
+import com.example.demo.service.AuthorNotFoundException;
 import com.example.demo.service.PostNotFoundException;
 import com.netflix.graphql.dgs.exceptions.DefaultDataFetcherExceptionHandler;
 import com.netflix.graphql.types.errors.TypedGraphQLError;
@@ -18,11 +19,12 @@ public class CustomDataFetchingExceptionHandler implements DataFetcherExceptionH
 
     @Override
     public DataFetcherExceptionHandlerResult onException(DataFetcherExceptionHandlerParameters handlerParameters) {
-        if(handlerParameters.getException() instanceof PostNotFoundException ex) {
+        Throwable exception = handlerParameters.getException();
+        if (exception instanceof AuthorNotFoundException || exception instanceof PostNotFoundException) {
             Map<String, Object> debugInfo = new HashMap<>();
 
             GraphQLError graphqlError = TypedGraphQLError.newNotFoundBuilder()
-                    .message(ex.getMessage())
+                    .message(exception.getMessage())
                     .debugInfo(debugInfo)
                     .path(handlerParameters.getPath())
                     .build();

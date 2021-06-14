@@ -11,8 +11,8 @@ import graphql.schema.CoercingSerializeException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
-@DgsScalar(name = "DateTime")
-public class DateTimeScalar implements Coercing<LocalDateTime, String> {
+@DgsScalar(name = "LocalDateTime")
+public class LocalDateTimeScalar implements Coercing<LocalDateTime, String> {
     @Override
     public String serialize(Object dataFetcherResult) throws CoercingSerializeException {
         if (dataFetcherResult instanceof LocalDateTime) {

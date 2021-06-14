@@ -4,7 +4,7 @@ type Post{
     content: String
     comments: [Comment]
     status: PostStatus
-    createdAt: DateTime
+    createdAt: LocalDateTime
     authorId:String
     author:Author
 }
@@ -14,11 +14,13 @@ type Author{
     id:ID!
     name:String!
     email:String!
+    createdAt: LocalDateTime
     posts: [Post]
 }
 type Comment{
     id: ID!
     content: String!
+    createdAt: LocalDateTime
     postId: String!
 }
 
@@ -45,5 +47,5 @@ enum PostStatus {
     DRAFT, PENDING_MODERATION, PUBLISHED
 }
 
-scalar DateTime
+scalar LocalDateTime
 scalar UUID

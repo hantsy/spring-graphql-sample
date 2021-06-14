@@ -9,7 +9,7 @@ public record PostEntity(
         UUID id,
         String title,
         String content,
-        PostStatus status,
+        String status,
         LocalDateTime createdAt,
         UUID authorId
 ) {

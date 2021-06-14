@@ -1,6 +1,6 @@
 package com.example.demo;
 
-import com.example.demo.model.PostStatus;
+import com.example.demo.gql.types.PostStatus;
 import com.example.demo.repository.AuthorRepository;
 import com.example.demo.repository.CommentRepository;
 import com.example.demo.repository.PostRepository;
@@ -33,7 +33,7 @@ public class DataInitializer implements ApplicationRunner {
         IntStream.range(1, 5)
                 .forEach(
                         i -> {
-                            var postId = this.posts.create("Dgs post #" + i, "test content of #" + i, PostStatus.DRAFT, authorId);
+                            var postId = this.posts.create("Dgs post #" + i, "test content of #" + i, PostStatus.DRAFT.name(), authorId);
 
                             IntStream.range(1, new Random().nextInt(5) + 1)
                                     .forEach(c -> this.comments.create("comment #" + c, postId));
