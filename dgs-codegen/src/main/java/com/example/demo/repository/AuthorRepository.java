@@ -47,6 +47,18 @@ public class AuthorRepository {
         );
     }
 
+    public List<AuthorEntity> findByIdIn(List<UUID> id) {
+        String sql = """
+                SELECT * FROM users 
+                WHERE id  in (:id)
+                """;
+        return this.jdbcTemplate.query(
+                sql,
+                Map.of("id", id),
+                ROW_MAPPER
+        );
+    }
+
     public UUID create(String name, String email) {
         String insert = """
                 INSERT INTO  users  ( name, email, created_at) 

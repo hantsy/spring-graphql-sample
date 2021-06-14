@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 import java.util.function.Function;
 
@@ -73,6 +74,14 @@ public class PostService {
 
     public List<Comment> getCommentsByPostId(String id) {
         return this.comments.findByPostId(UUID.fromString(id))
+                .stream()
+                .map(COMMENT_MAPPER)
+                .toList();
+    }
+
+    public List<Comment> getCommentsByPostIdIn(Set<String> ids) {
+        var uuids  = ids.stream().map(UUID::fromString).toList();
+        return this.comments.findByPostIdIn(uuids)
                 .stream()
                 .map(COMMENT_MAPPER)
                 .toList();

@@ -12,6 +12,7 @@ import org.springframework.stereotype.Component;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 @Component
@@ -38,6 +39,18 @@ public class CommentRepository {
         String sql = """
                 SELECT * FROM comments 
                 WHERE post_id  = :post_id
+                """;
+        return this.jdbcTemplate.query(
+                sql,
+                Map.of("post_id", postId),
+                ROW_MAPPER
+        );
+    }
+
+    public List<CommentEntity> findByPostIdIn(List<UUID> postId) {
+        String sql = """
+                SELECT * FROM comments 
+                WHERE post_id  in (:post_id)
                 """;
         return this.jdbcTemplate.query(
                 sql,
