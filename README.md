@@ -13,11 +13,11 @@ TBD
 ## Example Codes
 |  Example name    |Lang/Build tools      | Description     |
 | ---- | ---- | ---- |
-|[dgs](./dgs) | Java/Maven|Simple Netflix DGS example|
-|[dgs-webflux](./dgs-webflux) |Java/Maven|Simple Netflix DGS example with Spring WebFlux|
+|[dgs](./dgs) | Java/Maven | Simple Netflix DGS example|
+|[dgs-webflux](./dgs-webflux) | Java/Maven| Simple Netflix DGS example with Spring WebFlux|
 |[dgs-subscription-ws](./dgs-subscription-ws) | Kotlin/Gradle | Simple Netflix DGS Subscription example using WebSocket protocol|
-|[dgs-codegen](./dgs-codegen) |Java/Gradle |Netflix DGS example with Spring Jdbc and Gradle codegen pluin|
-|[dgs-kotlin](./dgs-kotlin) |Kotlin/Gradle |Netflix DGS example written in Kotlin, Spring Data Jdbc, Spring Security and Spring Session/Spring Data Redis|
+|[dgs-codegen](./dgs-codegen) | Java/Gradle | Netflix DGS example with Spring Jdbc and Gradle codegen pluin|
+|[dgs-kotlin](./dgs-kotlin) | Kotlin/Gradle | Netflix DGS example written in Kotlin, Spring Data Jdbc, Spring Security and Spring Session/Spring Data Redis|
  
 
 ## Prerequisites
