@@ -14,6 +14,7 @@ TBD
 
 * [dgs](./dgs) - Simple Netflix Domain Graph Service framework example
 * [dgs-webflux](./dgs-webflux) - Simple Netflix Domain Graph Service example with Spring WebFlux
+* [dgs-subscription-ws](./dgs-subscription-ws) - Simple Netflix SGS Subscription example using WebSocket protocol
 * [dgs-codegen](./dgs-codegen) - Netflix Domain Graph Service example with Spring Jdbc and Gradle codegen pluin
 * [dgs-kotlin](./dgs-kotlin) - Netflix Domain Graph Service example written in Kotlin, Spring Data Jdbc, Spring Security and Spring Session/Spring Data Redis
 * 
