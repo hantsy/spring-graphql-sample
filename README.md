@@ -11,13 +11,14 @@ Spring GraphQL examples using the following frameworks and libraries:
 TBD
 
 ## Example Codes
-
-* [dgs](./dgs) - Simple Netflix Domain Graph Service framework example
-* [dgs-webflux](./dgs-webflux) - Simple Netflix Domain Graph Service example with Spring WebFlux
-* [dgs-subscription-ws](./dgs-subscription-ws) - Simple Netflix SGS Subscription example using WebSocket protocol
-* [dgs-codegen](./dgs-codegen) - Netflix Domain Graph Service example with Spring Jdbc and Gradle codegen pluin
-* [dgs-kotlin](./dgs-kotlin) - Netflix Domain Graph Service example written in Kotlin, Spring Data Jdbc, Spring Security and Spring Session/Spring Data Redis
-* 
+|  Example name    |Lang/Build tools      | Description     |
+| ---- | ---- | ---- |
+|[dgs](./dgs) | Java/Maven|Simple Netflix DGS example|
+|[dgs-webflux](./dgs-webflux) |Java/Maven|Simple Netflix DGS example with Spring WebFlux|
+|[dgs-subscription-ws](./dgs-subscription-ws) | Kotlin/Gradle | Simple Netflix DGS Subscription example using WebSocket protocol|
+|[dgs-codegen](./dgs-codegen) |Java/Gradle |Netflix DGS example with Spring Jdbc and Gradle codegen pluin|
+|[dgs-kotlin](./dgs-kotlin) |Kotlin/Gradle |Netflix DGS example written in Kotlin, Spring Data Jdbc, Spring Security and Spring Session/Spring Data Redis|
+ 
 
 ## Prerequisites
 
