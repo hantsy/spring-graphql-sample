@@ -19,10 +19,8 @@ public class CommentsDataLoader implements MappedBatchLoader<String, List<Commen
 
     @Override
     public CompletionStage<Map<String, List<Comment>>> load(Set<String> keys) {
-        log.info("mapped keys: {}", keys);
         List<Comment> comments = this.postService.getCommentsByPostIdIn(keys);
 
-        log.info("mapped comments result: {}", comments);
         Map<String, List<Comment>> mappedComments = new HashMap<>();
         keys.forEach(
                 k -> mappedComments.put(k, comments

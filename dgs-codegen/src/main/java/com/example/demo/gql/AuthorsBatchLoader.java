@@ -17,7 +17,7 @@ public class AuthorsBatchLoader implements BatchLoader<String, Author> {
 
     @Override
     public CompletionStage<List<Author>> load(List<String> keys) {
-        return   CompletableFuture.supplyAsync(() ->
+        return CompletableFuture.supplyAsync(() ->
                 this.authorService.getAuthorByIdIn(keys)
         );
     }

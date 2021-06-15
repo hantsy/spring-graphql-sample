@@ -1,11 +1,17 @@
 package com.example.demo
 
 import com.example.demo.gql.DgsConstants
-import com.example.demo.gql.types.Author
-import com.example.demo.gql.types.Comment
-import com.example.demo.gql.types.CreatePostInput
-import com.example.demo.gql.types.Post
+import com.example.demo.gql.types.*
 import com.netflix.graphql.dgs.*
+import com.netflix.graphql.dgs.internal.DgsWebMvcRequestData
+import org.springframework.security.access.annotation.Secured
+import org.springframework.security.access.prepost.PreAuthorize
+import org.springframework.security.authentication.AuthenticationManager
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
+import org.springframework.security.core.context.SecurityContextHolder
+import org.springframework.security.web.context.HttpSessionSecurityContextRepository
+import java.util.concurrent.CompletableFuture
+import javax.servlet.http.HttpSession
 
 @DgsComponent
 class AuthorsDataFetcher(
@@ -21,14 +27,56 @@ class AuthorsDataFetcher(
         val a: Author = dfe.getSource()
         return postService.getPostsByAuthorId(a.id)
     }
-
 }
 
 @DgsComponent
-class PostsDataFetcher(
-    val postService: PostService,
-    val authorService: AuthorService
+class AuthDataFetcher(
+    val authenticationManager: AuthenticationManager
 ) {
+
+    @DgsQuery
+    fun signIn(@InputArgument credentials: Credentials, dfe: DgsDataFetchingEnvironment): Map<String, Any> {
+        var auth = authenticationManager.authenticate(
+            UsernamePasswordAuthenticationToken(
+                credentials.username,
+                credentials.password
+            )
+        )
+        SecurityContextHolder.getContext().authentication = auth
+
+        // get the session id from redis.
+        val req = dfe.getDgsContext().requestData as DgsWebMvcRequestData
+        val session = req.webRequest?.sessionMutex as HttpSession
+        session.setAttribute(
+            HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY,
+            SecurityContextHolder.getContext()
+        )
+        return mapOf(
+            "name" to auth.principal.toString(),
+            "roles" to auth.authorities.map { it.authority },
+            "token" to session?.id
+        )
+    }
+
+    @DgsQuery
+    @PreAuthorize("isAuthenticated()")
+    fun logout(dfe: DgsDataFetchingEnvironment): Boolean {
+        val req = dfe.getDgsContext().requestData as DgsWebMvcRequestData
+        val session = req.webRequest?.sessionMutex as HttpSession?
+        return when {
+            session != null -> {
+                session.invalidate()
+                true
+            }
+            else -> {
+                false;
+            }
+        }
+    }
+}
+
+@DgsComponent
+class PostsDataFetcher(val postService: PostService) {
 
     @DgsQuery
     fun allPosts() = postService.allPosts()
@@ -37,18 +85,22 @@ class PostsDataFetcher(
     fun postById(@InputArgument postId: String) = postService.getPostById(postId)
 
     @DgsData(parentType = DgsConstants.POST.TYPE_NAME, field = DgsConstants.POST.Author)
-    fun author(dfe: DgsDataFetchingEnvironment): Author {
-        val post: Post = dfe.getSource()
-        val authorId: String = post.authorId!!
-        return authorService.getAuthorById(authorId)
+    fun author(dfe: DgsDataFetchingEnvironment): CompletableFuture<Author> {
+        val dataLoader = dfe.getDataLoader<String, Author>("authorsLoader")
+        val post = dfe.getSource<Post>()
+        return dataLoader.load(post.authorId)
     }
 
     @DgsData(parentType = DgsConstants.POST.TYPE_NAME, field = DgsConstants.POST.Comments)
-    fun comments(dfe: DgsDataFetchingEnvironment): List<Comment> {
-        val post: Post = dfe.getSource()
-        return postService.getCommentsByPostId(post.id)
+    fun comments(dfe: DgsDataFetchingEnvironment): CompletableFuture<List<Comment>> {
+        val dataLoader = dfe.getDataLoader<String, List<Comment>>(
+            CommentsDataLoader::class.java
+        )
+        val (id) = dfe.getSource<Post>()
+        return dataLoader.load(id)
     }
 
     @DgsMutation
+    @Secured("ROLE_USER")
     fun createPost(@InputArgument("createPostInput") input: CreatePostInput) = postService.createPost(input)
 }

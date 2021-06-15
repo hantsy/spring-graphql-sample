@@ -1,9 +1,6 @@
 package com.example.demo
 
-import org.springframework.data.annotation.CreatedDate
-import org.springframework.data.annotation.Id
-import org.springframework.data.annotation.LastModifiedDate
-import org.springframework.data.annotation.Version
+import org.springframework.data.annotation.*
 import org.springframework.data.relational.core.mapping.Column
 import org.springframework.data.relational.core.mapping.Table
 import java.time.LocalDateTime
@@ -17,6 +14,9 @@ data class AuthorEntity(
 
     @Column("name")
     var name: String,
+
+    @Column("password")
+    var password: String,
 
     @Column("email")
     var email: String,
@@ -58,6 +58,7 @@ data class PostEntity(
     @Column("status")
     var status: PostStatus = PostStatus.DRAFT,
 
+    @CreatedBy
     @Column("author_id")
     var authorId: UUID? = null,
 

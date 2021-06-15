@@ -1,3 +1,4 @@
+import com.netflix.graphql.dgs.codegen.gradle.GenerateJavaTask
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
@@ -22,22 +23,33 @@ dependencies {
     implementation("com.netflix.graphql.dgs:graphql-dgs-spring-boot-starter") {
         exclude("org.yaml", "snakeyaml")
     }
+    implementation("com.netflix.graphql.dgs:graphql-dgs-extended-scalars") {
+        exclude("org.yaml", "snakeyaml")
+    }
     implementation("org.yaml:snakeyaml:1.28")
     implementation("org.postgresql:postgresql")
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.springframework.boot:spring-boot-starter-data-jdbc")
+    implementation("org.springframework.boot:spring-boot-starter-security")
+    implementation("org.springframework.boot:spring-boot-starter-data-redis")
+    implementation("org.springframework.session:spring-session-data-redis")
+    //kotlin
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
+    //test
     testImplementation("org.springframework.boot:spring-boot-starter-test")
 }
 
-tasks.generateJava {
-    schemaPaths = mutableListOf("${projectDir}/src/main/resources/schema") // List of directories containing schema files
+tasks.withType<GenerateJavaTask> {
+    schemaPaths =
+        mutableListOf("${projectDir}/src/main/resources/schema") // List of directories containing schema files
     packageName = "com.example.demo.gql" // The package name to use to generate sources
     generateClient = true // Enable generating the type safe query API
     shortProjectionNames = false
     maxProjectionDepth = 2
+    snakeCaseConstantNames = true
+    typeMapping = mutableMapOf("Map" to "")
 }
 
 tasks.withType<KotlinCompile> {

@@ -8,17 +8,21 @@ fun PostEntity.asGqlType(): Post = Post(
     id = this.id!!.toString(),
     title = this.title,
     content = this.content,
+    createdAt = this.createdAt,
+    updatedAt = this.updatedAt,
     authorId = this.authorId.toString()
 )
 
 fun CommentEntity.asGqlType(): Comment = Comment(
     id = this.id!!.toString(),
     content = this.content,
+    createdAt = this.createdAt,
     postId = this.postId!!.toString()
 )
 
 fun AuthorEntity.asGqlType(): Author = Author(
     id = this.id!!.toString(),
     name = this.name,
-    email = this.email
+    email = this.email,
+    createdAt = this.createdAt
 )

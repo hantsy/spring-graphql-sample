@@ -13,6 +13,12 @@ class AuthorService(val authors: AuthorRepository) {
     fun getAuthorById(id: String): Author = this.authors.findById(UUID.fromString(id))
         .map { it.asGqlType() }
         .orElseThrow { AuthorNotFoundException(id) }
+
+    fun getAuthorByIdIn(ids: List<String>): List<Author> {
+        val uuids = ids.map { UUID.fromString(it) };
+        val authorEntities = authors.findAllById(uuids)
+        return authorEntities.map { it.asGqlType() }
+    }
 }
 
 @Service
@@ -48,4 +54,10 @@ class PostService(
 
     fun getCommentsByPostId(id: String): List<Comment> = this.comments.findByPostId(UUID.fromString(id))
         .map { it.asGqlType() }
+
+    fun getCommentsByPostIdIn(ids: Set<String>): List<Comment> {
+        val uuids = ids.map { UUID.fromString(it) };
+        val authorEntities = comments.findByPostIdIn(uuids)
+        return authorEntities.map { it.asGqlType() }
+    }
 }

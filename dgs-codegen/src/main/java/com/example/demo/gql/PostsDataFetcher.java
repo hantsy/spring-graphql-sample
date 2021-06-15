@@ -4,11 +4,9 @@ import com.example.demo.gql.types.Author;
 import com.example.demo.gql.types.Comment;
 import com.example.demo.gql.types.CreatePostInput;
 import com.example.demo.gql.types.Post;
-import com.example.demo.service.AuthorService;
 import com.example.demo.service.PostService;
 import com.netflix.graphql.dgs.*;
 import lombok.RequiredArgsConstructor;
-import org.dataloader.BatchLoader;
 import org.dataloader.DataLoader;
 
 import java.util.List;
@@ -19,7 +17,6 @@ import java.util.concurrent.CompletableFuture;
 @RequiredArgsConstructor
 public class PostsDataFetcher {
     private final PostService postService;
-    private final AuthorService authorService;
 
     @DgsQuery
     public List<Post> allPosts() {
