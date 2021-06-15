@@ -2,7 +2,7 @@
 
 Spring GraphQL examples using the following frameworks and libraries:
 
-* [Netflix Domain GraphQL Service framework](https://netflix.github.io/dgs/) 
+* [Netflix DGS(Domain Graph Service) framework](https://netflix.github.io/dgs/) 
 * [Spring GraphQL](https://github.com/spring-projects/spring-graphql)
 * [GraphQL Java](https://www.graphql-java.com/)
 
