@@ -49,7 +49,6 @@ tasks.withType<GenerateJavaTask> {
     shortProjectionNames = false
     maxProjectionDepth = 2
     snakeCaseConstantNames = true
-    typeMapping = mutableMapOf("Map" to "")
 }
 
 tasks.withType<KotlinCompile> {

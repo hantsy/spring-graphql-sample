@@ -45,10 +45,10 @@
             <artifactId>graphql-dgs-webflux-starter</artifactId>
         </dependency>
 
-        <dependency>
-            <groupId>com.netflix.graphql.dgs</groupId>
-            <artifactId>graphql-dgs-subscriptions-websockets-autoconfigure</artifactId>
-        </dependency>
+<!--        <dependency>-->
+<!--            <groupId>com.netflix.graphql.dgs</groupId>-->
+<!--            <artifactId>graphql-dgs-subscriptions-websockets-autoconfigure</artifactId>-->
+<!--        </dependency>-->
 
         <dependency>
             <groupId>org.projectlombok</groupId>

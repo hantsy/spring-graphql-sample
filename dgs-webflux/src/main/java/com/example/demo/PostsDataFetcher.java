@@ -45,18 +45,18 @@ public class PostsDataFetcher {
 
     @DgsMutation
     public Mono<Comment> addComment(@InputArgument("commentInput") @Valid CommentInput input) {
-        Mono<Comment> comment = this.postService.addComment(input)
-                .doOnNext(
-                        c -> sink.emitNext(c, Sinks.EmitFailureHandler.FAIL_FAST)
-                );
+        Mono<Comment> comment = this.postService.addComment(input);
+//                .doOnNext(
+//                        c -> sink.emitNext(c, Sinks.EmitFailureHandler.FAIL_FAST)
+//                );
 
         return comment;
     }
 
-    private final Sinks.Many<Comment> sink = Sinks.many().replay().limit(100);
-
-    @DgsSubscription
-    Publisher<Comment> commentAdded() {
-        return sink.asFlux();
-    }
+//    private final Sinks.Many<Comment> sink = Sinks.many().replay().limit(100);
+//
+//    @DgsSubscription
+//    Publisher<Comment> commentAdded() {
+//        return sink.asFlux();
+//    }
 }

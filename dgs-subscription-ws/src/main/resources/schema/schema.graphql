@@ -1,0 +1,23 @@
+type TextMessage {
+    id: ID!
+    body: String!
+    sentAt: LocalDateTime
+}
+
+type Query {
+    messages:[TextMessage!]!
+}
+
+type Mutation {
+    send(message:TextMessageInput!): TextMessage
+}
+
+input TextMessageInput {
+    body: String!
+}
+
+type Subscription {
+    messageSent: TextMessage!
+}
+
+scalar LocalDateTime
