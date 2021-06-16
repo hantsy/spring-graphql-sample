@@ -44,28 +44,7 @@ public class PostsDataFetcher {
     @DgsMutation
     public Comment addComment(@InputArgument("commentInput") @Valid CommentInput input) {
         var comment = this.postService.addComment(input);
-        this.emitters.forEach(e -> {
-            try {
-                e.send(comment, MediaType.APPLICATION_JSON);
-            } catch (IOException ex) {
-                e.completeWithError(ex);
-            }
-        });
         return comment;
     }
 
-    private final CopyOnWriteArrayList<SseEmitter> emitters = new CopyOnWriteArrayList<>();
-
-    @DgsSubscription
-    public SseEmitter commentAdded(DgsDataFetchingEnvironment dfe) {
-        SseEmitter emitter = new SseEmitter();
-        // SseEmitter emitter = new SseEmitter(180_000L);
-
-        this.emitters.add(emitter);
-
-        emitter.onCompletion(() -> this.emitters.remove(emitter));
-        emitter.onTimeout(() -> this.emitters.remove(emitter));
-
-        return emitter;
-    }
 }
