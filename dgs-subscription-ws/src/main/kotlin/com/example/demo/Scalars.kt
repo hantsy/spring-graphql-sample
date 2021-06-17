@@ -10,14 +10,6 @@ import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
 
-//@DgsComponent
-//class DateTimeScalar {
-//    @DgsRuntimeWiring
-//    fun addScalar(builder: RuntimeWiring.Builder): RuntimeWiring.Builder {
-//        return builder.scalar(ExtendedScalars.DateTime)
-//    }
-//}
-
 @DgsScalar(name = "LocalDateTime")
 class LocalDateTimeScalar : Coercing<LocalDateTime, String> {
     @Throws(CoercingSerializeException::class)

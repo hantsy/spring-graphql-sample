@@ -1,0 +1,22 @@
+<div fxFill fxLayout="column bottom">
+  <div fxFlex>
+    <p *ngFor="let m of messages">
+      {{m|json}}
+    </p>
+  </div>
+  <div>
+    <form fxLayout="row baseline" #messageForm="ngForm" (ngSubmit)="sendMessage()">
+      <mat-form-field fxFlex>
+        <input name="message" fxFill matInput #messageCtrl="ngModel" [(ngModel)]="message" required />
+        <mat-error fxLayoutAlign="start" *ngIf="messageCtrl.hasError('required')">
+          Message body can not be empty.
+        </mat-error>
+      </mat-form-field>
+      <div>
+        <button mat-button mat-icon-button type="submit" [disabled]="messageForm.invalid || messageForm.pending">
+          <mat-icon>send</mat-icon>
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
