@@ -11,7 +11,7 @@ import java.util.concurrent.CompletableFuture.supplyAsync
 import java.util.concurrent.CompletionStage
 
 @DgsDataLoader(name = "authorsLoader")
-class AuthorsBatchLoader(val authorService: AuthorService) : BatchLoader<String, Author> {
+class AuthorsDataLoader(val authorService: AuthorService) : BatchLoader<String, Author> {
     override fun load(keys: List<String>): CompletionStage<List<Author>> = supplyAsync {
         authorService.getAuthorByIdIn(keys)
     }

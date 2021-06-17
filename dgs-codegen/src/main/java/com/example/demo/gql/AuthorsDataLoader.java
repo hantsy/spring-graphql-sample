@@ -12,7 +12,7 @@ import java.util.concurrent.CompletionStage;
 
 @RequiredArgsConstructor
 @DgsDataLoader(name = "authorsLoader")
-public class AuthorsBatchLoader implements BatchLoader<String, Author> {
+public class AuthorsDataLoader implements BatchLoader<String, Author> {
     final AuthorService authorService;
 
     @Override
