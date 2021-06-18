@@ -5,6 +5,7 @@ import com.example.demo.service.PostService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.dataloader.MappedBatchLoader;
+import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
 import java.util.List;
@@ -15,6 +16,7 @@ import java.util.concurrent.CompletionStage;
 
 @RequiredArgsConstructor
 @Slf4j
+@Component
 public class CommentsDataLoader implements MappedBatchLoader<String, List<Comment>> {
     final PostService postService;
 

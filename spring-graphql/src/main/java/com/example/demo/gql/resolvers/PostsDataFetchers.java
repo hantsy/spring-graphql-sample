@@ -3,6 +3,7 @@ package com.example.demo.gql.resolvers;
 import com.example.demo.gql.types.CreatePostInput;
 import com.example.demo.gql.types.Post;
 import com.example.demo.service.PostService;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import graphql.schema.DataFetcher;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -14,6 +15,7 @@ import java.util.UUID;
 @Component
 public class PostsDataFetchers {
     final PostService postService;
+    final ObjectMapper objectMapper;
 
     public DataFetcher<Post> postById() {
         return dfe -> {
@@ -28,12 +30,13 @@ public class PostsDataFetchers {
 
     public DataFetcher<UUID> createPost() {
         return dfe -> {
-            CreatePostInput input = dfe.getArgument("createPostInput");
-            return postService.createPost(input);
+            var input = dfe.getArgument("createPostInput");
+            var createPostInput = objectMapper.convertValue(input, CreatePostInput.class);
+            return postService.createPost(createPostInput);
         };
     }
 
-    public AuthorDataFetcher authorOfPost(){
+    public AuthorDataFetcher authorOfPost() {
         return new AuthorDataFetcher();
     }
 
