@@ -22,6 +22,7 @@ TBD
 |[dgs-kotlin](./dgs-kotlin) | Kotlin/Gradle | Netflix DGS example written in Kotlin, Spring Data Jdbc, Spring Security and Spring Session/Spring Data Redis|
 |[graphql-java](./graphql-java) | Java/Gradle | GraphQL Java Spring Boot example|
 |[graphql-java-annotations](./graphql-java-annotations) | Java/Gradle | GraphQL Java Spring Boot example(Code first)|
+|[spring-graphql](./spring-graphql) | Java/Gradle | Spring GraphQL example|
 
 ## Prerequisites
 
