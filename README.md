@@ -16,11 +16,11 @@ TBD
 |[dgs](./dgs) | Java/Maven | Simple Netflix DGS example|
 |[dgs-webflux](./dgs-webflux) | Java/Maven| Simple Netflix DGS example with Spring WebFlux|
 |[dgs-subscription-ws](./dgs-subscription-ws) | Kotlin/Gradle | Simple Netflix DGS Subscription example using WebSocket protocol|
-|[dgs-subscription-ui](./dgs-subscription-ui) | TypeScript/AngularCLI | Angular Client UI connects to dgs-subscription-ws|
+|[dgs-subscription-ui](./dgs-subscription-ui) | TypeScript/Angular CLI | Angular Client UI connects to dgs-subscription-ws|
 |[dgs-subscription-sse](./dgs-subscription-sse) | Kotlin/Gradle | Simple Netflix DGS Subscription example using Http/SSE protocol|
-|[dgs-codegen](./dgs-codegen) | Java/Gradle | Netflix DGS example with Spring Jdbc and Gradle codegen pluin|
+|[dgs-codegen](./dgs-codegen) | Java/Gradle | Netflix DGS example with Spring Jdbc and Gradle codegen plugin|
 |[dgs-kotlin](./dgs-kotlin) | Kotlin/Gradle | Netflix DGS example written in Kotlin, Spring Data Jdbc, Spring Security and Spring Session/Spring Data Redis|
- 
+|[graphql-java](./graphql-java) | Java/Gradle | GraphQL Java Spring Boot example|
 
 ## Prerequisites
 
