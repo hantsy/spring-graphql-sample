@@ -21,6 +21,7 @@ TBD
 |[dgs-codegen](./dgs-codegen) | Java/Gradle | Netflix DGS example with Spring Jdbc and Gradle codegen plugin|
 |[dgs-kotlin](./dgs-kotlin) | Kotlin/Gradle | Netflix DGS example written in Kotlin, Spring Data Jdbc, Spring Security and Spring Session/Spring Data Redis|
 |[graphql-java](./graphql-java) | Java/Gradle | GraphQL Java Spring Boot example|
+|[graphql-java-annotations](./graphql-java-annotations) | Java/Gradle | GraphQL Java Spring Boot example(Code first)|
 
 ## Prerequisites
 
