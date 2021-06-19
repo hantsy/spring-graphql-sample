@@ -16,9 +16,7 @@ repositories {
 
 dependencies {
     implementation(platform("com.netflix.graphql.dgs:graphql-dgs-platform-dependencies:latest.release"))
-    implementation "com.netflix.graphql.dgs:graphql-dgs-spring-boot-starter", {
-        exclude group: 'org.yaml', module: 'snakeyaml'
-    }
+    implementation "com.netflix.graphql.dgs:graphql-dgs-client"
 
     //spring boot starter
     implementation 'org.springframework.boot:spring-boot-starter-web'
