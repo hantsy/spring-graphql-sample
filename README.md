@@ -19,8 +19,10 @@ TBD
 |[dgs-subscription-ui](./dgs-subscription-ui) | TypeScript/Angular CLI | Angular Client app for dgs-subscription-ws|
 |[dgs-subscription-sse](./dgs-subscription-sse) | Kotlin/Gradle | Simple Netflix DGS Subscription example using Http/SSE protocol|
 |[dgs-codegen](./dgs-codegen) | Java/Gradle | Netflix DGS example with Spring Jdbc and Gradle codegen plugin|
+|[dgs-client](./dgs-client) | Java/Gradle | Netflix DGS Typesafe Client example|
 |[dgs-kotlin](./dgs-kotlin) | Kotlin/Gradle | Netflix DGS example written in Kotlin, Spring Data Jdbc, Spring Security and Spring Session/Spring Data Redis|
 |[graphql-java](./graphql-java) | Java/Gradle | GraphQL Java Spring Boot example|
+|[graphql-java-webclient](./graphql-java-webclient) | Java/Gradle | GraphQL Java Spring WebClient example|
 |[graphql-java-annotations](./graphql-java-annotations) | Java/Gradle | GraphQL Java Spring Boot example(Code first)|
 |[spring-graphql](./spring-graphql) | Java/Gradle | Spring GraphQL example|
 
