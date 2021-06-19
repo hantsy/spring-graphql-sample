@@ -25,6 +25,15 @@ public class DemoApplicationTests {
                      id
                      title
                      content
+                     author{
+                        id
+                        name
+                        email
+                     }
+                     comments{
+                        id
+                        content
+                     }
                    }
                  }
                   """;
