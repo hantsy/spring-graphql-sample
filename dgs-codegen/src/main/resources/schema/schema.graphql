@@ -1,6 +1,11 @@
+directive @uppercase on FIELD_DEFINITION
+
+scalar LocalDateTime
+scalar UUID
+
 type Post{
     id: ID!
-    title: String!
+    title: String! @uppercase
     content: String
     comments: [Comment]
     status: PostStatus
@@ -8,7 +13,6 @@ type Post{
     authorId:String
     author:Author
 }
-
 
 type Author{
     id:ID!
@@ -47,5 +51,3 @@ enum PostStatus {
     DRAFT, PENDING_MODERATION, PUBLISHED
 }
 
-scalar LocalDateTime
-scalar UUID

@@ -1,11 +1,14 @@
 package com.example.demo.gql;
 
+import com.example.demo.gql.dataloaders.CommentsDataLoader;
+import com.example.demo.gql.directives.UppercaseDirectiveWiring;
 import com.example.demo.gql.types.Author;
 import com.example.demo.gql.types.Comment;
 import com.example.demo.gql.types.CreatePostInput;
 import com.example.demo.gql.types.Post;
 import com.example.demo.service.PostService;
 import com.netflix.graphql.dgs.*;
+import graphql.schema.idl.RuntimeWiring;
 import lombok.RequiredArgsConstructor;
 import org.dataloader.DataLoader;
 
@@ -17,6 +20,11 @@ import java.util.concurrent.CompletableFuture;
 @RequiredArgsConstructor
 public class PostsDataFetcher {
     private final PostService postService;
+
+    @DgsRuntimeWiring
+    RuntimeWiring.Builder customRuntimeWiring(RuntimeWiring.Builder builder) {
+        return builder.directive("uppercase", new UppercaseDirectiveWiring());
+    }
 
     @DgsQuery
     public List<Post> allPosts() {

@@ -1,4 +1,4 @@
-package com.example.demo.gql;
+package com.example.demo.gql.dataloaders;
 
 import com.example.demo.gql.types.Comment;
 import com.example.demo.service.PostService;
