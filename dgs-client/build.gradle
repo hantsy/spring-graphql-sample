@@ -1,0 +1,48 @@
+plugins {
+    id 'org.springframework.boot' version '2.5.1'
+    id 'io.spring.dependency-management' version '1.0.11.RELEASE'
+    id 'java'
+    id "com.netflix.dgs.codegen" version "4.6.6" //https://plugins.gradle.org/plugin/com.netflix.dgs.codegen
+}
+
+group = 'com.example'
+version = '0.0.1-SNAPSHOT'
+sourceCompatibility = '16'
+
+repositories {
+    mavenLocal()
+    mavenCentral()
+}
+
+dependencies {
+    implementation(platform("com.netflix.graphql.dgs:graphql-dgs-platform-dependencies:latest.release"))
+    implementation "com.netflix.graphql.dgs:graphql-dgs-spring-boot-starter", {
+        exclude group: 'org.yaml', module: 'snakeyaml'
+    }
+
+    //spring boot starter
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+
+    //configure Lombok for compile java/ compile tests
+    compileOnly 'org.projectlombok:lombok:1.18.20'
+    annotationProcessor 'org.projectlombok:lombok:1.18.20'
+    testCompileOnly 'org.projectlombok:lombok:1.18.20'
+    testAnnotationProcessor 'org.projectlombok:lombok:1.18.20'
+	
+	//test
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+}
+
+generateJava {
+    schemaPaths = ["${projectDir}/src/main/resources/schema"] // List of directories containing schema files
+    packageName = 'com.example.demo.gql' // The package name to use to generate sources
+    generateClient = true // Enable generating the type safe query API
+    //typeMapping = ["DateTime": "java.time.LocalDateTime"]
+    shortProjectionNames = false
+    maxProjectionDepth = 2
+    snakeCaseConstantNames = true
+}
+
+test {
+    useJUnitPlatform()
+}
