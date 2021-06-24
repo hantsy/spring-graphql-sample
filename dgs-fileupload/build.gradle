@@ -1,0 +1,40 @@
+plugins {
+    id 'org.springframework.boot' version '2.5.1'
+    id 'io.spring.dependency-management' version '1.0.11.RELEASE'
+    id 'java'
+}
+
+group = 'com.example'
+version = '0.0.1-SNAPSHOT'
+sourceCompatibility = '16'
+
+repositories {
+    mavenLocal()
+    mavenCentral()
+}
+
+dependencies {
+    implementation(platform("com.netflix.graphql.dgs:graphql-dgs-platform-dependencies:latest.release"))
+    implementation "com.netflix.graphql.dgs:graphql-dgs-spring-boot-starter", {
+        exclude group: 'org.yaml', module: 'snakeyaml'
+    }
+    implementation 'com.netflix.graphql.dgs:graphql-dgs-extended-scalars', {
+        exclude group: 'org.yaml', module: 'snakeyaml'
+    }// auto-configure graphql extended scalars
+    implementation 'org.yaml:snakeyaml:1.28'
+    implementation 'org.apache.commons:commons-lang3:3.11'
+
+    // spring web
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+
+    //configure Lombok for compile java/ compile tests
+    compileOnly 'org.projectlombok:lombok:1.18.20'
+    annotationProcessor 'org.projectlombok:lombok:1.18.20'
+    testCompileOnly 'org.projectlombok:lombok:1.18.20'
+    testAnnotationProcessor 'org.projectlombok:lombok:1.18.20'
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+}
+
+test {
+    useJUnitPlatform()
+}
