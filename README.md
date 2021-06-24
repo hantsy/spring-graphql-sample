@@ -36,7 +36,7 @@ Make sure you have installed the following software.
 * Apache Maven 3.8.x / Gradle 7.x
 * Docker
 
-Some sample codes are written in Kotlin. If you are new to Kotlin, you can start to learn Kotlin from the [the Kotlin homepage](https://kotlinlang.org/).
+Some sample codes are written in Kotlin. If you are new to Kotlin, start to learn it from the [the Kotlin homepage](https://kotlinlang.org/).
 
 ## Build 
 
