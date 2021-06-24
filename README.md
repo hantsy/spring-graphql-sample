@@ -4,6 +4,7 @@ Spring GraphQL examples using the following frameworks and libraries:
 
 * [Netflix DGS(Domain Graph Service) framework](https://netflix.github.io/dgs/) 
 * [Spring GraphQL](https://github.com/spring-projects/spring-graphql)
+* [GraphQL Java Kickstart](https://www.graphql-java-kickstart.com/)
 * [GraphQL Java](https://www.graphql-java.com/)
 
 ## Guide
@@ -21,18 +22,21 @@ TBD
 |[dgs-codegen](./dgs-codegen) | Java/Gradle | Netflix DGS example with Spring Jdbc and Gradle codegen plugin|
 |[dgs-client](./dgs-client) | Java/Gradle | Netflix DGS Typesafe Client example|
 |[dgs-kotlin](./dgs-kotlin) | Kotlin/Gradle | Netflix DGS example written in Kotlin, Spring Data Jdbc, Spring Security and Spring Session/Spring Data Redis|
-|[graphql-java](./graphql-java) | Java/Gradle | GraphQL Java Spring Boot example|
-|[graphql-java-webclient](./graphql-java-webclient) | Java/Gradle | GraphQL Java Spring WebClient example|
-|[graphql-java-annotations](./graphql-java-annotations) | Java/Gradle | GraphQL Java Spring Boot example(Code first)|
+|[graphql-java-vanilla](./graphql-java-vanilla) | Java/Gradle | GraphQL Java vanilla Spring Boot example|
+|[graphql-java](./graphql-java) | Java/Gradle | GraphQL Java Kickstart Spring Boot example|
+|[graphql-java-webclient](./graphql-java-webclient) | Java/Gradle | GraphQL Java Kickstart Spring WebClient example|
+|[graphql-java-annotations](./graphql-java-annotations) | Java/Gradle | GraphQL Java Kickstart Spring Boot example(Code first)|
 |[spring-graphql](./spring-graphql) | Java/Gradle | Spring GraphQL example|
 
 ## Prerequisites
 
 Make sure you have installed the following software.
 
-* Java 16 and Kotlin 1.4
-* Apache Maven 3.8.x and Gradle 7.x
+* Java 16 
+* Apache Maven 3.8.x / Gradle 7.x
 * Docker
+
+Some sample codes are written in Kotlin. If you are new to Kotlin, start to learn it from the [the Kotlin homepage](https://kotlinlang.org/).
 
 ## Build 
 
