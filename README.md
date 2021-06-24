@@ -32,9 +32,11 @@ TBD
 
 Make sure you have installed the following software.
 
-* Java 16 and Kotlin 1.4
-* Apache Maven 3.8.x and Gradle 7.x
+* Java 16 
+* Apache Maven 3.8.x / Gradle 7.x
 * Docker
+
+Some sample codes are written in Kotlin. If you are new to Kotlin, you can start to learn Kotlin from the [the Kotlin homepage](https://kotlinlang.org/).
 
 ## Build 
 
