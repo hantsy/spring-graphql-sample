@@ -9,6 +9,7 @@ import com.example.demo.gql.types.Post;
 import com.example.demo.service.PostService;
 import com.netflix.graphql.dgs.*;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.dataloader.DataLoader;
 
 import java.util.List;
@@ -17,6 +18,7 @@ import java.util.concurrent.CompletableFuture;
 
 @DgsComponent
 @RequiredArgsConstructor
+@Slf4j
 public class PostsDataFetcher {
     private final PostService postService;
 
@@ -83,4 +85,15 @@ public class PostsDataFetcher {
     public UUID createPost(@InputArgument("createPostInput") CreatePostInput input) {
         return this.postService.createPost(input);
     }
+
+//    @SneakyThrows
+//    @DgsMutation
+//    public Boolean upload(@InputArgument("file") MultipartFile file) {
+//        log.info("file name: {}", file.getName());
+//        log.info("file original file name: {}", file.getOriginalFilename());
+//        log.info("file content type: {}", file.getContentType());
+//        var fileContent = new String(file.getBytes());
+//        log.info("file content: {}", fileContent);
+//        return true;
+//    }
 }

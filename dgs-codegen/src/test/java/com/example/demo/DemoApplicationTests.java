@@ -7,8 +7,11 @@ import com.netflix.graphql.dgs.client.codegen.GraphQLQueryRequest;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.mock.web.MockPart;
 
 import java.util.List;
+import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -16,24 +19,24 @@ import static org.assertj.core.api.Assertions.assertThat;
 //@SpringBootTest(classes = {DgsAutoConfiguration.class, PostsDataFetcher.class})
 class DemoApplicationTests {
 
-	@Autowired
-	DgsQueryExecutor dgsQueryExecutor;
+    @Autowired
+    DgsQueryExecutor dgsQueryExecutor;
 
-	@Test
-	void allPosts() {
-		var queryRequest = new GraphQLQueryRequest(
-				AllPostsGraphQLQuery.newRequest().build(),
-				new AllPostsProjectionRoot().id()
-						.title()
-						.content()
-						.author().id().name().email().getParent()
-						.comments().content().getParent()
-		);
-		List<String> titles = dgsQueryExecutor.executeAndExtractJsonPath(
-				queryRequest.serialize(),
-				"data.allPosts[*].title");
+    @Test
+    void allPosts() {
+        var queryRequest = new GraphQLQueryRequest(
+                AllPostsGraphQLQuery.newRequest().build(),
+                new AllPostsProjectionRoot().id()
+                        .title()
+                        .content()
+                        .author().id().name().email().getParent()
+                        .comments().content().getParent()
+        );
+        List<String> titles = dgsQueryExecutor.executeAndExtractJsonPath(
+                queryRequest.serialize(),
+                "data.allPosts[*].title");
 
-		assertThat(titles).anyMatch(s -> s.startsWith("Dgs post"));
-	}
+        assertThat(titles).anyMatch(s -> s.startsWith("Dgs post"));
+    }
 
 }
