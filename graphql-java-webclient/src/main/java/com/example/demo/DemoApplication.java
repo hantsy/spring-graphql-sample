@@ -11,6 +11,14 @@ import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.WebApplicationType;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.core.io.FileSystemResourceLoader;
+import org.springframework.http.codec.multipart.Part;
+
+import java.io.File;
+import java.nio.file.FileSystem;
+import java.util.Map;
 
 @SpringBootApplication
 @Slf4j
@@ -51,5 +59,16 @@ public class DemoApplication implements ApplicationRunner {
         GraphQLResponse response = graphQLWebClient.post(request).block();
         var data = response.getList("allPosts", Post.class);
         log.info("fetched all posts from client: {}", data);
+
+// how to handle file upload?
+//        var query = "fileupload.gql";
+//        var file = new FileSystemResource(new ClassPathResource("/test.txt").getFile());
+//       // log.info("file: {}", file);
+//        var result = graphQLWebClient.post(
+//                query,
+//                Map.of("file", file),
+//                Boolean.class)
+//                .block();
+//        log.info("file upload result: {}", result);
     }
 }

@@ -1,5 +1,6 @@
 package com.example.demo.gql.scalars;
 
+import graphql.kickstart.servlet.apollo.ApolloScalars;
 import graphql.schema.GraphQLScalarType;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -23,5 +24,10 @@ public class ScalarConfig {
                 .description("LocalDateTime type")
                 .coercing(new LocalDateTimeScalar())
                 .build();
+    }
+
+    @Bean
+    GraphQLScalarType uploadScalarType() {
+        return ApolloScalars.Upload;
     }
 }
