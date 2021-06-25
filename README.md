@@ -20,6 +20,7 @@ TBD
 |[dgs-subscription-ui](./dgs-subscription-ui) | TypeScript/Angular CLI | Angular Client app for dgs-subscription-ws|
 |[dgs-subscription-sse](./dgs-subscription-sse) | Kotlin/Gradle | Simple Netflix DGS Subscription example using Http/SSE protocol|
 |[dgs-codegen](./dgs-codegen) | Java/Gradle | Netflix DGS example with Spring Jdbc and Gradle codegen plugin|
+|[dgs-fileupload](./dgs-fileupload) | Java/Gradle | Netflix DGS file upload example|
 |[dgs-client](./dgs-client) | Java/Gradle | Netflix DGS Typesafe Client example|
 |[dgs-kotlin](./dgs-kotlin) | Kotlin/Gradle | Netflix DGS example written in Kotlin, Spring Data Jdbc, Spring Security and Spring Session/Spring Data Redis|
 |[graphql-java-vanilla](./graphql-java-vanilla) | Java/Gradle | GraphQL Java vanilla Spring Boot example|
