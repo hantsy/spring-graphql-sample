@@ -25,7 +25,6 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-data-jdbc'
     implementation 'org.postgresql:postgresql'
-    //implementation 'org.yaml:snakeyaml:1.28'
     implementation 'org.apache.commons:commons-lang3:3.11'
 
     //configure Lombok for compile java/ compile tests
@@ -38,6 +37,7 @@ dependencies {
     testImplementation 'org.springframework.graphql:spring-graphql-test:1.0.0-SNAPSHOT'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.springframework:spring-webflux'
+    testImplementation 'io.projectreactor:reactor-test'
 }
 
 test {

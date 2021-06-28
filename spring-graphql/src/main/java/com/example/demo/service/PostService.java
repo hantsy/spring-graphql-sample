@@ -1,9 +1,6 @@
 package com.example.demo.service;
 
-import com.example.demo.gql.types.Comment;
-import com.example.demo.gql.types.CreatePostInput;
-import com.example.demo.gql.types.Post;
-import com.example.demo.gql.types.PostStatus;
+import com.example.demo.gql.types.*;
 import com.example.demo.model.CommentEntity;
 import com.example.demo.model.PostEntity;
 import com.example.demo.repository.AuthorRepository;
@@ -86,4 +83,14 @@ public class PostService {
                 .map(COMMENT_MAPPER)
                 .toList();
     }
+
+    public UUID addComment(CommentInput input) {
+        return this.comments.create(input.getContent(), UUID.fromString(input.getPostId()));
+    }
+
+    public Comment getCommentById(String id) {
+        var commentById = this.comments.findById(UUID.fromString(id));
+        return COMMENT_MAPPER.apply(commentById);
+    }
+
 }

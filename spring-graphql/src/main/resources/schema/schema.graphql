@@ -2,6 +2,7 @@ directive @uppercase on FIELD_DEFINITION
 
 scalar LocalDateTime
 scalar UUID
+#scalar Upload
 
 type Post{
     id: ID!
@@ -45,8 +46,13 @@ type Query {
 
 type Mutation {
     createPost(createPostInput: CreatePostInput!): UUID!
+   # upload(file: Upload!): Boolean!
+    addComment(commentInput: CommentInput!): UUID!
 }
 
+type Subscription {
+    commentAdded: Comment!
+}
 enum PostStatus {
     DRAFT, PENDING_MODERATION, PUBLISHED
 }
