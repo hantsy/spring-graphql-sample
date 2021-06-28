@@ -1,31 +1,33 @@
-package com.example.demo.gql.resolvers;
+package com.example.demo.gql;
 
-import com.example.demo.gql.types.Comment;
-import com.example.demo.gql.types.CommentInput;
-import com.example.demo.gql.types.CreatePostInput;
-import com.example.demo.gql.types.Post;
+import com.example.demo.gql.types.*;
 import com.example.demo.service.PostService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import graphql.schema.DataFetcher;
 import graphql.schema.DataFetchingEnvironment;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.dataloader.DataLoader;
 import org.reactivestreams.Publisher;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StreamUtils;
+import org.springframework.web.multipart.MultipartFile;
 import reactor.core.publisher.Sinks;
 
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.CompletionStage;
 
 @RequiredArgsConstructor
 @Slf4j
 @Component
-public class PostsDataFetchers {
+public class DataFetchers {
     final PostService postService;
     final ObjectMapper objectMapper;
 
     public DataFetcher<Post> postById() {
-        return dfe -> {
+        return (DataFetchingEnvironment dfe) -> {
             String postId = dfe.getArgument("postId");
             return postService.getPostById(postId);
         };
@@ -36,19 +38,27 @@ public class PostsDataFetchers {
     }
 
     public DataFetcher<UUID> createPost() {
-        return dfe -> {
+        return (DataFetchingEnvironment dfe) -> {
             var input = dfe.getArgument("createPostInput");
             var createPostInput = objectMapper.convertValue(input, CreatePostInput.class);
             return postService.createPost(createPostInput);
         };
     }
 
-    public AuthorDataFetcher authorOfPost() {
-        return new AuthorDataFetcher();
+    public DataFetcher<CompletionStage<Author>> authorOfPost() {
+        return (DataFetchingEnvironment dfe) -> {
+            DataLoader<String, Author> dataLoader = dfe.getDataLoader("authorsLoader");
+            Post post = dfe.getSource();
+            return dataLoader.load(post.getAuthorId());
+        };
     }
 
-    public CommentsDataFetcher commentsOfPost() {
-        return new CommentsDataFetcher();
+    public DataFetcher<CompletionStage<List<Comment>>> commentsOfPost() {
+        return (DataFetchingEnvironment dfe) -> {
+            DataLoader<String, List<Comment>> dataLoader = dfe.getDataLoader("commentsLoader");
+            Post post = dfe.getSource();
+            return dataLoader.load(post.getId());
+        };
     }
 
     public DataFetcher<UUID> addComment() {
@@ -70,6 +80,19 @@ public class PostsDataFetchers {
         return (DataFetchingEnvironment dfe) -> {
             log.info("connect to `commentAdded`");
             return sink.asFlux();
+        };
+    }
+
+    public DataFetcher<Boolean> upload() {
+        return (DataFetchingEnvironment dfe) -> {
+            MultipartFile file = dfe.getArgument("file");
+            log.info("file name: {}", file.getName());
+            log.info("content type: {}", file.getContentType());
+            log.info("original file name: {}", file.getOriginalFilename());
+            log.info("file content size: {}", file.getSize());
+            String content = StreamUtils.copyToString(file.getInputStream(), StandardCharsets.UTF_8);
+            log.info("file content : {}", content);
+            return true;
         };
     }
 }

@@ -1,7 +1,6 @@
 package com.example.demo;
 
 import com.example.demo.gql.types.Comment;
-import com.example.demo.gql.types.CreatePostInput;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -16,7 +15,6 @@ import reactor.test.StepVerifier;
 
 import java.time.LocalDateTime;
 import java.util.Map;
-import java.util.function.Consumer;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -94,10 +92,10 @@ public class DemoApplicationTests {
                 .executeSubscription()
                 .toFlux("commentAdded", Comment.class);
 
-       var verify= StepVerifier.create(result)
-                .consumeNextWith( c -> assertThat(c.getContent()).startsWith("comment of my post at "))
-                .consumeNextWith( c -> assertThat(c.getContent()).startsWith("comment of my post at "))
-                .consumeNextWith( c -> assertThat(c.getContent()).startsWith("comment of my post at "))
+        var verify = StepVerifier.create(result)
+                .consumeNextWith(c -> assertThat(c.getContent()).startsWith("comment of my post at "))
+                .consumeNextWith(c -> assertThat(c.getContent()).startsWith("comment of my post at "))
+                .consumeNextWith(c -> assertThat(c.getContent()).startsWith("comment of my post at "))
                 .expectComplete().verifyLater();
 
         addCommentToPost(id);
@@ -117,7 +115,7 @@ public class DemoApplicationTests {
                 .variable("commentInput",
                         Map.of(
                                 "postId", id,
-                                "content", "comment of my post at "+ LocalDateTime.now()
+                                "content", "comment of my post at " + LocalDateTime.now()
                         ))
                 .execute()
                 .path("addComment")

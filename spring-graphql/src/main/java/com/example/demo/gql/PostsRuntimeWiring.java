@@ -1,7 +1,6 @@
 package com.example.demo.gql;
 
 import com.example.demo.gql.directives.UpperCaseDirectiveWiring;
-import com.example.demo.gql.resolvers.PostsDataFetchers;
 import com.example.demo.gql.scalars.Scalars;
 import graphql.schema.GraphQLCodeRegistry;
 import graphql.schema.idl.RuntimeWiring;
@@ -14,7 +13,7 @@ import java.util.Map;
 @Component
 @RequiredArgsConstructor
 public class PostsRuntimeWiring implements RuntimeWiringCustomizer {
-    final PostsDataFetchers dataFetchers;
+    final DataFetchers dataFetchers;
 
     @Override
     public void customize(RuntimeWiring.Builder builder) {
