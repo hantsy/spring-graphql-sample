@@ -16,9 +16,9 @@ type Post{
 }
 
 type Author{
-    id:ID!
-    name:String!
-    email:String!
+    id: ID!
+    name: String!
+    email: String!
     createdAt: LocalDateTime
     posts: [Post]
 }
@@ -46,7 +46,12 @@ type Query {
 
 type Mutation {
     createPost(createPostInput: CreatePostInput!): UUID!
-    upload(file: Upload!):Boolean
+    upload(file: Upload!): Boolean
+    addComment(commentInput: CommentInput!): UUID!
+}
+
+type Subscription {
+    commentAdded: Comment!
 }
 
 enum PostStatus {
