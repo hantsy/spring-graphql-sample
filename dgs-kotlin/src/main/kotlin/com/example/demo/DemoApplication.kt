@@ -6,14 +6,19 @@ import org.springframework.boot.runApplication
 import org.springframework.context.support.beans
 import org.springframework.data.domain.AuditorAware
 import org.springframework.data.jdbc.repository.config.EnableJdbcAuditing
+import org.springframework.data.mongodb.core.query.Criteria.*
+import org.springframework.data.mongodb.core.query.Query.*
+import org.springframework.data.mongodb.core.query.isEqualTo
+import org.springframework.data.mongodb.gridfs.GridFsTemplate
+import org.springframework.http.MediaType
 import org.springframework.security.authentication.*
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
+import org.springframework.security.config.web.servlet.invoke
+import org.springframework.security.core.GrantedAuthority
 import org.springframework.security.core.authority.AuthorityUtils
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.security.core.userdetails.User
-import org.springframework.security.config.web.servlet.invoke
-import org.springframework.security.core.GrantedAuthority
 import org.springframework.security.core.userdetails.UserDetailsService
 import org.springframework.security.core.userdetails.UsernameNotFoundException
 import org.springframework.security.crypto.factory.PasswordEncoderFactories
@@ -22,9 +27,9 @@ import org.springframework.session.web.http.HeaderHttpSessionIdResolver
 import org.springframework.web.cors.CorsConfiguration
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource
 import org.springframework.web.filter.CorsFilter
+import org.springframework.web.servlet.function.ServerResponse
+import org.springframework.web.servlet.function.router
 import java.util.*
-import java.util.stream.IntStream
-import kotlin.reflect.cast
 
 @SpringBootApplication
 @EnableJdbcAuditing
@@ -38,6 +43,27 @@ fun main(args: Array<String>) {
 }
 
 val beans = beans {
+    bean {
+        router {
+            GET("/users/:id/profile/coverImage") { request ->
+                val gridFsTemplate = ref<GridFsTemplate>()
+                val profiles = ref<ProfileRepository>()
+                var userId = request.pathVariable("id")
+
+                var profile = profiles.findByUserId(UUID.fromString(userId))
+                if (profile != null) {
+                    val gridFile = gridFsTemplate.findOne(query(where("_id").isEqualTo(profile.coverImgId)))
+                    var gridResource = gridFsTemplate.getResource(gridFile)
+
+                    ServerResponse.ok().contentType(MediaType.APPLICATION_OCTET_STREAM)
+                        .body(gridResource.content)
+
+                }
+                ServerResponse.notFound().build()
+            }
+        }
+    }
+
     bean {
         ApplicationRunner {
             println("start data initialization...")

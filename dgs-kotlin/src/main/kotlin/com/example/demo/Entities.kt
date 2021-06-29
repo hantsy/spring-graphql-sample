@@ -26,6 +26,27 @@ data class AuthorEntity(
     var createdAt: LocalDateTime? = null,
 )
 
+@Table(value = "profiles")
+data class ProfileEntity(
+    @Id
+    @Column("id")
+    var id: UUID? = null,
+
+    @Column("cover_img_id")
+    var coverImgId: String,
+
+    @Column("bio")
+    var bio: String? = null,
+
+    @CreatedBy
+    @Column("user_id")
+    var userId: UUID? = null,
+
+    @Column("created_at")
+    @CreatedDate
+    var createdAt: LocalDateTime? = null,
+)
+
 @Table(value = "comments")
 data class CommentEntity(
     @Id

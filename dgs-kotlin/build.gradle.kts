@@ -23,6 +23,9 @@ dependencies {
     implementation("com.netflix.graphql.dgs:graphql-dgs-spring-boot-starter") {
         exclude("org.yaml", "snakeyaml")
     }
+    implementation("com.netflix.graphql.dgs:graphql-dgs-subscriptions-websockets-autoconfigure") {
+        exclude("org.yaml", "snakeyaml")
+    }
     implementation("com.netflix.graphql.dgs:graphql-dgs-extended-scalars") {
         exclude("org.yaml", "snakeyaml")
     }
@@ -32,6 +35,7 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-data-jdbc")
     implementation("org.springframework.boot:spring-boot-starter-security")
     implementation("org.springframework.boot:spring-boot-starter-data-redis")
+    implementation("org.springframework.boot:spring-boot-starter-data-mongodb")
     implementation("org.springframework.session:spring-session-data-redis")
     //kotlin
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
@@ -39,6 +43,7 @@ dependencies {
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
     //test
     testImplementation("org.springframework.boot:spring-boot-starter-test")
+    testImplementation("io.projectreactor:reactor-test")
 }
 
 tasks.withType<GenerateJavaTask> {

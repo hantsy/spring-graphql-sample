@@ -3,6 +3,7 @@ package com.example.demo
 import com.example.demo.gql.types.Author
 import com.example.demo.gql.types.Comment
 import com.example.demo.gql.types.Post
+import com.example.demo.gql.types.Profile
 
 fun PostEntity.asGqlType(): Post = Post(
     id = this.id!!.toString(),
@@ -25,4 +26,9 @@ fun AuthorEntity.asGqlType(): Author = Author(
     name = this.name,
     email = this.email,
     createdAt = this.createdAt
+)
+
+fun ProfileEntity.asGqlType(): Profile = Profile(
+    bio = this.bio,
+    coverImageUrl = "http://localhost:8080/users/${this.userId}/profile/coverImage-${this.coverImgId}"
 )

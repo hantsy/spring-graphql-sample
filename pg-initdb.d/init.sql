@@ -29,6 +29,15 @@ CREATE TABLE IF NOT EXISTS users (
     PRIMARY KEY (id)
 );
 
+CREATE TABLE IF NOT EXISTS profiles (
+    id UUID DEFAULT uuid_generate_v4(),
+    cover_img_id VARCHAR(255) NOT NULL,
+	user_id UUID REFERENCES users,
+    created_at TIMESTAMP ,
+    version INTEGER,
+    PRIMARY KEY (id)
+);
+
 CREATE TABLE IF NOT EXISTS posts (
     -- id SERIAL PRIMARY KEY,
     id UUID DEFAULT uuid_generate_v4(),
@@ -36,7 +45,7 @@ CREATE TABLE IF NOT EXISTS posts (
     content VARCHAR(255),
     status VARCHAR(255) DEFAULT 'DRAFT', 
 	author_id UUID REFERENCES users ,
-    created_at TIMESTAMP, --NOT NULL DEFAULT LOCALTIMESTAMP,
+    created_at TIMESTAMP NOT NULL DEFAULT LOCALTIMESTAMP,
     updated_at TIMESTAMP,
     version INTEGER,
     PRIMARY KEY (id)

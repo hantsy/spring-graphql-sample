@@ -10,6 +10,7 @@ import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository
+import org.springframework.web.multipart.MultipartFile
 import java.util.concurrent.CompletableFuture
 import javax.servlet.http.HttpSession
 
@@ -26,6 +27,17 @@ class AuthorsDataFetcher(
     fun posts(dfe: DgsDataFetchingEnvironment): List<Post> {
         val a: Author = dfe.getSource()
         return postService.getPostsByAuthorId(a.id)
+    }
+
+    @DgsMutation
+    @PreAuthorize("isAuthenticated()")
+    fun updateProfile(@InputArgument("bio") bio: String, @InputArgument("coverImage") file: MultipartFile) =
+        authorService.updateProfile(bio, file)
+
+    @DgsData(parentType = DgsConstants.AUTHOR.TYPE_NAME, field = DgsConstants.AUTHOR.Profile)
+    fun profile(dfe: DgsDataFetchingEnvironment): Profile? {
+        val a: Author = dfe.getSource()
+        return authorService.getProfileByUserId(a.id)
     }
 }
 
@@ -103,4 +115,12 @@ class PostsDataFetcher(val postService: PostService) {
     @DgsMutation
     @Secured("ROLE_USER")
     fun createPost(@InputArgument("createPostInput") input: CreatePostInput) = postService.createPost(input)
+
+    @DgsMutation
+    @PreAuthorize("isAuthenticated()")
+    fun addComment(@InputArgument("commentInput") input: CommentInput) = postService.addComment(input)
+
+    @DgsSubscription
+    @PreAuthorize("isAuthenticated()")
+    fun commentAdded() = postService.commentAdded()
 }

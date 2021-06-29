@@ -13,7 +13,7 @@ class ExceptionHandlers : DataFetcherExceptionHandler {
 
     override fun onException(handlerParameters: DataFetcherExceptionHandlerParameters): DataFetcherExceptionHandlerResult =
         when (val exception = handlerParameters.exception) {
-            is PostNotFoundException -> {
+            is PostNotFoundException, is AuthorNotFoundException -> {
                 val graphqlError = TypedGraphQLError.newNotFoundBuilder()
                     .message(exception.message)
                     .path(handlerParameters.path)

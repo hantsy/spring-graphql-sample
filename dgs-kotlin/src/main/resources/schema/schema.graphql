@@ -14,6 +14,11 @@ type Author{
     email:String!
     createdAt: LocalDateTime
     posts: [Post!]
+    profile: Profile
+}
+type Profile {
+    bio: String,
+    coverImageUrl: String!
 }
 type Comment{
     id: ID!
@@ -53,6 +58,7 @@ input Credentials {
 
 type Mutation {
     createPost(createPostInput: CreatePostInput!): Post!
+    updateProfile(bio:String, coverIamge: Upload!): Profile! @skipcodegen
     addComment(commentInput: CommentInput!): Comment!
 }
 
@@ -61,3 +67,5 @@ type Subscription {
 }
 
 scalar LocalDateTime
+scalar Upload
+directive @skipcodegen on FIELD_DEFINITION

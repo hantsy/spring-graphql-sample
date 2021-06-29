@@ -7,6 +7,10 @@ interface AuthorRepository : CrudRepository<AuthorEntity, UUID> {
     fun findByNameOrEmail(name: String, email: String): AuthorEntity?
 }
 
+interface ProfileRepository : CrudRepository<ProfileEntity, UUID> {
+    fun findByUserId(id: UUID): ProfileEntity?
+}
+
 interface CommentRepository : CrudRepository<CommentEntity, UUID> {
     fun findByPostId(id: UUID): List<CommentEntity>
     fun findByPostIdIn(uuids: List<UUID>): List<CommentEntity>
