@@ -2,5 +2,15 @@ scalar Upload
 
 type Mutation {
     upload(file: Upload!): Boolean
+    uploadWithDesc(desc: String, file: Upload!): Boolean
+    uploads(files: [Upload!]!): Boolean
+
+    # the following def does not work.
+    fileUpload(file: FileUploadInput!): Boolean
+    fileUploads(files: [FileUploadInput!]!): Boolean
 }
 
+input FileUploadInput{
+    description: String
+    file: Upload!
+}
