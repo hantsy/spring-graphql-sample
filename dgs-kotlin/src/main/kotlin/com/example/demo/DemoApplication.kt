@@ -48,14 +48,16 @@ val beans = beans {
             GET("/users/:id/profile/coverImage") { request ->
                 val gridFsTemplate = ref<GridFsTemplate>()
                 val profiles = ref<ProfileRepository>()
-                var userId = request.pathVariable("id")
+                val userId = request.pathVariable("id")
 
-                var profile = profiles.findByUserId(UUID.fromString(userId))
+                val profile = profiles.findByUserId(UUID.fromString(userId))
                 if (profile != null) {
                     val gridFile = gridFsTemplate.findOne(query(where("_id").isEqualTo(profile.coverImgId)))
-                    var gridResource = gridFsTemplate.getResource(gridFile)
+                    val gridResource = gridFsTemplate.getResource(gridFile)
 
-                    ServerResponse.ok().contentType(MediaType.APPLICATION_OCTET_STREAM)
+                    ServerResponse.ok()
+                        .contentType(MediaType.parseMediaType(gridResource.contentType))
+                        .contentLength(gridResource.contentLength())
                         .body(gridResource.content)
 
                 }

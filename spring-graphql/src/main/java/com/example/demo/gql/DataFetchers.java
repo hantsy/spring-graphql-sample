@@ -12,7 +12,6 @@ import org.reactivestreams.Publisher;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StreamUtils;
 import org.springframework.web.multipart.MultipartFile;
-import reactor.core.publisher.Sinks;
 
 import java.nio.charset.StandardCharsets;
 import java.util.List;
@@ -65,21 +64,14 @@ public class DataFetchers {
         return (DataFetchingEnvironment dfe) -> {
             var commentInputArg = dfe.getArgument("commentInput");
             var input = objectMapper.convertValue(commentInputArg, CommentInput.class);
-            UUID id = this.postService.addComment(input);
-
-            Comment commentById = this.postService.getCommentById(id.toString());
-            sink.emitNext(commentById, Sinks.EmitFailureHandler.FAIL_FAST);
-
-            return id;
+            return this.postService.addComment(input);
         };
     }
-
-    private Sinks.Many<Comment> sink = Sinks.many().replay().latest();
 
     public DataFetcher<Publisher<Comment>> commentAdded() {
         return (DataFetchingEnvironment dfe) -> {
             log.info("connect to `commentAdded`");
-            return sink.asFlux();
+            return this.postService.commentAdded();
         };
     }
 

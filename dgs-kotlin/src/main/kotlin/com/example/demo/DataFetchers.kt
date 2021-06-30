@@ -66,7 +66,7 @@ class AuthDataFetcher(
         return mapOf(
             "name" to auth.principal.toString(),
             "roles" to auth.authorities.map { it.authority },
-            "token" to session?.id
+            "token" to session.id
         )
     }
 
@@ -75,15 +75,8 @@ class AuthDataFetcher(
     fun logout(dfe: DgsDataFetchingEnvironment): Boolean {
         val req = dfe.getDgsContext().requestData as DgsWebMvcRequestData
         val session = req.webRequest?.sessionMutex as HttpSession?
-        return when {
-            session != null -> {
-                session.invalidate()
-                true
-            }
-            else -> {
-                false;
-            }
-        }
+        session?.invalidate()
+        return true
     }
 }
 

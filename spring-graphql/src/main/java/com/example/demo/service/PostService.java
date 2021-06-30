@@ -8,12 +8,15 @@ import com.example.demo.repository.CommentRepository;
 import com.example.demo.repository.PostRepository;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.Validate;
+import org.reactivestreams.Publisher;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Sinks;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.Flow;
 import java.util.function.Function;
 
 @Service
@@ -85,7 +88,18 @@ public class PostService {
     }
 
     public UUID addComment(CommentInput input) {
-        return this.comments.create(input.getContent(), UUID.fromString(input.getPostId()));
+        UUID id = this.comments.create(input.getContent(), UUID.fromString(input.getPostId()));
+        Comment commentById = this.getCommentById(id.toString());
+        sink.emitNext(commentById, Sinks.EmitFailureHandler.FAIL_FAST);
+        return id;
+    }
+
+    // sink of `commentAdded` event
+    private Sinks.Many<Comment> sink = Sinks.many().replay().latest();
+
+    // subscription for `commentAdded`
+    public Publisher<Comment> commentAdded() {
+        return sink.asFlux();
     }
 
     public Comment getCommentById(String id) {

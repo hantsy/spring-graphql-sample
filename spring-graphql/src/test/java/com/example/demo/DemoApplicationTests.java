@@ -19,7 +19,7 @@ import java.util.Map;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
-@AutoConfigureMockMvc
+//@AutoConfigureMockMvc  // to make subscription work.
 @AutoConfigureGraphQlTester
 @Slf4j
 public class DemoApplicationTests {
@@ -96,7 +96,7 @@ public class DemoApplicationTests {
                 .consumeNextWith(c -> assertThat(c.getContent()).startsWith("comment of my post at "))
                 .consumeNextWith(c -> assertThat(c.getContent()).startsWith("comment of my post at "))
                 .consumeNextWith(c -> assertThat(c.getContent()).startsWith("comment of my post at "))
-                .expectComplete().verifyLater();
+                .thenCancel().verifyLater();
 
         addCommentToPost(id);
         addCommentToPost(id);
