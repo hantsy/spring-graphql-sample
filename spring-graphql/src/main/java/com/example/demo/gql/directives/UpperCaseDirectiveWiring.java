@@ -9,10 +9,9 @@ public class UpperCaseDirectiveWiring implements SchemaDirectiveWiring {
     public GraphQLFieldDefinition onField(SchemaDirectiveWiringEnvironment<GraphQLFieldDefinition> env) {
 
         var field = env.getElement();
-        var parentType = env.getFieldsContainer();
-
-        var originalDataFetcher = env.getCodeRegistry().getDataFetcher(parentType, field);
-        var dataFetcher = DataFetcherFactories.wrapDataFetcher(originalDataFetcher,
+        //var parentType = env.getFieldsContainer();
+        //var originalDataFetcher = env.getCodeRegistry().getDataFetcher(parentType, field);
+        var dataFetcher = DataFetcherFactories.wrapDataFetcher(env.getFieldDataFetcher(),
                 (dataFetchingEnvironment, value) -> {
                     if (value instanceof String s) {
                         return s.toUpperCase();
@@ -21,7 +20,8 @@ public class UpperCaseDirectiveWiring implements SchemaDirectiveWiring {
                 }
         );
 
-        env.getCodeRegistry().dataFetcher(parentType, field, dataFetcher);
+        //env.getCodeRegistry().dataFetcher(FieldCoordinates.coordinates(parentType, field), dataFetcher);
+        env.setFieldDataFetcher(dataFetcher);
         return field;
     }
 }
