@@ -10,8 +10,8 @@
   },
   "private": true,
   "dependencies": {
-    "@angular/cdk": "^12.1.0",
-    "@angular/material": "^12.1.0",
+    "@angular/cdk": "^12.1.1",
+    "@angular/material": "^12.1.1",
     "@angular/animations": "~12.1.1",
     "@angular/common": "~12.1.1",
     "@angular/compiler": "~12.1.1",
