@@ -1,0 +1,262 @@
+# This workflow will build a Java project with Gradle
+# For more information see: https://help.github.com/actions/language-and-framework-guides/building-and-testing-java-with-gradle
+
+name: build
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  dgs-client:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up JDK 16
+      uses: actions/setup-java@v2
+      with:
+        java-version: '16'
+        distribution: 'adopt'
+    - name: Build with Gradle
+      run: |
+        cd dgs-client
+        chmod +x gradlew
+        ./gradlew build
+
+  dgs-codegen:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up JDK 16
+      uses: actions/setup-java@v2
+      with:
+        java-version: '16'
+        distribution: 'adopt'
+    - name: Setup Postgres in Docker 
+      run: |
+        docker-compose up postgres
+        docker ps -a
+    - name: Build with Gradle
+      run: |
+        cd dgs-codegen
+        chmod +x gradlew
+        ./gradlew build
+
+  dgs:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up JDK 16
+      uses: actions/setup-java@v2
+      with:
+        java-version: '16'
+        distribution: 'adopt'
+    - name: Setup Postgres in Docker 
+      run: |
+        docker-compose up postgres
+        docker ps -a
+    - name: Build with Gradle
+      run: |
+        cd dgs
+        chmod +x gradlew
+        ./gradlew build
+
+  dgs-fileupload:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up JDK 16
+      uses: actions/setup-java@v2
+      with:
+        java-version: '16'
+        distribution: 'adopt'
+    - name: Build with Gradle
+      run: |
+        cd dgs-fileupload
+        chmod +x gradlew
+        ./gradlew build      
+  dgs-subscription-sse:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up JDK 16
+      uses: actions/setup-java@v2
+      with:
+        java-version: '16'
+        distribution: 'adopt'
+    - name: Build with Gradle
+      run: |
+        cd dgs-subscription-sse
+        chmod +x gradlew
+        ./gradlew build 
+  dgs-subscription-ws:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up JDK 16
+      uses: actions/setup-java@v2
+      with:
+        java-version: '16'
+        distribution: 'adopt'
+    - name: Build with Gradle
+      run: |
+        cd  dgs-subscription-ws
+        chmod +x gradlew
+        ./gradlew build       
+  dgs-kotlin:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up JDK 16
+      uses: actions/setup-java@v2
+      with:
+        java-version: '16'
+        distribution: 'adopt'
+    - name: Setup Postgres in Docker 
+      run: |
+        docker-compose up
+        docker ps -a
+    - name: Build with Gradle
+      run: |
+        cd dgs-kotlin
+        chmod +x gradlew
+        ./gradlew build      
+
+  dgs-webflux:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up JDK 16
+      uses: actions/setup-java@v2
+      with:
+        java-version: '16'
+        distribution: 'adopt'
+    - name: Setup Postgres in Docker 
+      run: |
+        docker-compose up postgres
+        docker ps -a
+    - name: Build with Maven
+      run: |
+        mvn -B -q clean verify -f dgs-webflux/pom.xml
+        
+
+  graphql-java-annotations:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up JDK 16
+      uses: actions/setup-java@v2
+      with:
+        java-version: '16'
+        distribution: 'adopt'
+    - name: Setup Postgres in Docker 
+      run: |
+        docker-compose up postgres
+        docker ps -a
+    - name: Build with Gradle
+      run: |
+        cd graphql-java-annotations
+        chmod +x gradlew
+        ./gradlew build
+
+  graphql-java-vanilla:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up JDK 16
+      uses: actions/setup-java@v2
+      with:
+        java-version: '16'
+        distribution: 'adopt'
+    - name: Setup Postgres in Docker 
+      run: |
+        docker-compose up postgres
+        docker ps -a
+    - name: Build with Gradle
+      run: |
+        cd graphql-java-vanilla
+        chmod +x gradlew
+        ./gradlew build
+
+
+  graphql-java-webclient:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up JDK 16
+      uses: actions/setup-java@v2
+      with:
+        java-version: '16'
+        distribution: 'adopt'
+    - name: Setup Postgres in Docker 
+      run: |
+        docker-compose up postgres
+        docker ps -a
+    - name: Build with Gradle
+      run: |
+        cd graphql-java-webclient
+        chmod +x gradlew
+        ./gradlew build
+
+
+  graphql-java:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up JDK 16
+      uses: actions/setup-java@v2
+      with:
+        java-version: '16'
+        distribution: 'adopt'
+    - name: Setup Postgres in Docker 
+      run: |
+        docker-compose up postgres
+        docker ps -a
+    - name: Build with Gradle
+      run: |
+        cd graphql-java
+        chmod +x gradlew
+        ./gradlew build
+
+
+  spring-graphql:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up JDK 16
+      uses: actions/setup-java@v2
+      with:
+        java-version: '16'
+        distribution: 'adopt'
+    - name: Setup Postgres in Docker 
+      run: |
+        docker-compose up postgres
+        docker ps -a
+    - name: Build with Gradle
+      run: |
+        cd spring-graphql
+        chmod +x gradlew
+        ./gradlew build
+
+                        
+           
