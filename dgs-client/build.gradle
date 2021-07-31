@@ -2,7 +2,7 @@ plugins {
     id 'org.springframework.boot' version '2.5.3'
     id 'io.spring.dependency-management' version '1.0.11.RELEASE'
     id 'java'
-    id "com.netflix.dgs.codegen" version "4.6.6" //https://plugins.gradle.org/plugin/com.netflix.dgs.codegen
+    id "com.netflix.dgs.codegen" version "5.0.5" //https://plugins.gradle.org/plugin/com.netflix.dgs.codegen
 }
 
 group = 'com.example'
@@ -26,8 +26,8 @@ dependencies {
     annotationProcessor 'org.projectlombok:lombok:1.18.20'
     testCompileOnly 'org.projectlombok:lombok:1.18.20'
     testAnnotationProcessor 'org.projectlombok:lombok:1.18.20'
-	
-	//test
+    
+    //test
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
 }
 
