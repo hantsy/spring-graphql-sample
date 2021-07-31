@@ -40,7 +40,7 @@ jobs:
         distribution: 'adopt'
     - name: Setup Postgres in Docker 
       run: |
-        docker-compose up postgres
+        docker-compose up -d postgres
         docker ps -a
     - name: Build with Gradle
       run: |
@@ -61,7 +61,7 @@ jobs:
         distribution: 'adopt'
     - name: Setup Postgres in Docker 
       run: |
-        docker-compose up postgres
+        docker-compose up -d postgres
         docker ps -a
     - name: Build with Gradle
       run: |
@@ -122,7 +122,7 @@ jobs:
         distribution: 'adopt'
     - name: Setup Postgres in Docker 
       run: |
-        docker-compose up
+        docker-compose up -d
         docker ps -a
     - name: Build with Gradle
       run: |
@@ -143,17 +143,14 @@ jobs:
         distribution: 'adopt'
     - name: Setup Postgres in Docker 
       run: |
-        docker-compose up postgres
+        docker-compose up -d postgres
         docker ps -a
     - name: Build with Maven
       run: |
         mvn -B -q clean verify -f dgs-webflux/pom.xml
         
-
   graphql-java-annotations:
-
     runs-on: ubuntu-latest
-
     steps:
     - uses: actions/checkout@v2
     - name: Set up JDK 16
@@ -163,7 +160,7 @@ jobs:
         distribution: 'adopt'
     - name: Setup Postgres in Docker 
       run: |
-        docker-compose up postgres
+        docker-compose up -d postgres
         docker ps -a
     - name: Build with Gradle
       run: |
@@ -172,9 +169,7 @@ jobs:
         ./gradlew build
 
   graphql-java-vanilla:
-
     runs-on: ubuntu-latest
-
     steps:
     - uses: actions/checkout@v2
     - name: Set up JDK 16
@@ -184,7 +179,7 @@ jobs:
         distribution: 'adopt'
     - name: Setup Postgres in Docker 
       run: |
-        docker-compose up postgres
+        docker-compose up -d postgres
         docker ps -a
     - name: Build with Gradle
       run: |
@@ -194,9 +189,7 @@ jobs:
 
 
   graphql-java-webclient:
-
     runs-on: ubuntu-latest
-
     steps:
     - uses: actions/checkout@v2
     - name: Set up JDK 16
@@ -206,7 +199,7 @@ jobs:
         distribution: 'adopt'
     - name: Setup Postgres in Docker 
       run: |
-        docker-compose up postgres
+        docker-compose up -d postgres
         docker ps -a
     - name: Build with Gradle
       run: |
@@ -228,7 +221,7 @@ jobs:
         distribution: 'adopt'
     - name: Setup Postgres in Docker 
       run: |
-        docker-compose up postgres
+        docker-compose up -d postgres
         docker ps -a
     - name: Build with Gradle
       run: |
@@ -250,7 +243,7 @@ jobs:
         distribution: 'adopt'
     - name: Setup Postgres in Docker 
       run: |
-        docker-compose up postgres
+        docker-compose up -d postgres
         docker ps -a
     - name: Build with Gradle
       run: |
