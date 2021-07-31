@@ -5,14 +5,14 @@ import com.example.demo.gql.scalars.Scalars;
 import graphql.schema.GraphQLCodeRegistry;
 import graphql.schema.idl.RuntimeWiring;
 import lombok.RequiredArgsConstructor;
-import org.springframework.graphql.boot.RuntimeWiringCustomizer;
+import org.springframework.graphql.boot.RuntimeWiringBuilderCustomizer;
 import org.springframework.stereotype.Component;
 
 import java.util.Map;
 
 @Component
 @RequiredArgsConstructor
-public class PostsRuntimeWiring implements RuntimeWiringCustomizer {
+public class PostsRuntimeWiring implements RuntimeWiringBuilderCustomizer {
     final DataFetchers dataFetchers;
 
     @Override

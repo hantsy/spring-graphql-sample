@@ -6,10 +6,7 @@ import com.example.demo.service.AuthorService;
 import com.example.demo.service.PostService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.dataloader.BatchLoaderEnvironment;
-import org.dataloader.BatchLoaderWithContext;
-import org.dataloader.DataLoader;
-import org.dataloader.MappedBatchLoaderWithContext;
+import org.dataloader.*;
 import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
@@ -28,7 +25,7 @@ public class DataLoaders {
     public DataLoader<String, Author> authorsLoader() {
         BatchLoaderWithContext<String, Author> batchLoader = (List<String> keys, BatchLoaderEnvironment environment) ->
                 CompletableFuture.supplyAsync(() -> authorService.getAuthorByIdIn(keys));
-        return DataLoader.newDataLoader(batchLoader);
+        return DataLoaderFactory.newDataLoader(batchLoader);
     }
 
     public DataLoader<String, List<Comment>> commentsLoader() {
@@ -45,6 +42,6 @@ public class DataLoaders {
             log.info("mapped comments: {}", mappedComments);
             return CompletableFuture.supplyAsync(() -> mappedComments);
         };
-        return DataLoader.newMappedDataLoader(batchLoader);
+        return DataLoaderFactory.newMappedDataLoader(batchLoader);
     }
 }
