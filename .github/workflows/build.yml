@@ -63,11 +63,9 @@ jobs:
       run: |
         docker-compose up -d postgres
         docker ps -a
-    - name: Build with Gradle
+    - name: Build with Maven
       run: |
-        cd dgs
-        chmod +x gradlew
-        ./gradlew build
+        mvn -B -q clean verify -f dgs-webflux/pom.xml
 
   dgs-fileupload:
     runs-on: ubuntu-latest
