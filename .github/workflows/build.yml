@@ -96,7 +96,7 @@ jobs:
         run: |
           cd ./dgs-subscription-ui
           npm install
-          npm run build:prod        
+          npm run build      
   
   dgs-subscription-sse:
     runs-on: ubuntu-latest
