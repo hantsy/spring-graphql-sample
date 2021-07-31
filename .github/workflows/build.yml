@@ -11,9 +11,7 @@ on:
 
 jobs:
   dgs-client:
-
     runs-on: ubuntu-latest
-
     steps:
     - uses: actions/checkout@v2
     - name: Set up JDK 16
@@ -28,9 +26,7 @@ jobs:
         ./gradlew build
 
   dgs-codegen:
-
     runs-on: ubuntu-latest
-
     steps:
     - uses: actions/checkout@v2
     - name: Set up JDK 16
@@ -49,9 +45,7 @@ jobs:
         ./gradlew build
 
   dgs:
-
     runs-on: ubuntu-latest
-
     steps:
     - uses: actions/checkout@v2
     - name: Set up JDK 16
@@ -80,7 +74,30 @@ jobs:
       run: |
         cd dgs-fileupload
         chmod +x gradlew
-        ./gradlew build      
+        ./gradlew build    
+  
+  dgs-subscription-ui:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Setup NodeJS
+        uses: actions/setup-node@v2.3.0
+        with:
+          node-version: "16"
+
+      - uses: actions/cache@v2
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+      - name: Build
+        run: |
+          cd ./dgs-subscription-ui
+          npm install
+          npm run build:prod        
+  
   dgs-subscription-sse:
     runs-on: ubuntu-latest
     steps:
@@ -95,6 +112,7 @@ jobs:
         cd dgs-subscription-sse
         chmod +x gradlew
         ./gradlew build 
+  
   dgs-subscription-ws:
     runs-on: ubuntu-latest
     steps:
@@ -109,6 +127,7 @@ jobs:
         cd  dgs-subscription-ws
         chmod +x gradlew
         ./gradlew build       
+  
   dgs-kotlin:
     runs-on: ubuntu-latest
     steps:
