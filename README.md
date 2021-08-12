@@ -1,5 +1,7 @@
 # spring-graphql-sample
 
+![build](https://github.com/hantsy/spring-graphql-sample/workflows/build/badge.svg)
+
 Spring GraphQL examples using the following frameworks and libraries:
 
 * [Netflix DGS(Domain Graph Service) framework](https://netflix.github.io/dgs/) 
