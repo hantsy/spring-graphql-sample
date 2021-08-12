@@ -19,7 +19,7 @@ repositories {
 }
 
 dependencies {
-    implementation(platform("com.netflix.graphql.dgs:graphql-dgs-platform-dependencies:4.2.0"))
+    implementation(platform("com.netflix.graphql.dgs:graphql-dgs-platform-dependencies:4.5.0"))
     implementation("com.netflix.graphql.dgs:graphql-dgs-spring-boot-starter") {
         exclude("org.yaml", "snakeyaml")
     }
