@@ -5,18 +5,18 @@ import com.example.demo.gql.scalars.Scalars;
 import graphql.schema.GraphQLCodeRegistry;
 import graphql.schema.idl.RuntimeWiring;
 import lombok.RequiredArgsConstructor;
-import org.springframework.graphql.boot.RuntimeWiringBuilderCustomizer;
+import org.springframework.graphql.execution.RuntimeWiringConfigurer;
 import org.springframework.stereotype.Component;
 
 import java.util.Map;
 
 @Component
 @RequiredArgsConstructor
-public class PostsRuntimeWiring implements RuntimeWiringBuilderCustomizer {
+public class PostsRuntimeWiring implements RuntimeWiringConfigurer {
     final DataFetchers dataFetchers;
 
     @Override
-    public void customize(RuntimeWiring.Builder builder) {
+    public void configure(RuntimeWiring.Builder builder) {
         builder
                 .codeRegistry(buildCodeRegistry())
                 /*  .type("Query",
@@ -67,4 +67,5 @@ public class PostsRuntimeWiring implements RuntimeWiringBuilderCustomizer {
                 //.defaultDataFetcher(environment -> PropertyDataFetcher.fetching(environment.getFieldDefinition().getName()))
                 .build();
     }
+
 }
