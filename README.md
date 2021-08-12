@@ -30,6 +30,7 @@ TBD
 |[graphql-java-webclient](./graphql-java-webclient) | Java/Gradle | GraphQL Java Kickstart Spring WebClient example|
 |[graphql-java-annotations](./graphql-java-annotations) | Java/Gradle | GraphQL Java Kickstart Spring Boot example(Code first)|
 |[spring-graphql](./spring-graphql) | Java/Gradle | Spring GraphQL example|
+|[spring-graphql-annotations](./spring-graphql-annotations) | Java/Gradle | Spring GraphQL with annotated DataFecthers example|
 
 ## Prerequisites
 
