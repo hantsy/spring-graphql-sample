@@ -4,6 +4,7 @@ import com.example.demo.gql.types.Comment;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -47,6 +48,25 @@ public class DemoApplicationTests {
                 .path("allPosts[*].title")
                 .entityList(String.class)
                 .satisfies(titles -> assertThat(titles).anyMatch(s -> s.startsWith("DGS POST")));
+    }
+
+    @Test
+    @Disabled // see: https://github.com/spring-projects/spring-graphql/issues/110
+    void testCreatePostInputValidation() {
+        var creatPost = """
+                mutation createPost($createPostInput: CreatePostInput!){
+                   createPost(createPostInput:$createPostInput)
+                }""";
+
+        String TITLE = "test";//not valid
+        graphQlTester.query(creatPost)
+                .variable("createPostInput",
+                        Map.of(
+                                "title", TITLE,
+                                "content", "content of my post"
+                        ))
+                .execute()
+                .errors().satisfy(e -> assertThat(e).isNotEmpty());
     }
 
     @SneakyThrows

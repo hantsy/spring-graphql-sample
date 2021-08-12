@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.dataloader.DataLoader;
 import org.reactivestreams.Publisher;
 import org.springframework.graphql.data.method.annotation.*;
+import org.springframework.validation.annotation.Validated;
 
 import java.util.List;
 import java.util.UUID;
@@ -14,6 +15,7 @@ import java.util.concurrent.CompletionStage;
 
 @GraphQlController
 @RequiredArgsConstructor
+@Validated
 public class PostsDataFetchingController {//spring boot stater created an `AnnotatedDataFetchersConfigurer` to register data fetchers from `@GraphQlController` clazz
     private final PostService postService;
 
@@ -28,7 +30,7 @@ public class PostsDataFetchingController {//spring boot stater created an `Annot
     }
 
     @MutationMapping
-    public UUID createPost(@Argument("createPostInput") CreatePostInput input) {
+    public UUID createPost(@Argument("createPostInput") @Validated CreatePostInput input) {
         return postService.createPost(input);
     }
 
