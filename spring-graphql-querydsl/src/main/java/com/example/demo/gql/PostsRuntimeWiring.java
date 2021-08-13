@@ -22,7 +22,7 @@ public class PostsRuntimeWiring implements RuntimeWiringConfigurer {
     public void configure(RuntimeWiring.Builder builder) {
         builder
                 // auto registered in starter.
-//                .type(TypeRuntimeWiring.newTypeWiring("Post")
+//                .type(TypeRuntimeWiring.newTypeWiring("Query")
 //                        .dataFetcher("posts", QuerydslDataFetcher.builder(repository).many())
 //                        .dataFetcher("post", QuerydslDataFetcher.builder(repository).single())
 //                )
