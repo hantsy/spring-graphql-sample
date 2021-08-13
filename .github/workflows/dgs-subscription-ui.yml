@@ -1,0 +1,38 @@
+# This workflow will build a Java project with Gradle
+# For more information see: https://help.github.com/actions/language-and-framework-guides/building-and-testing-java-with-gradle
+
+name: dgs-subscription-ui
+
+on:
+  push:
+    paths:
+      - "dgs-subscription-ui/**"
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Setup NodeJS
+        uses: actions/setup-node@v2.3.0
+        with:
+          node-version: "16"
+
+      - uses: actions/cache@v2
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+      - name: Build
+        run: |
+          cd ./dgs-subscription-ui
+          npm install
+          npm run build      
+  
+  

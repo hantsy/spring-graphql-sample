@@ -1,0 +1,36 @@
+# This workflow will build a Java project with Gradle
+# For more information see: https://help.github.com/actions/language-and-framework-guides/building-and-testing-java-with-gradle
+
+name: spring-graphql
+
+on:
+  push:
+    paths:
+      - "spring-graphql/**"
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up JDK 16
+      uses: actions/setup-java@v2
+      with:
+        java-version: '16'
+        distribution: 'adopt'
+    - name: Setup Postgres in Docker 
+      run: |
+        docker-compose up -d postgres
+        docker ps -a
+    - name: Build with Gradle
+      run: |
+        cd spring-graphql
+        chmod +x gradlew
+        ./gradlew build
+
+  
