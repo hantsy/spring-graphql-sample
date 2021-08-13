@@ -29,6 +29,7 @@ TBD
 |[graphql-java-annotations](./graphql-java-annotations) | Java/Gradle | GraphQL Java Kickstart Spring Boot example(Code first)|
 |[spring-graphql](./spring-graphql) | Java/Gradle | Spring GraphQL example|
 |[spring-graphql-annotations](./spring-graphql-annotations) | Java/Gradle | Spring GraphQL with annotated DataFecthers example|
+|[spring-graphql-querydsl](./spring-graphql-querydsl) | Java/Gradle | Spring GraphQL/JPA/QueryDSl Data Fetchers example|
 
 ## Prerequisites
 
