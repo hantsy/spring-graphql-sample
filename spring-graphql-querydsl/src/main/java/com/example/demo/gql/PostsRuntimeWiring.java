@@ -22,10 +22,10 @@ public class PostsRuntimeWiring implements RuntimeWiringConfigurer {
     public void configure(RuntimeWiring.Builder builder) {
         builder
                 // auto registered in starter.
-//                .type(TypeRuntimeWiring.newTypeWiring("Query")
-//                        .dataFetcher("posts", QuerydslDataFetcher.builder(repository).many())
-//                        .dataFetcher("post", QuerydslDataFetcher.builder(repository).single())
-//                )
+                .type(TypeRuntimeWiring.newTypeWiring("Query")
+                        .dataFetcher("posts", QuerydslDataFetcher.builder(repository).many())
+                        .dataFetcher("post", QuerydslDataFetcher.builder(repository).single())
+                )
                 .scalar(Scalars.uuidType())
                 .scalar(Scalars.localDateTimeType())
                 .directive("uppercase", new UpperCaseDirectiveWiring())

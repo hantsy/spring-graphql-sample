@@ -9,6 +9,6 @@ import java.util.UUID;
 
 @GraphQlRepository()
 public interface PostRepository extends JpaRepository<Post, UUID> ,
-        QuerydslPredicateExecutor<CommentRepository> {
+        QuerydslPredicateExecutor<Post> {
 
 }
