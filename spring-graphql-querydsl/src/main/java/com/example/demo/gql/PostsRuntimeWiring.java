@@ -21,7 +21,7 @@ public class PostsRuntimeWiring implements RuntimeWiringConfigurer {
     @Override
     public void configure(RuntimeWiring.Builder builder) {
         builder
-                // auto registered in starter.
+                // should be registered automatically in spring boot starter???
                 .type(TypeRuntimeWiring.newTypeWiring("Query")
                         .dataFetcher("posts", QuerydslDataFetcher.builder(repository).many())
                         .dataFetcher("post", QuerydslDataFetcher.builder(repository).single())
