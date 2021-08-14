@@ -1,0 +1,94 @@
+version: 2
+updates:
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+
+  - package-ecosystem: "maven"
+    directory: "/dgs"
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 10
+    reviewers:
+      - "hantsy"
+    assignees:
+      - "hantsy"
+    labels:
+      - "dependencies"
+      - "maven"
+
+  - package-ecosystem: "maven"
+    directory: "/dgs-webflux"
+    schedule:
+      interval: weekly
+
+  - package-ecosystem: "gradle"
+    directory: "/dgs-client"
+    schedule:
+      interval: weekly
+
+  - package-ecosystem: "gradle"
+    directory: "/dgs-codegen"
+    schedule:
+      interval: weekly
+
+  - package-ecosystem: "gradle"
+    directory: "/dgs-fileupload"
+    schedule:
+      interval: weekly
+
+  - package-ecosystem: "gradle"
+    directory: "/dgs-kotlin"
+    schedule:
+      interval: weekly
+
+  - package-ecosystem: "gradle"
+    directory: "/dgs-subscription-ws"
+    schedule:
+      interval: weekly
+
+  - package-ecosystem: "gradle"
+    directory: "/dgs-subscription-sse"
+    schedule:
+      interval: weekly
+
+  - package-ecosystem: "npm"
+    directory: "/dgs-subscription-ui"
+    schedule:
+      interval: weekly
+
+  - package-ecosystem: "gradle"
+    directory: "/graphql-java-annotations"
+    schedule:
+      interval: weekly
+
+  - package-ecosystem: "gradle"
+    directory: "/graphql-java-vanilla"
+    schedule:
+      interval: weekly
+
+  - package-ecosystem: "gradle"
+    directory: "/graphql-java-webclient"
+    schedule:
+      interval: weekly
+
+  - package-ecosystem: "gradle"
+    directory: "/graphql-java"
+    schedule:
+      interval: weekly
+
+  - package-ecosystem: "gradle"
+    directory: "/spring-graphql-annotations"
+    schedule:
+      interval: weekly
+
+  - package-ecosystem: "gradle"
+    directory: "/spring-graphql-querydsl"
+    schedule:
+      interval: weekly
+
+  - package-ecosystem: "gradle"
+    directory: "/spring-graphql"
+    schedule:
+      interval: weekly
