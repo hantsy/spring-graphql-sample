@@ -9,7 +9,7 @@ import graphql.schema.idl.RuntimeWiring;
 public class CustomRuntimeWiring {
 
     @DgsRuntimeWiring
-    RuntimeWiring.Builder customRuntimeWiring(RuntimeWiring.Builder builder, UppercaseDirectiveWiring uppercaseDirectiveWiring) {
+    public RuntimeWiring.Builder customRuntimeWiring(RuntimeWiring.Builder builder, UppercaseDirectiveWiring uppercaseDirectiveWiring) {
         return builder.directive("uppercase", uppercaseDirectiveWiring);
     }
 }

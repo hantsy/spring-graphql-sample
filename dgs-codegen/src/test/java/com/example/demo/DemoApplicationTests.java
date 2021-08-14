@@ -36,7 +36,7 @@ class DemoApplicationTests {
                 queryRequest.serialize(),
                 "data.allPosts[*].title");
 
-        assertThat(titles).anyMatch(s -> s.startsWith("Dgs post"));
+        assertThat(titles).anyMatch(s -> s.startsWith("DGS POST"));
     }
 
 }
