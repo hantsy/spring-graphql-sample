@@ -25,7 +25,7 @@ dependencies {
 	implementation("com.netflix.graphql.dgs:graphql-dgs-subscriptions-websockets-autoconfigure") {
 		exclude("org.yaml", "snakeyaml")
 	}
-	implementation("org.yaml:snakeyaml:1.28")
+	implementation("org.yaml:snakeyaml:1.29")
 
 	//Spring and kotlin
 	implementation("org.springframework.boot:spring-boot-starter-web")
