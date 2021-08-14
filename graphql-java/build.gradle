@@ -24,8 +24,9 @@ dependencies {
     implementation "io.projectreactor:reactor-core"
     implementation 'org.springframework.boot:spring-boot-starter-data-jdbc'
     implementation 'org.postgresql:postgresql'
+    implementation 'org.apache.commons:commons-lang3:3.12.0'
     implementation 'org.yaml:snakeyaml:1.29'
-    implementation 'org.apache.commons:commons-lang3:3.11'
+
 
     //configure Lombok for compile java/ compile tests
     compileOnly 'org.projectlombok:lombok:1.18.20'
