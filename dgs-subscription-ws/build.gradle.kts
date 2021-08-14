@@ -4,8 +4,8 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 plugins {
 	id("org.springframework.boot") version "2.5.3"
 	id("io.spring.dependency-management") version "1.0.11.RELEASE"
-	kotlin("jvm") version "1.5.10"
-	kotlin("plugin.spring") version "1.5.10"
+	kotlin("plugin.spring") version "1.5.21"
+	kotlin("jvm") version "1.5.21"
 	id("com.netflix.dgs.codegen") version "5.0.5" //https://plugins.gradle.org/plugin/com.netflix.dgs.codegen
 }
 
@@ -25,7 +25,7 @@ dependencies {
 	implementation("com.netflix.graphql.dgs:graphql-dgs-subscriptions-websockets-autoconfigure") {
 		exclude("org.yaml", "snakeyaml")
 	}
-	implementation("org.yaml:snakeyaml:1.28")
+	implementation("org.yaml:snakeyaml:1.29")
 
 	//Spring and kotlin
 	implementation("org.springframework.boot:spring-boot-starter-web")
