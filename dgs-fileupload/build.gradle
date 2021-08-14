@@ -14,14 +14,14 @@ repositories {
 }
 
 dependencies {
-    implementation(platform("com.netflix.graphql.dgs:graphql-dgs-platform-dependencies:4.5.0"))
+    implementation(platform("com.netflix.graphql.dgs:graphql-dgs-platform-dependencies:4.5.1"))
     implementation "com.netflix.graphql.dgs:graphql-dgs-spring-boot-starter", {
         exclude group: 'org.yaml', module: 'snakeyaml'
     }
     implementation 'com.netflix.graphql.dgs:graphql-dgs-extended-scalars', {
         exclude group: 'org.yaml', module: 'snakeyaml'
     }// auto-configure graphql extended scalars
-    implementation 'org.yaml:snakeyaml:1.28'
+    implementation 'org.yaml:snakeyaml:1.29'
     implementation 'org.apache.commons:commons-lang3:3.12.0'
 
     // spring web
