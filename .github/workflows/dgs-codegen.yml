@@ -9,6 +9,8 @@ on:
       - "dgs-codegen/**"
     branches: [ master ]
   pull_request:
+    paths:
+      - "dgs-codegen/**"
     branches: [ master ]
 
 jobs:

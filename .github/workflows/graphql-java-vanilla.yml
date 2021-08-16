@@ -9,6 +9,8 @@ on:
       - "graphql-java-vanilla/**"
     branches: [ master ]
   pull_request:
+    paths:
+      - "graphql-java-vanilla/**"  
     branches: [ master ]
 
 jobs:

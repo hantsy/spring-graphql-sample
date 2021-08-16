@@ -9,6 +9,8 @@ on:
       - "graphql-java-webclient/**"
     branches: [ master ]
   pull_request:
+    paths:
+      - "graphql-java-webclient/**"  
     branches: [ master ]
 
 jobs:

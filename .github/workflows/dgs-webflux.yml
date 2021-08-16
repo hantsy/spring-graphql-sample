@@ -9,6 +9,8 @@ on:
       - "dgs-webflux/**"
     branches: [ master ]
   pull_request:
+    paths:
+      - "dgs-webflux/**"
     branches: [ master ]
 
 jobs:

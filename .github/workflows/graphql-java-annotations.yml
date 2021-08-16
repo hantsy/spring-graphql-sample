@@ -9,6 +9,8 @@ on:
       - "graphql-java-annotations/**"
     branches: [ master ]
   pull_request:
+    paths:
+      - "graphql-java-annotations/**"
     branches: [ master ]
 
 jobs:

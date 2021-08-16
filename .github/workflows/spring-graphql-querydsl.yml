@@ -9,6 +9,8 @@ on:
       - "spring-graphql-querydsl/**"
     branches: [ master ]
   pull_request:
+    paths:
+      - "spring-graphql-querydsl/**"
     branches: [ master ]
 
 jobs:

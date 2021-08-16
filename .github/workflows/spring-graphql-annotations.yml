@@ -9,6 +9,8 @@ on:
       - "spring-graphql-annotations/**"
     branches: [ master ]
   pull_request:
+    paths:
+      - "spring-graphql-annotations/**"
     branches: [ master ]
 
 jobs:

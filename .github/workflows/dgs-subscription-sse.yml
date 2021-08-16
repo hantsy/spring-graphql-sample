@@ -9,6 +9,8 @@ on:
       - "dgs-subscription-sse/**"
     branches: [ master ]
   pull_request:
+    paths:
+      - "dgs-subscription-sse/**"
     branches: [ master ]
 
 jobs:

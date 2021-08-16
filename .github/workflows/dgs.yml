@@ -9,6 +9,8 @@ on:
       - "dgs/**"
     branches: [ master ]
   pull_request:
+    paths:
+      - "dgs/**"
     branches: [ master ]
 
 jobs:

@@ -9,6 +9,8 @@ on:
       - "dgs-fileupload/**"
     branches: [ master ]
   pull_request:
+    paths:
+      - "dgs-fileupload/**"
     branches: [ master ]
 
 jobs:

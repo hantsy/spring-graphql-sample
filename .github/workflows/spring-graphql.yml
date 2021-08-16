@@ -9,6 +9,8 @@ on:
       - "spring-graphql/**"
     branches: [ master ]
   pull_request:
+    paths:
+      - "spring-graphql/**"  
     branches: [ master ]
 
 jobs:

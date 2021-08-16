@@ -9,6 +9,8 @@ on:
       - "dgs-client/**"
     branches: [ master ]
   pull_request:
+    paths:
+      - "dgs-client/**"  
     branches: [ master ]
 
 jobs:
