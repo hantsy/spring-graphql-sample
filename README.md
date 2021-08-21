@@ -22,7 +22,8 @@ TBD
 |[dgs-codegen](./dgs-codegen) | Java/Gradle | Netflix DGS example with Spring Jdbc and Gradle codegen plugin|
 |[dgs-fileupload](./dgs-fileupload) | Java/Gradle | Netflix DGS file upload example|
 |[dgs-client](./dgs-client) | Java/Gradle | Netflix DGS Typesafe Client example|
-|[dgs-kotlin](./dgs-kotlin) | Kotlin/Gradle | Netflix DGS example written in Kotlin, Spring Data Jdbc, Spring Security and Spring Session/Spring Data Redis|
+|[dgs-kotlin-co](./dgs-kotlin-co) | Kotlin/Gradle | **A complete Netflix DGS example** with WebFlux, Kotlin Coroutines, Spring Data R2dbc and Spring Security|
+|[dgs-kotlin](./dgs-kotlin) | Kotlin/Gradle | **A complete Netflix DGS example** with WebMvc/Kotlin, Spring Data Jdbc, Spring Security and Spring Session/Spring Data Redis|
 |[graphql-java-vanilla](./graphql-java-vanilla) | Java/Gradle | GraphQL Java vanilla Spring Boot example|
 |[graphql-java](./graphql-java) | Java/Gradle | GraphQL Java Kickstart Spring Boot example|
 |[graphql-java-webclient](./graphql-java-webclient) | Java/Gradle | GraphQL Java Kickstart Spring WebClient example|
