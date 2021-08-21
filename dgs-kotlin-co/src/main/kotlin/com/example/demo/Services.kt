@@ -66,7 +66,7 @@ class PostService(
     }
 
     val sink = Sinks.many().replay().latest<Comment>()
-    fun commentAdded(): Publisher<Comment> = sink.asFlux()
+    fun commentAdded(): Flow<Comment> = sink.asFlux().asFlow()
 
     fun getCommentsByPostId(id: String): Flow<Comment> = this.comments.findByPostId(UUID.fromString(id))
         .map { it.asGqlType() }

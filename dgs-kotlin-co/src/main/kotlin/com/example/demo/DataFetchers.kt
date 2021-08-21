@@ -4,6 +4,8 @@ import com.example.demo.gql.DgsConstants
 import com.example.demo.gql.types.*
 import com.netflix.graphql.dgs.*
 import kotlinx.coroutines.flow.Flow
+import org.springframework.security.access.annotation.Secured
+import org.springframework.security.access.prepost.PreAuthorize
 import java.util.concurrent.CompletableFuture
 
 @DgsComponent
@@ -46,14 +48,15 @@ class PostsDataFetcher(val postService: PostService) {
     }
 
     @DgsMutation
-    suspend// @Secured("ROLE_USER")
-    fun createPost(@InputArgument("createPostInput") input: CreatePostInput) = postService.createPost(input)
+
+    @Secured("ROLE_USER")
+    suspend fun createPost(@InputArgument("createPostInput") input: CreatePostInput) = postService.createPost(input)
 
     @DgsMutation
-    suspend// @PreAuthorize("isAuthenticated()")
-    fun addComment(@InputArgument("commentInput") input: CommentInput) = postService.addComment(input)
+    @PreAuthorize("isAuthenticated()")
+    suspend fun addComment(@InputArgument("commentInput") input: CommentInput) = postService.addComment(input)
 
     @DgsSubscription
-    // @PreAuthorize("isAuthenticated()")
+    @PreAuthorize("isAuthenticated()")
     fun commentAdded() = postService.commentAdded()
 }
