@@ -40,9 +40,7 @@ class PostsDataFetcher(val postService: PostService) {
 
     @DgsData(parentType = DgsConstants.POST.TYPE_NAME, field = DgsConstants.POST.Comments)
     fun comments(dfe: DgsDataFetchingEnvironment): CompletableFuture<List<Comment>> {
-        val dataLoader = dfe.getDataLoader<String, List<Comment>>(
-            CommentsDataLoader::class.java
-        )
+        val dataLoader = dfe.getDataLoader<String, List<Comment>>(CommentsDataLoader::class.java)
         val (id) = dfe.getSource<Post>()
         return dataLoader.load(id)
     }
