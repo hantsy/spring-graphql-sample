@@ -54,7 +54,6 @@ class MutationTests {
             .expectBody()
             .jsonPath("data.createPost.id").exists()
             .jsonPath("data.createPost.title").isEqualTo("test title")
-
     }
 
     @Test

@@ -48,7 +48,6 @@ class PostsDataFetcher(val postService: PostService) {
     }
 
     @DgsMutation
-
     @Secured("ROLE_USER")
     suspend fun createPost(@InputArgument("createPostInput") input: CreatePostInput) = postService.createPost(input)
 
