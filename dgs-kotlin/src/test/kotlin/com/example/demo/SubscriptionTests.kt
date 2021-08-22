@@ -1,82 +1,78 @@
 package com.example.demo
 
+import com.example.demo.gql.types.AuthResult
 import com.netflix.graphql.dgs.DgsQueryExecutor
 import graphql.ExecutionResult
+import org.assertj.core.api.Assertions
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.jupiter.api.Disabled
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.reactivestreams.Publisher
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.boot.test.web.client.TestRestTemplate
+import org.springframework.boot.web.client.RestTemplateBuilder
+import org.springframework.boot.web.server.LocalServerPort
+import org.springframework.core.ParameterizedTypeReference
 import org.springframework.http.HttpHeaders
-import org.springframework.security.test.context.support.WithMockUser
+import org.springframework.http.HttpStatus
+import org.springframework.http.MediaType
+import org.springframework.http.RequestEntity
 import reactor.test.StepVerifier
 import java.util.*
 
-
 @SpringBootTest(
     classes = [DemoApplication::class],
-    properties = ["context.initializer.classes=com.example.demo.TestConfigInitializer"]
+    properties = ["context.initializer.classes=com.example.demo.TestConfigInitializer"],
+    webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT
 )
-class DemoApplicationTests {
+class SubscriptionTests {
+
+    @LocalServerPort
+    var port: Int = 8080
+
+    var restTemplate: TestRestTemplate? = null
 
     @Autowired
     lateinit var dgsQueryExecutor: DgsQueryExecutor
 
-    @Test
-    fun `get all posts`() {
-        val query = """
-			query posts{
-                allPosts{
-                    id
-                    title
-                    content
-                    author { id name email }
-                    comments { id content }
-                }
-			}""".trimIndent()
-
-        val titles = dgsQueryExecutor.executeAndExtractJsonPath<List<String>>(query, "data.allPosts[*].title")
-        assertThat(titles.size).isEqualTo(0);
-    }
-
-    @Test
-    fun `get an non-existing post should return errors NOT_FOUND`() {
-        val query = "query notExisted(\$id: String!){postById(postId:\$id){ id title }}"
-
-        val result = dgsQueryExecutor.execute(query, mapOf("id" to UUID.randomUUID().toString()))
-        assertThat(result.errors).isNotNull
-        assertThat(result.errors[0].extensions["errorType"]).isEqualTo("NOT_FOUND")
-    }
-
-    //see: https://github.com/Netflix/dgs-framework/issues/453
-    //and: https://github.com/Netflix/dgs-framework/issues/437#issuecomment-871100938
-    @Test
-    fun `create a post without auth should return errors PERMISSION_DENIED`() {
-        val query = "mutation createPost(\$input: CreatePostInput!){createPost(createPostInput:\$input){ id title }}"
-
-        val result = dgsQueryExecutor.execute(
-            query,
-            mapOf("input" to mapOf("title" to "my title", "content" to "my content of my title"))
+    @BeforeEach
+    fun setup() {
+        restTemplate = TestRestTemplate(
+            RestTemplateBuilder()
+                .defaultMessageConverters()
+                .rootUri("http://localhost:$port")
         )
-        println("errors: " + result.errors);
-        assertThat(result.errors).isNotNull
-        // explained in  https://github.com/Netflix/dgs-framework/issues/437#issuecomment-871100938
-        //assertThat(result.errors[0].extensions["errorType"]).isEqualTo("PERMISSION_DENIED")
     }
 
-
     @Test
-    @Disabled
     fun `sign in and create a post and comment`() {
         // logged in
-        val loggedInQuery = "query signIn(\$input: Credentials!){signIn(credentials:\$input){ name roles  token }}"
-        val token = dgsQueryExecutor.executeAndExtractJsonPath<String>(
-            loggedInQuery,
-            "data.signIn.token",
-            mapOf("input" to mapOf("username" to "user", "password" to "password"))
+        val signinData = mapOf<String, Any>(
+            "query" to "mutation signIn(\$input: Credentials!){ signIn(credentials:\$input) {name, roles, token} }",
+            "variables" to mapOf(
+                "input" to mapOf(
+                    "username" to "user",
+                    "password" to "password"
+                )
+            )
         )
-        println("user auth token: $token")
+
+        val signinEntity = RequestEntity.post("graphql")
+            .accept(MediaType.APPLICATION_JSON)
+            .body(signinData)
+
+        val signinResponseEntity = restTemplate!!.exchange(
+            signinEntity,
+            object : ParameterizedTypeReference<HashMap<String, HashMap<String, AuthResult>>>() {}
+        )
+
+        assertThat(signinResponseEntity.statusCode).isEqualTo(HttpStatus.OK)
+        assertThat(signinResponseEntity.body!!["data"]!!["signIn"]!!.name).isEqualTo("user")
+        assertThat(signinResponseEntity.body!!["data"]!!["signIn"]!!.roles).contains("ROLE_USER")
+
+        val token = signinResponseEntity.body!!["data"]!!["signIn"]!!.token
+
         assertThat(token).isNotNull
 
         // create a new post
@@ -108,12 +104,16 @@ class DemoApplicationTests {
 
         val verifier = StepVerifier.create(publisher)
             .consumeNextWith {
-                assertThat((it.getData<Map<String, Map<String, Any>>>()["commentAdded"]
-                    ?.get("content") as String)).contains("comment1")
+                assertThat(
+                    (it.getData<Map<String, Map<String, Any>>>()["commentAdded"]
+                        ?.get("content") as String)
+                ).contains("comment1")
             }
             .consumeNextWith {
-                assertThat((it.getData<Map<String, Map<String, Any>>>()["commentAdded"]
-                    ?.get("content") as String)).contains("comment2")
+                assertThat(
+                    (it.getData<Map<String, Map<String, Any>>>()["commentAdded"]
+                        ?.get("content") as String)
+                ).contains("comment2")
             }
             .thenCancel()
             .verifyLater()

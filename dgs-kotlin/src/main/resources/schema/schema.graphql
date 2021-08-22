@@ -41,8 +41,7 @@ type Query{
     allPosts: [Post!]!
     postById(postId: String!): Post
     author(authorId: String!): Author
-    signIn(credentials: Credentials!): AuthResult
-    logout:Boolean
+
 }
 
 type AuthResult {
@@ -57,6 +56,8 @@ input Credentials {
 }
 
 type Mutation {
+    signIn(credentials: Credentials!): AuthResult
+    logout:Boolean
     createPost(createPostInput: CreatePostInput!): Post!
     updateProfile(bio:String, coverIamge: Upload!): Profile! @skipcodegen
     addComment(commentInput: CommentInput!): Comment!

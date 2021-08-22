@@ -46,7 +46,7 @@ class AuthDataFetcher(
     val authenticationManager: AuthenticationManager
 ) {
 
-    @DgsQuery
+    @DgsMutation
     fun signIn(@InputArgument credentials: Credentials, dfe: DgsDataFetchingEnvironment): Map<String, Any> {
         var auth = authenticationManager.authenticate(
             UsernamePasswordAuthenticationToken(
@@ -70,7 +70,7 @@ class AuthDataFetcher(
         )
     }
 
-    @DgsQuery
+    @DgsMutation
     @PreAuthorize("isAuthenticated()")
     fun logout(dfe: DgsDataFetchingEnvironment): Boolean {
         val req = dfe.getDgsContext().requestData as DgsWebMvcRequestData
