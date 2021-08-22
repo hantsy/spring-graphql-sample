@@ -1,105 +1,145 @@
 package com.example.demo
 
 import com.example.demo.gql.types.AuthResult
+import com.example.demo.gql.types.Comment
+import com.example.demo.gql.types.Post
 import com.netflix.graphql.dgs.DgsQueryExecutor
+import com.netflix.graphql.dgs.client.DefaultGraphQLClient
+import com.netflix.graphql.dgs.client.HttpResponse
+import com.netflix.graphql.dgs.client.RequestExecutor
 import graphql.ExecutionResult
-import org.assertj.core.api.Assertions
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.reactivestreams.Publisher
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.boot.test.web.client.TestRestTemplate
-import org.springframework.boot.web.client.RestTemplateBuilder
+import org.springframework.boot.test.context.TestConfiguration
 import org.springframework.boot.web.server.LocalServerPort
-import org.springframework.core.ParameterizedTypeReference
+import org.springframework.context.annotation.Bean
+import org.springframework.context.annotation.Import
+import org.springframework.http.HttpEntity
 import org.springframework.http.HttpHeaders
-import org.springframework.http.HttpStatus
-import org.springframework.http.MediaType
-import org.springframework.http.RequestEntity
+import org.springframework.http.HttpMethod.POST
+import org.springframework.web.client.RestTemplate
 import reactor.test.StepVerifier
-import java.util.*
+
 
 @SpringBootTest(
     classes = [DemoApplication::class],
     properties = ["context.initializer.classes=com.example.demo.TestConfigInitializer"],
     webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT
 )
+@Import(SubscriptionTests.TestConfig::class)
 class SubscriptionTests {
 
     @LocalServerPort
     var port: Int = 8080
 
-    var restTemplate: TestRestTemplate? = null
+    @Autowired
+    lateinit var restTemplate: RestTemplate
+
+    var client: DefaultGraphQLClient? = null
 
     @Autowired
     lateinit var dgsQueryExecutor: DgsQueryExecutor
 
     @BeforeEach
     fun setup() {
-        restTemplate = TestRestTemplate(
-            RestTemplateBuilder()
-                .defaultMessageConverters()
-                .rootUri("http://localhost:$port")
-        )
+        this.client = DefaultGraphQLClient("http://localhost:$port/graphql")
     }
 
     @Test
     fun `sign in and create a post and comment`() {
         // logged in
-        val signinData = mapOf<String, Any>(
-            "query" to "mutation signIn(\$input: Credentials!){ signIn(credentials:\$input) {name, roles, token} }",
-            "variables" to mapOf(
-                "input" to mapOf(
-                    "username" to "user",
-                    "password" to "password"
-                )
+        val query = "mutation signIn(\$input: Credentials!){ signIn(credentials:\$input) {name, roles, token} }"
+
+        val variables = mapOf(
+            "input" to mapOf(
+                "username" to "user",
+                "password" to "password"
             )
         )
 
-        val signinEntity = RequestEntity.post("graphql")
-            .accept(MediaType.APPLICATION_JSON)
-            .body(signinData)
+        val requestExecutor: RequestExecutor = RequestExecutor { url, _, body ->
+            val result = restTemplate.exchange(
+                url,
+                POST,
+                HttpEntity(body),
+                String::class.java
+            )
+            HttpResponse(result.statusCodeValue, result.body)
+        }
 
-        val signinResponseEntity = restTemplate!!.exchange(
-            signinEntity,
-            object : ParameterizedTypeReference<HashMap<String, HashMap<String, AuthResult>>>() {}
-        )
+        val signinResult = this.client?.executeQuery(query, variables, requestExecutor)
 
-        assertThat(signinResponseEntity.statusCode).isEqualTo(HttpStatus.OK)
-        assertThat(signinResponseEntity.body!!["data"]!!["signIn"]!!.name).isEqualTo("user")
-        assertThat(signinResponseEntity.body!!["data"]!!["signIn"]!!.roles).contains("ROLE_USER")
 
-        val token = signinResponseEntity.body!!["data"]!!["signIn"]!!.token
+        val authResult: AuthResult = signinResult!!.extractValueAsObject("signIn", AuthResult::class.java)
+        assertThat(authResult).isNotNull
+        assertThat(authResult.name).isEqualTo("user")
+        assertThat(authResult.roles).contains("ROLE_USER")
 
+        val token = authResult.token
         assertThat(token).isNotNull
 
         // create a new post
-        val createPostQuery = "mutation createPost(\$input: CreatePostInput!){createPost(createPostInput:\$input){ id title }}"
-        val createPostResult = dgsQueryExecutor.executeAndGetDocumentContext(
-            createPostQuery,
-            mapOf("input" to mapOf("title" to "my title", "content" to "my content of my title")),
-            HttpHeaders().apply { add("X-Auth-Token", token) }
+        val createPostQuery =
+            "mutation createPost(\$input: CreatePostInput!){createPost(createPostInput:\$input){ id  title }}"
+
+        val createPostVariables = mapOf(
+            "input" to mapOf(
+                "title" to "my title",
+                "content" to "my content of my title"
+            )
         )
 
-        val postId = createPostResult.read("data.createPost.id", String::class.java)
-        println("created post id: $postId")
+        val createPostRequestExecutor: RequestExecutor = RequestExecutor { url, headers, body ->
+
+            val requestHeaders = HttpHeaders()
+            headers.forEach { requestHeaders[it.key] = it.value }
+            requestHeaders.add("X-Auth-Token", token)
+
+            val result = restTemplate.exchange(
+                url,
+                POST,
+                HttpEntity(body, requestHeaders),
+                String::class.java
+            )
+            HttpResponse(result.statusCodeValue, result.body)
+        }
+
+        val createPostResponse =
+            this.client?.executeQuery(createPostQuery, createPostVariables, createPostRequestExecutor)
+
+        val createPostResult = createPostResponse?.extractValueAsObject("createPost", Post::class.java)
+        val postId = createPostResult!!.id
         assertThat(postId).isNotNull
+        assertThat(createPostResult.title).isEqualTo("my title")
 
         // get post by id.
         val postByIdQuery = "query postById(\$id: String!){postById(postId:\$id){ id title }}"
-        val postByIdResult = dgsQueryExecutor.executeAndExtractJsonPath<String>(
-            postByIdQuery,
-            "data.postById.title",
-            mapOf("id" to UUID.randomUUID().toString())
+        val postByIdVariables = mapOf(
+            "id" to postId
         )
 
-        println("get post by id: $postId, result: $postByIdResult")
-        assertThat(postByIdResult).isEqualTo("my title")
+        val postByIdRequestExecutor: RequestExecutor = RequestExecutor { url, _, body ->
+            val result = restTemplate.exchange(
+                url,
+                POST,
+                HttpEntity(body),
+                String::class.java
+            )
+            HttpResponse(result.statusCodeValue, result.body)
+        }
+
+        val postByIdResponse =
+            this.client?.executeQuery(postByIdQuery, postByIdVariables, postByIdRequestExecutor)
+
+        val postByIdResult = postByIdResponse?.extractValueAsObject("postById", Post::class.java)
+        assertThat(postByIdResult!!.title).isEqualTo("my title")
 
         //subscribe to commentAdded.
-        val executionResult = dgsQueryExecutor.execute("subscription onCommentAdded{ commentAdded{ id content}}")
+        val executionResult = dgsQueryExecutor.execute("subscription onCommentAdded{ commentAdded{ id postId  content}}")
         val publisher = executionResult.getData<Publisher<ExecutionResult>>()
 
         val verifier = StepVerifier.create(publisher)
@@ -107,34 +147,68 @@ class SubscriptionTests {
                 assertThat(
                     (it.getData<Map<String, Map<String, Any>>>()["commentAdded"]
                         ?.get("content") as String)
-                ).contains("comment1")
+                ).isEqualTo("comment1")
             }
             .consumeNextWith {
                 assertThat(
                     (it.getData<Map<String, Map<String, Any>>>()["commentAdded"]
                         ?.get("content") as String)
-                ).contains("comment2")
+                ).isEqualTo("comment2")
             }
             .thenCancel()
             .verifyLater()
 
-
-        val comment1 = dgsQueryExecutor.executeAndExtractJsonPath<String>(
-            "mutation addComment(\$input: CommentInput!) { addComment(commentInput:\$input) { content}}",
-            "data.commentAdded.content",
-            mapOf("postId" to postId, "content" to "comment1 message")
+        val commentQuery = "mutation addComment(\$input: CommentInput!) { addComment(commentInput:\$input) { id postId content}}"
+        val comment1Variables = mapOf(
+            "input" to mapOf(
+                "postId" to postId,
+                "content" to "comment1"
+            )
         )
-        assertThat(comment1).contains("comment1");
-
-        val comment2 = dgsQueryExecutor.executeAndExtractJsonPath<String>(
-            "mutation addComment(\$input: CommentInput!) { addComment(commentInput:\$input) { content}}",
-            "data.commentAdded.content",
-            mapOf("postId" to postId, "content" to "comment2 message")
+        val comment2Variables = mapOf(
+            "input" to mapOf(
+                "postId" to postId,
+                "content" to "comment2"
+            )
         )
-        assertThat(comment2).contains("comment2");
+
+        val commentRequestExecutor: RequestExecutor = RequestExecutor { url, headers, body ->
+            val requestHeaders = HttpHeaders()
+            headers.forEach { requestHeaders[it.key] = it.value }
+            requestHeaders.add("X-Auth-Token", token)
+
+            val result = restTemplate.exchange(
+                url,
+                POST,
+                HttpEntity(body, requestHeaders),
+                String::class.java
+            )
+            HttpResponse(result.statusCodeValue, result.body)
+        }
+
+        val comment1Response =
+            this.client?.executeQuery(commentQuery, comment1Variables, commentRequestExecutor)
+
+        val comment1Result = comment1Response?.extractValueAsObject("addComment", Comment::class.java)
+
+        assertThat(comment1Result!!.content).isEqualTo("comment1")
+
+        val comment2Response =
+            this.client?.executeQuery(commentQuery, comment2Variables, commentRequestExecutor)
+
+        val comment2Result = comment2Response?.extractValueAsObject("addComment", Comment::class.java)
+
+        assertThat(comment2Result!!.content).isEqualTo("comment2")
 
         //verify it now.
         verifier.verify();
+    }
+
+    @TestConfiguration
+    class TestConfig {
+
+        @Bean
+        fun restTemplate() = RestTemplate()
     }
 
 }

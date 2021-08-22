@@ -114,6 +114,6 @@ class PostsDataFetcher(val postService: PostService) {
     fun addComment(@InputArgument("commentInput") input: CommentInput) = postService.addComment(input)
 
     @DgsSubscription
-    @PreAuthorize("isAuthenticated()")
+    //@PreAuthorize("isAuthenticated()")
     fun commentAdded() = postService.commentAdded()
 }
