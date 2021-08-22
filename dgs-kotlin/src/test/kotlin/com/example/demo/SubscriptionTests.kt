@@ -61,7 +61,7 @@ class SubscriptionTests {
             )
         )
 
-        val requestExecutor: RequestExecutor = RequestExecutor { url, _, body ->
+        val requestExecutor = RequestExecutor { url, _, body ->
             val result = restTemplate.exchange(
                 url,
                 POST,
@@ -72,7 +72,6 @@ class SubscriptionTests {
         }
 
         val signinResult = this.client?.executeQuery(query, variables, requestExecutor)
-
 
         val authResult: AuthResult = signinResult!!.extractValueAsObject("signIn", AuthResult::class.java)
         assertThat(authResult).isNotNull
@@ -93,7 +92,7 @@ class SubscriptionTests {
             )
         )
 
-        val createPostRequestExecutor: RequestExecutor = RequestExecutor { url, headers, body ->
+        val requestExecutorWithAuth = RequestExecutor { url, headers, body ->
 
             val requestHeaders = HttpHeaders()
             headers.forEach { requestHeaders[it.key] = it.value }
@@ -107,6 +106,8 @@ class SubscriptionTests {
             )
             HttpResponse(result.statusCodeValue, result.body)
         }
+
+        val createPostRequestExecutor: RequestExecutor = requestExecutorWithAuth
 
         val createPostResponse =
             this.client?.executeQuery(createPostQuery, createPostVariables, createPostRequestExecutor)
@@ -122,23 +123,14 @@ class SubscriptionTests {
             "id" to postId
         )
 
-        val postByIdRequestExecutor: RequestExecutor = RequestExecutor { url, _, body ->
-            val result = restTemplate.exchange(
-                url,
-                POST,
-                HttpEntity(body),
-                String::class.java
-            )
-            HttpResponse(result.statusCodeValue, result.body)
-        }
-
         val postByIdResponse =
-            this.client?.executeQuery(postByIdQuery, postByIdVariables, postByIdRequestExecutor)
+            this.client?.executeQuery(postByIdQuery, postByIdVariables, requestExecutor)
 
         val postByIdResult = postByIdResponse?.extractValueAsObject("postById", Post::class.java)
         assertThat(postByIdResult!!.title).isEqualTo("my title")
 
         //subscribe to commentAdded.
+        // TODO: authentication is disabled.
         val executionResult = dgsQueryExecutor.execute("subscription onCommentAdded{ commentAdded{ id postId  content}}")
         val publisher = executionResult.getData<Publisher<ExecutionResult>>()
 
@@ -172,29 +164,15 @@ class SubscriptionTests {
             )
         )
 
-        val commentRequestExecutor: RequestExecutor = RequestExecutor { url, headers, body ->
-            val requestHeaders = HttpHeaders()
-            headers.forEach { requestHeaders[it.key] = it.value }
-            requestHeaders.add("X-Auth-Token", token)
-
-            val result = restTemplate.exchange(
-                url,
-                POST,
-                HttpEntity(body, requestHeaders),
-                String::class.java
-            )
-            HttpResponse(result.statusCodeValue, result.body)
-        }
-
         val comment1Response =
-            this.client?.executeQuery(commentQuery, comment1Variables, commentRequestExecutor)
+            this.client?.executeQuery(commentQuery, comment1Variables, requestExecutorWithAuth)
 
         val comment1Result = comment1Response?.extractValueAsObject("addComment", Comment::class.java)
 
         assertThat(comment1Result!!.content).isEqualTo("comment1")
 
         val comment2Response =
-            this.client?.executeQuery(commentQuery, comment2Variables, commentRequestExecutor)
+            this.client?.executeQuery(commentQuery, comment2Variables, requestExecutorWithAuth)
 
         val comment2Result = comment2Response?.extractValueAsObject("addComment", Comment::class.java)
 
