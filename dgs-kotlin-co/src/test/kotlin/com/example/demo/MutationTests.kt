@@ -1,21 +1,12 @@
 package com.example.demo
 
-import com.example.demo.gql.types.Post
 import org.assertj.core.api.Assertions.assertThat
-import org.hamcrest.CoreMatchers
-import org.hamcrest.Matchers
-import org.hamcrest.Matchers.equalTo
-import org.hamcrest.Matchers.notNullValue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.TestInstance
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.web.server.LocalServerPort
-import org.springframework.core.ParameterizedTypeReference
 import org.springframework.test.web.reactive.server.WebTestClient
-import org.springframework.test.web.reactive.server.returnResult
 import org.springframework.web.reactive.function.client.ExchangeFilterFunctions
-import reactor.kotlin.test.test
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class MutationTests {
@@ -29,7 +20,7 @@ class MutationTests {
     fun beforeAll() {
         client = WebTestClient.bindToServer()
             .baseUrl("http://localhost:$port")
-           // .filter(ExchangeFilterFunctions.basicAuthentication("user", "password"))
+            // .filter(ExchangeFilterFunctions.basicAuthentication("user", "password"))
             .build()
     }
 
@@ -76,8 +67,8 @@ class MutationTests {
             .expectBody()
             .jsonPath("errors.length()").value<Int> { assertThat(it).isGreaterThan(0) }
 
-            // it is a INTERNAL errorType
-            //.jsonPath("errors[0].extensions.errorType").isEqualTo("PERMISSION_DENIED")
+        // it is an INTERNAL errorType
+        //.jsonPath("errors[0].extensions.errorType").isEqualTo("PERMISSION_DENIED")
     }
 
 

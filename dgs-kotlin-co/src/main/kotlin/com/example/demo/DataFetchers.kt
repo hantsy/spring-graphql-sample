@@ -51,14 +51,14 @@ class PostsDataFetcher(val postService: PostService) {
     // only `@PreAuthorize` and `@PostAuthorize` works with reactive stack.
     // see: https://github.com/spring-projects/spring-security/issues/5103
     //@Secured("ROLE_USER")
-    @PreAuthorize("hasRole('USER')")
+    //@PreAuthorize("hasRole('USER')")
     suspend fun createPost(@InputArgument("createPostInput") input: CreatePostInput) = postService.createPost(input)
 
     @DgsMutation
-    @PreAuthorize("isAuthenticated()")
+    //@PreAuthorize("isAuthenticated()")
     suspend fun addComment(@InputArgument("commentInput") input: CommentInput) = postService.addComment(input)
 
     @DgsSubscription
-    @PreAuthorize("isAuthenticated()")
+    //@PreAuthorize("isAuthenticated()")
     fun commentAdded() = postService.commentAdded()
 }

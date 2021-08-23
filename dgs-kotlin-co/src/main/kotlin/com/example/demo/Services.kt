@@ -6,6 +6,7 @@ import kotlinx.coroutines.reactive.asFlow
 import kotlinx.coroutines.reactive.awaitFirstOrElse
 import kotlinx.coroutines.reactive.awaitSingle
 import org.reactivestreams.Publisher
+import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Sinks
@@ -33,6 +34,7 @@ class PostService(
     val posts: PostRepository,
     val comments: CommentRepository
 ) {
+    private val log = LoggerFactory.getLogger(PostService::class.java)
 
     fun allPosts() = this.posts.findAll().map { it.asGqlType() }
 
@@ -59,6 +61,7 @@ class PostService(
                 this.comments.save(data)
                     .map { it.asGqlType() }
                     .doOnNext {
+                        log.debug("emitting comment: {}", it)
                         sink.emitNext(it, Sinks.EmitFailureHandler.FAIL_FAST)
                     }
             }
@@ -66,7 +69,9 @@ class PostService(
     }
 
     val sink = Sinks.many().replay().latest<Comment>()
-    fun commentAdded(): Flow<Comment> = sink.asFlux().asFlow()
+
+    // subscription: commentAdded
+    fun commentAdded() = sink.asFlux()
 
     fun getCommentsByPostId(id: String): Flow<Comment> = this.comments.findByPostId(UUID.fromString(id))
         .map { it.asGqlType() }
