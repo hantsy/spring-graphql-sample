@@ -73,7 +73,7 @@ class SubscriptionWithGraphQLClientTests {
             )
         )
         val createPostResult =
-            this.client.reactiveExecuteQuery(createPostQuery, createPostQueryVariables, requestExecutor)
+            this.client.reactiveExecuteQuery(createPostQuery, createPostQueryVariables, requestExecutorWithAuth)
                 .map { it.extractValueAsObject("createPost", Post::class.java) }
                 .block(Duration.ofSeconds(5L))
         val postId = createPostResult?.id
@@ -82,10 +82,9 @@ class SubscriptionWithGraphQLClientTests {
 
         // get post by id.
         val postByIdQuery = "query postById(\$id: String!){postById(postId:\$id){ id title }}"
-        val postByIdVariables = mapOf<String, Any>(
+        val postByIdVariables = mapOf(
             "id" to postId as Any
         )
-
 
         this.client.reactiveExecuteQuery(postByIdQuery, postByIdVariables, requestExecutor)
             .map { it.extractValueAsObject("postById", Post::class.java) }

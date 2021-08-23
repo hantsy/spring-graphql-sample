@@ -46,7 +46,7 @@ class DataInitializer(val posts: PostRepository, val comments: CommentRepository
 }
 
 @Configuration
-@EnableReactiveMethodSecurity(proxyTargetClass = true)
+@EnableReactiveMethodSecurity
 class SecurityConfig {
 
     @Bean
