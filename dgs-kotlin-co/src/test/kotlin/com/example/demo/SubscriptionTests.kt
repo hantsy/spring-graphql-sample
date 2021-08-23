@@ -2,8 +2,8 @@ package com.example.demo
 
 import com.example.demo.gql.types.Comment
 import com.example.demo.gql.types.Post
-import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.jayway.jsonpath.JsonPath
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -119,8 +119,17 @@ class SubscriptionTests {
         val socketClient = ReactorNettyWebSocketClient()
         val commentsReplay = ArrayList<String>(2)
 
-        val subscriptionQuery =
-            mapOf("query" to "subscription onCommentAdded { commentAdded { id postId content } }")
+        //
+        // The Dgs webflux subscription is handled by DgsReactiveWebsocketHandler which implements Apollo  subscription websocket protocol.
+        // see: https://github.com/apollographql/subscriptions-transport-ws/blob/master/PROTOCOL.md
+        //
+        // The Vertx Web GraphQL also includes this protocol to handle subscription.
+        //
+        val subscriptionQuery = mapOf(
+            "payload" to mapOf("query" to "subscription onCommentAdded { commentAdded { id postId content } }"),
+            "type" to "start",
+            "id" to 1
+        )
 
         socketClient.execute(
             URI.create("ws://localhost:$port/subscriptions")
@@ -129,9 +138,10 @@ class SubscriptionTests {
             // payload data format: { 'data': {'commentAdded': {'id': '...', 'title': '...'}}}
             val receiveMono = session.receive()
                 .map {
-                    objectMapper.readValue(
-                        it.payloadAsText,
-                        object : TypeReference<Map<String, Map<String, Comment>>>() {})["data"]!!["commentAdded"]!!
+                    objectMapper.convertValue(
+                        JsonPath.read(it.payloadAsText, "$.payload.data.commentAdded"),
+                        Comment::class.java
+                    )
                 }
                 .log("receiving message:")
 
@@ -149,8 +159,9 @@ class SubscriptionTests {
                     commentsReplay.add(it!!.content)
                 }
                 .then()
-        }.block(Duration.ofSeconds(10L))
+        }.block(Duration.ofSeconds(5L))
 
-        assertThat(commentsReplay).isEqualTo(arrayListOf("comment1", "comment2"))
+        // limit to the `latest` item in the `Sinks.replay`
+        assertThat(commentsReplay).isEqualTo(arrayListOf("comment2"))
     }
 }
