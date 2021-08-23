@@ -75,6 +75,9 @@ class MutationTests {
             .expectStatus().is2xxSuccessful
             .expectBody()
             .jsonPath("errors.length()").value<Int> { assertThat(it).isGreaterThan(0) }
+
+            // it is a INTERNAL errorType
+            //.jsonPath("errors[0].extensions.errorType").isEqualTo("PERMISSION_DENIED")
     }
 
 
