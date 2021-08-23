@@ -57,6 +57,11 @@ updates:
     directory: "/dgs-subscription-ui"
     schedule:
       interval: weekly
+    ignore: 
+      - dependency-name: "@angular/*"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major", "version-update:semver-minor"]    
 
   - package-ecosystem: "gradle"
     directory: "/graphql-java-annotations"
