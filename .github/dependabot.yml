@@ -42,7 +42,12 @@ updates:
     directory: "/dgs-kotlin"
     schedule:
       interval: weekly
-
+      
+  - package-ecosystem: "gradle"
+    directory: "/dgs-kotlin-co"
+    schedule:
+      interval: weekly
+      
   - package-ecosystem: "gradle"
     directory: "/dgs-subscription-ws"
     schedule:
@@ -57,6 +62,11 @@ updates:
     directory: "/dgs-subscription-ui"
     schedule:
       interval: weekly
+    ignore: 
+      - dependency-name: "@angular/*"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major", "version-update:semver-minor"]    
 
   - package-ecosystem: "gradle"
     directory: "/graphql-java-annotations"
