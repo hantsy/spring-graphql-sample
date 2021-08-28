@@ -119,11 +119,11 @@ class SubscriptionTests {
         val socketClient = ReactorNettyWebSocketClient()
         val commentsReplay = ArrayList<String>(2)
 
-        //
-        // The Dgs webflux subscription is handled by DgsReactiveWebsocketHandler which implements Apollo  subscription websocket protocol.
+        // The Dgs webflux subscription is handled by `DgsReactiveWebsocketHandler` which implements ApolloGraphQL
+        // subscription websocket protocol.
         // see: https://github.com/apollographql/subscriptions-transport-ws/blob/master/PROTOCOL.md
         //
-        // The Vertx Web GraphQL also includes this protocol to handle subscription.
+        // The Vertx Web GraphQL also uses this protocol to handle subscription.
         //
         val subscriptionQuery = mapOf(
             "payload" to mapOf("query" to "subscription onCommentAdded { commentAdded { id postId content } }"),
