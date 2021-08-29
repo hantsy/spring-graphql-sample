@@ -1,4 +1,9 @@
 directive @uppercase on FIELD_DEFINITION
+#
+# this declares the directive as being possible on arguments and input fields
+#
+directive @Size(min : Int = 0, max : Int = 2147483647, message : String = "graphql.validation.Size.message")
+on ARGUMENT_DEFINITION | INPUT_FIELD_DEFINITION
 
 scalar LocalDateTime
 scalar UUID
@@ -30,7 +35,7 @@ type Comment{
 }
 
 input CreatePostInput {
-    title: String!
+    title: String! @Size(min:5, max:50)
     content: String!
 }
 
@@ -46,7 +51,7 @@ type Query {
 
 type Mutation {
     createPost(createPostInput: CreatePostInput!): UUID!
-#    upload(file: Upload!): Boolean
+    #    upload(file: Upload!): Boolean
 }
 
 enum PostStatus {

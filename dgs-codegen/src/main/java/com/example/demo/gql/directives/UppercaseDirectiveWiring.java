@@ -1,5 +1,6 @@
 package com.example.demo.gql.directives;
 
+import com.netflix.graphql.dgs.DgsDirective;
 import graphql.schema.DataFetcherFactories;
 import graphql.schema.GraphQLFieldDefinition;
 import graphql.schema.idl.SchemaDirectiveWiring;
@@ -7,7 +8,7 @@ import graphql.schema.idl.SchemaDirectiveWiringEnvironment;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
-@Component
+@DgsDirective(name = "uppercase")
 @Slf4j
 public class UppercaseDirectiveWiring implements SchemaDirectiveWiring {
     @Override
