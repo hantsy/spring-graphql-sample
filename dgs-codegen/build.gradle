@@ -23,7 +23,7 @@ dependencies {
         exclude group: 'org.yaml', module: 'snakeyaml'
     }// auto-configure graphql extended scalars
 
-    implementation 'com.graphql-java:graphql-java-extended-validation:16.0.0', {
+    implementation 'com.graphql-java:graphql-java-extended-validation:17.0', {
         exclude group: 'org.hibernate.validator', module: 'hibernate-validator'
     }// graphql-java-extended-validation 16.0.0 depends on an incompatible version 6.2.0.Final of hibernate-validator
     implementation 'org.hibernate.validator:hibernate-validator:6.1.7.Final'
