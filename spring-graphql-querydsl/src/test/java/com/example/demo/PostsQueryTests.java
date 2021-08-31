@@ -25,7 +25,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
-@SpringBootTest
+@SpringBootTest()
 @AutoConfigureMockMvc  // to make subscription work.
 @AutoConfigureGraphQlTester
 @Slf4j
@@ -81,7 +81,7 @@ public class PostsQueryTests {
                 .execute()
                 .path("posts[*].title")
                 .entityList(String.class)
-                .satisfies(titles -> assertThat(titles).anyMatch(s -> s.startsWith("POST")));
+                .satisfies(titles -> assertThat(titles).anyMatch(s -> s.startsWith("Post")));
     }
 
     @Test
@@ -99,7 +99,7 @@ public class PostsQueryTests {
                 .variable("id", UUID.randomUUID())
                 .execute()
                 .path("post.title")
-                .entity(String.class).satisfies( s -> assertThat(s).startsWith("POST"));
+                .entity(String.class).satisfies( s -> assertThat(s).startsWith("Post"));
     }
 
 
