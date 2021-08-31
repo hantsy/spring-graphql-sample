@@ -20,10 +20,10 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
-    - name: Set up JDK 16
+    - name: Set up JDK
       uses: actions/setup-java@v2
       with:
-        java-version: '16'
+        java-version: '17'
         distribution: 'adopt'
     - name: Setup Postgres in Docker 
       run: |

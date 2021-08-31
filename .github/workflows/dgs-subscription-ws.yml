@@ -19,10 +19,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
-    - name: Set up JDK 16
+    - name: Set up JDK
       uses: actions/setup-java@v2
       with:
-        java-version: '16'
+        java-version: '17'
         distribution: 'adopt'
     - name: Build with Gradle
       run: |

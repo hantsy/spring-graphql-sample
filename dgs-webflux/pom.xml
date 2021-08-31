@@ -14,7 +14,7 @@
     <name>dgs-webflux</name>
     <description>Dgs Webflux project for Spring Boot</description>
     <properties>
-        <java.version>16</java.version>
+        <java.version>17</java.version>
     </properties>
     <dependencyManagement>
         <dependencies>
