@@ -159,6 +159,19 @@ class SubscriptionTests {
                     commentsReplay.add(it!!.content)
                 }
                 .then()
+                .then(
+                    session.send(
+                        Mono.just(
+                            objectMapper.writeValueAsString(
+                                mapOf(
+                                    "id" to 1,
+                                    "payload" to emptyMap<String, Any>(),
+                                    "type" to "complete"
+                                )
+                            )
+                        ).map { session.textMessage(it) }
+                    )
+                )
         }.block(Duration.ofSeconds(5L))
 
         // limit to the `latest` item in the `Sinks.replay`
