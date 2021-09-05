@@ -13,6 +13,7 @@ import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.web.server.LocalServerPort
 import org.springframework.test.web.reactive.server.WebTestClient
 import org.springframework.test.web.reactive.server.returnResult
+import org.springframework.web.reactive.socket.WebSocketHandler
 import org.springframework.web.reactive.socket.WebSocketSession
 import org.springframework.web.reactive.socket.client.ReactorNettyWebSocketClient
 import reactor.core.publisher.Mono
@@ -126,53 +127,77 @@ class SubscriptionTests {
         // The Vertx Web GraphQL also uses this protocol to handle subscription.
         //
         val subscriptionQuery = mapOf(
-            "payload" to mapOf("query" to "subscription onCommentAdded { commentAdded { id postId content } }"),
+            "payload" to mapOf(
+                "query" to "subscription onCommentAdded { commentAdded { id postId content } }",
+                "extensions" to emptyMap<String, Any>(),
+                "variables" to emptyMap<String, Any>()// have to add this to avoid a NPE exception.
+            ),
             "type" to "start",
             "id" to 1
         )
 
-        socketClient.execute(
-            URI.create("ws://localhost:$port/subscriptions")
-        ) { session: WebSocketSession ->
+        val socketHandler: WebSocketHandler = object : WebSocketHandler {
+//            override fun getSubProtocols(): MutableList<String> {
+//                return mutableListOf("graphql-ws")
+//            }
 
-            // payload data format: { 'data': {'commentAdded': {'id': '...', 'title': '...'}}}
-            val receiveMono = session.receive()
-                .map {
-                    objectMapper.convertValue(
-                        JsonPath.read(it.payloadAsText, "$.payload.data.commentAdded"),
-                        Comment::class.java
-                    )
-                }
-                .log("receiving message:")
-
-            session
-                .send(
-                    Mono.delay(Duration.ofMillis(500))
-                        .then(Mono.just(objectMapper.writeValueAsString(subscriptionQuery))
-                            .map { session.textMessage(it) }
-                        )
-                )
-                .log("sending message:")
-                .thenMany(receiveMono)
-                .doOnNext {
-                    log.debug("added comment: {}", it)
-                    commentsReplay.add(it!!.content)
-                }
-                .then()
-                .then(
-                    session.send(
-                        Mono.just(
-                            objectMapper.writeValueAsString(
-                                mapOf(
-                                    "id" to 1,
-                                    "payload" to emptyMap<String, Any>(),
-                                    "type" to "complete"
-                                )
+            override fun handle(session: WebSocketSession): Mono<Void> {
+                // payload data format: { 'data': {'commentAdded': {'id': '...', 'title': '...'}}}
+                val receiveMono = session.receive()
+                    .doOnNext {
+                        val text = it.payloadAsText
+                        log.debug("receiving text: {}", text)
+                        if ("data" == JsonPath.read(text, "$.type")) {
+                            val data = objectMapper.convertValue(
+                                JsonPath.read(text, "$.payload.data.commentAdded"),
+                                Comment::class.java
                             )
-                        ).map { session.textMessage(it) }
+                            log.debug("added comment: {}", data)
+                            commentsReplay.add(data.content)
+                        }
+
+                    }
+                    .doOnError { log.error("receiving err:$it") }
+                    .log("receiving message:")
+                    .then()
+
+
+                val sendMono = session
+                    .send(
+                        Mono.delay(Duration.ofMillis(500))
+                            .then(Mono.just(objectMapper.writeValueAsString(subscriptionQuery))
+                                .map { session.textMessage(it) }
+                            )
                     )
-                )
-        }.block(Duration.ofSeconds(5L))
+                    .log("sending message:")
+                    .doOnError { log.error("sending err:$it") }
+
+                return Mono.zip(sendMono, receiveMono).then()
+//                    .then(
+//                        session.send(
+//                            Mono.just(
+//                                objectMapper.writeValueAsString(
+//                                    mapOf(
+//                                        "id" to 1,
+//                                        "payload" to emptyMap<String, Any>(),
+//                                        "type" to "complete"
+//                                    )
+//                                )
+//                            ).map { session.textMessage(it) }
+//                        )
+//                    )
+//                    .then()
+
+            }
+        }
+
+        socketClient
+            .execute(
+                URI.create("ws://localhost:$port/subscriptions"),
+                socketHandler
+            )
+            .doOnError { log.error("execute err:$it") }
+            .block(Duration.ofMillis(500L))
 
         // limit to the `latest` item in the `Sinks.replay`
         assertThat(commentsReplay).isEqualTo(arrayListOf("comment2"))

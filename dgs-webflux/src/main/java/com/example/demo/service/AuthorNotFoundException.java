@@ -1,4 +1,4 @@
-package com.example.demo;
+package com.example.demo.service;
 
 public class AuthorNotFoundException extends RuntimeException {
     public AuthorNotFoundException(String id) {
