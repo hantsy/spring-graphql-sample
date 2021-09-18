@@ -18,7 +18,7 @@ repositories {
 }
 
 dependencies {
-    implementation(platform("com.netflix.graphql.dgs:graphql-dgs-platform-dependencies:4.7.6"))
+    implementation(platform("com.netflix.graphql.dgs:graphql-dgs-platform-dependencies:4.8.0"))
     implementation("com.netflix.graphql.dgs:graphql-dgs-webflux-starter") {
         exclude("org.yaml", "snakeyaml")
     }
