@@ -34,23 +34,15 @@ class DemoApplicationTestsWithGraphQLClient {
         val query = "subscription { messageSent { body } }"
         val variables = emptyMap<String, Any>()
         val executionResult = client.reactiveExecuteQuery(query, variables)
+            .map {
+                it.extractValueAsObject(
+                    "data.messageSent",
+                    object : TypeRef<Map<String, Any>>() {}
+                )["body"] as String
+            }
         val verifier = StepVerifier.create(executionResult)
-            .consumeNextWith {
-                assertThat(
-                    it.extractValueAsObject(
-                        "data.messageSent",
-                        object:TypeRef<Map<String, Any>>(){}
-                    )["body"] as String
-                ).isEqualTo("text1 message")
-            }
-            .consumeNextWith {
-                assertThat(
-                    it.extractValueAsObject(
-                        "data.messageSent",
-                        object:TypeRef<Map<String, Any>>(){}
-                    )["body"] as String
-                ).isEqualTo("text2 message")
-            }
+            .consumeNextWith { assertThat(it).isEqualTo("text1 message") }
+            .consumeNextWith { assertThat(it).isEqualTo("text2 message") }
             .thenCancel()
             .verifyLater()
 
