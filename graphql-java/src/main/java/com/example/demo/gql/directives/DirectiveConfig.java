@@ -1,6 +1,6 @@
 package com.example.demo.gql.directives;
 
-import graphql.kickstart.tools.boot.SchemaDirective;
+import graphql.kickstart.autoconfigure.tools.SchemaDirective;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
