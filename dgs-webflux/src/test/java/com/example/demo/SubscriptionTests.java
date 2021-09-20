@@ -8,6 +8,7 @@ import com.example.demo.service.PostService;
 import com.netflix.graphql.dgs.reactive.DgsReactiveQueryExecutor;
 import graphql.ExecutionResult;
 import lombok.extern.slf4j.Slf4j;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -24,6 +25,7 @@ import static org.mockito.Mockito.*;
 
 @SpringBootTest()
 @Slf4j
+@Disabled//see: https://github.com/Netflix/dgs-framework/discussions/605
 class SubscriptionTests {
 
     @Autowired
