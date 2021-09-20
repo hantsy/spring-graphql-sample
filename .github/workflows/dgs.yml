@@ -30,6 +30,6 @@ jobs:
         docker ps -a
     - name: Build with Maven
       run: |
-        mvn -B -q clean verify -f dgs-webflux/pom.xml
+        mvn -B -q clean verify -f dgs/pom.xml
 
   
