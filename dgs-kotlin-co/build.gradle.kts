@@ -5,7 +5,7 @@ plugins {
     id("org.springframework.boot") version "2.5.4"
     id("io.spring.dependency-management") version "1.0.11.RELEASE"
     kotlin("plugin.spring") version "1.5.30"
-    kotlin("jvm") version "1.5.30"
+    kotlin("jvm") version "1.5.31"
     id("com.netflix.dgs.codegen") version "5.0.6" //https://plugins.gradle.org/plugin/com.netflix.dgs.codegen
 }
 
