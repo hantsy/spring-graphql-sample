@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.graphql.spring.boot.test.GraphQLResponse;
 import com.graphql.spring.boot.test.GraphQLTestTemplate;
 import com.jayway.jsonpath.JsonPath;
-import graphql.kickstart.spring.web.boot.GraphQLWebsocketAutoConfiguration;
+import graphql.kickstart.autoconfigure.web.servlet.GraphQLWebsocketAutoConfiguration;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
