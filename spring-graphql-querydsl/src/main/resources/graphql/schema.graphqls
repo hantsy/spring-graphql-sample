@@ -6,7 +6,7 @@ scalar UUID
 
 type Post{
     id: ID!
-    title: String!  @uppercase
+    title: String! @uppercase
     content: String
     comments: [Comment]
     status: PostStatus

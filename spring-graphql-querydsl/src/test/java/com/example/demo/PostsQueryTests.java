@@ -81,7 +81,7 @@ public class PostsQueryTests {
                 .execute()
                 .path("posts[*].title")
                 .entityList(String.class)
-                .satisfies(titles -> assertThat(titles).anyMatch(s -> s.startsWith("Post")));
+                .satisfies(titles -> assertThat(titles).anyMatch(s -> s.startsWith("POST")));
     }
 
     @Test
@@ -99,8 +99,7 @@ public class PostsQueryTests {
                 .variable("id", UUID.randomUUID())
                 .execute()
                 .path("post.title")
-                .entity(String.class).satisfies( s -> assertThat(s).startsWith("Post"));
+                .entity(String.class).satisfies(s -> assertThat(s).startsWith("POST"));
     }
-
 
 }
