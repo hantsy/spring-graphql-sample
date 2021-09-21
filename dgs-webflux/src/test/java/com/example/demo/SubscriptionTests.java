@@ -29,7 +29,7 @@ import static org.mockito.Mockito.*;
 class SubscriptionTests {
 
     @Autowired
-    DgsReactiveQueryExecutor dgsQueryExecutor;
+    DgsReactiveQueryExecutor dgsReactiveQueryExecutor;
 
     @MockBean
     PostService postService;
@@ -51,7 +51,7 @@ class SubscriptionTests {
         ));
 
         String query = "subscription onCommentAdded { commentAdded { id postId content } }";
-        Mono<ExecutionResult> executionResult = dgsQueryExecutor.execute(query, Collections.EMPTY_MAP);
+        Mono<ExecutionResult> executionResult = dgsReactiveQueryExecutor.execute(query, Collections.EMPTY_MAP);
 
         //var publisher = executionResult.flatMapMany(result -> Flux.from((Publisher<ExecutionResult>) result.getData()));
 
@@ -81,5 +81,4 @@ class SubscriptionTests {
         verify(postService, times(1)).getCommentById(anyString());
         verifyNoMoreInteractions(postService);
     }
-
 }
