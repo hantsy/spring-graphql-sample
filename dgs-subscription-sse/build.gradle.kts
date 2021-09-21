@@ -35,6 +35,8 @@ dependencies {
 	// test
 	testImplementation( "com.netflix.graphql.dgs:graphql-dgs-client")
 	testImplementation("org.springframework.boot:spring-boot-starter-test")
+	testImplementation("org.springframework:spring-webflux")
+	testImplementation("io.projectreactor.netty:reactor-netty")
 	testImplementation("io.projectreactor:reactor-test")
 }
 
