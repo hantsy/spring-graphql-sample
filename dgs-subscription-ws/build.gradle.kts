@@ -11,7 +11,7 @@ plugins {
 
 group = "com.example"
 version = "0.0.1-SNAPSHOT"
-java.sourceCompatibility = JavaVersion.VERSION_16
+java.sourceCompatibility = JavaVersion.VERSION_17
 
 repositories {
 	mavenCentral()
@@ -33,6 +33,9 @@ dependencies {
 	implementation("org.jetbrains.kotlin:kotlin-reflect")
 	implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
 	// test
+	testImplementation( "com.netflix.graphql.dgs:graphql-dgs-client")
+	testImplementation("org.springframework:spring-webflux")
+	testImplementation("io.projectreactor.netty:reactor-netty")
 	testImplementation("org.springframework.boot:spring-boot-starter-test")
 	testImplementation("io.projectreactor:reactor-test")
 }
@@ -50,7 +53,7 @@ tasks.withType<GenerateJavaTask> {
 tasks.withType<KotlinCompile> {
 	kotlinOptions {
 		freeCompilerArgs = listOf("-Xjsr305=strict")
-		jvmTarget = "16"
+		jvmTarget = "11"
 	}
 }
 

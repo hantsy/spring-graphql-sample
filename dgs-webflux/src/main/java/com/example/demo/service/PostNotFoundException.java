@@ -1,4 +1,4 @@
-package com.example.demo;
+package com.example.demo.service;
 
 public class PostNotFoundException extends RuntimeException {
     public PostNotFoundException(String id) {

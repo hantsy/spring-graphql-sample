@@ -11,7 +11,7 @@ plugins {
 
 group = "com.example"
 version = "0.0.1-SNAPSHOT"
-java.sourceCompatibility = JavaVersion.VERSION_16
+java.sourceCompatibility = JavaVersion.VERSION_17
 
 repositories {
     mavenLocal()
@@ -19,7 +19,7 @@ repositories {
 }
 
 dependencies {
-    //implementation(platform("com.netflix.graphql.dgs:graphql-dgs-platform-dependencies:4.7.3-SNAPSHOT"))
+    //implementation(platform("com.netflix.graphql.dgs:graphql-dgs-platform-dependencies:4.7.6-SNAPSHOT"))
 
     implementation(platform("com.netflix.graphql.dgs:graphql-dgs-platform-dependencies:4.8.0"))
     implementation("com.netflix.graphql.dgs:graphql-dgs-spring-boot-starter") {
@@ -63,7 +63,7 @@ tasks.withType<GenerateJavaTask> {
 tasks.withType<KotlinCompile> {
     kotlinOptions {
         freeCompilerArgs = listOf("-Xjsr305=strict")
-        jvmTarget = "16"
+        jvmTarget = "11"
     }
 }
 

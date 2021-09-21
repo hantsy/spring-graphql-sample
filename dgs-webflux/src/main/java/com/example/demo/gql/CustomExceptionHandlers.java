@@ -1,5 +1,7 @@
-package com.example.demo;
+package com.example.demo.gql;
 
+import com.example.demo.service.AuthorNotFoundException;
+import com.example.demo.service.PostNotFoundException;
 import com.netflix.graphql.dgs.exceptions.DefaultDataFetcherExceptionHandler;
 import com.netflix.graphql.types.errors.TypedGraphQLError;
 import graphql.GraphQLError;
@@ -14,7 +16,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Component
-public class CustomDataFetchingExceptionHandler implements DataFetcherExceptionHandler {
+public class CustomExceptionHandlers implements DataFetcherExceptionHandler {
     private final DefaultDataFetcherExceptionHandler defaultHandler = new DefaultDataFetcherExceptionHandler();
 
     @Override

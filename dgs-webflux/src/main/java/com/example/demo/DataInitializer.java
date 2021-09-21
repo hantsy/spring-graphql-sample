@@ -1,59 +1,46 @@
 package com.example.demo;
 
+import com.example.demo.repository.AuthorRepository;
+import com.example.demo.repository.CommentRepository;
+import com.example.demo.repository.PostRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.stereotype.Component;
+import reactor.core.publisher.Flux;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Random;
-import java.util.UUID;
-import java.util.stream.IntStream;
 
 @Component
 @RequiredArgsConstructor
 @Slf4j
 public class DataInitializer implements ApplicationRunner {
-    final PostService postService;
-    final AuthorService authorService;
+    final PostRepository posts;
+    final CommentRepository comments;
+    final AuthorRepository authors;
 
     @Override
     public void run(ApplicationArguments args) throws Exception {
-        var author = Author.builder()
-                .id(UUID.randomUUID().toString())
-                .name("user")
-                .email("user@example.com")
-                .build();
+        log.info("start data initialization...");
+        int commentsDel = this.comments.deleteAll().block();
+        int postDel = this.posts.deleteAll().block();
+        int authorsDel = this.authors.deleteAll().block();
 
-        authorService.init(List.of(author));
+        log.info("deleted rows: authors: {}, comments: {}, posts: {}", authorsDel, commentsDel, postDel);
+        this.authors.create("user", "user@example.com")
+                .flatMapMany(authorId -> Flux.range(1, 5)
+                        .flatMap(i -> this.posts.create("Dgs post #" + i, "test content of #" + i, "DRAFT", authorId)
+                                .flatMapMany(
+                                        postId -> Flux.range(1, new Random().nextInt(5) + 1)
+                                                .flatMap(c -> this.comments.create("comment #" + c, postId))
+                                )
+                        )
+                ).subscribe();
 
-        var initData = IntStream.range(1, 5)
-                .mapToObj(
-                        i -> {
-                            var comments = IntStream.range(1, new Random().nextInt(5) + 1)
-                                    .mapToObj(c -> Comment.builder()
-                                            .id(UUID.randomUUID().toString())
-                                            .content("comment #" + c)
-                                            .build()
-                                    )
-                                    .toList();
-                            var data = Post.builder()
-                                    .id(UUID.randomUUID().toString())
-                                    .title("Dgs post #" + i)
-                                    .content("test content of #" + i)
-                                    .comments(new ArrayList<>(comments))
-                                    .authorId(author.getId())
-                                    .build();
-                            return data;
-                        }
-                )
-                .toList();
-
-        this.postService.init(initData);
-
-        this.postService.getAllPosts().subscribe(p -> log.info("post data : {}", p));
-
+        this.posts.findAll().subscribe(p -> log.info("post: {}", p));
+        this.comments.findAll().subscribe(p -> log.info("comment: {}", p));
+        this.authors.findAll().subscribe(p -> log.info("author: {}", p));
+        log.info("done data initialization...");
     }
 }

@@ -1,5 +1,7 @@
 package com.example.demo.gql;
 
+import com.example.demo.gql.directives.UpperCaseDirectiveWiring;
+import com.example.demo.gql.scalars.Scalars;
 import com.example.demo.repository.PostRepository;
 import graphql.schema.idl.RuntimeWiring;
 import graphql.schema.idl.TypeRuntimeWiring;
@@ -21,6 +23,9 @@ public class PostsRuntimeWiring implements RuntimeWiringConfigurer {
                         .dataFetcher("posts", QuerydslDataFetcher.builder(repository).many())
                         .dataFetcher("post", QuerydslDataFetcher.builder(repository).single())
                 )
+                .scalar(Scalars.uuidType())
+                .scalar(Scalars.localDateTimeType())
+                .directive("uppercase", new UpperCaseDirectiveWiring())
                 .build();
     }
 

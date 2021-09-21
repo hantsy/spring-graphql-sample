@@ -1,4 +1,4 @@
-package com.example.demo;
+package com.example.demo.gql.types;
 
 import lombok.Builder;
 import lombok.Data;
@@ -14,5 +14,6 @@ public class Author {
     String id;
     String name;
     String email;
+    @Builder.Default
     List<Post> posts = new ArrayList<>();
 }

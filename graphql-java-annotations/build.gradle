@@ -6,7 +6,7 @@ plugins {
 
 group = 'com.example'
 version = '0.0.1-SNAPSHOT'
-sourceCompatibility = '16'
+sourceCompatibility = '17'
 
 repositories {
     mavenLocal()
@@ -15,9 +15,7 @@ repositories {
 
 dependencies {
     implementation 'com.graphql-java-kickstart:graphql-kickstart-spring-boot-starter-graphql-annotations:11.1.0'
-    implementation 'com.graphql-java-kickstart:graphiql-spring-boot-starter:11.1.0'
-    implementation 'com.graphql-java-kickstart:voyager-spring-boot-starter:11.1.0'
-    
+
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-data-jdbc'
     implementation 'org.postgresql:postgresql'
@@ -31,7 +29,6 @@ dependencies {
     testAnnotationProcessor 'org.projectlombok:lombok:1.18.20'
 	
 	//test
-	testImplementation 'com.graphql-java-kickstart:graphql-spring-boot-starter-test:12.0.0'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
 }
 

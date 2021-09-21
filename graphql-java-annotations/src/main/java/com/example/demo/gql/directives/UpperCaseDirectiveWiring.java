@@ -3,9 +3,7 @@ package com.example.demo.gql.directives;
 import graphql.annotations.directives.AnnotationsDirectiveWiring;
 import graphql.annotations.directives.AnnotationsWiringEnvironment;
 import graphql.annotations.processor.util.CodeRegistryUtil;
-import graphql.schema.*;
-import graphql.schema.idl.SchemaDirectiveWiring;
-import graphql.schema.idl.SchemaDirectiveWiringEnvironment;
+import graphql.schema.GraphQLFieldDefinition;
 
 public class UpperCaseDirectiveWiring implements AnnotationsDirectiveWiring {
 
@@ -15,12 +13,13 @@ public class UpperCaseDirectiveWiring implements AnnotationsDirectiveWiring {
         CodeRegistryUtil.wrapDataFetcher(
                 field,
                 env,
-                (((dataFetchingEnvironment, value) -> {
+                (dataFetchingEnvironment, value) -> {
                     if (value instanceof String) {
                         return ((String) value).toUpperCase();
                     }
                     return value;
-                })));
+                }
+        );
         return field;
     }
 }

@@ -1,4 +1,4 @@
-package com.example.demo;
+package com.example.demo.gql.types;
 
 import lombok.*;
 import org.hibernate.validator.constraints.Length;
