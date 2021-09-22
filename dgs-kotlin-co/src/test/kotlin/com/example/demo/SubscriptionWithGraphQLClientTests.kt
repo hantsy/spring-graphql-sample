@@ -6,6 +6,7 @@ import com.netflix.graphql.dgs.DgsQueryExecutor
 import com.netflix.graphql.dgs.client.DefaultGraphQLClient
 import com.netflix.graphql.dgs.client.HttpResponse
 import com.netflix.graphql.dgs.client.MonoRequestExecutor
+import com.netflix.graphql.dgs.reactive.DgsReactiveQueryExecutor
 import graphql.ExecutionResult
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
@@ -16,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.web.server.LocalServerPort
 import org.springframework.web.reactive.function.client.WebClient
+import reactor.core.publisher.Flux
 import reactor.test.StepVerifier
 import java.time.Duration
 
@@ -31,7 +33,7 @@ class SubscriptionWithGraphQLClientTests {
     lateinit var client: DefaultGraphQLClient
 
     @Autowired
-    lateinit var dgsQueryExecutor: DgsQueryExecutor
+    lateinit var dgsQueryExecutor: DgsReactiveQueryExecutor
 
     @BeforeEach
     fun setup() {
@@ -95,9 +97,11 @@ class SubscriptionWithGraphQLClientTests {
         // Simply use `DgsQueryExecutor` to subscribe to commentAdded.
         // TODO: authentication is disabled.
         // The `DgsQueryExecutor` does not work in a web layer.
-        val executionResult =
-            dgsQueryExecutor.execute("subscription onCommentAdded{ commentAdded{ id postId  content}}")
-        val publisher = executionResult.getData<Publisher<ExecutionResult>>()
+        val executionResultMono =
+            dgsQueryExecutor.execute("subscription onCommentAdded{ commentAdded{ id postId  content}}", emptyMap())
+        val publisher = executionResultMono.flatMapMany {
+            Flux.from(it.getData<Publisher<ExecutionResult>>())
+        }
 
         val verifier = StepVerifier.create(publisher)
             .consumeNextWith {

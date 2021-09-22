@@ -1,16 +1,17 @@
 package com.example.demo
 
-import com.netflix.graphql.dgs.DgsQueryExecutor
+import com.netflix.graphql.dgs.reactive.DgsReactiveQueryExecutor
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
+import reactor.test.StepVerifier
 
 @SpringBootTest
 class QueryTests {
 
     @Autowired
-    lateinit var dgsQueryExecutor: DgsQueryExecutor
+    lateinit var dgsQueryExecutor: DgsReactiveQueryExecutor
 
     @Test
     fun `get all posts`() {
@@ -19,6 +20,10 @@ class QueryTests {
             "data.allPosts[*].title"
         )
 
-        assertThat(titles).anyMatch { s -> s.contains("Dgs") }
+        StepVerifier.create(titles)
+            .consumeNextWith { it: List<String>? ->
+                assertThat(it).anyMatch { s -> s.contains("Dgs") }
+            }
+            .verifyComplete()
     }
 }

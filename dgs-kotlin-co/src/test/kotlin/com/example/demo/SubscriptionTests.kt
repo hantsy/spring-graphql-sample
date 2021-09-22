@@ -15,7 +15,6 @@ import org.springframework.boot.web.server.LocalServerPort
 import org.springframework.test.web.reactive.server.WebTestClient
 import org.springframework.test.web.reactive.server.returnResult
 import org.springframework.web.reactive.socket.WebSocketHandler
-import org.springframework.web.reactive.socket.WebSocketSession
 import org.springframework.web.reactive.socket.client.ReactorNettyWebSocketClient
 import reactor.core.publisher.Mono
 import java.net.URI
@@ -138,59 +137,42 @@ class SubscriptionTests {
             "id" to 1
         )
 
-        val socketHandler: WebSocketHandler = object : WebSocketHandler {
-//            override fun getSubProtocols(): MutableList<String> {
-//                return mutableListOf("graphql-ws")
-//            }
+        val socketHandler: WebSocketHandler = WebSocketHandler { session ->
 
-            override fun handle(session: WebSocketSession): Mono<Void> {
-                // payload data format: { 'data': {'commentAdded': {'id': '...', 'title': '...'}}}
-                val receiveMono = session.receive()
-                    .doOnNext {
-                        val text = it.payloadAsText
-                        log.debug("receiving text: {}", text)
-                        if ("data" == JsonPath.read(text, "$.type")) {
-                            val data = objectMapper.convertValue(
-                                JsonPath.read(text, "$.payload.data.commentAdded"),
-                                Comment::class.java
-                            )
-                            log.debug("added comment: {}", data)
-                            commentsReplay.add(data.content)
-                        }
-
+            //            override fun getSubProtocols(): MutableList<String> {
+            //                return mutableListOf("graphql-ws")
+            //            }
+            // payload data format:  { 'data': {'commentAdded': {'id': '...', 'title': '...'}}}
+            val receiveMono = session.receive()
+                .doOnNext {
+                    val text = it.payloadAsText
+                    log.debug("receiving text: {}", text)
+                    if ("data" == JsonPath.read(text, "$.type")) {
+                        val data = objectMapper.convertValue(
+                            JsonPath.read(text, "$.payload.data.commentAdded"),
+                            Comment::class.java
+                        )
+                        log.debug("added comment: {}", data)
+                        commentsReplay.add(data.content)
                     }
-                    .doOnError { log.error("receiving err:$it") }
-                    .log("receiving message:")
-                    .then()
+
+                }
+                .doOnError { log.error("receiving err:$it") }
+                .log("receiving message:")
+                .then()
 
 
-                val sendMono = session
-                    .send(
-                        Mono.delay(Duration.ofMillis(500))
-                            .then(Mono.just(objectMapper.writeValueAsString(subscriptionQuery))
-                                .map { session.textMessage(it) }
-                            )
-                    )
-                    .log("sending message:")
-                    .doOnError { log.error("sending err:$it") }
+            val sendMono = session
+                .send(
+                    Mono.delay(Duration.ofMillis(500))
+                        .then(Mono.just(objectMapper.writeValueAsString(subscriptionQuery))
+                            .map { session.textMessage(it) }
+                        )
+                )
+                .log("sending message:")
+                .doOnError { log.error("sending err:$it") }
 
-                return Mono.zip(sendMono, receiveMono).then()
-//                    .then(
-//                        session.send(
-//                            Mono.just(
-//                                objectMapper.writeValueAsString(
-//                                    mapOf(
-//                                        "id" to 1,
-//                                        "payload" to emptyMap<String, Any>(),
-//                                        "type" to "complete"
-//                                    )
-//                                )
-//                            ).map { session.textMessage(it) }
-//                        )
-//                    )
-//                    .then()
-
-            }
+            Mono.zip(sendMono, receiveMono).then()
         }
 
         socketClient
