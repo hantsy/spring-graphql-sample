@@ -4,8 +4,6 @@ import com.example.demo.gql.DgsConstants
 import com.example.demo.gql.types.*
 import com.netflix.graphql.dgs.*
 import kotlinx.coroutines.flow.Flow
-import org.springframework.security.access.annotation.Secured
-import org.springframework.security.access.prepost.PreAuthorize
 import java.util.concurrent.CompletableFuture
 
 @DgsComponent
@@ -48,9 +46,9 @@ class PostsDataFetcher(val postService: PostService) {
     }
 
     @DgsMutation
-    // only `@PreAuthorize` and `@PostAuthorize` works with reactive stack.
+    // only `@PreAuthorize` and `@PostAuthorize` works with Spring WebFlux.
     // see: https://github.com/spring-projects/spring-security/issues/5103
-    //@Secured("ROLE_USER")
+    //@Secured("ROLE_USER") did not work here.
     //@PreAuthorize("hasRole('USER')")
     suspend fun createPost(@InputArgument("createPostInput") input: CreatePostInput) = postService.createPost(input)
 
