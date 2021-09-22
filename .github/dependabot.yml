@@ -5,7 +5,7 @@ updates:
     schedule:
       interval: "weekly"
 
-  - package-ecosystem: "maven"
+  - package-ecosystem: "gradle"
     directory: "/dgs"
     schedule:
       interval: weekly
@@ -16,9 +16,8 @@ updates:
       - "hantsy"
     labels:
       - "dependencies"
-      - "maven"
 
-  - package-ecosystem: "maven"
+  - package-ecosystem: "gradle"
     directory: "/dgs-webflux"
     schedule:
       interval: weekly

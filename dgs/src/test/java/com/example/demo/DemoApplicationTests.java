@@ -25,13 +25,4 @@ class DemoApplicationTests {
         assertThat(titles).anyMatch(s -> s.startsWith("Dgs post"));
     }
 
-    @Test
-    void createComments() {
-        //https://stackoverflow.com/questions/43082298/server-sent-event-client-example-in-spring
-        List<String> titles = dgsQueryExecutor.executeAndExtractJsonPath(
-                " { allPosts { title content }}",
-                "data.allPosts[*].title");
-
-        assertThat(titles).anyMatch(s -> s.startsWith("Dgs post"));
-    }
 }

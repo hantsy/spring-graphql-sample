@@ -12,25 +12,25 @@ Spring GraphQL examples using the following frameworks and libraries:
 TBD
 
 ## Example Codes
-|  Example name    |Lang/Build tools      | Description     |
-| ---- | ---- | ---- |
-|[dgs](./dgs) | Java/Maven | Simple Netflix DGS example|
-|[dgs-webflux](./dgs-webflux) | Java/Maven| Simple Netflix DGS example with Spring WebFlux|
-|[dgs-subscription-ws](./dgs-subscription-ws) | Kotlin/Gradle | Simple Netflix DGS Subscription example using WebSocket protocol|
-|[dgs-subscription-ui](./dgs-subscription-ui) | TypeScript/Angular CLI | Angular Client app for dgs-subscription-ws|
-|[dgs-subscription-sse](./dgs-subscription-sse) | Kotlin/Gradle | Simple Netflix DGS Subscription example using Http/SSE protocol|
-|[dgs-codegen](./dgs-codegen) | Java/Gradle | Netflix DGS example with Spring Jdbc and Gradle codegen plugin|
-|[dgs-fileupload](./dgs-fileupload) | Java/Gradle | Netflix DGS file upload example|
-|[dgs-client](./dgs-client) | Java/Gradle | Netflix DGS Typesafe Client example|
-|[dgs-kotlin-co](./dgs-kotlin-co) | Kotlin/Gradle | **A complete Netflix DGS example** with WebFlux, Kotlin Coroutines, Spring Data R2dbc and Spring Security|
-|[dgs-kotlin](./dgs-kotlin) | Kotlin/Gradle | **A complete Netflix DGS example** with WebMvc/Kotlin, Spring Data Jdbc, Spring Security and Spring Session/Spring Data Redis|
-|[graphql-java-vanilla](./graphql-java-vanilla) | Java/Gradle | GraphQL Java vanilla Spring Boot example|
-|[graphql-java](./graphql-java) | Java/Gradle | GraphQL Java Kickstart Spring Boot example|
-|[graphql-java-webclient](./graphql-java-webclient) | Java/Gradle | GraphQL Java Kickstart Spring WebClient example|
-|[graphql-java-annotations](./graphql-java-annotations) | Java/Gradle | GraphQL Java Kickstart Spring Boot example(Code first)|
-|[spring-graphql](./spring-graphql) | Java/Gradle | Spring GraphQL example|
-|[spring-graphql-annotations](./spring-graphql-annotations) | Java/Gradle | Spring GraphQL with annotated DataFecthers example|
-|[spring-graphql-querydsl](./spring-graphql-querydsl) | Java/Gradle | Spring GraphQL/JPA/QueryDSl Data Fetchers example|
+|  Example name       | Description     |
+| ---- | ---- |
+|[dgs](./dgs)  | Simple Netflix DGS example|
+|[dgs-webflux](./dgs-webflux)| Simple Netflix DGS example with Spring WebFlux|
+|[dgs-subscription-ws](./dgs-subscription-ws) | Simple Netflix DGS Subscription example using WebSocket protocol|
+|[dgs-subscription-ui](./dgs-subscription-ui)  | Angular Client app for dgs-subscription-ws|
+|[dgs-subscription-sse](./dgs-subscription-sse)  | Simple Netflix DGS Subscription example using Http/SSE protocol|
+|[dgs-codegen](./dgs-codegen) | Netflix DGS example with Spring Jdbc and Gradle codegen plugin|
+|[dgs-fileupload](./dgs-fileupload) | Netflix DGS file upload example|
+|[dgs-client](./dgs-client) | Netflix DGS Typesafe Client example|
+|[dgs-kotlin-co](./dgs-kotlin-co) | **A complete Netflix DGS example** with WebFlux, Kotlin Coroutines, Spring Data R2dbc and Spring Security|
+|[dgs-kotlin](./dgs-kotlin) | **A complete Netflix DGS example** with WebMvc/Kotlin, Spring Data Jdbc, Spring Security and Spring Session/Spring Data Redis|
+|[graphql-java-vanilla](./graphql-java-vanilla) | GraphQL Java vanilla Spring Boot example|
+|[graphql-java](./graphql-java)  | GraphQL Java Kickstart Spring Boot example|
+|[graphql-java-webclient](./graphql-java-webclient) | GraphQL Java Kickstart Spring WebClient example|
+|[graphql-java-annotations](./graphql-java-annotations) | GraphQL Java Kickstart Spring Boot example(Code first)|
+|[spring-graphql](./spring-graphql) | Spring GraphQL example|
+|[spring-graphql-annotations](./spring-graphql-annotations) | Spring GraphQL with annotated DataFecthers example|
+|[spring-graphql-querydsl](./spring-graphql-querydsl)| Spring GraphQL/JPA/QueryDSl Data Fetchers example|
 
 ## Prerequisites
 

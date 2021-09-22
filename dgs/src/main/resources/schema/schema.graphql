@@ -35,9 +35,4 @@ type Query{
 
 type Mutation{
     createPost(createPostInput: CreatePostInput!): Post!
-    addComment(commentInput: CommentInput!): Comment!
-}
-
-type Subscription{
-    commentAdded: Comment!
 }

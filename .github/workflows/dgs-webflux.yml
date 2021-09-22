@@ -30,8 +30,10 @@ jobs:
       run: |
         docker-compose up -d postgres
         docker ps -a
-    - name: Build with Maven
+    - name: Build with Gradle
       run: |
-        mvn -B -q clean verify -f dgs-webflux/pom.xml
+        cd dgs-webflux
+        chmod +x gradlew
+        ./gradlew build
         
  

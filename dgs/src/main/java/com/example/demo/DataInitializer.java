@@ -1,57 +1,48 @@
 package com.example.demo;
 
+import com.example.demo.gql.types.PostStatus;
+import com.example.demo.repository.AuthorRepository;
+import com.example.demo.repository.CommentRepository;
+import com.example.demo.repository.PostRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Random;
-import java.util.UUID;
 import java.util.stream.IntStream;
 
 @Component
 @RequiredArgsConstructor
 @Slf4j
 public class DataInitializer implements ApplicationRunner {
-    final PostService postService;
-    final AuthorService authorService;
+    final PostRepository posts;
+    final CommentRepository comments;
+    final AuthorRepository authors;
 
     @Override
     public void run(ApplicationArguments args) throws Exception {
-        var author = Author.builder()
-                .id(UUID.randomUUID().toString())
-                .name("user")
-                .email("user@example.com")
-                .build();
+        log.info("start data initialization...");
+        int commentsDel = this.comments.deleteAll();
+        int postDel = this.posts.deleteAll();
+        int authorsDel = this.authors.deleteAll();
 
-        authorService.init(List.of(author));
-
-        var initData = IntStream.range(1, 5)
-                .mapToObj(
+        log.info("deleted rows: authors: {}, comments: {}, posts: {}", authorsDel, commentsDel, postDel);
+        var authorId = this.authors.create("user", "user@example.com");
+        IntStream.range(1, 5)
+                .forEach(
                         i -> {
-                            var comments = IntStream.range(1, new Random().nextInt(5) + 1)
-                                    .mapToObj(c -> Comment.builder()
-                                            .id(UUID.randomUUID().toString())
-                                            .content("comment #" + c)
-                                            .build()
-                                    )
-                                    .toList();
-                            var data = Post.builder()
-                                    .id(UUID.randomUUID().toString())
-                                    .title("Dgs post #" + i)
-                                    .content("test content of #" + i)
-                                    .comments(new ArrayList<>(comments))//make it mutable.
-                                    .authorId(author.getId())
-                                    .build();
-                            return data;
-                        }
-                )
-                .toList();
+                            var postId = this.posts.create("Dgs post #" + i, "test content of #" + i, PostStatus.DRAFT.name(), authorId);
 
-        this.postService.init(initData);
-        this.postService.getAllPosts().forEach(p -> log.info("post data : {}", p));
+                            IntStream.range(1, new Random().nextInt(5) + 1)
+                                    .forEach(c -> this.comments.create("comment #" + c, postId));
+                        }
+                );
+
+        this.posts.findAll().forEach(p -> log.info("post: {}", p));
+        this.comments.findAll().forEach(p -> log.info("comment: {}", p));
+        this.authors.findAll().forEach(p -> log.info("author: {}", p));
+        log.info("done data initialization...");
     }
 }
