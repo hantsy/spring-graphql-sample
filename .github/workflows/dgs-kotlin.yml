@@ -11,7 +11,10 @@ on:
   pull_request:
     paths:
       - "dgs-kotlin/**"
-    branches: [ master ]
+    types:
+      - opened
+      - synchronize
+      - reopened
 
 jobs:
   

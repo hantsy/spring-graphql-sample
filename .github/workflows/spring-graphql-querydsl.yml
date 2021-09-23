@@ -11,7 +11,10 @@ on:
   pull_request:
     paths:
       - "spring-graphql-querydsl/**"
-    branches: [ master ]
+    types:
+      - opened
+      - synchronize
+      - reopened
 
 jobs:
   build:
