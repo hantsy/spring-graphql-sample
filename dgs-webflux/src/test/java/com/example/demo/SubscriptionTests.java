@@ -52,17 +52,6 @@ class SubscriptionTests {
                         .build()
         ));
 
-        // add comment
-        dataFetcher.addComment(
-                        CommentInput.builder()
-                                .postId(UUID.randomUUID().toString())
-                                .content("test content")
-                                .build()
-                )
-                .as(StepVerifier::create)
-                .consumeNextWith(comment -> assertThat(comment.getContent()).isEqualTo("test comment"))
-                .verifyComplete();
-
         String query = "subscription onCommentAdded { commentAdded { id postId content } }";
         Mono<ExecutionResult> executionResultMono = dgsReactiveQueryExecutor.execute(query, Collections.emptyMap());
 
@@ -78,9 +67,21 @@ class SubscriptionTests {
                 .thenCancel()
                 .verifyLater();
 
+        // add comment
+        dataFetcher.addComment(
+                        CommentInput.builder()
+                                .postId(UUID.randomUUID().toString())
+                                .content("test content")
+                                .build()
+                )
+                .as(StepVerifier::create)
+                .consumeNextWith(comment -> assertThat(comment.getContent()).isEqualTo("test comment"))
+                .verifyComplete();
 
-
+        // verify the subscription now.
         verifier.verify();
+
+        // verify the invocation of the mocks.
         verify(postService, times(1)).addComment(any(CommentInput.class));
         verify(postService, times(1)).getCommentById(anyString());
         verifyNoMoreInteractions(postService);
