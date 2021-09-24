@@ -10,9 +10,11 @@ import graphql.ExecutionResult;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
+import org.reactivestreams.Publisher;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
@@ -50,21 +52,6 @@ class SubscriptionTests {
                         .build()
         ));
 
-        String query = "subscription onCommentAdded { commentAdded { id postId content } }";
-        Mono<ExecutionResult> executionResult = dgsReactiveQueryExecutor.execute(query, Collections.EMPTY_MAP);
-
-        //var publisher = executionResult.flatMapMany(result -> Flux.from((Publisher<ExecutionResult>) result.getData()));
-
-        var verifier = StepVerifier.create(executionResult)
-                .consumeNextWith(it -> {
-                    log.debug("publisher: {}", it);
-                    var data = (Map<String, Map<String, Object>>) it.getData();
-                    log.debug("data: {}", data);
-                    assertThat(data.get("commentAdded").get("content")).isEqualTo("test comment");
-                })
-                .thenCancel()
-                .verifyLater();
-
         // add comment
         dataFetcher.addComment(
                         CommentInput.builder()
@@ -75,6 +62,23 @@ class SubscriptionTests {
                 .as(StepVerifier::create)
                 .consumeNextWith(comment -> assertThat(comment.getContent()).isEqualTo("test comment"))
                 .verifyComplete();
+
+        String query = "subscription onCommentAdded { commentAdded { id postId content } }";
+        Mono<ExecutionResult> executionResultMono = dgsReactiveQueryExecutor.execute(query, Collections.emptyMap());
+
+        var publisher = executionResultMono.flatMapMany(result -> Flux.from( result.<Publisher<ExecutionResult>>getData()));
+
+        var verifier = StepVerifier.create(publisher)
+                .consumeNextWith(it -> {
+                    log.debug("publisher: {}", it);
+                    var data = it.<Map<String, Map<String, Object>>>getData();
+                    log.debug("data: {}", data);
+                    assertThat(data.get("commentAdded").get("content")).isEqualTo("test comment");
+                })
+                .thenCancel()
+                .verifyLater();
+
+
 
         verifier.verify();
         verify(postService, times(1)).addComment(any(CommentInput.class));

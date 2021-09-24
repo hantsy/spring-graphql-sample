@@ -36,9 +36,9 @@ class SubscriptionTestsWithGraphQLClient {
     @LocalServerPort
     int port;
 
-    WebClient webClient;
+    private WebClient webClient;
 
-    DefaultGraphQLClient client;
+    private DefaultGraphQLClient client;
 
     @BeforeEach
     public void setup() {

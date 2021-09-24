@@ -58,8 +58,12 @@ public class PostsDataFetcher {
     @DgsMutation
     public Mono<Comment> addComment(@InputArgument("commentInput") @Valid CommentInput input) {
         Mono<Comment> comment = this.postService.addComment(input)
-                .flatMap(id -> this.postService.getCommentById(id.toString()))
-                .doOnNext(c -> sink.emitNext(c, Sinks.EmitFailureHandler.FAIL_FAST));
+                .flatMap(id -> this.postService.getCommentById(id.toString())
+                        .doOnNext(c -> {
+                            log.debug("emitting comment: {}", c);
+                            sink.emitNext(c, Sinks.EmitFailureHandler.FAIL_FAST);
+                        })
+                );
 
         return comment;
     }

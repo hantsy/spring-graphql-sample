@@ -10,9 +10,12 @@ import com.example.demo.repository.AuthorRepository;
 import com.example.demo.repository.CommentRepository;
 import com.example.demo.repository.PostRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.reactivestreams.Publisher;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.core.publisher.Sinks;
 
 import java.util.Set;
 import java.util.UUID;
@@ -20,6 +23,7 @@ import java.util.function.Function;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class PostService {
     public static final Function<PostEntity, Post> MAPPER = entity -> Post.builder()
             .id(entity.id().toString())
