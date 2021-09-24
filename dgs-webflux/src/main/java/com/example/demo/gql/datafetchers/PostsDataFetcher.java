@@ -59,9 +59,7 @@ public class PostsDataFetcher {
     public Mono<Comment> addComment(@InputArgument("commentInput") @Valid CommentInput input) {
         Mono<Comment> comment = this.postService.addComment(input)
                 .flatMap(id -> this.postService.getCommentById(id.toString()))
-                .doOnNext(
-                        c -> sink.emitNext(c, Sinks.EmitFailureHandler.FAIL_FAST)
-                );
+                .doOnNext(c -> sink.emitNext(c, Sinks.EmitFailureHandler.FAIL_FAST));
 
         return comment;
     }

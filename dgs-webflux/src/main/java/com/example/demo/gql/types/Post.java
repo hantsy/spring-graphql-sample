@@ -1,8 +1,6 @@
 package com.example.demo.gql.types;
 
-import lombok.Builder;
-import lombok.Data;
-import lombok.ToString;
+import lombok.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -10,6 +8,8 @@ import java.util.List;
 @Data
 @Builder
 @ToString
+@AllArgsConstructor
+@NoArgsConstructor
 public class Post {
     String id;
     String title;

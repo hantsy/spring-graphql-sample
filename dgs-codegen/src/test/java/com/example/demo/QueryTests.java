@@ -11,7 +11,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import reactor.core.publisher.Mono;
 
 import java.util.List;
 import java.util.Map;
@@ -63,7 +62,7 @@ class QueryTests {
                                 Post.newBuilder().id(UUID.randomUUID().toString()).title("dgs post test title2").content("test content2").build()
                         )
                 );
-        var query= """
+        var query = """
                 query allPosts{
                     allPosts{
                         title

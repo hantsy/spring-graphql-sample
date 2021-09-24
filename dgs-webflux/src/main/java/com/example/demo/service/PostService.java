@@ -55,8 +55,8 @@ public class PostService {
     }
 
     public Mono<UUID> createPost(CreatePostInput postInput) {
-        var authorId = this.authors.findAll().blockFirst().id();
-        return this.posts.create(postInput.getTitle(), postInput.getContent(), "DRAFT", authorId);
+        var author = this.authors.findAll().last();//get an existing id
+        return author.flatMap(a -> this.posts.create(postInput.getTitle(), postInput.getContent(), "DRAFT", a.id()));
     }
 
     public Flux<Comment> getCommentsByPostIdIn(Set<String> ids) {
