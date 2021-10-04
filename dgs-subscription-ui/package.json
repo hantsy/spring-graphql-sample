@@ -19,7 +19,7 @@
     "@angular/forms": "~12.2.7",
     "@angular/material": "~12.2.7",
     "@angular/platform-browser": "~12.2.7",
-    "@angular/platform-browser-dynamic": "~12.2.7",
+    "@angular/platform-browser-dynamic": "~12.2.8",
     "@angular/router": "~12.2.7",
     "@apollo/client": "^3.4.15",
     "apollo-angular": "^2.6.0",
