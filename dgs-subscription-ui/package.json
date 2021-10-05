@@ -10,7 +10,7 @@
   },
   "private": true,
   "dependencies": {
-    "@angular/animations": "~12.2.7",
+    "@angular/animations": "~12.2.8",
     "@angular/cdk": "~12.2.3",
     "@angular/common": "~12.2.8",
     "@angular/compiler": "~12.2.3",
@@ -21,7 +21,7 @@
     "@angular/platform-browser": "~12.2.7",
     "@angular/platform-browser-dynamic": "~12.2.8",
     "@angular/router": "~12.2.7",
-    "@apollo/client": "^3.4.15",
+    "@apollo/client": "^3.4.16",
     "apollo-angular": "^2.6.0",
     "graphql": "^15.5.3",
     "rxjs": "~6.6.0",
