@@ -23,6 +23,8 @@ dependencies {
         exclude group: 'org.yaml', module: 'snakeyaml'
     }// auto-configure graphql extended scalars
 
+    // see: https://github.com/Netflix/dgs-framework/pull/659
+    // and https://github.com/graphql-java/graphql-java-extended-validation/issues/52
     implementation 'com.graphql-java:graphql-java-extended-validation:17.0'
     // https://mvnrepository.com/artifact/jakarta.validation/jakarta.validation-api
     implementation 'jakarta.validation:jakarta.validation-api:3.0.0'
