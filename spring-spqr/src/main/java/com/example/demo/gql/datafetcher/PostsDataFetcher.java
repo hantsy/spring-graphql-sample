@@ -1,9 +1,6 @@
 package com.example.demo.gql.datafetcher;
 
-import com.example.demo.gql.types.Author;
-import com.example.demo.gql.types.Comment;
-import com.example.demo.gql.types.CreatePostInput;
-import com.example.demo.gql.types.Post;
+import com.example.demo.gql.types.*;
 import com.example.demo.service.PostService;
 import io.leangen.graphql.annotations.*;
 import io.leangen.graphql.execution.ResolutionEnvironment;
@@ -46,9 +43,19 @@ public class PostsDataFetcher {
         return dataLoader.load(post.getId());
     }
 
+//     @GraphQLMutation(name = "createPost", description = "create a new post")
+//     public Post createPost(@GraphQLArgument(name="createPostInput") CreatePostInput input) {
+//        return this.postService.createPost(input);
+//     }
+
+    @GraphQLMutation(name = "createPost", description = "create a new post")
+    public Post createPost(@GraphQLNonNull String title, String content) {
+        return this.postService.createPost(CreatePostInput.of(title, content));
+    }
+
     @GraphQLMutation
-    public Post createPost(@GraphQLArgument(name = "createPostInput") @GraphQLNonNull CreatePostInput input) {
-        return this.postService.createPost(input);
+    public Comment addComment(@GraphQLNonNull String postId, @GraphQLNonNull String content) {
+        return this.postService.addComment(CommentInput.of(postId, content));
     }
 
     @GraphQLSubscription

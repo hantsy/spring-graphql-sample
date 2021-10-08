@@ -8,13 +8,14 @@ import javax.validation.constraints.NotEmpty;
 @Getter
 @Setter
 @ToString
-@RequiredArgsConstructor
+@NoArgsConstructor
+@AllArgsConstructor(staticName = "of")
 public class CommentInput {
+
+    @NotEmpty
+    String postId;
 
     @NotEmpty
     @Length(min = 10, max = 50)
     String content;
-
-    @NotEmpty
-    String postId;
 }

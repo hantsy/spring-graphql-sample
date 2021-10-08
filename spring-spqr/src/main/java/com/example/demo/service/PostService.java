@@ -7,6 +7,7 @@ import com.example.demo.repository.AuthorRepository;
 import com.example.demo.repository.CommentRepository;
 import com.example.demo.repository.PostRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.reactivestreams.Publisher;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Sinks;
@@ -19,6 +20,7 @@ import java.util.function.Function;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class PostService {
     private static final Function<PostEntity, Post> POST_MAPPER = p -> Post.builder()
             .id(p.id().toString())
@@ -62,6 +64,7 @@ public class PostService {
         var authorId = this.authors.findAll().get(0).id();
         UUID id = this.posts.create(postInput.getTitle(), postInput.getContent(), "DRAFT", authorId);
         PostEntity entity = this.posts.findById(id);
+        log.debug("created post: {}", entity);
         return POST_MAPPER.apply(entity);
     }
 
@@ -80,7 +83,8 @@ public class PostService {
                 .toList();
     }
 
-    public Comment addComment(String id, CommentInput input) {
+    public Comment addComment(CommentInput input) {
+        String id = input.getPostId();
         var postEntity = this.posts.findById(UUID.fromString(id));
         return Optional.ofNullable(postEntity)
                 .map(entity ->{

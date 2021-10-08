@@ -8,7 +8,8 @@ import javax.validation.constraints.NotEmpty;
 @Getter
 @Setter
 @ToString
-@RequiredArgsConstructor
+@NoArgsConstructor
+@AllArgsConstructor(staticName = "of")
 public class CreatePostInput {
     @NotEmpty
     @Length(min = 5, max = 100)
