@@ -6,6 +6,7 @@ Spring GraphQL examples using the following frameworks and libraries:
 * [Spring GraphQL](https://github.com/spring-projects/spring-graphql)
 * [GraphQL Java Kickstart](https://www.graphql-java-kickstart.com/)
 * [GraphQL Java](https://www.graphql-java.com/)
+* [GraphQL SPQR(GraphQL Schema Publisher & Query Resolver, pronounced like speaker)](https://github.com/leangen/graphql-spqr)
 
 ## Guide
 
@@ -31,6 +32,7 @@ TBD
 |[spring-graphql](./spring-graphql) | Spring GraphQL example|
 |[spring-graphql-annotations](./spring-graphql-annotations) | Spring GraphQL with annotated DataFecthers example|
 |[spring-graphql-querydsl](./spring-graphql-querydsl)| Spring GraphQL/JPA/QueryDSl Data Fetchers example|
+|[spring-spqr](./spring-spqr)| Spring SPQR example|
 
 ## Prerequisites
 
