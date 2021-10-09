@@ -29,10 +29,12 @@ TBD
 |[graphql-java](./graphql-java)  | GraphQL Java Kickstart Spring Boot example|
 |[graphql-java-webclient](./graphql-java-webclient) | GraphQL Java Kickstart Spring WebClient example|
 |[graphql-java-annotations](./graphql-java-annotations) | GraphQL Java Kickstart Spring Boot example(Code first)|
+|[graphql-spqr](./graphql-spqr)| GraphQL SPQR Spring example|
 |[spring-graphql](./spring-graphql) | Spring GraphQL example|
 |[spring-graphql-annotations](./spring-graphql-annotations) | Spring GraphQL with annotated DataFecthers example|
 |[spring-graphql-querydsl](./spring-graphql-querydsl)| Spring GraphQL/JPA/QueryDSl Data Fetchers example|
-|[graphql-spqr](./graphql-spqr)| GraphQL SPQR Spring example|
+|[spring-graphql-webflux](./spring-graphql-webflux) | Spring GraphQL example with WebFlux and WebSocket transport protocol |
+
 
 ## Prerequisites
 
