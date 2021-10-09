@@ -32,7 +32,7 @@ TBD
 |[spring-graphql](./spring-graphql) | Spring GraphQL example|
 |[spring-graphql-annotations](./spring-graphql-annotations) | Spring GraphQL with annotated DataFecthers example|
 |[spring-graphql-querydsl](./spring-graphql-querydsl)| Spring GraphQL/JPA/QueryDSl Data Fetchers example|
-|[spring-spqr](./spring-spqr)| Spring SPQR example|
+|[graphql-spqr](./graphql-spqr)| GraphQL SPQR Spring example|
 
 ## Prerequisites
 
