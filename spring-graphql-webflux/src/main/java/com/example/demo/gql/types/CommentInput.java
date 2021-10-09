@@ -1,0 +1,21 @@
+package com.example.demo.gql.types;
+
+import lombok.*;
+import org.hibernate.validator.constraints.Length;
+
+import javax.validation.constraints.NotEmpty;
+
+@Getter
+@Setter
+@ToString
+@Builder
+@AllArgsConstructor
+@RequiredArgsConstructor
+public class CommentInput {
+    @NotEmpty
+    @Length(min = 5, max = 50)
+    String content;
+
+    @NotEmpty
+    String postId;
+}
