@@ -52,12 +52,9 @@ class SubscriptionTests {
         String query = "subscription onCommentAdded { commentAdded { id postId content } }";
         var verifier = graphQlTester.query(query)
                 .executeSubscription()
-                .toFlux("data.commentAdded.content", String.class)
+                .toFlux("commentAdded.content", String.class)
                 .as(StepVerifier::create)
-                .consumeNextWith(data -> {
-                    log.debug("data: {}", data);
-                    assertThat(data).isEqualTo("test comment");
-                })
+                .expectNext("test comment")
                 .thenCancel()
                 .verifyLater();
 
