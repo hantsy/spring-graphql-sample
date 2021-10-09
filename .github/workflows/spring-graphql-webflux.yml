@@ -1,0 +1,40 @@
+# This workflow will build a Java project with Gradle
+# For more information see: https://help.github.com/actions/language-and-framework-guides/building-and-testing-java-with-gradle
+
+name: spring-graphql-webflux
+
+on:
+  push:
+    paths:
+      - "spring-graphql-webflux/**"
+    branches: [ master ]
+  pull_request:
+    paths:
+      - "spring-graphql-webflux/**"
+    types:
+      - opened
+      - synchronize
+      - reopened
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up JDK
+      uses: actions/setup-java@v2
+      with:
+        java-version: '17'
+        distribution: 'zulu'
+    - name: Setup Postgres in Docker 
+      run: |
+        docker-compose up -d postgres
+        docker ps -a
+    - name: Build with Gradle
+      run: |
+        cd spring-graphql-webflux
+        chmod +x gradlew
+        ./gradlew build                        
+           
