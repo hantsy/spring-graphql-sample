@@ -33,7 +33,7 @@ TBD
 |[spring-graphql](./spring-graphql) | Spring GraphQL example|
 |[spring-graphql-annotations](./spring-graphql-annotations) | Spring GraphQL with annotated DataFecthers example|
 |[spring-graphql-querydsl](./spring-graphql-querydsl)| Spring GraphQL/JPA/QueryDSl Data Fetchers example|
-|[spring-graphql-webflux](./spring-graphql-webflux) | Spring GraphQL example with WebFlux and WebSocket transport protocol |
+|[spring-graphql-webflux](./spring-graphql-webflux) | Spring GraphQL/WebFlux example with WebSocket transport protocol |
 
 
 ## Prerequisites
