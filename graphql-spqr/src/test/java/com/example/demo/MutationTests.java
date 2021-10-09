@@ -27,8 +27,8 @@ class MutationTests {
     @Test
     public void testCreatePost() {
         var query = """
-                mutation createPost($title:String!, $content:String){
-                    createPost(title:$title, content:$content){
+                mutation createNewPost($input: CreatePostInput!){
+                    createPost(createPostInput:$input){
                         id
                         title
                         content
@@ -36,8 +36,10 @@ class MutationTests {
                 }
                 """.trim();
         var variables = Map.of(
-                "title", "test title",
-                "content", "test content"
+                "input", Map.of(
+                        "title", "test title",
+                        "content", "test content"
+                )
         );
         Map<String, Object> body = Map.of("query", query, "variables", variables);
         webClient.post().uri("/graphql")

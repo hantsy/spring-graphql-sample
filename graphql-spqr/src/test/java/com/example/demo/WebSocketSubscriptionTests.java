@@ -3,6 +3,7 @@ package com.example.demo;
 import com.example.demo.service.PostService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.jayway.jsonpath.JsonPath;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
@@ -31,7 +32,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @Slf4j
-@Disabled
+//@Disabled
 class WebSocketSubscriptionTests {
 
     @LocalServerPort
@@ -95,17 +96,19 @@ class WebSocketSubscriptionTests {
         var commentsReplay = new ArrayList<String>();
         var socketClient = new ReactorNettyWebSocketClient();
         WebSocketHandler socketHandler = session -> {
-            Mono<Void> receiveMono = session.receive().doOnNext(
-                    it -> {
-                        log.debug("next item: {}", it);
-//                        String text = it.getPayloadAsText();
-//                        log.debug("receiving message as text: {}", text);
-//                        if ("data".equals(JsonPath.read(text, "type"))) {
-//                            String comment = JsonPath.read(text, "payload.data.commentAdded.content");
-//                            commentsReplay.add(comment);
-//                        }
-                    }
-            ).log().then();
+            Mono<Void> receiveMono = session.receive()
+                    //.flatMap( it -> Flux.from((CompletionStageMappingPublisher)it.))
+                    .doOnNext(
+                            it -> {
+                                log.debug("next item: {}", it);
+                                String text = it.getPayloadAsText();
+                                log.debug("receiving message as text: {}", text);
+                                if ("data".equals(JsonPath.read(text, "type"))) {
+                                    String comment = JsonPath.read(text, "payload.data.commentAdded.content");
+                                    commentsReplay.add(comment);
+                                }
+                            }
+                    ).log().then();
 
             String message = null;
             try {
