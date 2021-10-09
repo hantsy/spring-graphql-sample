@@ -9,10 +9,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.graphql.boot.test.tester.AutoConfigureGraphQlTester;
 import org.springframework.graphql.test.tester.WebGraphQlTester;
 import org.springframework.graphql.web.WebGraphQlHandler;
 import reactor.core.publisher.Mono;
@@ -21,7 +19,6 @@ import reactor.test.StepVerifier;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.in;
 import static org.mockito.Mockito.*;
 
 @SpringBootTest()
@@ -41,7 +38,7 @@ class SubscriptionWithWebGraphqlHandlerTests {
 
     @BeforeEach
     void setUp(@Autowired WebGraphQlHandler handler) {
-        this.graphQlTester= WebGraphQlTester.create(handler);
+        this.graphQlTester = WebGraphQlTester.create(handler);
     }
 
     @Test
