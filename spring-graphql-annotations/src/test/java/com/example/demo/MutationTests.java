@@ -14,7 +14,6 @@ import org.springframework.graphql.boot.test.tester.AutoConfigureGraphQlTester;
 import org.springframework.graphql.test.tester.GraphQlTester;
 
 import javax.validation.ConstraintViolationException;
-import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
 
@@ -75,7 +74,7 @@ public class MutationTests {
 
     @Test
     @Disabled
-// see: https://github.com/spring-projects/spring-graphql/issues/110
+    // see: https://github.com/spring-projects/spring-graphql/issues/110
     void testCreatePost_FailedValidation() {
         when(postService.createPost(any(CreatePostInput.class))).thenReturn(UUID.randomUUID());
         when(postService.getPostById(anyString())).thenReturn(
@@ -87,7 +86,7 @@ public class MutationTests {
         var creatPost = """
                 mutation createPost($createPostInput: CreatePostInput!){
                    createPost(createPostInput:$createPostInput){
-                   id 
+                   id
                    title
                    content
                    }

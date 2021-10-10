@@ -19,7 +19,7 @@ import java.util.Map;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
-@AutoConfigureMockMvc  // to make subscription work.
+//@AutoConfigureMockMvc  // to make subscription work.
 @AutoConfigureGraphQlTester
 @Slf4j
 public class SubscriptionTests {
@@ -92,7 +92,7 @@ public class SubscriptionTests {
     private void addCommentToPost(String id) {
         var addComment = """
                 mutation addComment($commentInput: CommentInput!){
-                   addComment(commentInput:$commentInput)
+                   addComment(commentInput:$commentInput){id}
                 }""";
 
         String commentId = graphQlTester.query(addComment)
