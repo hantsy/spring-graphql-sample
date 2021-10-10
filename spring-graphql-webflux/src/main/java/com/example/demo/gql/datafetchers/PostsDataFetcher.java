@@ -3,10 +3,8 @@ package com.example.demo.gql.datafetchers;
 import com.example.demo.gql.types.*;
 import com.example.demo.service.AuthorService;
 import com.example.demo.service.PostService;
-import graphql.schema.DataFetchingEnvironment;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.dataloader.DataLoader;
 import org.reactivestreams.Publisher;
 import org.springframework.graphql.data.method.annotation.*;
 import org.springframework.stereotype.Controller;
@@ -16,8 +14,10 @@ import reactor.core.publisher.Mono;
 import reactor.core.publisher.Sinks;
 
 import javax.validation.Valid;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
+import java.util.Map;
 
 @Controller
 @RequiredArgsConstructor
@@ -37,16 +37,26 @@ public class PostsDataFetcher {
         return this.postService.getPostById(postId);
     }
 
-    @SchemaMapping
-    public CompletableFuture<List<Comment>> comments(Post post, DataFetchingEnvironment dfe) {
-        DataLoader<String, List<Comment>> dataLoader = dfe.getDataLoader("commentsLoader");
-        return dataLoader.load(post.getId());
+    @BatchMapping
+    public Mono<Map<Post, List<Comment>>> comments(List<Post> posts) {
+        var keys = posts.stream().map(Post::getId).toList();
+        return this.postService.getCommentsByPostIdIn(keys)
+                .collectMultimap(Comment::getPostId)
+                .map(m -> {
+                    var result = new HashMap<Post, List<Comment>>();
+                    m.keySet().forEach(k -> {
+                        var postKey = posts.stream().filter(post -> post.getId().equals(k)).toList().get(0);
+                        result.put(postKey, new ArrayList<>(m.get(k)));
+                    });
+                    return result;
+                });
     }
 
-    @SchemaMapping
-    public CompletableFuture<Author> author(Post post, DataFetchingEnvironment dfe) {
-        DataLoader<String, Author> dataLoader = dfe.getDataLoader("authorsLoader");
-        return dataLoader.load(post.getAuthorId());
+    @BatchMapping
+    public Flux<Author> author(List<Post> posts) {
+        var keys = posts.stream().map(Post::getAuthorId).toList();
+        var authorByIds = this.authorService.getAuthorByIdIn(keys);
+        return Flux.fromIterable(posts).flatMap(p -> authorByIds.filter(a -> a.getId().equals(p.getAuthorId())));
     }
 
     @MutationMapping

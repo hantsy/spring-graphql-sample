@@ -17,6 +17,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.publisher.Sinks;
 
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 import java.util.function.Function;
@@ -63,7 +64,7 @@ public class PostService {
         return author.flatMap(a -> this.posts.create(postInput.getTitle(), postInput.getContent(), "DRAFT", a.id()));
     }
 
-    public Flux<Comment> getCommentsByPostIdIn(Set<String> ids) {
+    public Flux<Comment> getCommentsByPostIdIn(List<String> ids) {
         var uuids = ids.stream().map(UUID::fromString).toList();
         return this.comments.findByPostIdIn(uuids)
                 .map(COMMENT_MAPPER);
