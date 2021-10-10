@@ -34,7 +34,7 @@ class IntegrationTests {
                 .execute()
                 .path("data.createPost.title").entity(String.class).isEqualTo("test title")
                 .path("data.createPost.id").entity(String.class).get();
-
+        log.debug("saved post id: {}", postId);
         assertThat(postId).isNotNull();
 
         // subscribe commentAdded event

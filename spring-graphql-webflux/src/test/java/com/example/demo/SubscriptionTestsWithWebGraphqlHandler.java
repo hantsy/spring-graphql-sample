@@ -23,7 +23,7 @@ import static org.mockito.Mockito.*;
 
 @SpringBootTest()
 @Slf4j
-class SubscriptionWithWebGraphqlHandlerTests {
+class SubscriptionTestsWithWebGraphqlHandler {
 
     WebGraphQlTester graphQlTester;
 
