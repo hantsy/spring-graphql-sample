@@ -4,13 +4,12 @@ import com.example.demo.gql.types.Comment;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.graphql.boot.test.tester.AutoConfigureGraphQlTester;
-import org.springframework.graphql.test.tester.GraphQlTester;
+import org.springframework.graphql.test.tester.WebGraphQlTester;
 import reactor.core.publisher.Flux;
 import reactor.test.StepVerifier;
 
@@ -20,62 +19,28 @@ import java.util.Map;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
-//@AutoConfigureMockMvc  // to make subscription work.
+@AutoConfigureMockMvc  // to make subscription work.
 @AutoConfigureGraphQlTester
 @Slf4j
-public class DemoApplicationTests {
+public class SubscriptionTests {
 
     @Autowired
-    GraphQlTester graphQlTester;
+    WebGraphQlTester graphQlTester;
 
     @Autowired
     ObjectMapper objectMapper;
-
-    @Test
-    void allPosts() {
-        var allPosts = """
-                query posts{
-                   allPosts{
-                     id
-                     title
-                     content
-                     author{ id name email }
-                     comments{ id content }
-                   }
-                 }""";
-        graphQlTester.query(allPosts)
-                .execute()
-                .path("allPosts[*].title")
-                .entityList(String.class)
-                .satisfies(titles -> assertThat(titles).anyMatch(s -> s.startsWith("DGS POST")));
-    }
-
-    @Test
-    @Disabled // see: https://github.com/spring-projects/spring-graphql/issues/110
-    void testCreatePostInputValidation() {
-        var creatPost = """
-                mutation createPost($createPostInput: CreatePostInput!){
-                   createPost(createPostInput:$createPostInput)
-                }""";
-
-        String TITLE = "test";//not valid
-        graphQlTester.query(creatPost)
-                .variable("createPostInput",
-                        Map.of(
-                                "title", TITLE,
-                                "content", "content of my post"
-                        ))
-                .execute()
-                .errors().satisfy(e -> assertThat(e).isNotEmpty());
-    }
 
     @SneakyThrows
     @Test
     public void createPostAndAddComment() {
         var creatPost = """
                 mutation createPost($createPostInput: CreatePostInput!){
-                   createPost(createPostInput:$createPostInput)
-                }""";
+                   createPost(createPostInput:$createPostInput){
+                   id 
+                   title
+                   content
+                   }
+                }""".trim();
 
         String TITLE = "my post created by Spring GraphQL";
         String id = graphQlTester.query(creatPost)
@@ -85,8 +50,7 @@ public class DemoApplicationTests {
                                 "content", "content of my post"
                         ))
                 .execute()
-                .path("createPost")
-                .entity(String.class).get();
+                .path("createPost.id").entity(String.class).get();
 
         log.info("created post: {}", id);
         assertThat(id).isNotNull();
@@ -105,7 +69,7 @@ public class DemoApplicationTests {
                 .execute()
                 .path("postById.title")
                 .entity(String.class)
-                .satisfies(titles -> assertThat(titles).isEqualTo(TITLE.toUpperCase()));
+                .satisfies(titles -> assertThat(titles).isEqualTo(TITLE));
 
 
         Flux<Comment> result = this.graphQlTester.query("subscription onCommentAdded { commentAdded { id content } }")
@@ -138,7 +102,7 @@ public class DemoApplicationTests {
                                 "content", "comment of my post at " + LocalDateTime.now()
                         ))
                 .execute()
-                .path("addComment")
+                .path("addComment.id")
                 .entity(String.class).get();
 
         log.info("added comment of post: {}", commentId);

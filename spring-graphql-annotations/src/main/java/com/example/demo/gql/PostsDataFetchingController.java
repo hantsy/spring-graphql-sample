@@ -60,12 +60,13 @@ public class PostsDataFetchingController {//spring boot stater created an `Annot
     }
 
     @MutationMapping
-    public UUID createPost(@Argument("createPostInput") @Validated CreatePostInput input) {
-        return postService.createPost(input);
+    public Post createPost(@Argument("createPostInput") @Validated CreatePostInput input) {
+        var id = postService.createPost(input);
+        return this.postService.getPostById(id.toString());
     }
 
     @MutationMapping
-    public UUID addComment(@Argument CommentInput commentInput) {
+    public Comment addComment(@Argument CommentInput commentInput) {
         return this.postService.addComment(commentInput);
     }
 

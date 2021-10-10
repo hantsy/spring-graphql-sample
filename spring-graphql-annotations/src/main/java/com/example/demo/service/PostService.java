@@ -79,18 +79,18 @@ public class PostService {
     }
 
     public List<Comment> getCommentsByPostIdIn(Set<String> ids) {
-        var uuids  = ids.stream().map(UUID::fromString).toList();
+        var uuids = ids.stream().map(UUID::fromString).toList();
         return this.comments.findByPostIdIn(uuids)
                 .stream()
                 .map(COMMENT_MAPPER)
                 .toList();
     }
 
-    public UUID addComment(CommentInput input) {
+    public Comment addComment(CommentInput input) {
         UUID id = this.comments.create(input.getContent(), UUID.fromString(input.getPostId()));
         Comment commentById = this.getCommentById(id.toString());
         sink.emitNext(commentById, Sinks.EmitFailureHandler.FAIL_FAST);
-        return id;
+        return commentById;
     }
 
     // sink of `commentAdded` event
