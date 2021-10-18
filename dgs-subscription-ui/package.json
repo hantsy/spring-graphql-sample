@@ -23,7 +23,7 @@
     "@angular/router": "~12.2.9",
     "@apollo/client": "^3.4.16",
     "apollo-angular": "^2.6.0",
-    "graphql": "^15.6.0",
+    "graphql": "^15.6.1",
     "rxjs": "~6.6.0",
     "subscriptions-transport-ws": "^0.9.19",
     "tslib": "^2.3.1",
