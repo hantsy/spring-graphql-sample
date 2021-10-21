@@ -40,7 +40,7 @@ TBD
 
 Make sure you have installed the following software.
 
-* Java 16 
+* Java 17 
 * Apache Maven 3.8.x / Gradle 7.x
 * Docker
 
