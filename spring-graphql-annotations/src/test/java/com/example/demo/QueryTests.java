@@ -1,5 +1,6 @@
 package com.example.demo;
 
+import com.example.demo.gql.PostController;
 import com.example.demo.gql.types.Post;
 import com.example.demo.service.AuthorService;
 import com.example.demo.service.PostService;
@@ -16,7 +17,7 @@ import java.util.UUID;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
-@GraphQlTest
+@GraphQlTest(PostController.class)
 @Slf4j
 public class QueryTests {
 

@@ -15,17 +15,20 @@ import org.springframework.validation.annotation.Validated;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.CompletionStage;
 
 @Controller
 @Validated
 @Slf4j
-public class PostsDataFetchingController {//spring boot stater created an `AnnotatedDataFetchersConfigurer` to register data fetchers from `@GraphQlController` clazz
+public class PostController {//spring boot stater created an `AnnotatedDataFetchersConfigurer` to register data fetchers from `@GraphQlController` clazz
     private final PostService postService;
     private final AuthorService authorService;
 
-    public PostsDataFetchingController(PostService postService, AuthorService authorService, BatchLoaderRegistry registry) {
+    public PostController(PostService postService, AuthorService authorService, BatchLoaderRegistry registry) {
         this.postService = postService;
         this.authorService = authorService;
         registry.forTypePair(String.class, Author.class)
@@ -61,8 +64,7 @@ public class PostsDataFetchingController {//spring boot stater created an `Annot
 
     @MutationMapping
     public Post createPost(@Argument("createPostInput") @Validated CreatePostInput input) {
-        var id = postService.createPost(input);
-        return this.postService.getPostById(id.toString());
+        return postService.createPost(input);
     }
 
     @MutationMapping

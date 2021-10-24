@@ -1,10 +1,10 @@
 package com.example.demo;
 
+import com.example.demo.gql.PostController;
 import com.example.demo.gql.types.CreatePostInput;
 import com.example.demo.gql.types.Post;
 import com.example.demo.service.AuthorService;
 import com.example.demo.service.PostService;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
@@ -22,7 +22,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
-@GraphQlTest
+@GraphQlTest(PostController.class)
 @Slf4j
 public class MutationTests {
 
@@ -35,17 +35,13 @@ public class MutationTests {
     @MockBean
     AuthorService authorService;
 
-
     @Test
     void testCreatePost() {
-        when(postService.createPost(any(CreatePostInput.class))).thenReturn(UUID.randomUUID());
-        when(postService.getPostById(anyString())).thenReturn(
-                Post.builder().id(UUID.randomUUID().toString())
-                        .title("test title")
-                        .content("test content")
-                        .build()
-        );
-
+        var data = Post.builder().id(UUID.randomUUID().toString())
+                .title("test title")
+                .content("test content")
+                .build();
+        when(postService.createPost(any(CreatePostInput.class))).thenReturn(data);
         var creatPost = """
                 mutation createPost($createPostInput: CreatePostInput!){
                    createPost(createPostInput:$createPostInput){
@@ -66,7 +62,6 @@ public class MutationTests {
                 .path("createPost.title").entity(String.class).isEqualTo(TITLE);
 
         verify(postService, times(1)).createPost(any(CreatePostInput.class));
-        verify(postService, times(1)).getPostById(anyString());
         verifyNoMoreInteractions(postService);
     }
 
@@ -75,13 +70,11 @@ public class MutationTests {
     @Disabled
         // see: https://github.com/spring-projects/spring-graphql/issues/110
     void testCreatePost_FailedValidation() {
-        when(postService.createPost(any(CreatePostInput.class))).thenReturn(UUID.randomUUID());
-        when(postService.getPostById(anyString())).thenReturn(
-                Post.builder().id(UUID.randomUUID().toString())
-                        .title("test title")
-                        .content("test content")
-                        .build()
-        );
+        var data = Post.builder().id(UUID.randomUUID().toString())
+                .title("test title")
+                .content("test content")
+                .build();
+        when(postService.createPost(any(CreatePostInput.class))).thenReturn(data);
         var creatPost = """
                 mutation createPost($createPostInput: CreatePostInput!){
                    createPost(createPostInput:$createPostInput){
@@ -103,7 +96,6 @@ public class MutationTests {
         ).hasCauseInstanceOf(ConstraintViolationException.class);
 
         verify(postService, times(0)).createPost(any(CreatePostInput.class));
-        verify(postService, times(0)).getPostById(anyString());
         verifyNoMoreInteractions(postService);
     }
 
