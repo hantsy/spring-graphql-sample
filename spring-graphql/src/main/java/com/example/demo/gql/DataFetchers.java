@@ -10,6 +10,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.dataloader.DataLoader;
 import org.reactivestreams.Publisher;
 import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Controller;
+import org.springframework.stereotype.Service;
 import org.springframework.util.StreamUtils;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -18,12 +20,12 @@ import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CompletionStage;
 
+@Component
 @RequiredArgsConstructor
 @Slf4j
-@Component
 public class DataFetchers {
-    final PostService postService;
-    final ObjectMapper objectMapper;
+    private final PostService postService;
+    private final ObjectMapper objectMapper;
 
     public DataFetcher<Post> postById() {
         return (DataFetchingEnvironment dfe) -> {

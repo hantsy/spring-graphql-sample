@@ -61,14 +61,17 @@ public class PostService {
                 .toList();
     }
 
-    public UUID createPost(CreatePostInput postInput) {
+    public Post createPost(CreatePostInput postInput) {
         Validate.notNull(postInput, "CreatePostInput can not be null");
         Validate.notEmpty(postInput.getTitle(), "CreatePostInput.title can not be empty");
         // Use a hard code user id here.
         // In a real world application, the author is the current user which can be fetched from Spring security context.
         var authorId = this.authors.findAll().get(0).id();
         UUID id = this.posts.create(postInput.getTitle(), postInput.getContent(), "DRAFT", authorId);
-        return id;
+        var entity = this.posts.findById(id);
+        return Optional.ofNullable(entity)
+                .map(POST_MAPPER)
+                .orElseThrow(() -> new PostNotFoundException(id.toString()));
     }
 
     public List<Comment> getCommentsByPostId(String id) {

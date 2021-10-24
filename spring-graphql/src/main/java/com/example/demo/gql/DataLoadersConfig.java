@@ -9,14 +9,14 @@ import org.springframework.graphql.web.WebInterceptor;
 public class DataLoadersConfig {
     @Bean
     public WebInterceptor interceptor(DataLoaders loader) {
-        return (input, next) -> {
+        return (input, chain) -> {
             input.configureExecutionInput((executionInput, builder) -> {
                 DataLoaderRegistry registry = new DataLoaderRegistry();
                 registry.register("authorsLoader", loader.authorsLoader());
                 registry.register("commentsLoader", loader.commentsLoader());
                 return builder.dataLoaderRegistry(registry).build();
             });
-            return next.handle(input);
+            return chain.next(input);
         };
     }
 }
