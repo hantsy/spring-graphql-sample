@@ -1,8 +1,6 @@
 package com.example.demo
 
-import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.web.server.LocalServerPort
@@ -65,10 +63,10 @@ class MutationTests {
             .bodyValue(requestData)
             .exchange()
             .expectStatus().is2xxSuccessful
-            //
-            // security is disabled.
-            //.expectBody()
-            //.jsonPath("errors.length()").value<Int> { assertThat(it).isGreaterThan(0) }
+        //
+        // security is disabled.
+        //.expectBody()
+        //.jsonPath("errors.length()").value<Int> { assertThat(it).isGreaterThan(0) }
 
         // it is an INTERNAL errorType
         //.jsonPath("errors[0].extensions.errorType").isEqualTo("PERMISSION_DENIED")
