@@ -11,7 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.graphql.boot.test.tester.AutoConfigureGraphQlTester;
+import org.springframework.graphql.boot.test.tester.AutoConfigureWebGraphQlTester;
 import org.springframework.graphql.test.tester.WebGraphQlTester;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
@@ -23,7 +23,7 @@ import static org.mockito.Mockito.*;
 
 @SpringBootTest()
 @Slf4j
-@AutoConfigureGraphQlTester
+@AutoConfigureWebGraphQlTester
 @AutoConfigureWebTestClient
 class SubscriptionTests {
 
