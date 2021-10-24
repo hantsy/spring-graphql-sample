@@ -1,15 +1,17 @@
 package com.example.demo;
 
+import com.example.demo.gql.PostsDataFetchingController;
 import com.example.demo.gql.types.Comment;
+import com.example.demo.service.AuthorService;
+import com.example.demo.service.PostService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.graphql.boot.test.tester.AutoConfigureGraphQlTester;
-import org.springframework.graphql.test.tester.WebGraphQlTester;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.graphql.boot.test.GraphQlTest;
+import org.springframework.graphql.test.tester.GraphQlTester;
 import reactor.core.publisher.Flux;
 import reactor.test.StepVerifier;
 
@@ -18,17 +20,18 @@ import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@SpringBootTest
-//@AutoConfigureMockMvc  // to make subscription work.
-@AutoConfigureGraphQlTester
+@GraphQlTest(PostsDataFetchingController.class)
 @Slf4j
 public class SubscriptionTests {
 
     @Autowired
-    WebGraphQlTester graphQlTester;
+    GraphQlTester graphQlTester;
 
-    @Autowired
-    ObjectMapper objectMapper;
+    @MockBean
+    AuthorService authorService;
+
+    @MockBean
+    PostService postService;
 
     @SneakyThrows
     @Test

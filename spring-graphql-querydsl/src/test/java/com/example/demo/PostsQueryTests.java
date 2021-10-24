@@ -9,10 +9,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.graphql.boot.test.tester.AutoConfigureGraphQlTester;
+import org.springframework.graphql.boot.test.tester.AutoConfigureWebGraphQlTester;
 import org.springframework.graphql.test.tester.GraphQlTester;
 
 import java.time.LocalDateTime;
@@ -26,8 +25,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 @SpringBootTest()
-@AutoConfigureMockMvc  // to make subscription work.
-@AutoConfigureGraphQlTester
+@AutoConfigureWebGraphQlTester
 @Slf4j
 public class PostsQueryTests {
 

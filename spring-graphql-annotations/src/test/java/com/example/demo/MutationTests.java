@@ -2,15 +2,15 @@ package com.example.demo;
 
 import com.example.demo.gql.types.CreatePostInput;
 import com.example.demo.gql.types.Post;
+import com.example.demo.service.AuthorService;
 import com.example.demo.service.PostService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.graphql.boot.test.tester.AutoConfigureGraphQlTester;
+import org.springframework.graphql.boot.test.GraphQlTest;
 import org.springframework.graphql.test.tester.GraphQlTester;
 
 import javax.validation.ConstraintViolationException;
@@ -22,9 +22,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
-@SpringBootTest
-//@AutoConfigureMockMvc  // to make subscription work.
-@AutoConfigureGraphQlTester
+@GraphQlTest
 @Slf4j
 public class MutationTests {
 
@@ -34,8 +32,9 @@ public class MutationTests {
     @MockBean
     PostService postService;
 
-    @Autowired
-    ObjectMapper objectMapper;
+    @MockBean
+    AuthorService authorService;
+
 
     @Test
     void testCreatePost() {
@@ -74,7 +73,7 @@ public class MutationTests {
 
     @Test
     @Disabled
-    // see: https://github.com/spring-projects/spring-graphql/issues/110
+        // see: https://github.com/spring-projects/spring-graphql/issues/110
     void testCreatePost_FailedValidation() {
         when(postService.createPost(any(CreatePostInput.class))).thenReturn(UUID.randomUUID());
         when(postService.getPostById(anyString())).thenReturn(
