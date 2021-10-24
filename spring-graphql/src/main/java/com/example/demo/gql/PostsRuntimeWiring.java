@@ -13,7 +13,7 @@ import java.util.Map;
 @Component
 @RequiredArgsConstructor
 public class PostsRuntimeWiring implements RuntimeWiringConfigurer {
-    final DataFetchers dataFetchers;
+    private final DataFetchers dataFetchers;
 
     @Override
     public void configure(RuntimeWiring.Builder builder) {
