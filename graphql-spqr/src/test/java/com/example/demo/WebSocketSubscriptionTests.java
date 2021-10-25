@@ -32,7 +32,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @Slf4j
-//@Disabled
+@Disabled
+//see: https://github.com/leangen/graphql-spqr-spring-boot-starter/issues/112
+//and https://stackoverflow.com/questions/69503823/websocket-based-subscription-in-graphql-spqr
 class WebSocketSubscriptionTests {
 
     @LocalServerPort

@@ -5,16 +5,17 @@ import org.hibernate.validator.constraints.Length;
 
 import javax.validation.constraints.NotEmpty;
 
-@Getter
-@Setter
+@Data
+@Builder
 @ToString
 @NoArgsConstructor
 @AllArgsConstructor(staticName = "of")
-public class CreatePostInput {
-    @NotEmpty
-    @Length(min = 5, max = 100)
-    String title;
+public class CreateComment {
 
     @NotEmpty
+    String postId;
+
+    @NotEmpty
+    @Length(min = 10, max = 50)
     String content;
 }

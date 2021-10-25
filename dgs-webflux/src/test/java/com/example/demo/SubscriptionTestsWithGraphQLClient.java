@@ -6,6 +6,7 @@ import com.netflix.graphql.dgs.client.WebClientGraphQLClient;
 import com.netflix.graphql.dgs.client.WebSocketGraphQLClient;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.web.server.LocalServerPort;
@@ -21,6 +22,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @Slf4j
+@Disabled //see: https://github.com/Netflix/dgs-framework/issues/689
 class SubscriptionTestsWithGraphQLClient {
 
     @LocalServerPort

@@ -60,7 +60,7 @@ public class PostService {
                 .toList();
     }
 
-    public Post createPost(CreatePostInput postInput) {
+    public Post createPost(CreatePost postInput) {
         var authorId = this.authors.findAll().get(0).id();
         UUID id = this.posts.create(postInput.getTitle(), postInput.getContent(), "DRAFT", authorId);
         PostEntity entity = this.posts.findById(id);
@@ -83,7 +83,7 @@ public class PostService {
                 .toList();
     }
 
-    public Comment addComment(CommentInput input) {
+    public Comment addComment(CreateComment input) {
         String id = input.getPostId();
         var postEntity = this.posts.findById(UUID.fromString(id));
         return Optional.ofNullable(postEntity)

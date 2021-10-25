@@ -44,10 +44,10 @@ public class PostsDataFetcher {
     }
 
     @GraphQLMutation(name = "createPost", description = "create a new post")
-    public Post createPost(@GraphQLArgument(name = "createPostInput") @GraphQLNonNull CreatePostInput input) {
+    public Post createPost(@GraphQLArgument(name = "createPostInput") @GraphQLNonNull CreatePost input) {
         return this.postService.createPost(input);
     }
-
+//
 //    @GraphQLMutation(name = "createPost", description = "create a new post")
 //    public Post createPost(@GraphQLNonNull String title, String content) {
 //        return this.postService.createPost(CreatePostInput.of(title, content));
@@ -55,7 +55,7 @@ public class PostsDataFetcher {
 
     @GraphQLMutation
     public Comment addComment(@GraphQLNonNull String postId, @GraphQLNonNull String content) {
-        return this.postService.addComment(CommentInput.of(postId, content));
+        return this.postService.addComment(CreateComment.of(postId, content));
     }
 
     @GraphQLSubscription
