@@ -11,7 +11,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.validation.annotation.Validated;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-import reactor.core.publisher.Sinks;
 
 import javax.validation.Valid;
 import java.util.ArrayList;
@@ -23,7 +22,7 @@ import java.util.Map;
 @RequiredArgsConstructor
 @Slf4j
 @Validated
-public class PostsDataFetcher {
+public class PostsDataFetcherController {
     private final PostService postService;
     private final AuthorService authorService;
 
@@ -61,26 +60,16 @@ public class PostsDataFetcher {
 
     @MutationMapping
     public Mono<Post> createPost(@Argument("createPostInput") @Valid CreatePostInput input) {
-        return this.postService.createPost(input).flatMap(uuid -> this.postService.getPostById(uuid.toString()));
+        return this.postService.createPost(input);
     }
 
     @MutationMapping
     public Mono<Comment> addComment(@Argument("commentInput") @Valid CommentInput input) {
-        Mono<Comment> comment = this.postService.addComment(input)
-                .flatMap(id -> this.postService.getCommentById(id.toString())
-                        .doOnNext(c -> {
-                            log.debug("emitting comment: {}", c);
-                            sink.emitNext(c, Sinks.EmitFailureHandler.FAIL_FAST);
-                        })
-                );
-
-        return comment;
+        return this.postService.addComment(input);
     }
-
-    private final Sinks.Many<Comment> sink = Sinks.many().replay().latest();
 
     @SubscriptionMapping
     Publisher<Comment> commentAdded() {
-        return sink.asFlux();
+        return this.postService.commentAdded();
     }
 }

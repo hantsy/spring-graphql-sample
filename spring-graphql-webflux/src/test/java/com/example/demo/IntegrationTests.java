@@ -1,32 +1,30 @@
 package com.example.demo;
 
-import com.example.demo.gql.types.Post;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jayway.jsonpath.JsonPath;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
-import org.reactivestreams.Processor;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.web.reactive.WebFluxProperties;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.web.reactive.socket.WebSocketHandler;
 import org.springframework.web.reactive.socket.client.ReactorNettyWebSocketClient;
 import org.springframework.web.reactive.socket.client.WebSocketClient;
-import reactor.core.publisher.*;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 import java.net.URI;
 import java.time.Duration;
+import java.util.ArrayList;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @Slf4j
-@Disabled
+//@Disabled
 class IntegrationTests {
 
     WebSocketClient client;
@@ -70,32 +68,49 @@ class IntegrationTests {
                 "type", "start",
                 "id", "1"
         );
-        final String inputDataJson = asJson(createPostOperationData);
+        var connectionInitData = Map.<String, Object>of(
+                "type", "connection_init",
+                "id", "1"
+        );
+        final String inputDataJson = toJson(createPostOperationData);
         log.debug("input data json string: {}", inputDataJson);
+        final String connectionInitDataJson = toJson(connectionInitData);
+        log.debug("connection init json string: {}", connectionInitDataJson);
 
+        var titleReplay = new ArrayList<String>();
         WebSocketHandler createPostHandler = session -> {
             var receiveMono = session.receive().log("receive::")
                     .doOnNext(webSocketMessage -> {
                         var text = webSocketMessage.getPayloadAsText();
-                        log.debug("text: {}", text);
-                        String title = JsonPath.read(text, "payload.data.createPost.title");
-                        assertThat(title).isEqualTo("test title");
-                        String postId = JsonPath.read(text, "payload.data.createPost.id");
-                        assertThat(postId).isNotNull();
+                        log.debug("websocket message: {}", text);
+                        String type = JsonPath.read(text, "type");
+                        if ("connection_ack".equals(type)) {
+                            session.send(Mono.just(session.textMessage(toJson(Map.of("type", "subscribe", "id", "1")))))
+                                    .subscribe();
+                        } else if ("data".equals(type)) {
+                            String title = JsonPath.read(text, "payload.data.createPost.title");
+                            titleReplay.add(title);
+                            assertThat(title).isEqualTo("test title");
+                            String postId = JsonPath.read(text, "payload.data.createPost.id");
+                            log.debug("title: {}, id: {}", title, postId);
+                        }
                     })
                     .doOnError(error -> log.debug("error on receiving:" + error))
-                    .doOnComplete(() -> log.debug("called doOnComplete()"))
+                    .doOnComplete(() -> log.debug("called doOnComplete() on receiving"))
                     .then();
 
             var sendMono = session.send(
                     Mono.delay(Duration.ofMillis(500)).thenMany(
-                            Flux.just(inputDataJson)
+                            Flux.just(connectionInitDataJson, inputDataJson)
                                     .map(session::textMessage)
                     ).log("send::")
             );
             return sendMono.then(receiveMono);
         };
         this.client.execute(URI.create(this.url), createPostHandler).block(Duration.ofMillis(5000));
+        //verify the message.
+        assertThat(titleReplay.size()).isEqualTo(1);
+        assertThat(titleReplay.get(0)).isEqualTo("test title");
 
 //        var postId = graphQlTester.query(createPostQuery)
 //                .variable("input", Map.of(
@@ -133,7 +148,7 @@ class IntegrationTests {
     }
 
     @SneakyThrows
-    private String asJson(Map<String, Object> createPostOperationData) {
+    private String toJson(Map<String, Object> createPostOperationData) {
         return objectMapper.writeValueAsString(createPostOperationData);
     }
 }

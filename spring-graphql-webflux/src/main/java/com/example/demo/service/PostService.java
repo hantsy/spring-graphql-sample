@@ -18,7 +18,6 @@ import reactor.core.publisher.Mono;
 import reactor.core.publisher.Sinks;
 
 import java.util.List;
-import java.util.Set;
 import java.util.UUID;
 import java.util.function.Function;
 
@@ -59,9 +58,10 @@ public class PostService {
                 .map(MAPPER);
     }
 
-    public Mono<UUID> createPost(CreatePostInput postInput) {
+    public Mono<Post> createPost(CreatePostInput postInput) {
         var author = this.authors.findAll().last();//get an existing id
-        return author.flatMap(a -> this.posts.create(postInput.getTitle(), postInput.getContent(), "DRAFT", a.id()));
+        return author.flatMap(a -> this.posts.create(postInput.getTitle(), postInput.getContent(), "DRAFT", a.id()))
+                .flatMap(id -> this.posts.findById(id).map(MAPPER));
     }
 
     public Flux<Comment> getCommentsByPostIdIn(List<String> ids) {
@@ -70,14 +70,27 @@ public class PostService {
                 .map(COMMENT_MAPPER);
     }
 
-    public Mono<UUID> addComment(CommentInput commentInput) {
+    public Mono<Comment> addComment(CommentInput commentInput) {
         String postId = commentInput.getPostId();
         return this.posts.findById(UUID.fromString(postId))
                 .flatMap(p -> this.comments.create(commentInput.getContent(), UUID.fromString(postId)))
+                .flatMap(id -> this.comments.findById(id).map(COMMENT_MAPPER))
+                .doOnNext(c -> {
+                    log.debug("emitting comment: {}", c);
+                    sink.emitNext(c, Sinks.EmitFailureHandler.FAIL_FAST);
+                })
                 .switchIfEmpty(Mono.error(new PostNotFoundException(postId)));
     }
 
     public Mono<Comment> getCommentById(String id) {
         return this.comments.findById(UUID.fromString(id)).map(COMMENT_MAPPER);
     }
+
+    private final Sinks.Many<Comment> sink = Sinks.many().replay().latest();
+
+    public Publisher<Comment> commentAdded() {
+        return sink.asFlux();
+    }
 }
+
+

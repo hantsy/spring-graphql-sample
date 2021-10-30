@@ -1,5 +1,6 @@
 package com.example.demo;
 
+import com.example.demo.gql.datafetchers.PostsDataFetcherController;
 import com.example.demo.gql.types.Post;
 import com.example.demo.service.AuthorService;
 import com.example.demo.service.PostNotFoundException;
@@ -18,7 +19,7 @@ import java.util.UUID;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
-@GraphQlTest
+@GraphQlTest(controllers = {PostsDataFetcherController.class})
 @Slf4j
 class QueryTests {
 

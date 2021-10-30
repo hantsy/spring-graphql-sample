@@ -27,13 +27,12 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-data-r2dbc'
     implementation 'org.springframework.boot:spring-boot-starter-validation'
     implementation 'io.r2dbc:r2dbc-postgresql'
-    implementation 'org.yaml:snakeyaml:1.29'
 
     //configure Lombok for compile java/ compile tests
-    compileOnly 'org.projectlombok:lombok:1.18.20'
-    annotationProcessor 'org.projectlombok:lombok:1.18.20'
-    testCompileOnly 'org.projectlombok:lombok:1.18.20'
-    testAnnotationProcessor 'org.projectlombok:lombok:1.18.20'
+    compileOnly 'org.projectlombok:lombok:1.18.22'
+    annotationProcessor 'org.projectlombok:lombok:1.18.22'
+    testCompileOnly 'org.projectlombok:lombok:1.18.22'
+    testAnnotationProcessor 'org.projectlombok:lombok:1.18.22'
 	
 	//test
     testImplementation 'org.springframework.graphql:spring-graphql-test:1.0.0-SNAPSHOT'
@@ -44,8 +43,8 @@ dependencies {
 test {
     useJUnitPlatform()
     testLogging {
-//        events "failed", "skipped", "passed"
-//        exceptionFormat "full"
-//        showStandardStreams true
+        events "failed", "skipped", "passed"
+        exceptionFormat "full"
+        showStandardStreams true
     }
 }

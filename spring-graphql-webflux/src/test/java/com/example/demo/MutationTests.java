@@ -1,5 +1,6 @@
 package com.example.demo;
 
+import com.example.demo.gql.datafetchers.PostsDataFetcherController;
 import com.example.demo.gql.types.CreatePostInput;
 import com.example.demo.gql.types.Post;
 import com.example.demo.service.AuthorService;
@@ -17,7 +18,7 @@ import java.util.UUID;
 
 import static org.mockito.Mockito.*;
 
-@GraphQlTest
+@GraphQlTest(controllers = {PostsDataFetcherController.class})
 @Slf4j
 class MutationTests {
 
@@ -32,8 +33,7 @@ class MutationTests {
 
     @Test
     void createPosts() {
-        when(postService.createPost(any(CreatePostInput.class))).thenReturn(Mono.just(UUID.randomUUID()));
-        when(postService.getPostById(anyString())).thenReturn(Mono.just(
+        when(postService.createPost(any(CreatePostInput.class))).thenReturn(Mono.just(
                 Post.builder().id(UUID.randomUUID().toString())
                         .title("test title")
                         .content("test content")
@@ -52,7 +52,6 @@ class MutationTests {
                 .isEqualTo("test title");
 
         verify(postService, times(1)).createPost(any(CreatePostInput.class));
-        verify(postService, times(1)).getPostById(anyString());
         verifyNoMoreInteractions(postService);
     }
 
