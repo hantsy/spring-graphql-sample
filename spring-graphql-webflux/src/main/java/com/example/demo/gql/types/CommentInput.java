@@ -13,7 +13,7 @@ import javax.validation.constraints.NotEmpty;
 @RequiredArgsConstructor
 public class CommentInput {
     @NotEmpty
-    @Length(min = 5, max = 50)
+    @Length(min = 5, max = 250)
     String content;
 
     @NotEmpty

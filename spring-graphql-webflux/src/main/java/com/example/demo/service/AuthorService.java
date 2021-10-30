@@ -18,6 +18,7 @@ import java.util.function.Function;
 public class AuthorService {
     public static final Function<AuthorEntity, Author> MAPPER = entity -> Author.builder()
             .id(entity.id().toString())
+            .name(entity.name())
             .email(entity.email())
             .build();
 

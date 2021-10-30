@@ -2,8 +2,10 @@ package com.example.demo;
 
 import com.example.demo.gql.datafetchers.PostsDataFetcherController;
 import com.example.demo.gql.types.Comment;
+import com.example.demo.service.AuthorService;
 import com.example.demo.service.PostService;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.graphql.boot.test.GraphQlTest;
@@ -23,6 +25,9 @@ class SubscriptionTests {
 
     @MockBean
     PostService postService;
+
+    @MockBean
+    AuthorService authorService;
 
     @Test
     void createCommentAndSubscription() {
