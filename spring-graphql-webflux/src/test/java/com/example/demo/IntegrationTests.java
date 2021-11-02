@@ -65,7 +65,7 @@ class IntegrationTests {
                                 )
                         )
                 ),
-                "type", "start",
+                "type", "subscribe",
                 "id", "1"
         );
         var connectionInitData = Map.<String, Object>of(
@@ -80,21 +80,19 @@ class IntegrationTests {
         var titleReplay = new ArrayList<String>();
         WebSocketHandler createPostHandler = session -> {
             var receiveMono = session.receive().log("receive::")
-                    .flatMap(webSocketMessage -> {
+                    .doOnNext(webSocketMessage -> {
                         var text = webSocketMessage.getPayloadAsText();
                         log.debug("websocket message: {}", text);
                         String type = JsonPath.read(text, "type");
-                        if ("connection_ack".equals(type)) {
-                            return Flux.from(session.send(Mono.just(session.textMessage(toJson(Map.of("type", "subscribe", "id", "1"))))));
-                        } else if ("data".equals(type)) {
+                        if ("connection_ack".equals(type)) {//do nothing
+                            return ;
+                        } else if ("next".equals(type)) {
                             String title = JsonPath.read(text, "payload.data.createPost.title");
                             titleReplay.add(title);
                             assertThat(title).isEqualTo("test title");
                             String postId = JsonPath.read(text, "payload.data.createPost.id");
                             log.debug("title: {}, id: {}", title, postId);
-                            return Flux.empty();
                         }
-                        return Flux.empty();
                     })
                     .doOnError(error -> log.debug("error on receiving:" + error))
                     .doOnComplete(() -> log.debug("called doOnComplete() on receiving"))
