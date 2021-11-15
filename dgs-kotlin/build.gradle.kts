@@ -4,7 +4,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 plugins {
     id("org.springframework.boot") version "2.5.6"
     id("io.spring.dependency-management") version "1.0.11.RELEASE"
-    kotlin("jvm") version "1.5.31"
+    kotlin("jvm") version "1.6.0"
     kotlin("plugin.spring") version "1.5.31"
     id("com.netflix.dgs.codegen") version "5.1.8" //https://plugins.gradle.org/plugin/com.netflix.dgs.codegen
 }
