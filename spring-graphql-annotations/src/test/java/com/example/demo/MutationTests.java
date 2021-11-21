@@ -45,7 +45,7 @@ public class MutationTests {
         var creatPost = """
                 mutation createPost($createPostInput: CreatePostInput!){
                    createPost(createPostInput:$createPostInput){
-                   id 
+                   id
                    title
                    content
                    }

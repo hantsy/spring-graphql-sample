@@ -23,6 +23,8 @@ public class QueryTests {
 
     @Test
     void allPosts() {
+
+        //the `author` and `comments` requires a `DataLoader` which currently only works in a web environment.
         var allPosts = """
                 query posts{
                    allPosts{
