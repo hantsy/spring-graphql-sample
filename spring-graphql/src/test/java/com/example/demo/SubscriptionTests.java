@@ -4,10 +4,12 @@ import com.example.demo.gql.types.Comment;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.graphql.boot.test.tester.AutoConfigureWebGraphQlTester;
+import org.springframework.graphql.GraphQlService;
+import org.springframework.graphql.boot.test.tester.AutoConfigureGraphQlTester;
 import org.springframework.graphql.test.tester.GraphQlTester;
 import reactor.core.publisher.Flux;
 import reactor.test.StepVerifier;
@@ -18,33 +20,22 @@ import java.util.Map;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
-@AutoConfigureWebGraphQlTester
+//@AutoConfigureGraphQlTester
 @Slf4j
-public class DemoApplicationTests {
+public class SubscriptionTests {
 
     @Autowired
+    GraphQlService graphQlService;
+
+    //@Autowired
     GraphQlTester graphQlTester;
 
     @Autowired
     ObjectMapper objectMapper;
 
-    @Test
-    void allPosts() {
-        var allPosts = """
-                query posts{
-                   allPosts{
-                     id
-                     title
-                     content
-                     author{ id name email }
-                     comments{ id content }
-                   }
-                 }""";
-        graphQlTester.query(allPosts)
-                .execute()
-                .path("allPosts[*].title")
-                .entityList(String.class)
-                .satisfies(titles -> assertThat(titles).anyMatch(s -> s.startsWith("DGS POST")));
+    @BeforeEach
+    void setUp() {
+        this.graphQlTester= GraphQlTester.create(graphQlService);
     }
 
     @SneakyThrows
@@ -75,8 +66,6 @@ public class DemoApplicationTests {
                      id
                      title
                      content
-                     author{ id name email }
-                     comments{ id content }
                    }
                  }""";
         graphQlTester.query(postById).variable("postId", id.toString())
