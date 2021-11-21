@@ -20,6 +20,7 @@ import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -45,6 +46,7 @@ class IntegrationTests {
         log.debug("websocket connection url: {}", this.url);
     }
 
+    @SneakyThrows
     @Test
     void createPostAndAddCommentAndSubscription() {
         //create post
@@ -85,9 +87,7 @@ class IntegrationTests {
                         var text = webSocketMessage.getPayloadAsText();
                         log.debug("websocket message: {}", text);
                         String type = JsonPath.read(text, "type");
-                        if ("connection_ack".equals(type)) {//do nothing
-                            return ;
-                        } else if ("next".equals(type)) {
+                        if ("next".equals(type)) {
                             String title = JsonPath.read(text, "payload.data.createPost.title");
                             titleReplay.add(title);
                             assertThat(title).isEqualTo("test title");
@@ -95,19 +95,33 @@ class IntegrationTests {
                             log.debug("title: {}, id: {}", title, postId);
                         }
                     })
+                    .flatMap(webSocketMessage -> {
+                        var text = webSocketMessage.getPayloadAsText();
+                        log.debug("websocket message: {}", text);
+                        String type = JsonPath.read(text, "type");
+                        if ("connection_ack".equals(type)) {//do nothing
+                            return session.send(Flux.just(inputDataJson).map(session::textMessage));
+                        }
+                        return Mono.just(webSocketMessage);
+                    })
                     .doOnError(error -> log.debug("error on receiving:" + error))
                     .doOnComplete(() -> log.debug("called doOnComplete() on receiving"))
                     .then();
 
             var sendMono = session.send(
                     Mono.delay(Duration.ofMillis(500)).thenMany(
-                            Flux.just(connectionInitDataJson, inputDataJson)
+                            Flux.just(connectionInitDataJson)
                                     .map(session::textMessage)
                     ).log("send::")
             );
             return sendMono.then(receiveMono);
         };
-        this.client.execute(URI.create(this.url), createPostHandler).block(Duration.ofMillis(5000));
+        CountDownLatch latch = new CountDownLatch(1);
+        this.client.execute(URI.create(this.url), createPostHandler)
+                .doOnTerminate(latch::countDown)
+                .subscribe();
+
+        latch.await(5000, TimeUnit.MILLISECONDS);
         //verify the message.
         assertThat(titleReplay.size()).isEqualTo(1);
         assertThat(titleReplay.get(0)).isEqualTo("test title");

@@ -59,8 +59,6 @@ class SubscriptionTestsWithWebGraphqlHandler {
                      id
                      title
                      content
-                     author{ id name email }
-                     comments{ id content }
                    }
                  }""";
         graphQlTester.query(postById).variable("postId", id.toString())
