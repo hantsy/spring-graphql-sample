@@ -27,7 +27,7 @@ import static org.mockito.Mockito.when;
 @SpringBootTest()
 @AutoConfigureWebGraphQlTester
 @Slf4j
-public class PostsQueryTests {
+public class QueryTests {
 
     @Autowired
     GraphQlTester graphQlTester;
@@ -72,7 +72,6 @@ public class PostsQueryTests {
                      id
                      title
                      content
-                     comments{ id content }
                    }
                 }""";
         graphQlTester.query(allPosts)
@@ -90,7 +89,6 @@ public class PostsQueryTests {
                      id
                      title
                      content
-                     comments{ id content }
                    }
                  }""";
         graphQlTester.query(postById)
