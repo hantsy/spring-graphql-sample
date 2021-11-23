@@ -20,8 +20,15 @@ public class PostsRuntimeWiring implements RuntimeWiringConfigurer {
         builder
                 // should be registered automatically in spring boot starter???
                 .type(TypeRuntimeWiring.newTypeWiring("Query")
-                        .dataFetcher("posts", QuerydslDataFetcher.builder(repository).many())
-                        .dataFetcher("post", QuerydslDataFetcher.builder(repository).single())
+                        .dataFetcher("posts",
+                                QuerydslDataFetcher.builder(repository)
+//                                        .customizer((bindings, root) -> {
+//
+//                                        })
+                                        .many())
+                        .dataFetcher("post",
+                                QuerydslDataFetcher.builder(repository)
+                                        .single())
                 )
                 .scalar(Scalars.uuidType())
                 .scalar(Scalars.localDateTimeType())

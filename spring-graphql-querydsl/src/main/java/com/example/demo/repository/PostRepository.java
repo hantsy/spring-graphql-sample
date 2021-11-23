@@ -7,7 +7,7 @@ import org.springframework.graphql.data.GraphQlRepository;
 
 import java.util.UUID;
 
-@GraphQlRepository()
+//@GraphQlRepository()
 public interface PostRepository extends JpaRepository<Post, UUID> ,
         QuerydslPredicateExecutor<Post> {
 

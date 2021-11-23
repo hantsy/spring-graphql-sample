@@ -40,6 +40,11 @@ public class QueryTests {
 
     @BeforeEach
     public void setup() {
+
+    }
+
+    @Test
+    void allPosts() {
         var comments = Set.of(
                 Comment.builder().id(UUID.randomUUID()).content("Comment content").createdAt(LocalDateTime.now()).build(),
                 Comment.builder().id(UUID.randomUUID()).content("Comment content 2").createdAt(LocalDateTime.now()).build()
@@ -60,12 +65,7 @@ public class QueryTests {
                 .createdAt(LocalDateTime.now())
                 .build();
 
-        when(this.postRepository.findAll(any(Predicate.class))).thenReturn(List.of(post, post2));
-        when(this.postRepository.findOne(any(Predicate.class))).thenReturn(Optional.of(post));
-    }
-
-    @Test
-    void allPosts() {
+        when(this.postRepository.findBy(any(Predicate.class), any())).thenReturn(List.of(post, post2));
         var allPosts = """
                 query allPosts{
                    posts{
@@ -83,6 +83,14 @@ public class QueryTests {
 
     @Test
     void postById() {
+
+        var post = Post.builder()
+                .id(UUID.randomUUID())
+                .title("Post")
+                .content("Content of post one")
+                .createdAt(LocalDateTime.now())
+                .build();
+        when(this.postRepository.findBy(any(Predicate.class), any())).thenReturn(Optional.of(post));
         var postById = """
                 query postById($id: ID!){
                    post(id:$id){
