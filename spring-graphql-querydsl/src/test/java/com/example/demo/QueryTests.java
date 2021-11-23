@@ -2,12 +2,14 @@ package com.example.demo;
 
 import com.example.demo.model.Comment;
 import com.example.demo.model.Post;
+import com.example.demo.model.QPost;
 import com.example.demo.repository.PostRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.querydsl.core.types.Predicate;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -22,6 +24,7 @@ import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @SpringBootTest()
@@ -98,12 +101,19 @@ public class QueryTests {
                      title
                      content
                    }
-                 }""";
+                 }""".trim();
+        var id = UUID.randomUUID();
         graphQlTester.query(postById)
-                .variable("id", UUID.randomUUID())
+                .variable("id", id)
                 .execute()
                 .path("post.title")
                 .entity(String.class).satisfies(s -> assertThat(s).startsWith("POST"));
+
+        ArgumentCaptor<Predicate> predicateCaptor = ArgumentCaptor.forClass(Predicate.class);
+        verify(this.postRepository).findBy(predicateCaptor.capture(), any());
+
+        Predicate predicate = predicateCaptor.getValue();
+        assertThat(predicate).isEqualTo(QPost.post.id.eq(id));
     }
 
 }
