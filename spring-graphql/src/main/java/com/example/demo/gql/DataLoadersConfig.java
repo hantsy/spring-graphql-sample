@@ -8,7 +8,6 @@ import org.springframework.graphql.web.WebInterceptor;
 
 @Configuration
 public class DataLoadersConfig {
-    /*
     @Bean
     public WebInterceptor interceptor(DataLoaders loader) {
         return (input, chain) -> {
@@ -20,13 +19,13 @@ public class DataLoadersConfig {
             });
             return chain.next(input);
         };
-    }*/
-
+    }
+/*
     @Bean
     public DataLoaderRegistrar dataLoaderRegistrar(DataLoaders loader) {
         return (registry, context) -> {
             registry.register("authorsLoader", loader.authorsLoader());
             registry.register("commentsLoader", loader.commentsLoader());
         };
-    }
+    }*/
 }
