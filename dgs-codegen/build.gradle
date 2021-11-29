@@ -25,7 +25,7 @@ dependencies {
 
     // see: https://github.com/Netflix/dgs-framework/pull/659
     // and https://github.com/graphql-java/graphql-java-extended-validation/issues/52
-    implementation 'com.graphql-java:graphql-java-extended-validation:17.0'
+    implementation 'com.graphql-java:graphql-java-extended-validation:17.0-hibernate-validator-6.2.0.Final'
     // https://mvnrepository.com/artifact/jakarta.validation/jakarta.validation-api
     implementation 'jakarta.validation:jakarta.validation-api:3.0.0'
     implementation 'org.hibernate.validator:hibernate-validator:7.0.1.Final'
