@@ -6,7 +6,7 @@ import com.example.demo.repository.PostRepository;
 import graphql.schema.idl.RuntimeWiring;
 import graphql.schema.idl.TypeRuntimeWiring;
 import lombok.RequiredArgsConstructor;
-import org.springframework.graphql.data.querydsl.QuerydslDataFetcher;
+import org.springframework.graphql.data.query.QuerydslDataFetcher;
 import org.springframework.graphql.execution.RuntimeWiringConfigurer;
 import org.springframework.stereotype.Component;
 
