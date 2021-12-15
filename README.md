@@ -8,6 +8,11 @@ Spring GraphQL examples using the following frameworks and libraries:
 * [GraphQL Java](https://www.graphql-java.com/)
 * [GraphQL SPQR(GraphQL Schema Publisher & Query Resolver, pronounced like speaker)](https://github.com/leangen/graphql-spqr)
 
+Other GraphQL Java integration examples with Java frameworks.
+
+* [GraphQL with Quarkus](https://github.com/hantsy/quarkus-sandbox)
+* [GraphQL with Vertx](https://github.com/hantsy/vertx-sandbox)
+
 ## Guide
 
 TBD
