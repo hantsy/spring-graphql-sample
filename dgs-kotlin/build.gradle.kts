@@ -31,7 +31,7 @@ dependencies {
     implementation("com.netflix.graphql.dgs:graphql-dgs-extended-scalars") {
         exclude("org.yaml", "snakeyaml")
     }
-    implementation("org.yaml:snakeyaml:1.29")
+    implementation("org.yaml:snakeyaml:1.30")
     implementation("org.postgresql:postgresql")
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.springframework.boot:spring-boot-starter-data-jdbc")
