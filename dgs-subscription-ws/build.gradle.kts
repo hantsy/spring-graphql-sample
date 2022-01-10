@@ -8,7 +8,7 @@ plugins {
 	kotlin("jvm") version "1.6.10"
 	kotlin("plugin.spring") version "1.6.10"
 
-	id("com.netflix.dgs.codegen") version "5.1.14" //https://plugins.gradle.org/plugin/com.netflix.dgs.codegen
+	id("com.netflix.dgs.codegen") version "5.1.16" //https://plugins.gradle.org/plugin/com.netflix.dgs.codegen
 }
 
 group = "com.example"
