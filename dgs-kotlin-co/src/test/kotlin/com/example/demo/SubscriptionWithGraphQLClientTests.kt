@@ -2,10 +2,7 @@ package com.example.demo
 
 import com.example.demo.gql.types.Comment
 import com.example.demo.gql.types.Post
-import com.netflix.graphql.dgs.DgsQueryExecutor
-import com.netflix.graphql.dgs.client.DefaultGraphQLClient
-import com.netflix.graphql.dgs.client.HttpResponse
-import com.netflix.graphql.dgs.client.MonoRequestExecutor
+import com.netflix.graphql.dgs.client.WebClientGraphQLClient
 import com.netflix.graphql.dgs.reactive.DgsReactiveQueryExecutor
 import graphql.ExecutionResult
 import org.assertj.core.api.Assertions.assertThat
@@ -30,41 +27,45 @@ class SubscriptionWithGraphQLClientTests {
 
     lateinit var webClient: WebClient
 
-    lateinit var client: DefaultGraphQLClient
+    lateinit var client: WebClientGraphQLClient
 
     @Autowired
     lateinit var dgsQueryExecutor: DgsReactiveQueryExecutor
 
     @BeforeEach
     fun setup() {
-        webClient = WebClient.create("http://localhost:$port")
-        client = DefaultGraphQLClient("http://localhost:$port")
+        webClient = WebClient.builder()
+            .defaultHeaders { it.setBasicAuth("user", "password") }
+            .baseUrl("http://localhost:$port")
+            .build()
+
+        client = WebClientGraphQLClient(this.webClient)
     }
 
     @Test
     fun `sign in and create a post and comment`() {
-        val requestExecutor = MonoRequestExecutor { _, headers, body ->
-            webClient.post().uri("/graphql")
-                .headers {
-                    headers.forEach { (t, u) -> it[t] = u }
-                }
-                .bodyValue(body)
-                .retrieve()
-                .toEntity(String::class.java)
-                .map { HttpResponse(it.statusCodeValue, it.body) }
-        }
-
-        val requestExecutorWithAuth = MonoRequestExecutor { _, headers, body ->
-            webClient.post().uri("/graphql")
-                .headers {
-                    it.setBasicAuth("user", "password")
-                    headers.forEach { (t, u) -> it[t] = u }
-                }
-                .bodyValue(body)
-                .retrieve()
-                .toEntity(String::class.java)
-                .map { HttpResponse(it.statusCodeValue, it.body) }
-        }
+//        val requestExecutor = MonoRequestExecutor { _, headers, body ->
+//            webClient.post().uri("/graphql")
+//                .headers {
+//                    headers.forEach { (t, u) -> it[t] = u }
+//                }
+//                .bodyValue(body)
+//                .retrieve()
+//                .toEntity(String::class.java)
+//                .map { HttpResponse(it.statusCodeValue, it.body) }
+//        }
+//
+//        val requestExecutorWithAuth = MonoRequestExecutor { _, headers, body ->
+//            webClient.post().uri("/graphql")
+//                .headers {
+//                    it.setBasicAuth("user", "password")
+//                    headers.forEach { (t, u) -> it[t] = u }
+//                }
+//                .bodyValue(body)
+//                .retrieve()
+//                .toEntity(String::class.java)
+//                .map { HttpResponse(it.statusCodeValue, it.body) }
+//        }
 
         val createPostQuery =
             "mutation createPost(\$input: CreatePostInput!){ createPost(createPostInput:\$input) {id, title} }"
@@ -75,7 +76,7 @@ class SubscriptionWithGraphQLClientTests {
             )
         )
         val createPostResult =
-            this.client.reactiveExecuteQuery(createPostQuery, createPostQueryVariables, requestExecutorWithAuth)
+            this.client.reactiveExecuteQuery(createPostQuery, createPostQueryVariables)
                 .map { it.extractValueAsObject("createPost", Post::class.java) }
                 .block(Duration.ofSeconds(5L))
         val postId = createPostResult?.id
@@ -88,7 +89,7 @@ class SubscriptionWithGraphQLClientTests {
             "id" to postId as Any
         )
 
-        this.client.reactiveExecuteQuery(postByIdQuery, postByIdVariables, requestExecutor)
+        this.client.reactiveExecuteQuery(postByIdQuery, postByIdVariables)
             .map { it.extractValueAsObject("postById", Post::class.java) }
             .`as` { StepVerifier.create(it) }
             .consumeNextWith { assertThat(it!!.title).isEqualTo("test title") }
@@ -136,13 +137,13 @@ class SubscriptionWithGraphQLClientTests {
             )
         )
 
-        this.client.reactiveExecuteQuery(commentQuery, comment1Variables, requestExecutorWithAuth)
+        this.client.reactiveExecuteQuery(commentQuery, comment1Variables)
             .map { it.extractValueAsObject("addComment", Comment::class.java) }
             .`as` { StepVerifier.create(it) }
             .consumeNextWith { assertThat(it.content).isEqualTo("comment1") }
             .verifyComplete()
 
-        this.client.reactiveExecuteQuery(commentQuery, comment2Variables, requestExecutorWithAuth)
+        this.client.reactiveExecuteQuery(commentQuery, comment2Variables)
             .map { it.extractValueAsObject("addComment", Comment::class.java) }
             .`as` { StepVerifier.create(it) }
             .consumeNextWith { assertThat(it.content).isEqualTo("comment2") }
