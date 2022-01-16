@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.web.server.LocalServerPort
 import org.springframework.web.reactive.function.client.WebClient
+import org.springframework.web.reactive.function.client.bodyToMono
 import reactor.core.publisher.Flux
 import reactor.test.StepVerifier
 import java.time.Duration
@@ -40,6 +41,32 @@ class SubscriptionWithGraphQLClientTests {
             .build()
 
         client = WebClientGraphQLClient(this.webClient)
+    }
+
+    @Test
+    fun `create new post without auth`() {
+
+        val requestData = mapOf<String, Any>(
+            "query" to "mutation createPost(\$input: CreatePostInput!){ createPost(createPostInput:\$input) {id, title} }",
+            "variables" to mapOf(
+                "input" to mapOf(
+                    "title" to "test title",
+                    "content" to "test content"
+                )
+            )
+        )
+        this.webClient
+            .post().uri("/graphql")// no auth headers
+            .bodyValue(requestData)
+            .exchangeToMono { it.bodyToMono<Post>() }
+            .`as` { StepVerifier.create(it) }
+        //
+        // security is disabled.
+        //.expectBody()
+        //.jsonPath("errors.length()").value<Int> { assertThat(it).isGreaterThan(0) }
+
+        // it is an INTERNAL errorType
+        //.jsonPath("errors[0].extensions.errorType").isEqualTo("PERMISSION_DENIED")
     }
 
     @Test

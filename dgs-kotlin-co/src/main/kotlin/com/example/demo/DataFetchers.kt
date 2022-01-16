@@ -26,7 +26,7 @@ class AuthorsDataFetcher(
 class PostsDataFetcher(val postService: PostService) {
 
     @DgsQuery
-    fun allPosts() = postService.allPosts()
+    fun allPosts(): Flow<Post> = postService.allPosts()
 
     @DgsQuery
     suspend fun postById(@InputArgument postId: String) = postService.getPostById(postId)

@@ -7,7 +7,7 @@ plugins {
 
     kotlin("jvm") version "1.6.10"
     kotlin("plugin.spring") version "1.6.10"
-	
+
     id("com.netflix.dgs.codegen") version "5.1.16" //https://plugins.gradle.org/plugin/com.netflix.dgs.codegen
 }
 
@@ -39,13 +39,16 @@ dependencies {
     implementation("io.projectreactor.kotlin:reactor-kotlin-extensions")
 
     //kotlin coroutines extensions
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-jdk8")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:1.6.0")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor:1.6.0")
 
     // test
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("io.projectreactor:reactor-test")
-    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test")
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.6.0")
+    testImplementation("io.mockk:mockk:1.12.2")
+    testImplementation("io.kotest:kotest-runner-junit5-jvm:5.0.3")
+    testImplementation("io.kotest:kotest-assertions-core-jvm:5.0.3")
 }
 
 tasks.withType<GenerateJavaTask> {
