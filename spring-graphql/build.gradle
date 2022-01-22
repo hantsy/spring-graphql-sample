@@ -8,13 +8,20 @@ group = 'com.example'
 version = '0.0.1-SNAPSHOT'
 sourceCompatibility = '17'
 
+configurations {
+    compileOnly {
+        extendsFrom annotationProcessor
+    }
+    testCompileOnly {
+        extendsFrom testAnnotationProcessor
+    }
+}
+
 repositories {
     mavenLocal()
     mavenCentral()
-
-    // Spring GraphQl is not released yet, add spring snapshot repo
-    maven { url "https://repo.spring.io/milestone" }
-    maven { url "https://repo.spring.io/snapshot" }
+    maven { url 'https://repo.spring.io/milestone' }
+    maven { url 'https://repo.spring.io/snapshot' }
 }
 
 dependencies {
@@ -25,7 +32,7 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-web'
     //implementation 'org.springframework.boot:spring-boot-starter-websocket'
     implementation 'org.springframework.boot:spring-boot-starter-data-jdbc'
-    implementation 'org.postgresql:postgresql'
+    runtimeOnly 'org.postgresql:postgresql'
     implementation 'org.apache.commons:commons-lang3:3.12.0'
 
     //configure Lombok for compile java/ compile tests
@@ -41,7 +48,7 @@ dependencies {
     testImplementation 'io.projectreactor:reactor-test'
 }
 
-test {
+tasks.named('test') {
     useJUnitPlatform()
     testLogging {
         showStandardStreams = true

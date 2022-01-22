@@ -1,12 +1,21 @@
 plugins {
-    id 'org.springframework.boot' version '2.6.2'
-    id 'io.spring.dependency-management' version '1.0.11.RELEASE'
-    id 'java'
+	id 'org.springframework.boot' version '2.7.0-M1'
+	id 'io.spring.dependency-management' version '1.0.11.RELEASE'
+	id 'java'
 }
 
 group = 'com.example'
 version = '0.0.1-SNAPSHOT'
 sourceCompatibility = '17'
+
+configurations {
+    compileOnly {
+        extendsFrom annotationProcessor
+    }
+    testCompileOnly {
+        extendsFrom testAnnotationProcessor
+    }
+}
 
 repositories {
     mavenLocal()
@@ -19,7 +28,7 @@ repositories {
 
 dependencies {
     //spring graphql
-    implementation 'org.springframework.experimental:graphql-spring-boot-starter:1.0.0-SNAPSHOT'
+    implementation 'org.springframework.boot:spring-boot-starter-graphql'
 
     //Spring Boot
     implementation 'org.springframework.boot:spring-boot-starter-web'
@@ -35,13 +44,13 @@ dependencies {
     testAnnotationProcessor 'org.projectlombok:lombok:1.18.20'
 
     //test
-    testImplementation 'org.springframework.graphql:spring-graphql-test:1.0.0-SNAPSHOT'
+    testImplementation 'org.springframework.graphql:spring-graphql-test'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.springframework:spring-webflux'
     testImplementation 'io.projectreactor:reactor-test'
 }
 
-test {
+tasks.named('test') {
     useJUnitPlatform()
     testLogging {
         events "failed", "skipped", "passed"
