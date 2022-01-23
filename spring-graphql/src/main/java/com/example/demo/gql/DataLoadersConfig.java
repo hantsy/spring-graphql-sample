@@ -20,8 +20,8 @@ public class DataLoadersConfig {
             return chain.next(input);
         };
     }
-/*
-    @Bean
+
+/*    @Bean
     public DataLoaderRegistrar dataLoaderRegistrar(DataLoaders loader) {
         return (registry, context) -> {
             registry.register("authorsLoader", loader.authorsLoader());
