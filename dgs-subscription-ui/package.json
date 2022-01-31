@@ -20,7 +20,7 @@
     "@angular/material": "~12.2.13",
     "@angular/platform-browser": "~12.2.15",
     "@angular/platform-browser-dynamic": "~12.2.15",
-    "@angular/router": "~12.2.15",
+    "@angular/router": "~12.2.16",
     "@apollo/client": "^3.4.16",
     "apollo-angular": "^2.6.0",
     "graphql": "^15.6.1",
