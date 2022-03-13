@@ -35,7 +35,7 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-webflux'
     implementation 'org.springframework.boot:spring-boot-starter-data-r2dbc'
     implementation 'org.springframework.boot:spring-boot-starter-validation'
-    implementation 'io.r2dbc:r2dbc-postgresql'
+    implementation 'org.postgresql:r2dbc-postgresql'
 
     //configure Lombok for compile java/ compile tests
     compileOnly 'org.projectlombok:lombok:1.18.22'
@@ -44,7 +44,7 @@ dependencies {
     testAnnotationProcessor 'org.projectlombok:lombok:1.18.22'
 	
 	//test
-     testImplementation 'org.springframework.graphql:spring-graphql-test'
+    testImplementation 'org.springframework.graphql:spring-graphql-test'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'io.projectreactor:reactor-test'
 }
