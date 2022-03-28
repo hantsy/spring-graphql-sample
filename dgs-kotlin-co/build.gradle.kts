@@ -2,7 +2,7 @@ import com.netflix.graphql.dgs.codegen.gradle.GenerateJavaTask
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    id("org.springframework.boot") version "2.6.4"
+    id("org.springframework.boot") version "2.6.5"
     id("io.spring.dependency-management") version "1.0.11.RELEASE"
 
     kotlin("jvm") version "1.6.10"
@@ -20,7 +20,7 @@ repositories {
 }
 
 dependencies {
-    implementation(platform("com.netflix.graphql.dgs:graphql-dgs-platform-dependencies:4.9.22"))
+    implementation(platform("com.netflix.graphql.dgs:graphql-dgs-platform-dependencies:4.9.24"))
     implementation("com.netflix.graphql.dgs:graphql-dgs-webflux-starter") {
         exclude("org.yaml", "snakeyaml")
     }
@@ -47,8 +47,8 @@ dependencies {
     testImplementation("io.projectreactor:reactor-test")
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.6.0")
     testImplementation("io.mockk:mockk:1.12.3")
-    testImplementation("io.kotest:kotest-runner-junit5-jvm:5.2.1")
-    testImplementation("io.kotest:kotest-assertions-core-jvm:5.2.1")
+    testImplementation("io.kotest:kotest-runner-junit5-jvm:5.2.2")
+    testImplementation("io.kotest:kotest-assertions-core-jvm:5.2.2")
 }
 
 tasks.withType<GenerateJavaTask> {

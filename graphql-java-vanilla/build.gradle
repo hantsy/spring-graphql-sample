@@ -1,5 +1,5 @@
 plugins {
-    id 'org.springframework.boot' version '2.6.4'
+    id 'org.springframework.boot' version '2.6.5'
     id 'io.spring.dependency-management' version '1.0.11.RELEASE'
     id 'java'
 }
@@ -14,7 +14,7 @@ repositories {
 }
 
 dependencies {
-    implementation "com.graphql-java:graphql-java:17.3"
+    implementation "com.graphql-java:graphql-java:18.0"
 	implementation "com.graphql-java:graphql-java-spring-boot-starter-webmvc:2.0"
     
     implementation 'org.springframework.boot:spring-boot-starter-web'
