@@ -41,7 +41,7 @@ class MutationTests {
         ));
 
         var query = "mutation createPost($input: CreatePostInput!){createPost(createPostInput:$input){id, title, content}}";
-        graphQlTester.query(query)
+        graphQlTester.document(query)
                 .variable("input", Map.of(
                         "title", "test title",
                         "content", "test content"

@@ -7,25 +7,31 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.graphql.test.tester.WebGraphQlTester;
+import org.springframework.boot.web.server.LocalServerPort;
+import org.springframework.graphql.test.tester.WebSocketGraphQlTester;
 import org.springframework.graphql.web.WebGraphQlHandler;
+import org.springframework.web.reactive.socket.client.ReactorNettyWebSocketClient;
 import reactor.core.publisher.Flux;
 import reactor.test.StepVerifier;
 
+import java.net.URI;
 import java.time.LocalDateTime;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@SpringBootTest()
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @Slf4j
 class SubscriptionTestsWithWebGraphqlHandler {
 
-    WebGraphQlTester graphQlTester;
+    WebSocketGraphQlTester graphQlTester;
+
+    @LocalServerPort
+    int port;
 
     @BeforeEach
     void setUp(@Autowired WebGraphQlHandler handler) {
-        this.graphQlTester = WebGraphQlTester.create(handler);
+        this.graphQlTester = WebSocketGraphQlTester.create(URI.create("ws://localhost:" + port + "/ws/graphql"), new ReactorNettyWebSocketClient());
     }
 
     @SneakyThrows
@@ -41,7 +47,7 @@ class SubscriptionTestsWithWebGraphqlHandler {
                 }""".trim();
 
         String TITLE = "my post created by Spring GraphQL";
-        String id = graphQlTester.query(creatPost)
+        String id = graphQlTester.document(creatPost)
                 .variable("createPostInput",
                         Map.of(
                                 "title", TITLE,
@@ -61,14 +67,14 @@ class SubscriptionTestsWithWebGraphqlHandler {
                      content
                    }
                  }""";
-        graphQlTester.query(postById).variable("postId", id.toString())
+        graphQlTester.document(postById).variable("postId", id.toString())
                 .execute()
                 .path("postById.title")
                 .entity(String.class)
                 .satisfies(titles -> assertThat(titles).isEqualTo(TITLE));
 
 
-        Flux<Comment> result = this.graphQlTester.query("subscription onCommentAdded { commentAdded { id content } }")
+        Flux<Comment> result = this.graphQlTester.document("subscription onCommentAdded { commentAdded { id content } }")
                 .executeSubscription()
                 .toFlux("commentAdded", Comment.class);
 
@@ -91,7 +97,7 @@ class SubscriptionTestsWithWebGraphqlHandler {
                    addComment(commentInput:$commentInput){id}
                 }""";
 
-        String commentId = graphQlTester.query(addComment)
+        String commentId = graphQlTester.document(addComment)
                 .variable("commentInput",
                         Map.of(
                                 "postId", id,

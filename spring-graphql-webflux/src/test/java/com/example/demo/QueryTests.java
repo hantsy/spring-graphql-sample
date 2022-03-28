@@ -45,7 +45,7 @@ class QueryTests {
                         .build()
         ));
         var query = " { allPosts { title content }}";
-        graphQlTester.query(query)
+        graphQlTester.document(query)
                 .execute()
                 .path("data.allPosts[*].title")
                 .entityList(String.class).contains("test title", "test title2");
@@ -64,7 +64,7 @@ class QueryTests {
         ));
         var query = "query postById($postId:String!){ postById(postId:$postId) { title content }}";
 
-        graphQlTester.query(query)
+        graphQlTester.document(query)
                 .variable("postId", "test")
                 .execute()
                 .path("data.postById.title")
@@ -78,7 +78,7 @@ class QueryTests {
     void postById_notFound() {
         when(postService.getPostById(anyString())).thenThrow(new PostNotFoundException("test"));
         var query = "query postById($postId:String!){ postById(postId:$postId) { title content }}";
-        graphQlTester.query(query)
+        graphQlTester.document(query)
                 .variable("postId", "test")
                 .execute()
                 .errors()

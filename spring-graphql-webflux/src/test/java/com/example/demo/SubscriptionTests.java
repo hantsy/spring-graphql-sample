@@ -39,7 +39,7 @@ class SubscriptionTests {
         ));
 
         String query = "subscription onCommentAdded { commentAdded { id postId content } }";
-        var verifier = graphQlTester.query(query)
+        var verifier = graphQlTester.document(query)
                 .executeSubscription()
                 .toFlux("commentAdded.content", String.class)
                 .as(StepVerifier::create)
