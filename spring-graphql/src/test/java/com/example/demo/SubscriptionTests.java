@@ -8,7 +8,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.graphql.GraphQlService;
+import org.springframework.graphql.client.GraphQlTransport;
 import org.springframework.graphql.test.tester.GraphQlTester;
 import reactor.core.publisher.Flux;
 import reactor.test.StepVerifier;
@@ -24,7 +24,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class SubscriptionTests {
 
     @Autowired
-    GraphQlService graphQlService;
+    GraphQlTransport graphQlTransport;
 
     //@Autowired
     GraphQlTester graphQlTester;
@@ -34,7 +34,7 @@ public class SubscriptionTests {
 
     @BeforeEach
     void setUp() {
-        this.graphQlTester = GraphQlTester.create(graphQlService);
+        this.graphQlTester = GraphQlTester.builder(graphQlTransport).build();
     }
 
     @SneakyThrows
@@ -46,7 +46,7 @@ public class SubscriptionTests {
                 }""";
 
         String TITLE = "my post created by Spring GraphQL";
-        String id = graphQlTester.query(creatPost)
+        String id = graphQlTester.document(creatPost)
                 .variable("createPostInput",
                         Map.of(
                                 "title", TITLE,
@@ -67,14 +67,14 @@ public class SubscriptionTests {
                      content
                    }
                  }""";
-        graphQlTester.query(postById).variable("postId", id.toString())
+        graphQlTester.document(postById).variable("postId", id.toString())
                 .execute()
                 .path("postById.title")
                 .entity(String.class)
                 .satisfies(titles -> assertThat(titles).isEqualTo(TITLE.toUpperCase()));
 
 
-        Flux<Comment> result = this.graphQlTester.query("subscription onCommentAdded { commentAdded { id content } }")
+        Flux<Comment> result = this.graphQlTester.document("subscription onCommentAdded { commentAdded { id content } }")
                 .executeSubscription()
                 .toFlux("commentAdded", Comment.class);
 
@@ -97,7 +97,7 @@ public class SubscriptionTests {
                    addComment(commentInput:$commentInput)
                 }""";
 
-        String commentId = graphQlTester.query(addComment)
+        String commentId = graphQlTester.document(addComment)
                 .variable("commentInput",
                         Map.of(
                                 "postId", id,
