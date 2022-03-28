@@ -11,10 +11,12 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.graphql.tester.AutoConfigureHttpGraphQlTester;
 import org.springframework.boot.test.autoconfigure.graphql.tester.AutoConfigureWebGraphQlTester;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.graphql.test.tester.GraphQlTester;
+import org.springframework.graphql.test.tester.HttpGraphQlTester;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -28,12 +30,12 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @SpringBootTest()
-@AutoConfigureWebGraphQlTester
+@AutoConfigureHttpGraphQlTester
 @Slf4j
 public class QueryTests {
 
     @Autowired
-    GraphQlTester graphQlTester;
+    HttpGraphQlTester graphQlTester;
 
     @Autowired
     ObjectMapper objectMapper;
@@ -77,7 +79,7 @@ public class QueryTests {
                      content
                    }
                 }""";
-        graphQlTester.query(allPosts)
+        graphQlTester.document(allPosts)
                 .execute()
                 .path("posts[*].title")
                 .entityList(String.class)
@@ -103,7 +105,7 @@ public class QueryTests {
                    }
                  }""".trim();
         var id = UUID.randomUUID();
-        graphQlTester.query(postById)
+        graphQlTester.document(postById)
                 .variable("id", id)
                 .execute()
                 .path("post.title")
