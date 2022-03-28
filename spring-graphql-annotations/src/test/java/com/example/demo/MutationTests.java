@@ -19,7 +19,6 @@ import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
 @GraphQlTest(PostController.class)
@@ -52,7 +51,7 @@ public class MutationTests {
                 }""".trim();
 
         String TITLE = "test title";//valid
-        graphQlTester.query(creatPost)
+        graphQlTester.document(creatPost)
                 .variable("createPostInput",
                         Map.of(
                                 "title", TITLE,
@@ -85,7 +84,7 @@ public class MutationTests {
                 }""".trim();
 
         String TITLE = "test";//not valid
-        assertThatThrownBy(() -> graphQlTester.query(creatPost)
+        assertThatThrownBy(() -> graphQlTester.document(creatPost)
                 .variable("createPostInput",
                         Map.of(
                                 "title", TITLE,

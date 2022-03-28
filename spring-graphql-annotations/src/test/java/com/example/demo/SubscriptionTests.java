@@ -43,7 +43,7 @@ public class SubscriptionTests {
                 }""".trim();
 
         String TITLE = "my post created by Spring GraphQL";
-        String id = graphQlTester.query(creatPost)
+        String id = graphQlTester.document(creatPost)
                 .variable("createPostInput",
                         Map.of(
                                 "title", TITLE,
@@ -63,14 +63,14 @@ public class SubscriptionTests {
                      content
                    }
                  }""";
-        graphQlTester.query(postById).variable("postId", id.toString())
+        graphQlTester.document(postById).variable("postId", id.toString())
                 .execute()
                 .path("postById.title")
                 .entity(String.class)
                 .satisfies(titles -> assertThat(titles).isEqualTo(TITLE));
 
 
-        Flux<Comment> result = this.graphQlTester.query("subscription onCommentAdded { commentAdded { id content } }")
+        Flux<Comment> result = this.graphQlTester.document("subscription onCommentAdded { commentAdded { id content } }")
                 .executeSubscription()
                 .toFlux("commentAdded", Comment.class);
 
@@ -93,7 +93,7 @@ public class SubscriptionTests {
                    addComment(commentInput:$commentInput){id}
                 }""";
 
-        String commentId = graphQlTester.query(addComment)
+        String commentId = graphQlTester.document(addComment)
                 .variable("commentInput",
                         Map.of(
                                 "postId", id,

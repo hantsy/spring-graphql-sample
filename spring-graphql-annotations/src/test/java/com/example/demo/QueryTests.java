@@ -51,7 +51,7 @@ public class QueryTests {
                      content
                    }
                  }""";
-        graphQlTester.query(allPosts)
+        graphQlTester.document(allPosts)
                 .execute()
                 .path("allPosts[*].title")
                 .entityList(String.class)
