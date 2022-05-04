@@ -1,6 +1,7 @@
 package com.example.demo.gql.directives;
 
-import graphql.schema.*;
+import graphql.schema.DataFetcherFactories;
+import graphql.schema.GraphQLFieldDefinition;
 import graphql.schema.idl.SchemaDirectiveWiring;
 import graphql.schema.idl.SchemaDirectiveWiringEnvironment;
 

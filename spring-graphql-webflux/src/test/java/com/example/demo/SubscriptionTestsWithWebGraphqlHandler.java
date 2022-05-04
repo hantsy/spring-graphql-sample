@@ -5,11 +5,9 @@ import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.graphql.test.tester.WebSocketGraphQlTester;
-import org.springframework.graphql.web.WebGraphQlHandler;
 import org.springframework.web.reactive.socket.client.ReactorNettyWebSocketClient;
 import reactor.core.publisher.Flux;
 import reactor.test.StepVerifier;
@@ -30,7 +28,7 @@ class SubscriptionTestsWithWebGraphqlHandler {
     int port;
 
     @BeforeEach
-    void setUp(@Autowired WebGraphQlHandler handler) {
+    void setUp() {
         this.graphQlTester = WebSocketGraphQlTester.create(URI.create("ws://localhost:" + port + "/ws/graphql"), new ReactorNettyWebSocketClient());
     }
 
