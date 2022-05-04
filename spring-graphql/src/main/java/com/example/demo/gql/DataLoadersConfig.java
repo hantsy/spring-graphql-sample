@@ -3,12 +3,12 @@ package com.example.demo.gql;
 import org.dataloader.DataLoaderRegistry;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.graphql.web.WebGraphQlHandlerInterceptor;
+import org.springframework.graphql.server.WebGraphQlInterceptor;
 
 @Configuration
 public class DataLoadersConfig {
     @Bean
-    public WebGraphQlHandlerInterceptor interceptor(DataLoaders loader) {
+    public WebGraphQlInterceptor interceptor(DataLoaders loader) {
         return (input, chain) -> {
             input.configureExecutionInput((executionInput, builder) -> {
                 DataLoaderRegistry registry = new DataLoaderRegistry();
