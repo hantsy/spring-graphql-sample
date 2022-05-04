@@ -19,7 +19,6 @@ import java.util.Map;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
-//@AutoConfigureGraphQlTester
 @Slf4j
 public class SubscriptionTests {
 
