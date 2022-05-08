@@ -4,4 +4,4 @@ pluginManagement {
 		gradlePluginPortal()
 	}
 }
-rootProject.name = 'spring-graphql-annotations-example'
+rootProject.name = 'spring-graphql-webmvc-example'
