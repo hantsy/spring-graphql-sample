@@ -35,7 +35,7 @@ public class DataFetchers {
     }
 
     public DataFetcher<List<Post>> allPosts() {
-        return dfe -> postService.getAllPosts();
+        return (DataFetchingEnvironment dfe) -> postService.getAllPosts();
     }
 
     public DataFetcher<UUID> createPost() {
