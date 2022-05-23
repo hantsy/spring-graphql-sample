@@ -5,7 +5,7 @@ import com.example.demo.service.PostService;
 import graphql.annotations.annotationTypes.GraphQLDescription;
 import graphql.annotations.annotationTypes.GraphQLField;
 import graphql.annotations.annotationTypes.GraphQLNonNull;
-import graphql.kickstart.graphql.annotations.GraphQLQueryResolver;
+import graphql.kickstart.annotations.GraphQLQueryResolver;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
