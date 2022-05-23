@@ -14,7 +14,7 @@ repositories {
 }
 
 dependencies {
-    implementation 'com.graphql-java-kickstart:graphql-kickstart-spring-boot-starter-graphql-annotations:11.1.0'
+    implementation 'com.graphql-java-kickstart:graphql-spring-boot-starter:12.0.0'
 
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-data-jdbc'
@@ -25,8 +25,8 @@ dependencies {
     //configure Lombok for compile java/ compile tests
     compileOnly 'org.projectlombok:lombok:1.18.24'
     annotationProcessor 'org.projectlombok:lombok:1.18.24'
-    testCompileOnly 'org.projectlombok:lombok:1.18.20'
-    testAnnotationProcessor 'org.projectlombok:lombok:1.18.20'
+    testCompileOnly 'org.projectlombok:lombok:1.18.24'
+    testAnnotationProcessor 'org.projectlombok:lombok:1.18.24'
 	
 	//test
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
