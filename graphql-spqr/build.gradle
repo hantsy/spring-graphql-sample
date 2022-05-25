@@ -16,6 +16,7 @@ repositories {
 dependencies {
     //Spring SQPR starter
     implementation "io.leangen.graphql:graphql-spqr-spring-boot-starter:0.0.6"
+    implementation "com.graphql-java:graphql-java:18.0"
 
     //
     implementation 'org.springframework.boot:spring-boot-starter-web'
@@ -25,10 +26,10 @@ dependencies {
     implementation 'org.postgresql:postgresql'
 
     //configure Lombok for compile java/ compile tests
-    compileOnly 'org.projectlombok:lombok:1.18.20'
-    annotationProcessor 'org.projectlombok:lombok:1.18.20'
-    testCompileOnly 'org.projectlombok:lombok:1.18.20'
-    testAnnotationProcessor 'org.projectlombok:lombok:1.18.20'
+    compileOnly 'org.projectlombok:lombok:1.18.24'
+    annotationProcessor 'org.projectlombok:lombok:1.18.24'
+    testCompileOnly 'org.projectlombok:lombok:1.18.24'
+    testAnnotationProcessor 'org.projectlombok:lombok:1.18.24'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.springframework:spring-webflux'
     testImplementation 'io.projectreactor.netty:reactor-netty'
