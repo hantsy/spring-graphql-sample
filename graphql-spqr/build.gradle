@@ -16,7 +16,7 @@ repositories {
 dependencies {
     //Spring SQPR starter
     implementation "io.leangen.graphql:graphql-spqr-spring-boot-starter:0.0.6"
-    implementation "com.graphql-java:graphql-java:16.2"
+    implementation "com.graphql-java:graphql-java:18.1"
 
     //
     implementation 'org.springframework.boot:spring-boot-starter-web'
