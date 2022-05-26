@@ -2,11 +2,10 @@ package com.example.demo
 
 import com.example.demo.gql.types.*
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.map
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
-import reactor.core.publisher.Flux
-import reactor.core.publisher.Sinks
 import java.util.*
 
 class AuthorNotFoundException(id: String) : RuntimeException("Author: $id was not found.")
@@ -38,7 +37,7 @@ interface PostService {
     suspend fun addComment(commentInput: CommentInput): Comment
 
     // subscription: commentAdded
-    fun commentAdded(): Flux<Comment>
+    fun commentAdded(): Flow<Comment>
     fun getCommentsByPostId(id: String): Flow<Comment>
     fun getCommentsByPostIdIn(ids: Set<String>): Flow<Comment>
 }
@@ -74,15 +73,15 @@ class DefaultPostService(
         val data = CommentEntity(content = commentInput.content, postId = postId)
         val savedComment = this.comments.save(data)
         val comment = savedComment.asGqlType()
-        sink.emitNext(comment, Sinks.EmitFailureHandler.FAIL_FAST)
+        sink.emit(comment)
 
         return comment
     }
 
-    val sink = Sinks.many().replay().latest<Comment>()
+    val sink = MutableSharedFlow<Comment>()
 
     // subscription: commentAdded
-    override fun commentAdded() = sink.asFlux()
+    override fun commentAdded(): Flow<Comment> = sink
 
     override fun getCommentsByPostId(id: String): Flow<Comment> {
         return this.comments.findByPostId(UUID.fromString(id))
