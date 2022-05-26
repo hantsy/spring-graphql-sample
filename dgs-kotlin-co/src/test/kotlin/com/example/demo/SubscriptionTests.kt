@@ -1,189 +1,137 @@
 package com.example.demo
 
+import com.example.demo.SubscriptionTests.SubscriptionTestsConfig
 import com.example.demo.gql.types.Comment
-import com.example.demo.gql.types.Post
+import com.example.demo.gql.types.CommentInput
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.jayway.jsonpath.JsonPath
-import org.assertj.core.api.Assertions.assertThat
-import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Disabled
+import com.netflix.graphql.dgs.autoconfig.DgsAutoConfiguration
+import com.netflix.graphql.dgs.reactive.DgsReactiveQueryExecutor
+import com.netflix.graphql.dgs.webflux.autoconfiguration.DgsWebFluxAutoConfiguration
+import com.ninjasquad.springmockk.MockkBean
+import com.ninjasquad.springmockk.SpykBean
+import graphql.ExecutionResult
+import io.kotest.matchers.shouldBe
+import io.mockk.coEvery
+import io.mockk.coVerify
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.reactor.awaitSingle
+import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Test
+import org.reactivestreams.Publisher
+import org.reactivestreams.Subscriber
+import org.reactivestreams.Subscription
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.boot.autoconfigure.ImportAutoConfiguration
+import org.springframework.boot.autoconfigure.web.reactive.WebFluxAutoConfiguration
 import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.boot.web.server.LocalServerPort
-import org.springframework.test.web.reactive.server.WebTestClient
-import org.springframework.test.web.reactive.server.returnResult
-import org.springframework.web.reactive.socket.WebSocketHandler
-import org.springframework.web.reactive.socket.client.ReactorNettyWebSocketClient
-import reactor.core.publisher.Mono
-import java.net.URI
-import java.time.Duration
+import org.springframework.context.annotation.Configuration
+import org.springframework.context.annotation.Import
+import java.time.LocalDateTime
+import java.util.*
+import java.util.concurrent.CopyOnWriteArrayList
 
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@Disabled//see: https://github.com/Netflix/dgs-framework/discussions/566
+@OptIn(ExperimentalCoroutinesApi::class)
+@SpringBootTest(classes = [SubscriptionTestsConfig::class])
 class SubscriptionTests {
-    private val log = LoggerFactory.getLogger(SubscriptionTests::class.java)
+    companion object {
+        private val log = LoggerFactory.getLogger(SubscriptionTests::class.java)
+    }
 
-    @LocalServerPort
-    var port: Int = 8080
+    @Configuration
+    @Import(
+        value = [
+            AuthorsDataFetcher::class,
+            PostsDataFetcher::class,
+            LocalDateTimeScalar::class,
+            DefaultPostService::class,
+        ]
+    )
+    @ImportAutoConfiguration(
+        value = [
+            DgsWebFluxAutoConfiguration::class,
+            DgsAutoConfiguration::class,
+            WebFluxAutoConfiguration::class
+        ]
+    )
+    class SubscriptionTestsConfig {
 
-    lateinit var client: WebTestClient
+    }
+
+    @Autowired
+    lateinit var dgsQueryExecutor: DgsReactiveQueryExecutor
 
     @Autowired
     lateinit var objectMapper: ObjectMapper
 
-    @BeforeEach
-    fun setup() {
-        this.client = WebTestClient.bindToServer()
-            .baseUrl("http://localhost:$port")
-            .build()
-    }
+    @MockkBean
+    lateinit var authorService: AuthorService
+
+    @MockkBean
+    lateinit var postRepository: PostRepository
+
+    @MockkBean
+    lateinit var commentRepository: CommentRepository
+
+    @SpykBean
+    lateinit var postService: PostService
 
     @Test
-    fun `sign in and create a post and comment`() {
-        val requestData = mapOf(
-            "query" to "mutation createPost(\$input: CreatePostInput!){ createPost(createPostInput:\$input) {id, title} }",
-            "variables" to mapOf(
-                "input" to mapOf(
-                    "title" to "test title",
-                    "content" to "test content"
+    fun `test subscriptions`() = runTest {
+        val subscriptionQuery = "subscription onCommentAdded { commentAdded { id postId content } }"
+        val subscription = dgsQueryExecutor.execute(subscriptionQuery, emptyMap()).awaitSingle()
+        val commentsPublisher = subscription.getData<Publisher<ExecutionResult>>()
+
+        val comments = CopyOnWriteArrayList<Comment>()
+        commentsPublisher.subscribe(object : Subscriber<ExecutionResult> {
+            override fun onSubscribe(s: Subscription) {
+                s.request(2)
+            }
+
+            override fun onNext(t: ExecutionResult) {
+                val data = t.getData<Map<String, Any>>()
+                val comment = objectMapper.convertValue(data["commentAdded"], Comment::class.java)
+                comments.add(comment)
+                log.info("Received comment: $comment")
+            }
+
+            override fun onError(t: Throwable) {
+                log.error("Error", t)
+            }
+
+            override fun onComplete() {
+                log.info("Subscription completed")
+            }
+        })
+
+
+        coEvery { postRepository.existsById(any()) } returns true
+        coEvery { commentRepository.save(any()) } returns
+                CommentEntity(
+                    id = UUID.randomUUID(),
+                    postId = UUID.randomUUID(),
+                    content = "Comment 1",
+                    createdAt = LocalDateTime.now()
                 )
+
+        postService.addComment(
+            CommentInput(
+                postId = UUID.randomUUID().toString(),
+                content = "Comment 1"
             )
         )
 
-        val result = this.client
-            .post().uri("/graphql").headers { it.setBasicAuth("user", "password") }
-            .bodyValue(requestData)
-            .exchange()
-            .returnResult<HashMap<String, HashMap<String, Post>>>()
-
-
-        val createPostResult =
-            result.responseBody.map { it!!["data"] }.map { it!!["createPost"] }
-                .blockLast(Duration.ofSeconds(5L))
-
-        val postId = createPostResult?.id
-
-        assertThat(postId).isNotNull
-        assertThat(createPostResult?.title).isEqualTo("test title")
-
-
-        val postByIdRequestData = mapOf(
-            "query" to "query postById(\$id: String!){postById(postId:\$id){ id title }}",
-            "variables" to mapOf(
-                "id" to postId
+        postService.addComment(
+            CommentInput(
+                postId = UUID.randomUUID().toString(),
+                content = "Comment 1"
             )
         )
 
-        this.client
-            .post().uri("/graphql")
-            .bodyValue(postByIdRequestData)
-            .exchange()
-            .expectBody()
-            .jsonPath("data.postById.title").isEqualTo("test title")
+        comments.size shouldBe 2
 
-
-        val comment1RequestData = mapOf(
-            "query" to "mutation addComment(\$input: CommentInput!) { addComment(commentInput:\$input) { id postId content}}",
-            "variables" to mapOf(
-                "input" to mapOf(
-                    "postId" to postId,
-                    "content" to "comment1"
-                )
-            )
-        )
-
-        val comment2RequestData = mapOf(
-            "query" to "mutation addComment(\$input: CommentInput!) { addComment(commentInput:\$input) { id postId content}}",
-            "variables" to mapOf(
-                "input" to mapOf(
-                    "postId" to postId,
-                    "content" to "comment2"
-                )
-            )
-        )
-
-        this.client
-            .post().uri("/graphql")
-            .bodyValue(comment1RequestData)
-            .exchange()
-            .expectBody()
-            .jsonPath("data.addComment.content").isEqualTo("comment1")
-
-        this.client
-            .post().uri("/graphql")
-            .bodyValue(comment2RequestData)
-            .exchange()
-            .expectBody()
-            .jsonPath("data.addComment.content").isEqualTo("comment2")
-
-        val socketClient = ReactorNettyWebSocketClient()
-        val commentsReplay = ArrayList<String>(2)
-
-        // The Dgs webflux subscription is handled by `DgsReactiveWebsocketHandler` which implements ApolloGraphQL
-        // subscription websocket protocol.
-        // see: https://github.com/apollographql/subscriptions-transport-ws/blob/master/PROTOCOL.md
-        //
-        // The Vertx Web GraphQL also uses this protocol to handle subscription.
-        //
-        val subscriptionQuery = mapOf(
-            "payload" to mapOf(
-                "query" to "subscription onCommentAdded { commentAdded { id postId content } }",
-                "extensions" to emptyMap<String, Any>(),
-                "variables" to emptyMap<String, Any>()// have to add this to avoid a NPE exception.
-            ),
-            "type" to "start",
-            "id" to 1
-        )
-
-        val socketHandler: WebSocketHandler = WebSocketHandler { session ->
-
-            //            override fun getSubProtocols(): MutableList<String> {
-            //                return mutableListOf("graphql-ws")
-            //            }
-            // payload data format:  { 'data': {'commentAdded': {'id': '...', 'title': '...'}}}
-            val receiveMono = session.receive()
-                .doOnNext {
-                    val text = it.payloadAsText
-                    log.debug("receiving text: {}", text)
-                    if ("data" == JsonPath.read(text, "$.type")) {
-                        val data = objectMapper.convertValue(
-                            JsonPath.read(text, "$.payload.data.commentAdded"),
-                            Comment::class.java
-                        )
-                        log.debug("added comment: {}", data)
-                        commentsReplay.add(data.content)
-                    }
-
-                }
-                .doOnError { log.error("receiving err:$it") }
-                .log("receiving message:")
-                .then()
-
-
-            val sendMono = session
-                .send(
-                    Mono.delay(Duration.ofMillis(500))
-                        .then(Mono.just(objectMapper.writeValueAsString(subscriptionQuery))
-                            .map { session.textMessage(it) }
-                        )
-                )
-                .log("sending message:")
-                .doOnError { log.error("sending err:$it") }
-
-            Mono.zip(sendMono, receiveMono).then()
-        }
-
-        socketClient
-            .execute(
-                URI.create("ws://localhost:$port/subscriptions"),
-                socketHandler
-            )
-            .doOnError { log.error("execute err:$it") }
-            .block(Duration.ofMillis(500L))
-
-        // limit to the `latest` item in the `Sinks.replay`
-        assertThat(commentsReplay).isEqualTo(arrayListOf("comment2"))
+        // verify mock callings
+        coVerify(exactly = 2) { postRepository.existsById(any()) }
+        coVerify(exactly = 2) { commentRepository.save(any()) }
     }
 }

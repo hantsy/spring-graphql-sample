@@ -6,6 +6,8 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.map
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
+import reactor.core.publisher.Flux
+import reactor.core.publisher.Sinks
 import java.util.*
 
 class AuthorNotFoundException(id: String) : RuntimeException("Author: $id was not found.")
@@ -37,7 +39,7 @@ interface PostService {
     suspend fun addComment(commentInput: CommentInput): Comment
 
     // subscription: commentAdded
-    fun commentAdded(): Flow<Comment>
+    fun commentAdded(): Flux<Comment>
     fun getCommentsByPostId(id: String): Flow<Comment>
     fun getCommentsByPostIdIn(ids: Set<String>): Flow<Comment>
 }
@@ -69,19 +71,21 @@ class DefaultPostService(
 
     override suspend fun addComment(commentInput: CommentInput): Comment {
         val postId = UUID.fromString(commentInput.postId)
-        val post = this.posts.findById(postId) ?: throw PostNotFoundException(postId.toString())
+        if (!this.posts.existsById(postId)) {
+            throw PostNotFoundException(postId.toString())
+        }
         val data = CommentEntity(content = commentInput.content, postId = postId)
         val savedComment = this.comments.save(data)
         val comment = savedComment.asGqlType()
-        sink.emit(comment)
+        sink.emitNext(comment, Sinks.EmitFailureHandler.FAIL_FAST)
 
         return comment
     }
 
-    val sink = MutableSharedFlow<Comment>()
+    val sink = Sinks.many().replay().latest<Comment>()
 
     // subscription: commentAdded
-    override fun commentAdded(): Flow<Comment> = sink
+    override fun commentAdded(): Flux<Comment> = sink.asFlux()
 
     override fun getCommentsByPostId(id: String): Flow<Comment> {
         return this.comments.findByPostId(UUID.fromString(id))
