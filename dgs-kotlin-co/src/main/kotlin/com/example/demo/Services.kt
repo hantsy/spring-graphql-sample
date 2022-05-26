@@ -2,9 +2,7 @@ package com.example.demo
 
 import com.example.demo.gql.types.*
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.reactive.asFlow
-import kotlinx.coroutines.reactive.awaitFirstOrElse
-import kotlinx.coroutines.reactive.awaitSingle
+import kotlinx.coroutines.flow.map
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import reactor.core.publisher.Flux
@@ -17,14 +15,15 @@ class PostNotFoundException(id: String) : RuntimeException("Post: $id was not fo
 @Service
 class AuthorService(val authors: AuthorRepository) {
 
-    suspend fun getAuthorById(id: String): Author = this.authors.findById(UUID.fromString(id))
-        .map { it.asGqlType() }
-        .awaitFirstOrElse { throw AuthorNotFoundException(id) }
+    suspend fun getAuthorById(id: String): Author {
+        val author = this.authors.findById(UUID.fromString(id)) ?: throw AuthorNotFoundException(id)
+        return author.asGqlType()
+    }
 
     // alternative to use kotlin co `Flow`
     fun getAuthorByIdIn(ids: List<String>): Flow<Author> {
         val uuids = ids.map { UUID.fromString(it) };
-        return authors.findAllById(uuids).map { it.asGqlType() }.asFlow()
+        return authors.findAllById(uuids).map { it.asGqlType() }
     }
 }
 
@@ -51,36 +50,33 @@ class DefaultPostService(
 ) : PostService {
     private val log = LoggerFactory.getLogger(PostService::class.java)
 
-    override fun allPosts() = this.posts.findAll().map { it.asGqlType() }.asFlow()
+    override fun allPosts() = this.posts.findAll().map { it.asGqlType() }
 
-    override suspend fun getPostById(id: String): Post =
-        this.posts.findById(UUID.fromString(id))
+    override suspend fun getPostById(id: String): Post {
+        val post = this.posts.findById(UUID.fromString(id)) ?: throw PostNotFoundException(id)
+        return post.asGqlType()
+    }
+
+    override fun getPostsByAuthorId(id: String): Flow<Post> {
+        return this.posts.findByAuthorId(UUID.fromString(id))
             .map { it.asGqlType() }
-            .awaitFirstOrElse { throw PostNotFoundException(id) }
-
-
-    override fun getPostsByAuthorId(id: String) = this.posts.findByAuthorId(UUID.fromString(id))
-        .map { it.asGqlType() }
-        .asFlow()
+    }
 
     override suspend fun createPost(postInput: CreatePostInput): Post {
         val data = PostEntity(title = postInput.title, content = postInput.content)
-        return this.posts.save(data).map { it.asGqlType() }.awaitSingle()
+        val saved = this.posts.save(data)
+        return saved.asGqlType()
     }
 
     override suspend fun addComment(commentInput: CommentInput): Comment {
         val postId = UUID.fromString(commentInput.postId)
-        return this.posts.findById(postId)
-            .flatMap {
-                val data = CommentEntity(content = commentInput.content, postId = postId)
-                this.comments.save(data)
-                    .map { it.asGqlType() }
-                    .doOnNext {
-                        log.debug("emitting comment: {}", it)
-                        sink.emitNext(it, Sinks.EmitFailureHandler.FAIL_FAST)
-                    }
-            }
-            .awaitFirstOrElse { throw PostNotFoundException(postId.toString()) }
+        val post = this.posts.findById(postId) ?: throw PostNotFoundException(postId.toString())
+        val data = CommentEntity(content = commentInput.content, postId = postId)
+        val savedComment = this.comments.save(data)
+        val comment = savedComment.asGqlType()
+        sink.emitNext(comment, Sinks.EmitFailureHandler.FAIL_FAST)
+
+        return comment
     }
 
     val sink = Sinks.many().replay().latest<Comment>()
@@ -88,12 +84,13 @@ class DefaultPostService(
     // subscription: commentAdded
     override fun commentAdded() = sink.asFlux()
 
-    override fun getCommentsByPostId(id: String): Flow<Comment> = this.comments.findByPostId(UUID.fromString(id))
-        .map { it.asGqlType() }
-        .asFlow()
+    override fun getCommentsByPostId(id: String): Flow<Comment> {
+        return this.comments.findByPostId(UUID.fromString(id))
+            .map { it.asGqlType() }
+    }
 
     override fun getCommentsByPostIdIn(ids: Set<String>): Flow<Comment> {
         val uuids = ids.map { UUID.fromString(it) };
-        return comments.findByPostIdIn(uuids).map { it.asGqlType() }.asFlow()
+        return comments.findByPostIdIn(uuids).map { it.asGqlType() }
     }
 }

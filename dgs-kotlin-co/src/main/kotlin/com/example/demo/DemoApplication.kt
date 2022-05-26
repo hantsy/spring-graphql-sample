@@ -1,8 +1,6 @@
 package com.example.demo
 
 import kotlinx.coroutines.flow.toList
-import kotlinx.coroutines.reactive.asFlow
-import kotlinx.coroutines.reactive.awaitFirstOrNull
 import kotlinx.coroutines.runBlocking
 import org.slf4j.LoggerFactory
 import org.springframework.boot.ApplicationArguments
@@ -11,10 +9,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
-import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity
 import org.springframework.security.config.annotation.method.configuration.EnableReactiveMethodSecurity
 import org.springframework.security.config.web.server.ServerHttpSecurity
-import org.springframework.security.config.web.server.invoke
 import org.springframework.security.web.server.SecurityWebFilterChain
 import org.springframework.security.web.server.util.matcher.PathPatternParserServerWebExchangeMatcher
 import org.springframework.stereotype.Component
@@ -35,10 +31,9 @@ class DataInitializer(val posts: PostRepository, val comments: CommentRepository
             PostEntity(title = "Learn Dgs framework", content = "content of Learn Dgs framework")
         )
         runBlocking {
-            comments.deleteAll().awaitFirstOrNull()
-            posts.deleteAll().awaitFirstOrNull()
+            comments.deleteAll()
+            posts.deleteAll()
             val saved = posts.saveAll(data)
-                .asFlow()
                 .toList()
             saved.forEach { log.debug("saved: {}", it) }
         }
