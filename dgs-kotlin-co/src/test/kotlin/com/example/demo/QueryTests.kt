@@ -79,7 +79,7 @@ class QueryTests {
 
         val titles = dgsQueryExecutor
             .executeAndExtractJsonPath<List<String>>(
-                " { allPosts { title content }}",
+                "{ allPosts { title content }}",
                 "data.allPosts[*].title"
             )
             .awaitSingle()
