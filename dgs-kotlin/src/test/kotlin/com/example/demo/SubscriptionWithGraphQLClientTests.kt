@@ -4,7 +4,8 @@ import com.example.demo.gql.types.AuthResult
 import com.example.demo.gql.types.Comment
 import com.example.demo.gql.types.Post
 import com.netflix.graphql.dgs.DgsQueryExecutor
-import com.netflix.graphql.dgs.client.DefaultGraphQLClient
+import com.netflix.graphql.dgs.client.CustomGraphQLClient
+import com.netflix.graphql.dgs.client.GraphQLClient
 import com.netflix.graphql.dgs.client.HttpResponse
 import com.netflix.graphql.dgs.client.RequestExecutor
 import graphql.ExecutionResult
@@ -39,14 +40,23 @@ class SubscriptionWithGraphQLClientTests {
     @Autowired
     lateinit var restTemplate: RestTemplate
 
-    var client: DefaultGraphQLClient? = null
+    lateinit var client: CustomGraphQLClient
 
     @Autowired
     lateinit var dgsQueryExecutor: DgsQueryExecutor
 
     @BeforeEach
     fun setup() {
-        this.client = DefaultGraphQLClient("http://localhost:$port/graphql")
+        val requestExecutor = RequestExecutor { url, _, body ->
+            val result = restTemplate.exchange(
+                url,
+                POST,
+                HttpEntity(body),
+                String::class.java
+            )
+            HttpResponse(result.statusCodeValue, result.body)
+        }
+        client = GraphQLClient.createCustom("http://localhost:$port/graphql", requestExecutor)
     }
 
     @Test
@@ -61,19 +71,10 @@ class SubscriptionWithGraphQLClientTests {
             )
         )
 
-        val requestExecutor = RequestExecutor { url, _, body ->
-            val result = restTemplate.exchange(
-                url,
-                POST,
-                HttpEntity(body),
-                String::class.java
-            )
-            HttpResponse(result.statusCodeValue, result.body)
-        }
 
-        val signinResult = this.client?.executeQuery(query, variables, requestExecutor)
+        val signinResult = client.executeQuery(query, variables)
 
-        val authResult: AuthResult = signinResult!!.extractValueAsObject("signIn", AuthResult::class.java)
+        val authResult: AuthResult = signinResult.extractValueAsObject("signIn", AuthResult::class.java)
         assertThat(authResult).isNotNull
         assertThat(authResult.name).isEqualTo("user")
         assertThat(authResult.roles).contains("ROLE_USER")
@@ -108,11 +109,12 @@ class SubscriptionWithGraphQLClientTests {
         }
 
 
+        client = GraphQLClient.createCustom("http://localhost:$port/graphql", requestExecutorWithAuth)
         val createPostResponse =
-            this.client?.executeQuery(createPostQuery, createPostVariables, requestExecutorWithAuth)
+            client.executeQuery(createPostQuery, createPostVariables)
 
-        val createPostResult = createPostResponse?.extractValueAsObject("createPost", Post::class.java)
-        val postId = createPostResult!!.id
+        val createPostResult = createPostResponse.extractValueAsObject("createPost", Post::class.java)
+        val postId = createPostResult.id
         assertThat(postId).isNotNull
         assertThat(createPostResult.title).isEqualTo("my title")
 
@@ -122,15 +124,15 @@ class SubscriptionWithGraphQLClientTests {
             "id" to postId
         )
 
-        val postByIdResponse =
-            this.client?.executeQuery(postByIdQuery, postByIdVariables, requestExecutor)
+        val postByIdResponse = client.executeQuery(postByIdQuery, postByIdVariables)
 
-        val postByIdResult = postByIdResponse?.extractValueAsObject("postById", Post::class.java)
-        assertThat(postByIdResult!!.title).isEqualTo("my title")
+        val postByIdResult = postByIdResponse.extractValueAsObject("postById", Post::class.java)
+        assertThat(postByIdResult.title).isEqualTo("my title")
 
         // subscribe to commentAdded.
         // TODO: authentication is disabled.
-        val executionResult = dgsQueryExecutor.execute("subscription onCommentAdded{ commentAdded{ id postId  content}}")
+        val executionResult =
+            dgsQueryExecutor.execute("subscription onCommentAdded{ commentAdded{ id postId  content}}")
         val publisher = executionResult.getData<Publisher<ExecutionResult>>()
 
         val verifier = StepVerifier.create(publisher)
@@ -149,7 +151,8 @@ class SubscriptionWithGraphQLClientTests {
             .thenCancel()
             .verifyLater()
 
-        val commentQuery = "mutation addComment(\$input: CommentInput!) { addComment(commentInput:\$input) { id postId content}}"
+        val commentQuery =
+            "mutation addComment(\$input: CommentInput!) { addComment(commentInput:\$input) { id postId content}}"
         val comment1Variables = mapOf(
             "input" to mapOf(
                 "postId" to postId,
@@ -163,19 +166,17 @@ class SubscriptionWithGraphQLClientTests {
             )
         )
 
-        val comment1Response =
-            this.client?.executeQuery(commentQuery, comment1Variables, requestExecutorWithAuth)
+        val comment1Response = client.executeQuery(commentQuery, comment1Variables)
 
-        val comment1Result = comment1Response?.extractValueAsObject("addComment", Comment::class.java)
+        val comment1Result = comment1Response.extractValueAsObject("addComment", Comment::class.java)
 
         assertThat(comment1Result!!.content).isEqualTo("comment1")
 
-        val comment2Response =
-            this.client?.executeQuery(commentQuery, comment2Variables, requestExecutorWithAuth)
+        val comment2Response = client.executeQuery(commentQuery, comment2Variables)
 
-        val comment2Result = comment2Response?.extractValueAsObject("addComment", Comment::class.java)
+        val comment2Result = comment2Response.extractValueAsObject("addComment", Comment::class.java)
 
-        assertThat(comment2Result!!.content).isEqualTo("comment2")
+        assertThat(comment2Result.content).isEqualTo("comment2")
 
         //verify it now.
         verifier.verify();
@@ -187,5 +188,4 @@ class SubscriptionWithGraphQLClientTests {
         @Bean
         fun restTemplate() = RestTemplate()
     }
-
 }
