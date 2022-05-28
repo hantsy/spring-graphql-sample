@@ -30,24 +30,6 @@ public class PostsDataFetcher {
         return this.postService.getPostById(postId);
     }
 
-    /*
-    @DgsData(
-            parentType = DgsConstants.POST.TYPE_NAME,
-            field = DgsConstants.POST.Author
-    )
-    public Author author(DgsDataFetchingEnvironment dfe) {
-        Post post = dfe.getSource();
-        String authorId = post.getAuthorId();
-        return this.authorService.getAuthorById(authorId);
-    }*/
-
-/*
-    @DgsDataLoader(name = "authorsLoader")
-    public BatchLoader<String, Author> authorBatchLoader = keys ->
-            CompletableFuture.supplyAsync(() ->
-                    this.authorService.getAuthorByIdIn(keys)
-            );*/
-
     @DgsData(
             parentType = "Post",
             field = "author"
@@ -57,17 +39,6 @@ public class PostsDataFetcher {
         Post post = dfe.getSource();
         return dataLoader.load(post.getAuthorId());
     }
-
-    /*
-    @DgsData(
-            parentType = DgsConstants.POST.TYPE_NAME,
-            field = DgsConstants.POST.Comments
-    )
-    public List<Comment> comments(DgsDataFetchingEnvironment dfe) {
-        Post post = dfe.getSource();
-        return this.postService.getCommentsByPostId(post.getId());
-    }
-    */
 
     @DgsData(
             parentType = "Post",
