@@ -4,11 +4,11 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 public record PostEntity(
-        UUID id,
+        Long id,
         String title,
         String content,
         String status,
-        UUID authorId
+        Long authorId
 ) {
 
 }

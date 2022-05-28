@@ -13,14 +13,14 @@ import java.util.List;
 @ToString
 @Slf4j
 public class Post {
-    String id;
+    Long id;
     String title;
     String content;
     @Builder.Default
     PostStatus status = PostStatus.DRAFT;
     @Builder.Default
     List<Comment> comments = new ArrayList<>();
-    String authorId;
+    Long authorId;
     Author author;
 
     public void addComment(Comment comment) {

@@ -20,11 +20,11 @@ import java.util.UUID;
 public class PostRepository {
     final NamedParameterJdbcTemplate jdbcTemplate;
     private static final RowMapper<PostEntity> ROW_MAPPER = (rs, rowNum) -> new PostEntity(
-            rs.getObject("id", UUID.class),
+            rs.getObject("id", Long.class),
             rs.getString("title"),
             rs.getString("content"),
             rs.getString("status"),
-            rs.getObject("author_id", UUID.class)
+            rs.getObject("author_id", Long.class)
     );
 
     public List<PostEntity> findAll() {
@@ -34,7 +34,7 @@ public class PostRepository {
         );
     }
 
-    public List<PostEntity> findByAuthorId(UUID authorId) {
+    public List<PostEntity> findByAuthorId(Long authorId) {
         return this.jdbcTemplate.query(
                 "SELECT * FROM posts WHERE author_id  = :author_id",
                 Map.of("author_id", authorId),
@@ -42,7 +42,7 @@ public class PostRepository {
         );
     }
 
-    public PostEntity findById(UUID id) {
+    public PostEntity findById(Long id) {
         return this.jdbcTemplate.queryForObject(
                 "SELECT * FROM posts WHERE id = :id",
                 Map.of("id", id),
@@ -50,20 +50,20 @@ public class PostRepository {
         );
     }
 
-    public UUID create(String title, String content, String status, UUID authorId) {
+    public Long create(String title, String content, String status, Long authorId) {
         String insert = """
-                INSERT INTO  posts (title, content, status, author_id, created_at) 
-                VALUES (:title, :content, :status, :author_id, :created_at) 
+                INSERT INTO  posts (title, content, status, author_id) 
+                VALUES (:title, :content, :status, :author_id) 
                 returning id
                 """;
         GeneratedKeyHolder generatedKeyHolder = new GeneratedKeyHolder();
         int inserted = this.jdbcTemplate.update(
                 insert,
-                new MapSqlParameterSource(Map.of("title", title, "content", content, "status", status, "author_id", authorId, "created_at", LocalDateTime.now())),
+                new MapSqlParameterSource(Map.of("title", title, "content", content, "status", status, "author_id", authorId )),
                 generatedKeyHolder
         );
         log.info("inserted rows: {}", inserted);
-        return generatedKeyHolder.getKeyAs(UUID.class);
+        return generatedKeyHolder.getKeyAs(Long.class);
     }
 
     public int deleteAll() {

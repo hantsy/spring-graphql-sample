@@ -12,26 +12,23 @@ import com.example.demo.repository.PostRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import java.util.function.Function;
 
 @Service
 @RequiredArgsConstructor
 public class PostService {
     private static final Function<PostEntity, Post> POST_MAPPER = p -> Post.builder()
-            .id(p.id().toString())
+            .id(p.id())
             .title(p.title())
             .content(p.content())
             .status(PostStatus.valueOf(p.status()))
-            .authorId(p.authorId().toString())
+            .authorId(p.authorId())
             .build();
     public static final Function<CommentEntity, Comment> COMMENT_MAPPER = c -> Comment.builder()
-            .id(c.id().toString())
+            .id(c.id())
             .content(c.content())
-            .postId(c.postId().toString())
+            .postId(c.postId())
             .build();
     final PostRepository posts;
     final CommentRepository comments;
@@ -45,36 +42,35 @@ public class PostService {
                 .toList();
     }
 
-    public Post getPostById(String id) {
-        var postEntity = this.posts.findById(UUID.fromString(id));
+    public Post getPostById(Long id) {
+        var postEntity = this.posts.findById(id);
         return Optional.ofNullable(postEntity)
                 .map(POST_MAPPER)
                 .orElseThrow(() -> new PostNotFoundException(id));
     }
 
-    List<Post> getPostsByAuthorId(String id) {
-        return this.posts.findByAuthorId(UUID.fromString(id))
+    List<Post> getPostsByAuthorId(Long id) {
+        return this.posts.findByAuthorId(id)
                 .stream()
                 .map(POST_MAPPER)
                 .toList();
     }
 
-    public UUID createPost(CreatePostInput postInput) {
+    public Long createPost(CreatePostInput postInput) {
         var authorId = this.authors.findAll().get(0).id();
-        UUID id = this.posts.create(postInput.getTitle(), postInput.getContent(), "DRAFT", authorId);
+        Long id = this.posts.create(postInput.getTitle(), postInput.getContent(), "DRAFT", authorId);
         return id;
     }
 
-    public List<Comment> getCommentsByPostId(String id) {
-        return this.comments.findByPostId(UUID.fromString(id))
+    public List<Comment> getCommentsByPostId(Long id) {
+        return this.comments.findByPostId(id)
                 .stream()
                 .map(COMMENT_MAPPER)
                 .toList();
     }
 
-    public List<Comment> getCommentsByPostIdIn(Set<String> ids) {
-        var uuids  = ids.stream().map(UUID::fromString).toList();
-        return this.comments.findByPostIdIn(uuids)
+    public List<Comment> getCommentsByPostIdIn(Set<Long> ids) {
+        return this.comments.findByPostIdIn(new ArrayList<>(ids))
                 .stream()
                 .map(COMMENT_MAPPER)
                 .toList();

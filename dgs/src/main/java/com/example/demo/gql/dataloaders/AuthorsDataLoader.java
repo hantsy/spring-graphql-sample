@@ -12,11 +12,11 @@ import java.util.concurrent.CompletionStage;
 
 @RequiredArgsConstructor
 @DgsDataLoader(name = "authorsLoader")
-public class AuthorsDataLoader implements BatchLoader<String, Author> {
+public class AuthorsDataLoader implements BatchLoader<Long, Author> {
     final AuthorService authorService;
 
     @Override
-    public CompletionStage<List<Author>> load(List<String> keys) {
+    public CompletionStage<List<Author>> load(List<Long> keys) {
         return CompletableFuture.supplyAsync(() ->
                 this.authorService.getAuthorByIdIn(keys)
         );

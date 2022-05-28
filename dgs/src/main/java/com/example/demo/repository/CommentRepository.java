@@ -22,9 +22,9 @@ public class CommentRepository {
     final NamedParameterJdbcTemplate jdbcTemplate;
 
     private static final RowMapper<CommentEntity> ROW_MAPPER = (rs, rowNum) -> new CommentEntity(
-            rs.getObject("id", UUID.class),
+            rs.getLong("id"),
             rs.getString("content"),
-            rs.getObject("post_id", UUID.class)
+            rs.getLong("post_id")
     );
 
     public List<CommentEntity> findAll() {
@@ -34,7 +34,7 @@ public class CommentRepository {
         );
     }
 
-    public List<CommentEntity> findByPostId(UUID postId) {
+    public List<CommentEntity> findByPostId(Long postId) {
         String sql = """
                 SELECT * FROM comments 
                 WHERE post_id  = :post_id
@@ -46,7 +46,7 @@ public class CommentRepository {
         );
     }
 
-    public List<CommentEntity> findByPostIdIn(List<UUID> postId) {
+    public List<CommentEntity> findByPostIdIn(List<Long> postId) {
         String sql = """
                 SELECT * FROM comments 
                 WHERE post_id  in (:post_id)
@@ -58,20 +58,20 @@ public class CommentRepository {
         );
     }
 
-    public UUID create(String content, UUID postId) {
+    public Long create(String content, Long postId) {
         String insert = """
-                INSERT INTO  comments ( content, post_id, created_at) 
-                VALUES ( :content, :post_id, :created_at) 
+                INSERT INTO  comments ( content, post_id) 
+                VALUES ( :content, :post_id) 
                 returning id
                 """;
         GeneratedKeyHolder generatedKeyHolder = new GeneratedKeyHolder();
         int inserted = this.jdbcTemplate.update(
                 insert,
-                new MapSqlParameterSource(Map.of("content", content, "post_id", postId, "created_at", LocalDateTime.now())),
+                new MapSqlParameterSource(Map.of("content", content, "post_id", postId)),
                 generatedKeyHolder
         );
         log.info("inserted rows: {}", inserted);
-        return generatedKeyHolder.getKeyAs(UUID.class);
+        return generatedKeyHolder.getKeyAs(Long.class);
     }
 
     public int deleteAll() {

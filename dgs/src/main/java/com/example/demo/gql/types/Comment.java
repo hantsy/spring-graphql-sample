@@ -8,7 +8,7 @@ import lombok.ToString;
 @Builder
 @ToString
 public class Comment {
-    String id;
-    String postId;
+    Long id;
+    Long postId;
     String content;
 }

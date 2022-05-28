@@ -21,7 +21,7 @@ public class AuthorRepository {
     final NamedParameterJdbcTemplate jdbcTemplate;
 
     private static final RowMapper<AuthorEntity> ROW_MAPPER = (rs, rowNum) -> new AuthorEntity(
-            rs.getObject("id", UUID.class),
+            rs.getLong("id"),
             rs.getString("name"),
             rs.getString("email")
     );
@@ -33,7 +33,7 @@ public class AuthorRepository {
         );
     }
 
-    public AuthorEntity findById(UUID id) {
+    public AuthorEntity findById(Long id) {
         String sql = """
                 SELECT * FROM users 
                 WHERE id  = :id
@@ -45,7 +45,7 @@ public class AuthorRepository {
         );
     }
 
-    public List<AuthorEntity> findByIdIn(List<UUID> id) {
+    public List<AuthorEntity> findByIdIn(List<Long> id) {
         String sql = """
                 SELECT * FROM users 
                 WHERE id  in (:id)
@@ -57,20 +57,20 @@ public class AuthorRepository {
         );
     }
 
-    public UUID create(String name, String email) {
+    public Long create(String name, String email) {
         String insert = """
-                INSERT INTO  users  ( name, email, created_at) 
-                VALUES ( :name, :email, :created_at) 
+                INSERT INTO  users  ( name, email) 
+                VALUES ( :name, :email) 
                 returning id
                 """;
         GeneratedKeyHolder generatedKeyHolder = new GeneratedKeyHolder();
         int inserted = this.jdbcTemplate.update(
                 insert,
-                new MapSqlParameterSource(Map.of("name", name, "email", email, "created_at", LocalDateTime.now())),
+                new MapSqlParameterSource(Map.of("name", name, "email", email)),
                 generatedKeyHolder
         );
         log.info("inserted rows: {}", inserted);
-        return generatedKeyHolder.getKeyAs(UUID.class);
+        return generatedKeyHolder.getKeyAs(Long.class);
     }
 
     public int deleteAll() {

@@ -26,7 +26,7 @@ public class PostsDataFetcher {
     }
 
     @DgsQuery
-    public Post postById(@InputArgument String postId) {
+    public Post postById(@InputArgument Long postId) {
         return this.postService.getPostById(postId);
     }
 
@@ -53,7 +53,7 @@ public class PostsDataFetcher {
             field = "author"
     )
     public CompletableFuture<Author> author(DgsDataFetchingEnvironment dfe) {
-        DataLoader<String, Author> dataLoader = dfe.getDataLoader("authorsLoader");
+        DataLoader<Long, Author> dataLoader = dfe.getDataLoader("authorsLoader");
         Post post = dfe.getSource();
         return dataLoader.load(post.getAuthorId());
     }
@@ -74,7 +74,7 @@ public class PostsDataFetcher {
             field = "comments"
     )
     public CompletableFuture<List<Comment>> comments(DgsDataFetchingEnvironment dfe) {
-        DataLoader<String, List<Comment>> dataLoader = dfe.getDataLoader(CommentsDataLoader.class);
+        DataLoader<Long, List<Comment>> dataLoader = dfe.getDataLoader(CommentsDataLoader.class);
         Post post = dfe.getSource();
         return dataLoader.load(post.getId());
     }
@@ -82,7 +82,7 @@ public class PostsDataFetcher {
     @DgsMutation
     public Post createPost(@InputArgument("createPostInput") CreatePostInput input) {
         var id = this.postService.createPost(input);
-        return this.postService.getPostById(id.toString());
+        return this.postService.getPostById(id);
     }
 
 }

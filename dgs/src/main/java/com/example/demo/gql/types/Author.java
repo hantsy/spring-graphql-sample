@@ -8,7 +8,7 @@ import lombok.ToString;
 @Builder
 @ToString
 public class Author {
-    String id;
+    Long id;
     String name;
     String email;
 }
