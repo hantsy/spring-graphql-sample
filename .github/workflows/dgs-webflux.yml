@@ -19,9 +19,7 @@ on:
 jobs:
 
   build:
-
     runs-on: ubuntu-latest
-
     steps:
     - uses: actions/checkout@v3
     - name: Set up JDK
@@ -29,9 +27,11 @@ jobs:
       with:
         java-version: '17'
         distribution: 'zulu'
+        cache: 'gradle'
     - name: Setup Postgres in Docker 
       run: |
         docker-compose up -d postgres
+        sleep 5
         docker ps -a
     - name: Build with Gradle
       run: |
