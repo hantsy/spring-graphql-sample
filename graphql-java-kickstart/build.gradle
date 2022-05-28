@@ -1,0 +1,44 @@
+plugins {
+    id 'org.springframework.boot' version '2.7.0'
+    id 'io.spring.dependency-management' version '1.0.11.RELEASE'
+    id 'java'
+}
+
+group = 'com.example'
+version = '0.0.1-SNAPSHOT'
+sourceCompatibility = '17'
+
+repositories {
+    mavenLocal()
+    mavenCentral()
+}
+
+dependencies {
+    implementation 'com.graphql-java-kickstart:graphql-spring-boot-starter:12.0.0'
+    implementation 'com.graphql-java-kickstart:graphiql-spring-boot-starter:11.1.0'
+    implementation 'com.graphql-java-kickstart:voyager-spring-boot-starter:11.1.0'
+
+    // spring boot starters
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-starter-websocket'
+    implementation "io.projectreactor:reactor-core"
+    implementation 'org.springframework.boot:spring-boot-starter-data-jdbc'
+    implementation 'org.postgresql:postgresql'
+    implementation 'org.apache.commons:commons-lang3:3.12.0'
+    implementation 'org.yaml:snakeyaml:1.30'
+
+
+    //configure Lombok for compile java/ compile tests
+    compileOnly 'org.projectlombok:lombok:1.18.24'
+    annotationProcessor 'org.projectlombok:lombok:1.18.24'
+    testCompileOnly 'org.projectlombok:lombok:1.18.20'
+    testAnnotationProcessor 'org.projectlombok:lombok:1.18.20'
+	
+	//test
+	testImplementation 'com.graphql-java-kickstart:graphql-spring-boot-starter-test:12.0.0'
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+}
+
+test {
+    useJUnitPlatform()
+}
