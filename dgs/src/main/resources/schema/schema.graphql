@@ -30,7 +30,7 @@ input CommentInput{
 
 type Query{
     allPosts: [Post!]!
-    postById(postId: String!): Post
+    postById(postId: ID!): Post
 }
 
 type Mutation{

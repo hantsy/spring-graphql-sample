@@ -1,4 +1,4 @@
-package com.example.demo.gql.datafetcher;
+package com.example.demo.gql.datafetchers;
 
 import com.example.demo.gql.dataloaders.CommentsDataLoader;
 import com.example.demo.gql.types.Author;
