@@ -1,7 +1,6 @@
 package com.example.demo.repository;
 
 import com.example.demo.model.CommentEntity;
-import com.example.demo.model.PostEntity;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.RowMapper;
@@ -32,14 +31,6 @@ public class CommentRepository {
     public List<CommentEntity> findAll() {
         return this.jdbcTemplate.query(
                 "SELECT * FROM comments",
-                ROW_MAPPER
-        );
-    }
-
-    public CommentEntity findById(UUID id) {
-        return this.jdbcTemplate.queryForObject(
-                "SELECT * FROM comments WHERE id = :id",
-                Map.of("id", id),
                 ROW_MAPPER
         );
     }

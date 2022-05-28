@@ -1,6 +1,9 @@
 package com.example.demo.service;
 
-import com.example.demo.gql.types.*;
+import com.example.demo.gql.types.Comment;
+import com.example.demo.gql.types.CreatePostInput;
+import com.example.demo.gql.types.Post;
+import com.example.demo.gql.types.PostStatus;
 import com.example.demo.model.CommentEntity;
 import com.example.demo.model.PostEntity;
 import com.example.demo.repository.AuthorRepository;
@@ -8,9 +11,7 @@ import com.example.demo.repository.CommentRepository;
 import com.example.demo.repository.PostRepository;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.Validate;
-import org.reactivestreams.Publisher;
 import org.springframework.stereotype.Service;
-import reactor.core.publisher.Sinks;
 
 import java.util.List;
 import java.util.Optional;
@@ -84,18 +85,5 @@ public class PostService {
                 .stream()
                 .map(COMMENT_MAPPER)
                 .toList();
-    }
-
-    public UUID addComment(CommentInput input) {
-        UUID id = this.comments.create(input.getContent(), UUID.fromString(input.getPostId()));
-        CommentEntity comment = this.comments.findById(id);
-        sink.emitNext(COMMENT_MAPPER.apply(comment), Sinks.EmitFailureHandler.FAIL_FAST);
-        return id;
-    }
-
-    private Sinks.Many<Comment> sink = Sinks.many().replay().latest();
-
-    public Publisher<Comment> commentAdded() {
-        return sink.asFlux();
     }
 }

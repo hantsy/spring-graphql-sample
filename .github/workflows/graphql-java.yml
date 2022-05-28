@@ -17,11 +17,10 @@ on:
       - reopened
 
 jobs:
+        
 
   build:
-
     runs-on: ubuntu-latest
-
     steps:
     - uses: actions/checkout@v3
     - name: Set up JDK
@@ -38,4 +37,5 @@ jobs:
         cd graphql-java
         chmod +x gradlew
         ./gradlew build
+
 
