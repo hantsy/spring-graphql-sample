@@ -19,7 +19,7 @@ CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
 -- In sprig data jdbc/r2dbc, varchar is converted to Java enum automaticially. No need create a enum type in postgres.
 
-CREATE TABLE IF NOT EXISTS users (
+/* CREATE TABLE IF NOT EXISTS users (
     id UUID DEFAULT uuid_generate_v4(),
     name VARCHAR(255) NOT NULL,
 	email VARCHAR(255) NOT NULL,
@@ -39,7 +39,6 @@ CREATE TABLE IF NOT EXISTS profiles (
 );
 
 CREATE TABLE IF NOT EXISTS posts (
-    -- id SERIAL PRIMARY KEY,
     id UUID DEFAULT uuid_generate_v4(),
     title VARCHAR(255),
     content VARCHAR(255),
@@ -59,5 +58,5 @@ CREATE TABLE IF NOT EXISTS comments (
     version INTEGER,
     PRIMARY KEY (id)
 );
-
+ */
 
