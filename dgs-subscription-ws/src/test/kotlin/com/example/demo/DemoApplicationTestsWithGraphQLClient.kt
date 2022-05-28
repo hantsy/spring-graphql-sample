@@ -8,7 +8,7 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.boot.web.server.LocalServerPort
+import org.springframework.boot.test.web.server.LocalServerPort
 import org.springframework.web.reactive.socket.client.ReactorNettyWebSocketClient
 import reactor.test.StepVerifier
 
@@ -18,14 +18,14 @@ class DemoApplicationTestsWithGraphQLClient {
     @Autowired
     lateinit var dgsQueryExecutor: DgsQueryExecutor
 
-    lateinit var client: WebSocketGraphQLClient
+    lateinit var socketGraphQLClient: WebSocketGraphQLClient
 
     @LocalServerPort
     var port: Int = 0
 
     @BeforeEach
     fun setup() {
-        this.client = WebSocketGraphQLClient("ws://localhost:$port/subscriptions", ReactorNettyWebSocketClient())
+        this.socketGraphQLClient = WebSocketGraphQLClient("ws://localhost:$port/subscriptions", ReactorNettyWebSocketClient())
     }
 
     @Test
@@ -33,7 +33,7 @@ class DemoApplicationTestsWithGraphQLClient {
         //Hooks.onOperatorDebug();
         val query = "subscription { messageSent { body } }"
         val variables = emptyMap<String, Any>()
-        val executionResult = client.reactiveExecuteQuery(query, variables)
+        val executionResult = socketGraphQLClient.reactiveExecuteQuery(query, variables)
             .map {
                 it.extractValueAsObject(
                     "data.messageSent",
