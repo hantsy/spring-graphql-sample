@@ -2,15 +2,26 @@ package com.example.demo;
 
 import com.example.demo.gql.client.AllPostsGraphQLQuery;
 import com.example.demo.gql.client.AllPostsProjectionRoot;
+import com.example.demo.gql.datafetcher.PostsDataFetcher;
+import com.example.demo.gql.directives.UppercaseDirectiveWiring;
+import com.example.demo.gql.scalars.LocalDateTimeScalar;
+import com.example.demo.gql.scalars.UUIDScalar;
 import com.example.demo.gql.types.Post;
+import com.example.demo.service.AuthorService;
 import com.example.demo.service.PostNotFoundException;
 import com.example.demo.service.PostService;
 import com.netflix.graphql.dgs.DgsQueryExecutor;
+import com.netflix.graphql.dgs.autoconfig.DgsAutoConfiguration;
 import com.netflix.graphql.dgs.client.codegen.GraphQLQueryRequest;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
+import org.springframework.boot.autoconfigure.jackson.JacksonAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 
 import java.util.List;
 import java.util.Map;
@@ -19,9 +30,8 @@ import java.util.UUID;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
-
-//@SpringBootTest(classes = {DgsAutoConfiguration.class, PostsDataFetcher.class})
-@SpringBootTest()
+@SpringBootTest(classes = {QueryTests.QueryTestsConfig.class})
+@Slf4j
 class QueryTests {
 
     @Autowired
@@ -29,6 +39,24 @@ class QueryTests {
 
     @MockBean
     PostService postService;
+
+    @MockBean
+    AuthorService authorService;
+
+    @Configuration
+    @Import(value = {
+            PostsDataFetcher.class,
+            UUIDScalar.class,
+            LocalDateTimeScalar.class,
+            UppercaseDirectiveWiring.class
+    })
+    @ImportAutoConfiguration(value = {
+            DgsAutoConfiguration.class,
+            JacksonAutoConfiguration.class
+    })
+    static class QueryTestsConfig {
+
+    }
 
     @Test
     void allPosts() {
@@ -109,7 +137,7 @@ class QueryTests {
         );
 
         assertThat(executeResult.getErrors()).isNotEmpty();
-        assertThat(executeResult.getErrors().get(0).getMessage()).isEqualTo("Post: test was not found.");
+        assertThat(executeResult.getErrors().get(0).getMessage()).contains("Post: test was not found.");
 
         verify(postService, times(1)).getPostById(anyString());
         verifyNoMoreInteractions(postService);
