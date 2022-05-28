@@ -17,5 +17,5 @@ public class CommentInput {
     String content;
 
     @NotEmpty
-    String postId;
+    Long postId;
 }

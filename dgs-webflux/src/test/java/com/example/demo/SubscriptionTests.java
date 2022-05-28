@@ -142,9 +142,9 @@ class SubscriptionTests {
         });
 
         var countDownLatch = new CountDownLatch(1);//make sure the `add comment` is done successfully.
-        postService.addComment(CommentInput.builder().postId("1").content("test comment").build())
+        postService.addComment(CommentInput.builder().postId(1l).content("test comment").build())
                 .then(
-                        postService.addComment(CommentInput.builder().postId("1").content("test comment").build())
+                        postService.addComment(CommentInput.builder().postId(1l).content("test comment").build())
                 )
                 .doOnTerminate(countDownLatch::countDown)
                 .subscribe(data -> log.debug("added comment:{}", data));
