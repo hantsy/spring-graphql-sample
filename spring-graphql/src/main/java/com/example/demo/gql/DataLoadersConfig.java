@@ -3,6 +3,7 @@ package com.example.demo.gql;
 import org.dataloader.DataLoaderRegistry;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.graphql.execution.DataLoaderRegistrar;
 import org.springframework.graphql.server.WebGraphQlInterceptor;
 
 @Configuration
@@ -20,7 +21,7 @@ public class DataLoadersConfig {
         };
     }
 
-/*    @Bean
+    /*@Bean
     public DataLoaderRegistrar dataLoaderRegistrar(DataLoaders loader) {
         return (registry, context) -> {
             registry.register("authorsLoader", loader.authorsLoader());

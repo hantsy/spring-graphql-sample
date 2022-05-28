@@ -43,9 +43,9 @@ ALTER TABLE posts DROP CONSTRAINT IF EXISTS fk_posts_author_id;
 ALTER TABLE profiles DROP CONSTRAINT IF EXISTS fk_profiles_user_id;
 -- drop primary key constraint
 ALTER TABLE profiles DROP CONSTRAINT IF EXISTS pk_profiles;
-ALTER TABLE users DROP CONSTRAINT IF EXISTS fk_users;
-ALTER TABLE posts DROP CONSTRAINT IF EXISTS fk_posts;
-ALTER TABLE comments DROP CONSTRAINT IF EXISTS fk_comments;
+ALTER TABLE users DROP CONSTRAINT IF EXISTS pk_users;
+ALTER TABLE posts DROP CONSTRAINT IF EXISTS pk_posts;
+ALTER TABLE comments DROP CONSTRAINT IF EXISTS pk_comments;
 
 -- add primary key constraint
 ALTER TABLE users ADD CONSTRAINT pk_users PRIMARY KEY (id);

@@ -32,7 +32,7 @@ public class DataLoaders {
         MappedBatchLoaderWithContext<String, List<Comment>> batchLoader = (Set<String> keys, BatchLoaderEnvironment environment) ->
         {
             List<Comment> comments = postService.getCommentsByPostIdIn(keys);
-            log.info("comments of post: {}", comments);
+            log.info("Get comments of post: {}, keys: {}", comments, keys);
             Map<String, List<Comment>> mappedComments = new HashMap<>();
             keys.forEach(
                     k -> mappedComments.put(k, comments

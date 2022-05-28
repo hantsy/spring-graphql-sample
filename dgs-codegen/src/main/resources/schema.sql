@@ -36,11 +36,11 @@ ALTER TABLE posts
     DROP CONSTRAINT IF EXISTS fk_posts_author_id;
 -- drop primary key constraint
 ALTER TABLE users
-    DROP CONSTRAINT IF EXISTS fk_users;
+    DROP CONSTRAINT IF EXISTS pk_users;
 ALTER TABLE posts
-    DROP CONSTRAINT IF EXISTS fk_posts;
+    DROP CONSTRAINT IF EXISTS pk_posts;
 ALTER TABLE comments
-    DROP CONSTRAINT IF EXISTS fk_comments;
+    DROP CONSTRAINT IF EXISTS pk_comments;
 
 
 -- add primary key constraint

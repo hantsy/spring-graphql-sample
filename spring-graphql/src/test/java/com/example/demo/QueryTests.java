@@ -1,9 +1,10 @@
 package com.example.demo;
 
 import com.example.demo.gql.types.Post;
+import com.example.demo.service.AuthorService;
 import com.example.demo.service.PostService;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.extern.slf4j.Slf4j;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.graphql.tester.AutoConfigureHttpGraphQlTester;
@@ -18,7 +19,6 @@ import static org.mockito.Mockito.*;
 
 @SpringBootTest
 @AutoConfigureHttpGraphQlTester
-@Slf4j
 public class QueryTests {
 
     @Autowired
@@ -27,8 +27,15 @@ public class QueryTests {
     @MockBean
     PostService postService;
 
+    @MockBean
+    AuthorService authorService;
+
     @Autowired
     ObjectMapper objectMapper;
+
+    @BeforeEach
+    void setup() {
+    }
 
     @Test
     void allPosts() {
@@ -47,8 +54,6 @@ public class QueryTests {
                      id
                      title
                      content
-                     author{ id name email }
-                     comments{ id content }
                    }
                  }""";
         graphQlTester.document(allPosts)
