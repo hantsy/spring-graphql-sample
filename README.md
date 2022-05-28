@@ -30,13 +30,13 @@ TBD
 |[dgs-client](./dgs-client) | Netflix DGS Typesafe Client example|
 |[dgs-kotlin-co](./dgs-kotlin-co) | **A complete Netflix DGS example** with WebFlux, Kotlin Coroutines, Spring Data R2dbc and Spring Security|
 |[dgs-kotlin](./dgs-kotlin) | **A complete Netflix DGS example** with WebMvc/Kotlin, Spring Data Jdbc, Spring Security and Spring Session/Spring Data Redis|
-|[graphql-java-vanilla](./graphql-java-vanilla) | GraphQL Java vanilla Spring Boot example|
-|[graphql-java](./graphql-java)  | GraphQL Java Kickstart Spring Boot example|
-|[graphql-java-webclient](./graphql-java-webclient) | GraphQL Java Kickstart Spring WebClient example|
-|[graphql-java-annotations](./graphql-java-annotations) | GraphQL Java Kickstart Spring Boot example(Code first)|
+|[graphql-java](./graphql-java) | GraphQL Java vanilla Spring Boot example|
+|[graphql-java-kickstart](./graphql-java-kickstart)  | GraphQL Java Kickstart Spring Boot example|
+|[graphql-java-kickstart-webclient](./graphql-java-kickstart-webclient) | GraphQL Java Kickstart Spring WebClient example|
+|[graphql-java-kickstart-annotations](./graphql-java-kickstart-annotations) | GraphQL Java Kickstart Spring Boot example(Code first)|
 |[graphql-spqr](./graphql-spqr)| GraphQL SPQR Spring example|
 |[spring-graphql](./spring-graphql) | Spring GraphQL example|
-|[spring-graphql-annotations](./spring-graphql-annotations) | Spring GraphQL with annotated DataFecthers example|
+|[spring-graphql-webmvc](./spring-graphql-webmvc) | Spring GraphQL with WebMvc Controller annotation example|
 |[spring-graphql-querydsl](./spring-graphql-querydsl)| Spring GraphQL/JPA/QueryDSl Data Fetchers example|
 |[spring-graphql-webflux](./spring-graphql-webflux) | Spring GraphQL/WebFlux example with WebSocket transport protocol |
 
