@@ -3,7 +3,7 @@ type Post{
     title: String!
     content: String
     comments: [Comment]
-    authorId:String
+    authorId:ID
     author:Author
 }
 type Author{
@@ -30,7 +30,7 @@ input CommentInput{
 
 type Query{
     allPosts: [Post!]!
-    postById(postId: String!): Post
+    postById(postId: ID!): Post
 }
 
 type Mutation{

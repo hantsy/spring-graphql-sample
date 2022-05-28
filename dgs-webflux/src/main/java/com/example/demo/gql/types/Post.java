@@ -11,12 +11,12 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class Post {
-    String id;
+    Long id;
     String title;
     String content;
 
     @Builder.Default
     List<Comment> comments = new ArrayList<>();
-    String authorId;
+    Long authorId;
     Author author;
 }

@@ -17,6 +17,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.publisher.Sinks;
 
+import java.util.ArrayList;
 import java.util.Set;
 import java.util.UUID;
 import java.util.function.Function;
@@ -26,16 +27,16 @@ import java.util.function.Function;
 @Slf4j
 public class PostService {
     public static final Function<PostEntity, Post> MAPPER = entity -> Post.builder()
-            .id(entity.id().toString())
+            .id(entity.id())
             .title(entity.title())
             .content(entity.content())
-            .authorId(entity.authorId().toString())
+            .authorId(entity.authorId())
             .build();
 
     public static final Function<CommentEntity, Comment> COMMENT_MAPPER = entity -> Comment.builder()
-            .id(entity.id().toString())
+            .id(entity.id())
             .content(entity.content())
-            .postId(entity.postId().toString())
+            .postId(entity.postId())
             .build();
 
     private final PostRepository posts;
@@ -47,36 +48,43 @@ public class PostService {
                 .map(MAPPER);
     }
 
-    public Mono<Post> getPostById(String id) {
-        return this.posts.findById(UUID.fromString(id))
+    public Mono<Post> getPostById(Long id) {
+        return this.posts.findById(id)
                 .map(MAPPER)
                 .switchIfEmpty(Mono.error(new PostNotFoundException(id)));
     }
 
-    public Flux<Post> getPostsByAuthorId(String id) {
-        return this.posts.findByAuthorId(UUID.fromString(id))
+    public Flux<Post> getPostsByAuthorId(Long id) {
+        return this.posts.findByAuthorId(id)
                 .map(MAPPER);
     }
 
-    public Mono<UUID> createPost(CreatePostInput postInput) {
+    public Mono<Long> createPost(CreatePostInput postInput) {
         var author = this.authors.findAll().last();//get an existing id
         return author.flatMap(a -> this.posts.create(postInput.getTitle(), postInput.getContent(), "DRAFT", a.id()));
     }
 
-    public Flux<Comment> getCommentsByPostIdIn(Set<String> ids) {
-        var uuids = ids.stream().map(UUID::fromString).toList();
-        return this.comments.findByPostIdIn(uuids)
+    public Flux<Comment> getCommentsByPostIdIn(Set<Long> ids) {
+        return this.comments.findByPostIdIn(new ArrayList<>(ids))
                 .map(COMMENT_MAPPER);
     }
 
-    public Mono<UUID> addComment(CommentInput commentInput) {
-        String postId = commentInput.getPostId();
-        return this.posts.findById(UUID.fromString(postId))
-                .flatMap(p -> this.comments.create(commentInput.getContent(), UUID.fromString(postId)))
+    public Mono<Comment> addComment(CommentInput commentInput) {
+        var postId = Long.valueOf(commentInput.getPostId());
+        return this.posts.findById(postId)
+                .flatMap(p -> this.comments.create(commentInput.getContent(), postId))
+                .flatMap(id -> comments.findById(id))
+                .map(COMMENT_MAPPER)
+                .doOnNext(c -> sink.emitNext(c, Sinks.EmitFailureHandler.FAIL_FAST))
                 .switchIfEmpty(Mono.error(new PostNotFoundException(postId)));
     }
 
-    public Mono<Comment> getCommentById(String id) {
-        return this.comments.findById(UUID.fromString(id)).map(COMMENT_MAPPER);
+    private final Sinks.Many<Comment> sink = Sinks.many().replay().latest();
+
+    public Flux<Comment> commentAdded() {
+        return sink.asFlux();
+    }
+    public Mono<Comment> getCommentById(Long id) {
+        return this.comments.findById(id).map(COMMENT_MAPPER);
     }
 }

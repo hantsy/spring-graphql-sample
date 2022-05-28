@@ -4,25 +4,29 @@ import com.example.demo.gql.types.Comment;
 import com.example.demo.gql.types.Post;
 import com.netflix.graphql.dgs.client.WebClientGraphQLClient;
 import com.netflix.graphql.dgs.client.WebSocketGraphQLClient;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.web.server.LocalServerPort;
+import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.socket.client.ReactorNettyWebSocketClient;
 import reactor.test.StepVerifier;
 
-import java.time.Duration;
 import java.util.Collections;
 import java.util.Map;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.atomic.AtomicLong;
 
+import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.awaitility.Awaitility.await;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @Slf4j
-@Disabled //see: https://github.com/Netflix/dgs-framework/issues/689
+//@Disabled
+//see: https://github.com/Netflix/dgs-framework/issues/689
 class SubscriptionTestsWithGraphQLClient {
 
     @LocalServerPort
@@ -39,6 +43,7 @@ class SubscriptionTestsWithGraphQLClient {
         this.socketClient = new WebSocketGraphQLClient("ws://localhost:" + port + "/subscriptions", new ReactorNettyWebSocketClient());
     }
 
+    @SneakyThrows
     @Test
     void createCommentAndSubscription() {
         var createPostQuery = "mutation createPost($input: CreatePostInput!){ createPost(createPostInput:$input) {id, title} }";
@@ -49,20 +54,30 @@ class SubscriptionTestsWithGraphQLClient {
                 )
         );
 
+        var countDownLatch = new CountDownLatch(1);
+        var atomicPostId = new AtomicLong();
         var createPostResult = this.client.reactiveExecuteQuery(createPostQuery, createPostVariables)
                 .map(response -> response.extractValueAsObject("createPost", Post.class))
-                .block(Duration.ofMillis(1000));
+                .map(Post::getId)
+                .doOnTerminate(countDownLatch::countDown)
+                .subscribe(id -> {
+                    log.debug("post created, id: {}", id);
+                    atomicPostId.set(id);
+                });
+        countDownLatch.await(5, SECONDS);
 
         log.debug("created post:{}", createPostResult);
-        String postId = createPostResult.getId();
+        Long postId = atomicPostId.get();
+        log.debug("post id get from amotic long: {}", postId);
         assertThat(postId).isNotNull();
 
         String subscriptionQuery = "subscription onCommentAdded { commentAdded { id postId content } }";
-        var executionResult = this.socketClient.reactiveExecuteQuery(subscriptionQuery, Collections.emptyMap())
-                .map(it -> it.extractValueAsObject("data.commentAdded.content", String.class));
-
-        var verifier = StepVerifier.create(executionResult)
-                .consumeNextWith(it -> assertThat(it).isEqualTo("test comment"))
+        var executionResultMono = this.socketClient
+                .reactiveExecuteQuery(subscriptionQuery, Collections.emptyMap());
+        var publisher = executionResultMono
+                .map(it -> it.extractValueAsObject("commentAdded", Comment.class));
+        var verifier = StepVerifier.create(publisher)
+                .expectNextCount(1)
                 .thenCancel()
                 .verifyLater();
 
@@ -75,12 +90,31 @@ class SubscriptionTestsWithGraphQLClient {
                 )
         );
 
+        var addCommentVariables2 = Map.of(
+                "input", Map.of(
+                        "postId", postId,
+                        "content", "test comment2"
+                )
+        );
+
         this.client.reactiveExecuteQuery(addCommentQuery, addCommentVariables)
                 .map(response -> response.extractValueAsObject("addComment", Comment.class))
                 .as(StepVerifier::create)
                 .consumeNextWith(comment -> assertThat(comment.getContent()).isEqualTo("test comment"))
                 .verifyComplete();
 
-        verifier.verify();
+        this.client.reactiveExecuteQuery(addCommentQuery, addCommentVariables2)
+                .map(response -> response.extractValueAsObject("addComment", Comment.class))
+                .as(StepVerifier::create)
+                .consumeNextWith(comment -> assertThat(comment.getContent()).isEqualTo("test comment2"))
+                .verifyComplete();
+
+        // verify
+        await()
+                .atMost(5, SECONDS)
+                .untilAsserted(
+                        () -> verifier.verify()
+                );
+
     }
 }

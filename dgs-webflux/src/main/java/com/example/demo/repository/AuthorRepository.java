@@ -22,10 +22,9 @@ public class AuthorRepository {
     private final DatabaseClient client;
 
     public static final BiFunction<Row, RowMetadata, AuthorEntity> MAPPING_FUNCTION = (row, rowMetaData) -> new AuthorEntity(
-            row.get("id", UUID.class),
+            row.get("id", Long.class),
             row.get("name", String.class),
-            row.get("email", String.class),
-            row.get("created_at", LocalDateTime.class)
+            row.get("email", String.class)
     );
 
     public Flux<AuthorEntity> findAll() {
@@ -36,7 +35,7 @@ public class AuthorRepository {
                 .all();
     }
 
-    public Mono<AuthorEntity> findById(UUID id) {
+    public Mono<AuthorEntity> findById(Long id) {
         String sql = """
                 SELECT * FROM users 
                 WHERE id  = :id
@@ -48,7 +47,7 @@ public class AuthorRepository {
 
     }
 
-    public Flux<AuthorEntity> findByIdIn(List<UUID> id) {
+    public Flux<AuthorEntity> findByIdIn(List<Long> id) {
         String sql = """
                 SELECT * FROM users 
                 WHERE id  in (:id)
@@ -59,20 +58,19 @@ public class AuthorRepository {
                 .all();
     }
 
-    public Mono<UUID> create(String name, String email) {
+    public Mono<Long> create(String name, String email) {
         String insert = """
-                INSERT INTO  users  ( name, email, created_at) 
-                VALUES ( :name, :email, :created_at) 
+                INSERT INTO  users  ( name, email) 
+                VALUES ( :name, :email) 
                 """;
 
         return this.client.sql(insert)
                 .filter((statement, executeFunction) -> statement.returnGeneratedValues("id").execute())
                 .bind("name", name)
                 .bind("email", email)
-                .bind("created_at", LocalDateTime.now())
                 .fetch()
                 .first()
-                .map(r -> (UUID) r.get("id"));
+                .map(r -> (Long) r.get("id"));
 
     }
 

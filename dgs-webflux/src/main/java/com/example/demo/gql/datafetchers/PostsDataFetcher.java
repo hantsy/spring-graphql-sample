@@ -12,7 +12,6 @@ import org.reactivestreams.Publisher;
 import org.springframework.validation.annotation.Validated;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-import reactor.core.publisher.Sinks;
 
 import javax.validation.Valid;
 import java.util.List;
@@ -32,46 +31,36 @@ public class PostsDataFetcher {
     }
 
     @DgsQuery
-    public Mono<Post> postById(@InputArgument String postId) {
+    public Mono<Post> postById(@InputArgument Long postId) {
         return this.postService.getPostById(postId);
     }
 
     @DgsData(parentType = "Post", field = "comments")
     public CompletableFuture<List<Comment>> comments(DgsDataFetchingEnvironment dfe) {
-        DataLoader<String, List<Comment>> dataLoader = dfe.getDataLoader(CommentsDataLoader.class);
+        DataLoader<Long, List<Comment>> dataLoader = dfe.getDataLoader(CommentsDataLoader.class);
         Post post = dfe.getSource();
         return dataLoader.load(post.getId());
     }
 
     @DgsData(parentType = "Post", field = "author")
     public CompletableFuture<Author> author(DgsDataFetchingEnvironment dfe) {
-        DataLoader<String, Author> dataLoader = dfe.getDataLoader("authorsLoader");
+        DataLoader<Long, Author> dataLoader = dfe.getDataLoader("authorsLoader");
         Post post = dfe.getSource();
         return dataLoader.load(post.getAuthorId());
     }
 
     @DgsMutation
     public Mono<Post> createPost(@InputArgument("createPostInput") @Valid CreatePostInput input) {
-        return this.postService.createPost(input).flatMap(uuid -> this.postService.getPostById(uuid.toString()));
+        return this.postService.createPost(input).flatMap(id -> this.postService.getPostById(id));
     }
 
     @DgsMutation
     public Mono<Comment> addComment(@InputArgument("commentInput") @Valid CommentInput input) {
-        Mono<Comment> comment = this.postService.addComment(input)
-                .flatMap(id -> this.postService.getCommentById(id.toString())
-                        .doOnNext(c -> {
-                            log.debug("emitting comment: {}", c);
-                            sink.emitNext(c, Sinks.EmitFailureHandler.FAIL_FAST);
-                        })
-                );
-
-        return comment;
+        return this.postService.addComment(input);
     }
-
-    private final Sinks.Many<Comment> sink = Sinks.many().replay().latest();
 
     @DgsSubscription
     Publisher<Comment> commentAdded() {
-        return sink.asFlux();
+        return postService.commentAdded();
     }
 }

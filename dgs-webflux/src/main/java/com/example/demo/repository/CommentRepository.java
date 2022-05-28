@@ -23,10 +23,9 @@ public class CommentRepository {
     private final DatabaseClient client;
 
     public static final BiFunction<Row, RowMetadata, CommentEntity> MAPPING_FUNCTION = (row, rowMetaData) -> new CommentEntity(
-            row.get("id", UUID.class),
+            row.get("id", Long.class),
             row.get("content", String.class),
-            row.get("created_at", LocalDateTime.class),
-            row.get("post_id", UUID.class)
+            row.get("post_id", Long.class)
     );
 
 
@@ -38,7 +37,7 @@ public class CommentRepository {
                 .all();
     }
 
-    public Mono<CommentEntity> findById(UUID id) {
+    public Mono<CommentEntity> findById(Long id) {
         String sql = """
                 SELECT * FROM comments 
                 WHERE id  = :id
@@ -50,7 +49,7 @@ public class CommentRepository {
 
     }
 
-    public Flux<CommentEntity> findByPostId(UUID postId) {
+    public Flux<CommentEntity> findByPostId(Long postId) {
         String sql = """
                 SELECT * FROM comments 
                 WHERE post_id  = :post_id
@@ -62,7 +61,7 @@ public class CommentRepository {
                 .all();
     }
 
-    public Flux<CommentEntity> findByPostIdIn(List<UUID> postId) {
+    public Flux<CommentEntity> findByPostIdIn(List<Long> postId) {
         String sql = """
                 SELECT * FROM comments 
                 WHERE post_id  in (:post_id)
@@ -73,19 +72,18 @@ public class CommentRepository {
                 .all();
     }
 
-    public Mono<UUID> create(String content, UUID postId) {
+    public Mono<Long> create(String content, Long postId) {
         String insert = """
-                INSERT INTO  comments (content, post_id, created_at) 
-                VALUES (:content, :post_id, :created_at) 
+                INSERT INTO  comments (content, post_id) 
+                VALUES (:content, :post_id) 
                 """;
         return this.client.sql(insert)
                 .filter((statement, executeFunction) -> statement.returnGeneratedValues("id").execute())
                 .bind("content", content)
                 .bind("post_id", postId)
-                .bind("created_at", LocalDateTime.now())
                 .fetch()
                 .first()
-                .map(r -> (UUID) r.get("id"));
+                .map(r -> (Long) r.get("id"));
     }
 
     public Mono<Integer> deleteAll() {

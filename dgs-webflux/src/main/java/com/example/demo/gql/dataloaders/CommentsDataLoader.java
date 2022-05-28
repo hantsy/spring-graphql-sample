@@ -14,15 +14,15 @@ import java.util.concurrent.CompletionStage;
 @DgsDataLoader(name = "comments")
 @RequiredArgsConstructor
 @Slf4j
-public class CommentsDataLoader implements MappedBatchLoader<String, List<Comment>> {
+public class CommentsDataLoader implements MappedBatchLoader<Long, List<Comment>> {
     final PostService postService;
 
     @Override
-    public CompletionStage<Map<String, List<Comment>>> load(Set<String> keys) {
+    public CompletionStage<Map<Long, List<Comment>>> load(Set<Long> keys) {
         CompletableFuture<List<Comment>> commentsFuture = this.postService.getCommentsByPostIdIn(keys).collectList().toFuture();
 
         return commentsFuture.thenApplyAsync(comments -> {
-            Map<String, List<Comment>> mappedComments = new HashMap<>();
+            Map<Long, List<Comment>> mappedComments = new HashMap<>();
             keys.forEach(k -> mappedComments.put(k, comments
                     .stream()
                     .filter(c -> c.getPostId().equals(k)).toList())

@@ -4,9 +4,8 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 public record CommentEntity(
-        UUID id,
+        Long id,
         String content,
-        LocalDateTime createdAt,
-        UUID postId
+        Long postId
 ) {
 }

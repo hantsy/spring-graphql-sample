@@ -11,7 +11,7 @@ import java.util.List;
 @Builder
 @ToString
 public class Author {
-    String id;
+    Long id;
     String name;
     String email;
     @Builder.Default

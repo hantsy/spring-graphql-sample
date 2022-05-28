@@ -4,10 +4,9 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 public record AuthorEntity(
-        UUID id,
+        Long id,
         String name,
-        String email,
-        LocalDateTime createdAt
+        String email
 ) {
 }
 

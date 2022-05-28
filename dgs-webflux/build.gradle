@@ -28,8 +28,11 @@ dependencies {
     annotationProcessor 'org.projectlombok:lombok:1.18.24'
     testCompileOnly 'org.projectlombok:lombok:1.18.20'
     testAnnotationProcessor 'org.projectlombok:lombok:1.18.20'
+
+    //test
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'io.projectreactor:reactor-test'
+    testImplementation 'org.awaitility:awaitility:4.1.1'
 }
 
 test {
