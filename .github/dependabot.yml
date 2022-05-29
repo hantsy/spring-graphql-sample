@@ -66,22 +66,9 @@ updates:
         update-types: ["version-update:semver-major"]
       - dependency-name: "*"
         update-types: ["version-update:semver-major", "version-update:semver-minor"]    
+
   - package-ecosystem: "gradle"
     directory: "/graphql-spqr"
-    schedule:
-      interval: weekly
-  - package-ecosystem: "gradle"
-    directory: "/graphql-java-annotations"
-    schedule:
-      interval: weekly
-
-  - package-ecosystem: "gradle"
-    directory: "/graphql-java-vanilla"
-    schedule:
-      interval: weekly
-
-  - package-ecosystem: "gradle"
-    directory: "/graphql-java-webclient"
     schedule:
       interval: weekly
 
@@ -89,14 +76,16 @@ updates:
     directory: "/graphql-java"
     schedule:
       interval: weekly
-
   - package-ecosystem: "gradle"
-    directory: "/spring-graphql-annotations"
+    directory: "/graphql-java-kickstart-webclient"
     schedule:
       interval: weekly
-
   - package-ecosystem: "gradle"
-    directory: "/spring-graphql-querydsl"
+    directory: "/graphql-java-kickstart"
+    schedule:
+      interval: weekly
+  - package-ecosystem: "gradle"
+    directory: "/spring-graphql-kickstart-annotations"
     schedule:
       interval: weekly
 
@@ -104,3 +93,15 @@ updates:
     directory: "/spring-graphql"
     schedule:
       interval: weekly
+  - package-ecosystem: "gradle"
+    directory: "/spring-graphql-querydsl"
+    schedule:
+      interval: weekly
+  - package-ecosystem: "gradle"
+    directory: "/spring-graphql-webmvc"
+    schedule:
+      interval: weekly    
+  - package-ecosystem: "gradle"
+    directory: "/spring-graphql-webflux"
+    schedule:
+      interval: weekly    
