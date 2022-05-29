@@ -1,35 +1,34 @@
 package com.example.demo;
 
+import com.example.demo.gql.types.Comment;
+import com.example.demo.gql.types.Post;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.jayway.jsonpath.JsonPath;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.web.server.LocalServerPort;
-import org.springframework.web.reactive.socket.WebSocketHandler;
+import org.springframework.boot.test.web.server.LocalServerPort;
+import org.springframework.graphql.client.WebSocketGraphQlClient;
 import org.springframework.web.reactive.socket.client.ReactorNettyWebSocketClient;
-import org.springframework.web.reactive.socket.client.WebSocketClient;
 import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
+import reactor.test.StepVerifier;
 
-import java.net.URI;
-import java.time.Duration;
-import java.util.ArrayList;
+import java.time.LocalDateTime;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
 
+import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @Slf4j
-//@Disabled
 class IntegrationTests {
 
-    WebSocketClient client;
+    WebSocketGraphQlClient client;
 
     @LocalServerPort
     int port;
@@ -41,9 +40,15 @@ class IntegrationTests {
 
     @BeforeEach
     void setUp() {
-        this.client = new ReactorNettyWebSocketClient();
         this.url = "ws://localhost:" + port + "/ws/graphql";
         log.debug("websocket connection url: {}", this.url);
+        this.client = WebSocketGraphQlClient.builder(url, new ReactorNettyWebSocketClient()).build();
+        this.client.start();
+    }
+
+    @AfterEach
+    void tearDown() {
+        this.client.stop();
     }
 
     @SneakyThrows
@@ -58,111 +63,112 @@ class IntegrationTests {
                         content
                     }
                 }""".trim();
-        var createPostOperationData = Map.of(
-                "payload", Map.of(
-                        "query", createPostQuery,
-                        "variables", Map.of(
-                                "input", Map.of(
-                                        "title", "test title",
-                                        "content", "test content"
-                                )
-                        )
-                ),
-                "type", "subscribe",
-                "id", "1"
+
+        Map<String, Object> createPostVariables = Map.of(
+                "input", Map.of(
+                        "title", "my post created by Spring GraphQL",
+                        "content", "content of my post"
+                )
         );
-        var connectionInitData = Map.<String, Object>of(
-                "type", "connection_init",
-                "id", "1"
-        );
-        final String inputDataJson = toJson(createPostOperationData);
-        log.debug("input data json string: {}", inputDataJson);
-        final String connectionInitDataJson = toJson(connectionInitData);
-        log.debug("connection init json string: {}", connectionInitDataJson);
 
-        var titleReplay = new ArrayList<String>();
-        WebSocketHandler createPostHandler = session -> {
-            var receiveMono = session.receive().log("receive::")
-                    .doOnNext(webSocketMessage -> {
-                        var text = webSocketMessage.getPayloadAsText();
-                        log.debug("websocket message: {}", text);
-                        String type = JsonPath.read(text, "type");
-                        if ("next".equals(type)) {
-                            String title = JsonPath.read(text, "payload.data.createPost.title");
-                            titleReplay.add(title);
-                            assertThat(title).isEqualTo("test title");
-                            String postId = JsonPath.read(text, "payload.data.createPost.id");
-                            log.debug("title: {}, id: {}", title, postId);
-                        }
-                    })
-                    .flatMap(webSocketMessage -> {
-                        var text = webSocketMessage.getPayloadAsText();
-                        log.debug("websocket message: {}", text);
-                        String type = JsonPath.read(text, "type");
-                        if ("connection_ack".equals(type)) {//do nothing
-                            return session.send(Flux.just(inputDataJson).map(session::textMessage));
-                        }
-                        return Mono.just(webSocketMessage);
-                    })
-                    .doOnError(error -> log.debug("error on receiving:" + error))
-                    .doOnComplete(() -> log.debug("called doOnComplete() on receiving"))
-                    .then();
+        var countDownLatch = new CountDownLatch(1);
+        var postIdReference = new PostIdHolder();
+        this.client.document(createPostQuery).variables(createPostVariables).execute()
+                .map(response -> objectMapper.convertValue(
+                        response.<Map<String, Object>>getData().get("createPost"),
+                        Post.class)
+                )
+                .doOnTerminate(countDownLatch::countDown)
+                .subscribe(post -> {
+                    log.info("created post: {}", post);
+                    postIdReference.setPostId(post.getId());
+                });
 
-            var sendMono = session.send(
-                    Mono.delay(Duration.ofMillis(500)).thenMany(
-                            Flux.just(connectionInitDataJson)
-                                    .map(session::textMessage)
-                    ).log("send::")
-            );
-            return sendMono.then(receiveMono);
-        };
-        CountDownLatch latch = new CountDownLatch(1);
-        this.client.execute(URI.create(this.url), createPostHandler)
-                .doOnTerminate(latch::countDown)
-                .subscribe();
+        countDownLatch.await(10, SECONDS);
 
-        latch.await(5000, TimeUnit.MILLISECONDS);
-        //verify the message.
-        assertThat(titleReplay.size()).isEqualTo(1);
-        assertThat(titleReplay.get(0)).isEqualTo("test title");
+        String postId = postIdReference.getPostId();
+        log.debug("created post id: {}", postId);
+        assertThat(postId).isNotNull();
 
-//        var postId = graphQlTester.query(createPostQuery)
-//                .variable("input", Map.of(
-//                        "title", "test title",
-//                        "content", "test content"
-//                ))
-//                .execute()
-//                .path("data.createPost.title").entity(String.class).isEqualTo("test title")
-//                .path("data.createPost.id").entity(String.class).get();
-//        log.debug("saved post id: {}", postId);
-//        assertThat(postId).isNotNull();
-//
-//        // subscribe commentAdded event
-//        String subscriptionQuery = "subscription onCommentAdded { commentAdded { id postId content } }";
-//        var verifier = graphQlTester.query(subscriptionQuery)
-//                .executeSubscription()
-//                .toFlux("commentAdded.content", String.class)
-//                .as(StepVerifier::create)
-//                .expectNext("test comment")
-//                .thenCancel()
-//                .verifyLater();
-//
-//        // add comment
-//        var addCommentQuery = "mutation addComment($input: CommentInput!){addComment(commentInput:$input){id, content}}";
-//        graphQlTester.query(createPostQuery)
-//                .variable("input", Map.of(
-//                        "postId", postId,
-//                        "content", "test comment"
-//                ))
-//                .execute()
-//                .path("data.addComment.content").entity(String.class).isEqualTo("test comment");
-//
-//        // verify the subscription now.
-//        verifier.verify();
+        var postById = """
+                query post($postId:String!){
+                   postById(postId:$postId) {
+                     id
+                     title
+                     content
+                   }
+                 }""".trim();
+        this.client.document(postById).variable("postId", postId)
+                .execute()
+                .as(StepVerifier::create)
+                .consumeNextWith(response -> {
+                    var post = objectMapper.convertValue(
+                            response.<Map<String, Object>>getData().get("postById"),
+                            Post.class);
+                    assertThat(post).isNotNull();
+                    assertThat(post.getId()).isEqualTo(postId);
+                    assertThat(post.getTitle()).isEqualTo("my post created by Spring GraphQL");
+                    assertThat(post.getContent()).isEqualTo("content of my post");
+                })
+                .verifyComplete();
+
+
+        var subscriptionQuery = "subscription onCommentAdded { commentAdded { id content } }";
+        Flux<Comment> result = this.client.document(subscriptionQuery)
+                .executeSubscription()
+                .map(response -> objectMapper.convertValue(
+                        response.<Map<String, Object>>getData().get("commentAdded"),
+                        Comment.class)
+                );
+
+        var verify = StepVerifier.create(result)
+                .consumeNextWith(c -> assertThat(c.getContent()).startsWith("comment of my post at "))
+                .consumeNextWith(c -> assertThat(c.getContent()).startsWith("comment of my post at "))
+                .consumeNextWith(c -> assertThat(c.getContent()).startsWith("comment of my post at "))
+                .thenCancel().verifyLater();
+
+        addCommentToPost(postId);
+        addCommentToPost(postId);
+        addCommentToPost(postId);
+
+        verify.verify();
     }
 
-    @SneakyThrows
-    private String toJson(Map<String, Object> createPostOperationData) {
-        return objectMapper.writeValueAsString(createPostOperationData);
+    private void addCommentToPost(String id) {
+        var addCommentQuery = """
+                mutation addComment($commentInput: CommentInput!){
+                   addComment(commentInput:$commentInput){id}
+                }""".trim();
+        Map<String, Object> addCommentVariables = Map.of("commentInput",
+                Map.of(
+                        "postId", id,
+                        "content", "comment of my post at " + LocalDateTime.now()
+                )
+        );
+        client.document(addCommentQuery)
+                .variables(addCommentVariables)
+                .execute()
+                .as(StepVerifier::create)
+                .consumeNextWith(response -> {
+                    var comment = objectMapper.convertValue(
+                            response.<Map<String, Object>>getData().get("addComment"),
+                            Comment.class
+                    );
+                    assertThat(comment).isNotNull();
+                    assertThat(comment.getId()).isNotNull();
+                })
+                .verifyComplete();
+    }
+}
+
+class PostIdHolder {
+    private String postId;
+
+    public String getPostId() {
+        return postId;
+    }
+
+    public void setPostId(String postId) {
+        this.postId = postId;
     }
 }

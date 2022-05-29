@@ -1,0 +1,60 @@
+directive @uppercase on FIELD_DEFINITION
+
+scalar LocalDateTime
+scalar UUID
+#scalar Upload
+
+type Post{
+    id: ID!
+    title: String! @uppercase
+    content: String
+    comments: [Comment]
+    status: PostStatus
+    createdAt: LocalDateTime
+    authorId:String
+    author:Author
+}
+
+type Author{
+    id:ID!
+    name:String!
+    email:String!
+    createdAt: LocalDateTime
+    posts: [Post]
+}
+type Comment{
+    id: ID!
+    content: String!
+    createdAt: LocalDateTime
+    postId: String!
+}
+
+input CreatePostInput {
+    title: String!
+    content: String!
+}
+
+input CommentInput{
+    postId: UUID!
+    content: String!
+}
+
+type Query {
+    allPosts: [Post!]!
+    postById(postId: ID!): Post
+}
+
+type Mutation {
+    createPost(createPostInput: CreatePostInput!): Post!
+    addComment(commentInput: CommentInput!): Comment!
+    #upload(file: Upload!): Boolean
+}
+
+type Subscription {
+    commentAdded: Comment!
+}
+
+enum PostStatus {
+    DRAFT, PENDING_MODERATION, PUBLISHED
+}
+

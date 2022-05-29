@@ -8,9 +8,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.graphql.tester.AutoConfigureGraphQlTester;
-import org.springframework.boot.test.autoconfigure.graphql.tester.AutoConfigureHttpGraphQlTester;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.graphql.client.GraphQlTransport;
 import org.springframework.graphql.test.tester.GraphQlTester;
 import reactor.core.publisher.Flux;
 import reactor.test.StepVerifier;
@@ -33,7 +31,7 @@ public class SubscriptionTests {
 
     @BeforeEach
     void setUp() {
-       // this.graphQlTester = GraphQlTester.builder(graphQlTransport).build();
+        // this.graphQlTester = GraphQlTester.builder(graphQlTransport).build();
     }
 
     @SneakyThrows

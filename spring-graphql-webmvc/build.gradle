@@ -32,21 +32,26 @@ dependencies {
 
     //Spring Boot
     implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-starter-websocket'
+    
+    //Spring Data
     implementation 'org.springframework.boot:spring-boot-starter-data-jdbc'
     implementation 'org.springframework.boot:spring-boot-starter-validation'
     implementation 'org.postgresql:postgresql'
+
+    // validations manually
     implementation 'org.apache.commons:commons-lang3:3.12.0'
 
     //configure Lombok for compile java/ compile tests
     compileOnly 'org.projectlombok:lombok:1.18.24'
     annotationProcessor 'org.projectlombok:lombok:1.18.24'
-    testCompileOnly 'org.projectlombok:lombok:1.18.20'
-    testAnnotationProcessor 'org.projectlombok:lombok:1.18.20'
+    testCompileOnly 'org.projectlombok:lombok:1.18.24'
+    testAnnotationProcessor 'org.projectlombok:lombok:1.18.24'
 
     //test
     testImplementation 'org.springframework.graphql:spring-graphql-test'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
-    testImplementation 'org.springframework:spring-webflux'
+    testImplementation 'org.springframework.boot:spring-boot-starter-webflux'
     testImplementation 'io.projectreactor:reactor-test'
 }
 
