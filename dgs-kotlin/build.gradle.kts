@@ -25,7 +25,7 @@ dependencies {
     implementation("com.netflix.graphql.dgs:graphql-dgs-subscriptions-websockets-autoconfigure")
     implementation("com.netflix.graphql.dgs:graphql-dgs-extended-scalars")
 
-    // jdbc
+    //jdbc
     implementation("org.springframework.boot:spring-boot-starter-data-jdbc")
     implementation("org.postgresql:postgresql")
 

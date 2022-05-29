@@ -14,20 +14,23 @@ repositories {
 }
 
 dependencies {
-    implementation(platform("com.netflix.graphql.dgs:graphql-dgs-platform-dependencies:4.10.4"))
+    //dgs
+    implementation(platform("com.netflix.graphql.dgs:graphql-dgs-platform-dependencies:5.0.1"))
     implementation "com.netflix.graphql.dgs:graphql-dgs-webflux-starter"
 
+    // spring boot
     implementation 'org.springframework.boot:spring-boot-starter-webflux'
-    implementation 'org.springframework.boot:spring-boot-starter-data-r2dbc'
     implementation 'org.springframework.boot:spring-boot-starter-validation'
+
+    //r2dbc
+    implementation 'org.springframework.boot:spring-boot-starter-data-r2dbc'
     implementation 'org.postgresql:r2dbc-postgresql'
-    implementation 'org.yaml:snakeyaml:1.30'
 
     //configure Lombok for compile java/ compile tests
     compileOnly 'org.projectlombok:lombok:1.18.24'
     annotationProcessor 'org.projectlombok:lombok:1.18.24'
-    testCompileOnly 'org.projectlombok:lombok:1.18.20'
-    testAnnotationProcessor 'org.projectlombok:lombok:1.18.20'
+    testCompileOnly 'org.projectlombok:lombok:1.18.24'
+    testAnnotationProcessor 'org.projectlombok:lombok:1.18.24'
 
     //test
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
