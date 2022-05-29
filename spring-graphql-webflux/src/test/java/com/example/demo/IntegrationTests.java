@@ -19,7 +19,6 @@ import reactor.test.StepVerifier;
 import java.time.LocalDateTime;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.atomic.AtomicReference;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -36,12 +35,10 @@ class IntegrationTests {
     @Autowired
     ObjectMapper objectMapper;
 
-    String url;
-
     @BeforeEach
     void setUp() {
-        this.url = "ws://localhost:" + port + "/ws/graphql";
-        log.debug("websocket connection url: {}", this.url);
+        var url = "ws://localhost:" + port + "/ws/graphql";
+        log.debug("websocket connection url: {}", url);
         this.client = WebSocketGraphQlClient.builder(url, new ReactorNettyWebSocketClient()).build();
         this.client.start();
     }
@@ -78,13 +75,14 @@ class IntegrationTests {
                         response.<Map<String, Object>>getData().get("createPost"),
                         Post.class)
                 )
-                .doOnTerminate(countDownLatch::countDown)
+                //.doOnTerminate(countDownLatch::countDown)
                 .subscribe(post -> {
                     log.info("created post: {}", post);
                     postIdReference.setPostId(post.getId());
+                    countDownLatch.countDown();
                 });
 
-        countDownLatch.await(10, SECONDS);
+        countDownLatch.await(5, SECONDS);
 
         String postId = postIdReference.getPostId();
         log.debug("created post id: {}", postId);
