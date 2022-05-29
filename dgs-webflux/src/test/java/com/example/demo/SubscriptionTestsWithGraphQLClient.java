@@ -58,10 +58,11 @@ class SubscriptionTestsWithGraphQLClient {
         var createPostResult = this.client.reactiveExecuteQuery(createPostQuery, createPostVariables)
                 .map(response -> response.extractValueAsObject("createPost", Post.class))
                 .map(Post::getId)
-                .doOnTerminate(countDownLatch::countDown)
+                //.doOnTerminate(countDownLatch::countDown)
                 .subscribe(id -> {
                     log.debug("post created, id: {}", id);
                     postIdHolder.setPostId(id);
+                    countDownLatch.countDown();
                 });
         countDownLatch.await(5, SECONDS);
 
