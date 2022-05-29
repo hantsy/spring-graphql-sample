@@ -17,7 +17,6 @@ import reactor.test.StepVerifier;
 import java.util.Collections;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.atomic.AtomicLong;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -55,19 +54,19 @@ class SubscriptionTestsWithGraphQLClient {
         );
 
         var countDownLatch = new CountDownLatch(1);
-        var atomicPostId = new AtomicLong();
+        var postIdHolder = new PostIdHolder();
         var createPostResult = this.client.reactiveExecuteQuery(createPostQuery, createPostVariables)
                 .map(response -> response.extractValueAsObject("createPost", Post.class))
                 .map(Post::getId)
                 .doOnTerminate(countDownLatch::countDown)
                 .subscribe(id -> {
                     log.debug("post created, id: {}", id);
-                    atomicPostId.set(id);
+                    postIdHolder.setPostId(id);
                 });
         countDownLatch.await(5, SECONDS);
 
         log.debug("created post:{}", createPostResult);
-        Long postId = atomicPostId.get();
+        Long postId = postIdHolder.getPostId();
         log.debug("post id get from amotic long: {}", postId);
         assertThat(postId).isNotNull();
 
@@ -116,5 +115,17 @@ class SubscriptionTestsWithGraphQLClient {
                         () -> verifier.verify()
                 );
 
+    }
+}
+
+class PostIdHolder {
+    private Long postId;
+
+    public Long getPostId() {
+        return postId;
+    }
+
+    public void setPostId(Long postId) {
+        this.postId = postId;
     }
 }
