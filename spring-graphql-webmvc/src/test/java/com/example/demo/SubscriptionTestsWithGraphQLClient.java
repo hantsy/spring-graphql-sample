@@ -5,6 +5,7 @@ import com.example.demo.gql.types.Post;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,11 +19,13 @@ import reactor.core.publisher.Flux;
 import reactor.test.StepVerifier;
 
 import java.net.URI;
+import java.time.LocalDateTime;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.awaitility.Awaitility.await;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @Slf4j
@@ -40,7 +43,13 @@ public class SubscriptionTestsWithGraphQLClient {
     @BeforeEach
     void setup() {
         this.client = HttpGraphQlClient.create(WebClient.create("http://localhost:" + port + "/graphql"));
-        this.socketClient = WebSocketGraphQlClient.create(URI.create("ws://localhost:" + port + "/graphql"), new ReactorNettyWebSocketClient());
+        this.socketClient = WebSocketGraphQlClient.create(URI.create("ws://localhost:" + port + "/subscriptions"), new ReactorNettyWebSocketClient());
+        this.socketClient.start();
+    }
+
+    @AfterEach
+    void tearDown() {
+        this.socketClient.stop();
     }
 
     @SneakyThrows
@@ -71,10 +80,11 @@ public class SubscriptionTestsWithGraphQLClient {
                         Post.class)
 
                 )
-                .doOnTerminate(countDownLatch::countDown)
+                //.doOnTerminate(countDownLatch::countDown)
                 .subscribe(post -> {
                     log.debug("created post: {}", post);
                     postIdHolder.setId(post.getId());
+                    countDownLatch.countDown();
                 });
 
         countDownLatch.await(5, SECONDS);
@@ -124,13 +134,18 @@ public class SubscriptionTestsWithGraphQLClient {
                 .consumeNextWith(c -> assertThat(c.getContent()).startsWith("comment of my post at "))
                 .consumeNextWith(c -> assertThat(c.getContent()).startsWith("comment of my post at "))
                 .consumeNextWith(c -> assertThat(c.getContent()).startsWith("comment of my post at "))
-                .thenCancel().verifyLater();
+                .thenCancel()
+                .verifyLater();
 
         addCommentToPost(id);
         addCommentToPost(id);
         addCommentToPost(id);
 
-        verify.verify();
+        await().atMost(5, SECONDS)
+                .untilAsserted(
+                        () -> verify.verify()
+                );
+        ;
     }
 
     private void addCommentToPost(String id) {
@@ -141,7 +156,7 @@ public class SubscriptionTestsWithGraphQLClient {
         Map<String, Object> addCommentVariables = Map.of(
                 "commentInput",
                 Map.of(
-                        "content", "comment of my post",
+                        "content", "comment of my post at " + LocalDateTime.now(),
                         "postId", id
                 )
         );
@@ -149,13 +164,14 @@ public class SubscriptionTestsWithGraphQLClient {
         client.document(addCommentQuery)
                 .variables(addCommentVariables)
                 .execute()
-                .map(response -> objectMapper.convertValue(
-                        response.<Map<String, Object>>getData().get("addComment"),
-                        Comment.class
-                ))
                 .as(StepVerifier::create)
-                .consumeNextWith(comment -> {
+                .consumeNextWith(response -> {
+                    var comment = objectMapper.convertValue(
+                            response.<Map<String, Object>>getData().get("addComment"),
+                            Comment.class
+                    );
                     log.debug("added comment: {}", comment);
+                    assertThat(comment).isNotNull();
                     assertThat(comment.getId()).isNotNull();
                 })
                 .verifyComplete();
