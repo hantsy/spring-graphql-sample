@@ -7,6 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.graphql.tester.AutoConfigureGraphQlTester;
 import org.springframework.boot.test.autoconfigure.graphql.tester.AutoConfigureHttpGraphQlTester;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.graphql.client.GraphQlTransport;
@@ -20,14 +21,11 @@ import java.util.Map;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
-@AutoConfigureHttpGraphQlTester
+@AutoConfigureGraphQlTester
 @Slf4j
 public class SubscriptionTests {
 
     @Autowired
-    GraphQlTransport graphQlTransport;
-
-    //@Autowired
     GraphQlTester graphQlTester;
 
     @Autowired
@@ -35,7 +33,7 @@ public class SubscriptionTests {
 
     @BeforeEach
     void setUp() {
-        this.graphQlTester = GraphQlTester.builder(graphQlTransport).build();
+       // this.graphQlTester = GraphQlTester.builder(graphQlTransport).build();
     }
 
     @SneakyThrows
