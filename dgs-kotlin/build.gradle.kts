@@ -19,30 +19,35 @@ repositories {
 }
 
 dependencies {
-    //implementation(platform("com.netflix.graphql.dgs:graphql-dgs-platform-dependencies:4.7.6-SNAPSHOT"))
+    // dgs
+    implementation(platform("com.netflix.graphql.dgs:graphql-dgs-platform-dependencies:5.0.1"))
+    implementation("com.netflix.graphql.dgs:graphql-dgs-spring-boot-starter")
+    implementation("com.netflix.graphql.dgs:graphql-dgs-subscriptions-websockets-autoconfigure")
+    implementation("com.netflix.graphql.dgs:graphql-dgs-extended-scalars")
 
-    implementation(platform("com.netflix.graphql.dgs:graphql-dgs-platform-dependencies:4.10.4"))
-    implementation("com.netflix.graphql.dgs:graphql-dgs-spring-boot-starter") {
-        exclude("org.yaml", "snakeyaml")
-    }
-    implementation("com.netflix.graphql.dgs:graphql-dgs-subscriptions-websockets-autoconfigure") {
-        exclude("org.yaml", "snakeyaml")
-    }
-    implementation("com.netflix.graphql.dgs:graphql-dgs-extended-scalars") {
-        exclude("org.yaml", "snakeyaml")
-    }
-    implementation("org.yaml:snakeyaml:1.30")
-    implementation("org.postgresql:postgresql")
-    implementation("org.springframework.boot:spring-boot-starter-web")
+    //jdbc
     implementation("org.springframework.boot:spring-boot-starter-data-jdbc")
-    implementation("org.springframework.boot:spring-boot-starter-data-mongodb")
+    implementation("org.postgresql:postgresql")
+
+    // spring boot
+    implementation("org.springframework.boot:spring-boot-starter-web")
+    implementation("org.springframework.boot:spring-boot-starter-websocket")
+
+    // spring security
     implementation("org.springframework.boot:spring-boot-starter-security")
+
+    // spring data mongo
+    implementation("org.springframework.boot:spring-boot-starter-data-mongodb")
+
+    // data redis
     implementation("org.springframework.boot:spring-boot-starter-data-redis")
     implementation("org.springframework.session:spring-session-data-redis")
+
     //kotlin
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
+
     //test
     testImplementation("org.springframework:spring-websocket")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
@@ -63,7 +68,7 @@ tasks.withType<GenerateJavaTask> {
 tasks.withType<KotlinCompile> {
     kotlinOptions {
         freeCompilerArgs = listOf("-Xjsr305=strict")
-        jvmTarget = "11"
+        jvmTarget = "17"
     }
 }
 

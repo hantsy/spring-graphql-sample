@@ -11,6 +11,7 @@ import com.netflix.graphql.dgs.client.RequestExecutor
 import graphql.ExecutionResult
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.reactivestreams.Publisher
 import org.springframework.beans.factory.annotation.Autowired
@@ -32,6 +33,7 @@ import reactor.test.StepVerifier
     webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT
 )
 @Import(SubscriptionWithGraphQLClientTests.TestConfig::class)
+@Disabled
 class SubscriptionWithGraphQLClientTests {
 
     @LocalServerPort
@@ -47,11 +49,16 @@ class SubscriptionWithGraphQLClientTests {
 
     @BeforeEach
     fun setup() {
-        val requestExecutor = RequestExecutor { url, _, body ->
+        val requestExecutor = RequestExecutor { url, headers, body ->
+            val requestHeaders = HttpHeaders()
+            headers.forEach { requestHeaders[it.key] = it.value }
+            requestHeaders.set("Content-Type", "application/graphql")
+            requestHeaders.set("Accept", "application/json, plain/text, */*")
+
             val result = restTemplate.exchange(
                 url,
                 POST,
-                HttpEntity(body),
+                HttpEntity(body, requestHeaders),
                 String::class.java
             )
             HttpResponse(result.statusCodeValue, result.body)
@@ -62,7 +69,7 @@ class SubscriptionWithGraphQLClientTests {
     @Test
     fun `sign in and create a post and comment`() {
         // logged in
-        val query = "mutation signIn(\$input: Credentials!){ signIn(credentials:\$input) {name, roles, token} }"
+        val query = "mutation signIn(\$input:Credentials!){ signIn(credentials:\$input) {name, roles, token} }"
 
         val variables = mapOf(
             "input" to mapOf(
@@ -98,7 +105,8 @@ class SubscriptionWithGraphQLClientTests {
             val requestHeaders = HttpHeaders()
             headers.forEach { requestHeaders[it.key] = it.value }
             requestHeaders.add("X-Auth-Token", token)
-
+            requestHeaders.set("Content-Type", "application/graphql")
+            requestHeaders.set("Accept", "application/json, plain/text, */*")
             val result = restTemplate.exchange(
                 url,
                 POST,
