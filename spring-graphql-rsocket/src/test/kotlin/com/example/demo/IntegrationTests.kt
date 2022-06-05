@@ -41,19 +41,19 @@ internal class IntegrationTests {
     lateinit var objectMapper: ObjectMapper
 
     @BeforeEach
-    fun setUp() {
+    fun setUp() = runTest {
         log.debug("connecting to port: $port")
         client = RSocketGraphQlClient.builder()
             .dataMimeType(MediaType.APPLICATION_GRAPHQL)
             .tcp("localhost", port)
             .route("graphql")
             .build()
-        client.start()
+        client.start().awaitSingleOrNull()
     }
 
     @AfterEach
-    fun tearDown() {
-        client.stop()
+    fun tearDown() = runTest {
+        client.stop().awaitSingleOrNull()
     }
 
     @Test
@@ -77,7 +77,7 @@ internal class IntegrationTests {
 
         val postId = client.document(createPostQuery).variables(createPostVariables).execute()
             .map { response: ClientGraphQlResponse ->
-                objectMapper!!.convertValue(
+                objectMapper.convertValue(
                     response.getData<Map<String, Any>>()!!["createPost"],
                     Post::class.java
                 )
@@ -88,7 +88,7 @@ internal class IntegrationTests {
         postId shouldNotBe null
         val postIdPlaceHolder = "\$postId"
         val postById: String = """
-            query post($postIdPlaceHolder:String!){
+            query post($postIdPlaceHolder:ID!){
                 postById(postId:$postIdPlaceHolder) {
                     id
                     title
@@ -108,10 +108,10 @@ internal class IntegrationTests {
         post shouldNotBe null
         post?.id shouldBe postId
 
-        post?.title shouldBe "my post created by Spring GraphQL"
+        post?.title shouldBe "my post created by Spring GraphQL".uppercase()
         post?.content shouldBe "content of my post"
 
-        val subscriptionQuery = "subscription onCommentAdded { commentAdded { id content } }"
+        val subscriptionQuery = "subscription onCommentAdded { commentAdded { id content} }"
         val comments = CopyOnWriteArrayList<Comment>()
         client.document(subscriptionQuery)
             .executeSubscription()
@@ -136,7 +136,10 @@ internal class IntegrationTests {
         val commentInputPlaceHolder = "\$commentInput"
         val addCommentQuery = """
                 mutation addComment($commentInputPlaceHolder: CommentInput!){
-                   addComment(commentInput:$commentInputPlaceHolder){id}
+                   addComment(commentInput:$commentInputPlaceHolder){
+                       id 
+                       content
+                   }
                 }""".trim()
 
         val addCommentVariables = mapOf(

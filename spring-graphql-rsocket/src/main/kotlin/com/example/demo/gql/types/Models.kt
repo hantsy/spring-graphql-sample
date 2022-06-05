@@ -8,7 +8,7 @@ data class Post(
     val id: UUID?,
     val title: String,
     val content: String?,
-    val status: PostStatus,
+    val status: PostStatus? = PostStatus.DRAFT,
     val createdAt: LocalDateTime?,
     val author: Author? = null,
     val authorId: UUID? = null,

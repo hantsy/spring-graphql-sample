@@ -76,9 +76,10 @@ class DefaultPostService(
         }
         val data = CommentEntity(content = commentInput.content, postId = postId)
         val savedComment = this.comments.save(data)
+        log.debug("Comment saved: $savedComment")
         val comment = savedComment.asGqlType()
+        log.debug("converted Gql Comment: $comment")
         sink.emitNext(comment, Sinks.EmitFailureHandler.FAIL_FAST)
-
         return comment
     }
 
