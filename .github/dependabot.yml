@@ -105,3 +105,7 @@ updates:
     directory: "/spring-graphql-webflux"
     schedule:
       interval: weekly    
+  - package-ecosystem: "gradle"
+    directory: "/spring-graphql-rsocket-kotlin-co"
+    schedule:
+      interval: weekly    
