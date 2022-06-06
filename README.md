@@ -39,7 +39,7 @@ TBD
 |[spring-graphql-webmvc](./spring-graphql-webmvc) | Spring GraphQL with WebMvc Controller annotation example|
 |[spring-graphql-querydsl](./spring-graphql-querydsl)| Spring GraphQL/JPA/QueryDSl Data Fetchers example|
 |[spring-graphql-webflux](./spring-graphql-webflux) | Spring GraphQL/WebFlux example with WebSocket transport protocol |
-
+|[spring-graphql-rsocket-kotlin-co](./spring-graphql-rsocket-kotlin-co) | Spring GraphQL/WebFlux/Kotlin Coroutines example with RSocket transport protocol |
 
 ## Prerequisites
 
