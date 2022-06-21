@@ -57,12 +57,12 @@ internal class QueryTests {
                     )
                 )
         val query = "{ allPosts { title content }}"
-        graphQlTester.document(query).execute()
-            .errors().satisfy { it.forEach { error -> log.debug("error message: ${error.message}") } }
-//        graphQlTester.document(query)
-//            .execute()
-//            .path("data.allPosts[*].title")
-//            .entityList(String::class.java).contains("test title", "test title2")
+//         graphQlTester.document(query).execute()
+//             .errors().satisfy { it.forEach { error -> log.debug("error message: ${error.message}") } }
+        graphQlTester.document(query)
+           .execute()
+           .path("data.allPosts[*].title")
+           .entityList(String::class.java).contains("Post 1", "Post 2")
 
         coVerify(exactly = 1) { postService.allPosts() }
     }
