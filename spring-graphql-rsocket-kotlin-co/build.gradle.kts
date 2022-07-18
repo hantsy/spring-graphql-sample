@@ -33,7 +33,7 @@ dependencies {
 
 	//kotlin coroutines
 	implementation("io.projectreactor.kotlin:reactor-kotlin-extensions")
-	implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor:1.6.3")
+	implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor:1.6.4")
 	
 	//test
 	testImplementation("org.springframework.graphql:spring-graphql-test")
