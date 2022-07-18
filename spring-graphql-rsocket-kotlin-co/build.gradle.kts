@@ -41,7 +41,7 @@ dependencies {
 		exclude(module = "mockito-core")
 	}
 	testImplementation("io.projectreactor:reactor-test")
-	testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.6.3")
+	testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.6.4")
 	testImplementation("io.mockk:mockk:1.12.4")
 	testImplementation("com.ninja-squad:springmockk:3.1.1")
 
