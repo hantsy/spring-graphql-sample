@@ -1,7 +1,7 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-	id("org.springframework.boot") version "2.7.1"
+	id("org.springframework.boot") version "2.7.2"
 	id("io.spring.dependency-management") version "1.0.12.RELEASE"
 
 	kotlin("jvm") version "1.7.10"
@@ -33,7 +33,7 @@ dependencies {
 
 	//kotlin coroutines
 	implementation("io.projectreactor.kotlin:reactor-kotlin-extensions")
-	implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor:1.6.3")
+	implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor:1.6.4")
 	
 	//test
 	testImplementation("org.springframework.graphql:spring-graphql-test")
@@ -41,13 +41,13 @@ dependencies {
 		exclude(module = "mockito-core")
 	}
 	testImplementation("io.projectreactor:reactor-test")
-	testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.6.3")
+	testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.6.4")
 	testImplementation("io.mockk:mockk:1.12.4")
 	testImplementation("com.ninja-squad:springmockk:3.1.1")
 
-	testImplementation("io.kotest:kotest-runner-junit5-jvm:5.3.2")
-	testImplementation("io.kotest:kotest-assertions-core-jvm:5.3.2")
-	testImplementation("io.kotest:kotest-framework-concurrency:5.3.2")
+	testImplementation("io.kotest:kotest-runner-junit5-jvm:5.4.0")
+	testImplementation("io.kotest:kotest-assertions-core-jvm:5.4.0")
+	testImplementation("io.kotest:kotest-framework-concurrency:5.4.0")
 }
 
 tasks.withType<KotlinCompile> {
