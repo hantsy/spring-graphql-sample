@@ -45,7 +45,7 @@ dependencies {
 	testImplementation("io.mockk:mockk:1.12.5")
 	testImplementation("com.ninja-squad:springmockk:3.1.1")
 
-	testImplementation("io.kotest:kotest-runner-junit5-jvm:5.4.0")
+	testImplementation("io.kotest:kotest-runner-junit5-jvm:5.4.1")
 	testImplementation("io.kotest:kotest-assertions-core-jvm:5.4.1")
 	testImplementation("io.kotest:kotest-framework-concurrency:5.4.0")
 }
