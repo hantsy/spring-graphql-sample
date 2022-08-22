@@ -36,7 +36,7 @@ dependencies {
     testAnnotationProcessor 'org.projectlombok:lombok:1.18.20'
 	
 	//test
-	testImplementation 'com.graphql-java-kickstart:graphql-spring-boot-starter-test:13.0.0'
+	testImplementation 'com.graphql-java-kickstart:graphql-spring-boot-starter-test:14.0.0'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
 }
 
