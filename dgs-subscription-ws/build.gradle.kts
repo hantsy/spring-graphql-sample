@@ -2,8 +2,8 @@ import com.netflix.graphql.dgs.codegen.gradle.GenerateJavaTask
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-	id("org.springframework.boot") version "2.7.2"
-	id("io.spring.dependency-management") version "1.0.12.RELEASE"
+	id("org.springframework.boot") version "2.7.3"
+	id("io.spring.dependency-management") version "1.0.13.RELEASE"
 
 	kotlin("jvm") version "1.7.10"
 	kotlin("plugin.spring") version "1.7.10"
@@ -20,7 +20,7 @@ repositories {
 }
 
 dependencies {
-	implementation(platform("com.netflix.graphql.dgs:graphql-dgs-platform-dependencies:5.0.5"))
+	implementation(platform("com.netflix.graphql.dgs:graphql-dgs-platform-dependencies:5.1.0"))
 	implementation("com.netflix.graphql.dgs:graphql-dgs-spring-boot-starter") {
 		exclude("org.yaml", "snakeyaml")
 	}

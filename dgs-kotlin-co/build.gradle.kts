@@ -2,8 +2,8 @@ import com.netflix.graphql.dgs.codegen.gradle.GenerateJavaTask
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    id("org.springframework.boot") version "2.7.2"
-    id("io.spring.dependency-management") version "1.0.12.RELEASE"
+    id("org.springframework.boot") version "2.7.3"
+    id("io.spring.dependency-management") version "1.0.13.RELEASE"
 
     kotlin("jvm") version "1.7.10"
     kotlin("plugin.spring") version "1.7.10"
@@ -20,7 +20,7 @@ repositories {
 }
 
 dependencies {
-    implementation(platform("com.netflix.graphql.dgs:graphql-dgs-platform-dependencies:5.0.5"))
+    implementation(platform("com.netflix.graphql.dgs:graphql-dgs-platform-dependencies:5.1.0"))
     implementation("com.netflix.graphql.dgs:graphql-dgs-webflux-starter") {
         exclude("org.yaml", "snakeyaml")
     }
@@ -50,9 +50,9 @@ dependencies {
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.6.4")
     testImplementation("io.mockk:mockk:1.12.5")
     testImplementation("com.ninja-squad:springmockk:3.1.1")
-    testImplementation("io.kotest:kotest-runner-junit5-jvm:5.4.1")
-    testImplementation("io.kotest:kotest-assertions-core-jvm:5.4.1")
-    testImplementation("io.kotest:kotest-framework-concurrency:5.4.1")
+    testImplementation("io.kotest:kotest-runner-junit5-jvm:5.4.2")
+    testImplementation("io.kotest:kotest-assertions-core-jvm:5.4.2")
+    testImplementation("io.kotest:kotest-framework-concurrency:5.4.2")
 }
 
 tasks.withType<GenerateJavaTask> {
