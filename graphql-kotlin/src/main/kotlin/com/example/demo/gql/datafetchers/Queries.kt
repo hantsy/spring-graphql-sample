@@ -30,20 +30,20 @@ class PostsQuery(val postService: PostService) : Query {
 
 
 // loading from dataloaders
-@Component
-class CommentsDataFetcher : DataFetcher<CompletableFuture<List<Comment>>> {
-
-    override fun get(environment: DataFetchingEnvironment): CompletableFuture<List<Comment>> {
-        val postId = environment.getSource<Post>().id
-        return environment.getValueFromDataLoader(CommentsDataLoader.name, postId)
-    }
-}
-
-@Component
-class AuthorDataFetcher : DataFetcher<CompletableFuture<Author>> {
-
-    override fun get(environment: DataFetchingEnvironment): CompletableFuture<Author> {
-        val authorId = environment.getSource<Post>().authorId
-        return environment.getValueFromDataLoader(AuthorsDataLoader.name, authorId)
-    }
-}
+//@Component("CommentsDataFetcher")
+//class CommentsDataFetcher : DataFetcher<CompletableFuture<List<Comment>>> {
+//
+//    override fun get(environment: DataFetchingEnvironment): CompletableFuture<List<Comment>> {
+//        val postId = environment.getSource<Post>().id
+//        return environment.getValueFromDataLoader(CommentsDataLoader.name, postId)
+//    }
+//}
+//
+//@Component
+//class AuthorDataFetcher : DataFetcher<CompletableFuture<Author>> {
+//
+//    override fun get(environment: DataFetchingEnvironment): CompletableFuture<Author> {
+//        val authorId = environment.getSource<Post>().authorId
+//        return environment.getValueFromDataLoader(AuthorsDataLoader.name, authorId)
+//    }
+//}
