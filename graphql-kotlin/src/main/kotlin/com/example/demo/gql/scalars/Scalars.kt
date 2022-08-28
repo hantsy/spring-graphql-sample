@@ -1,25 +1,19 @@
-package com.example.demo
+package com.example.demo.gql.scalars
 
-import com.example.demo.gql.scalars.LocalDateTimeScalar
-import com.example.demo.gql.scalars.UUIDScalar
-import graphql.schema.*
+import graphql.schema.GraphQLScalarType
 
 
 object Scalars {
-    fun uuidType(): GraphQLScalarType {
-        return GraphQLScalarType.newScalar()
-            .name("UUID")
-            .description("UUID type")
-            .coercing(UUIDScalar())
-            .build()
-    }
+    val uuidType: GraphQLScalarType = GraphQLScalarType.newScalar()
+        .name("UUID")
+        .description("UUID type")
+        .coercing(UUIDScalar())
+        .build()
+    val localDateTimeType: GraphQLScalarType = GraphQLScalarType.newScalar()
+        .name("LocalDateTime")
+        .description("LocalDateTime type")
+        .coercing(LocalDateTimeScalar())
+        .build()
 
-    fun localDateTimeType(): GraphQLScalarType {
-        return GraphQLScalarType.newScalar()
-            .name("LocalDateTime")
-            .description("LocalDateTime type")
-            .coercing(LocalDateTimeScalar())
-            .build()
-    }
 }
 

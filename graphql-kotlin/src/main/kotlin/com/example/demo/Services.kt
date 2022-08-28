@@ -38,7 +38,8 @@ interface PostService {
     suspend fun addComment(commentInput: CommentInput): Comment
 
     // subscription: commentAdded
-    fun commentAdded(): Flux<Comment>
+    // use Flow instead of Publisher
+    fun commentAdded(): Flow<Comment>
     fun getCommentsByPostId(id: UUID): Flow<Comment>
     fun getCommentsByPostIdIn(ids: Set<UUID>): Flow<Comment>
 
@@ -89,7 +90,7 @@ class DefaultPostService(
     val flow = MutableSharedFlow<Comment>()
 
     // subscription: commentAdded
-    override fun commentAdded(): Flux<Comment> = flow.asFlux()
+    override fun commentAdded(): Flow<Comment> = flow
     //= sink.asFlux()
 
     override fun getCommentsByPostId(id: UUID): Flow<Comment> {

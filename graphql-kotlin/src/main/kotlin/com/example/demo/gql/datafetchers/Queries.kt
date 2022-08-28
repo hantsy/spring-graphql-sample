@@ -10,6 +10,7 @@ import com.expediagroup.graphql.server.operations.Query
 import graphql.schema.DataFetcher
 import graphql.schema.DataFetchingEnvironment
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.toList
 import org.springframework.stereotype.Component
 import java.util.*
 import java.util.concurrent.CompletableFuture
@@ -18,7 +19,10 @@ import java.util.concurrent.CompletableFuture
 class PostsQuery(val postService: PostService) : Query {
 
     @GraphQLDescription("get all posts")
+    // Kotlin Flow is not supported.
+    // see: https://github.com/ExpediaGroup/graphql-kotlin/issues/1531
     fun allPosts(): Flow<Post> = postService.allPosts()
+    //suspend fun allPosts():List<Post> = postService.allPosts().toList()
 
     @GraphQLDescription("get post by id")
     suspend fun getPostById(id: UUID): Post = postService.getPostById(id)

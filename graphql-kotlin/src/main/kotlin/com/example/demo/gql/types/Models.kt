@@ -1,10 +1,12 @@
 package com.example.demo.gql.types
 
+import com.example.demo.gql.directives.UpperCase
 import java.time.LocalDateTime
 import java.util.*
 
 data class Post(
     val id: UUID?,
+    @UpperCase
     val title: String,
     val content: String?,
     val status: String? = null,

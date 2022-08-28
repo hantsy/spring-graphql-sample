@@ -2,6 +2,7 @@ package com.example.demo.gql.exceptions
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import graphql.ErrorType
+import graphql.ErrorType.ValidationError
 import graphql.ExceptionWhileDataFetching
 import graphql.GraphQLError
 import graphql.GraphqlErrorException
@@ -10,16 +11,13 @@ import graphql.execution.DataFetcherExceptionHandlerParameters
 import graphql.execution.DataFetcherExceptionHandlerResult
 import graphql.execution.ResultPath
 import graphql.language.SourceLocation
-import graphql.ErrorType.ValidationError
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
 
-@Component
 class CustomDataFetcherExceptionHandler : DataFetcherExceptionHandler {
-    companion object{
+    companion object {
         private val log = LoggerFactory.getLogger(CustomDataFetcherExceptionHandler::class.java)
     }
-
 
     override fun onException(handlerParameters: DataFetcherExceptionHandlerParameters): DataFetcherExceptionHandlerResult {
         val exception = handlerParameters.exception
@@ -27,7 +25,13 @@ class CustomDataFetcherExceptionHandler : DataFetcherExceptionHandler {
         val path = handlerParameters.path
 
         val error: GraphQLError = when (exception) {
-            is ValidationException -> ValidationDataFetchingGraphQLError(exception.constraintErrors, path, exception, sourceLocation)
+            is ValidationException -> ValidationDataFetchingGraphQLError(
+                exception.constraintErrors,
+                path,
+                exception,
+                sourceLocation
+            )
+
             else ->
                 GraphqlErrorException.newErrorException()
                     .cause(exception)

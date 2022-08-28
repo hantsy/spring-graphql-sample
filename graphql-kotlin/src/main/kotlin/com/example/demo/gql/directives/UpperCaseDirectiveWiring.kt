@@ -7,6 +7,10 @@ import graphql.schema.GraphQLFieldDefinition
 import java.util.*
 
 class UpperCaseDirectiveWiring : KotlinSchemaDirectiveWiring {
+    companion object {
+        const val name = "uppercase"
+    }
+
     override fun onField(env: KotlinFieldDirectiveEnvironment): GraphQLFieldDefinition {
 
         val field = env.element
@@ -15,7 +19,7 @@ class UpperCaseDirectiveWiring : KotlinSchemaDirectiveWiring {
                 env.getDataFetcher()
             ) { _, value -> if (value is String && value.isNotEmpty()) value.uppercase(Locale.getDefault()) else value }
 
-        env.setDataFetcher(dataFetcher);
+        env.setDataFetcher(dataFetcher)
         return field
     }
 }
