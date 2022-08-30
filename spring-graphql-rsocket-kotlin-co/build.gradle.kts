@@ -42,7 +42,7 @@ dependencies {
 	}
 	testImplementation("io.projectreactor:reactor-test")
 	testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.6.4")
-	testImplementation("io.mockk:mockk:1.12.5")
+	testImplementation("io.mockk:mockk:1.12.7")
 	testImplementation("com.ninja-squad:springmockk:3.1.1")
 
 	testImplementation("io.kotest:kotest-runner-junit5-jvm:5.4.2")
