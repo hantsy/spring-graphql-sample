@@ -9,7 +9,6 @@ import com.expediagroup.graphql.server.extensions.getValueFromDataLoader
 import com.expediagroup.graphql.server.operations.Query
 import graphql.schema.DataFetcher
 import graphql.schema.DataFetchingEnvironment
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.toList
 import org.springframework.stereotype.Component
 import java.util.*
@@ -21,8 +20,8 @@ class PostsQuery(val postService: PostService) : Query {
     @GraphQLDescription("get all posts")
     // Kotlin Flow is not supported.
     // see: https://github.com/ExpediaGroup/graphql-kotlin/issues/1531
-    fun allPosts(): Flow<Post> = postService.allPosts()
-    //suspend fun allPosts():List<Post> = postService.allPosts().toList()
+    //fun allPosts(): Flow<Post> = postService.allPosts()
+    suspend fun allPosts(): List<Post> = postService.allPosts().toList()
 
     @GraphQLDescription("get post by id")
     suspend fun getPostById(id: UUID): Post = postService.getPostById(id)
@@ -30,20 +29,20 @@ class PostsQuery(val postService: PostService) : Query {
 
 
 // loading from dataloaders
-//@Component("CommentsDataFetcher")
-//class CommentsDataFetcher : DataFetcher<CompletableFuture<List<Comment>>> {
-//
-//    override fun get(environment: DataFetchingEnvironment): CompletableFuture<List<Comment>> {
-//        val postId = environment.getSource<Post>().id
-//        return environment.getValueFromDataLoader(CommentsDataLoader.name, postId)
-//    }
-//}
-//
-//@Component
-//class AuthorDataFetcher : DataFetcher<CompletableFuture<Author>> {
-//
-//    override fun get(environment: DataFetchingEnvironment): CompletableFuture<Author> {
-//        val authorId = environment.getSource<Post>().authorId
-//        return environment.getValueFromDataLoader(AuthorsDataLoader.name, authorId)
-//    }
-//}
+@Component
+class CommentsDataFetcher : DataFetcher<CompletableFuture<List<Comment>>> {
+
+    override fun get(environment: DataFetchingEnvironment): CompletableFuture<List<Comment>> {
+        val postId = environment.getSource<Post>().id
+        return environment.getValueFromDataLoader(CommentsDataLoader.name, postId)
+    }
+}
+
+@Component
+class AuthorDataFetcher : DataFetcher<CompletableFuture<Author>> {
+
+    override fun get(environment: DataFetchingEnvironment): CompletableFuture<Author> {
+        val authorId = environment.getSource<Post>().authorId
+        return environment.getValueFromDataLoader(AuthorsDataLoader.name, authorId)
+    }
+}
