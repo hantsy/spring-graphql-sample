@@ -7,6 +7,7 @@ Spring GraphQL examples using the following frameworks and libraries:
 * [GraphQL Java Kickstart](https://www.graphql-java-kickstart.com/)
 * [GraphQL Java](https://www.graphql-java.com/)
 * [GraphQL SPQR(GraphQL Schema Publisher & Query Resolver, pronounced like speaker)](https://github.com/leangen/graphql-spqr)
+* [ExpediaGroup GraphQL Kotlin](https://opensource.expediagroup.com/graphql-kotlin/docs)
 
 Other GraphQL Java integration examples with Java frameworks.
 
