@@ -41,7 +41,8 @@ class DemoApplicationTests {
 			.exchange()
 			.expectStatus().isOk
 			.expectBody().jsonPath("$.data").isNotEmpty
-			.jsonPath("$.errors").isEmpty
+			.jsonPath("$.data.allPosts[0].title").isEqualTo("LEARN SPRING")
+			.jsonPath("$.errors").doesNotExist()
 	}
 
 }
