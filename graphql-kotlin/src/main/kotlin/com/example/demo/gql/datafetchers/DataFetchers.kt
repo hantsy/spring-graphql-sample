@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component
 import java.util.concurrent.CompletableFuture
 
 // lazily loading data from dataloaders
-@Component("CommentsDataFetcher")
+@Component("CommentListDataFetcher")
 class CommentsDataFetcher : DataFetcher<CompletableFuture<List<Comment>>> {
     companion object {
         private val log = LoggerFactory.getLogger(CommentsDataFetcher::class.java)

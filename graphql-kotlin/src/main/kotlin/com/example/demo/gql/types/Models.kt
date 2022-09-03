@@ -16,17 +16,17 @@ data class Post(
     val content: String?,
     val status: String? = null,
     val createdAt: LocalDateTime?,
-    val author: Author? = null,
     val authorId: UUID? = null,
-    val comments: List<Comment>? = emptyList()
-){
-    fun getComments(environment: DataFetchingEnvironment): CompletableFuture<List<Comment>> {
-        return environment.getValueFromDataLoader(CommentsDataLoader.name, id)
-    }
-
-    fun getAuthor(environment: DataFetchingEnvironment): CompletableFuture<Author> {
-        return environment.getValueFromDataLoader(AuthorsDataLoader.name, authorId)
-    }
+) {
+    lateinit var author: Author
+    lateinit var comments: List<Comment>
+//    fun getComments(environment: DataFetchingEnvironment): CompletableFuture<List<Comment>> {
+//        return environment.getValueFromDataLoader(CommentsDataLoader.name, id)
+//    }
+//
+//    fun getAuthor(environment: DataFetchingEnvironment): CompletableFuture<Author> {
+//        return environment.getValueFromDataLoader(AuthorsDataLoader.name, authorId)
+//    }
 }
 
 //enum class PostStatus {

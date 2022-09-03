@@ -25,7 +25,11 @@ class SpringDataFetcherFactory : DataFetcherFactory<Any?>, BeanFactoryAware {
     override fun get(environment: DataFetcherFactoryEnvironment?): DataFetcher<Any?> {
 
         // Strip out possible `Input` and `!` suffixes added to by the SchemaGenerator
-        val targetedTypeName = environment?.fieldDefinition?.type?.deepName?.removeSuffix("!")?.removeSuffix("Input")
+        var targetedTypeName = environment?.fieldDefinition?.type?.deepName?.removeSuffix("!")?.removeSuffix("Input")
+        log.debug("field def name:" + environment?.fieldDefinition?.name)
+        if (targetedTypeName != null && targetedTypeName.startsWith("[") && targetedTypeName.endsWith("!]")) {
+            targetedTypeName = targetedTypeName.substring(1, targetedTypeName.length-2) +"List"
+        }
         log.debug("target type name: $targetedTypeName")
 
         return beanFactory.getBean("${targetedTypeName}DataFetcher") as DataFetcher<Any?>

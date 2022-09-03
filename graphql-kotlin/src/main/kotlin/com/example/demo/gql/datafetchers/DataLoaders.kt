@@ -43,7 +43,7 @@ class CommentsDataLoader(val postService: PostService) : KotlinDataLoader<UUID, 
         const val name = "CommentsDataLoader"
     }
 
-    override val dataLoaderName = AuthorsDataLoader.name
+    override val dataLoaderName = name
 
     override fun getDataLoader(): DataLoader<UUID, List<Comment>> {
         return DataLoaderFactory.newMappedDataLoader { keys, environment ->
