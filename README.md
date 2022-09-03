@@ -31,6 +31,7 @@ TBD
 |[dgs-kotlin-co](./dgs-kotlin-co) | **A complete Netflix DGS example** with WebFlux, Kotlin Coroutines, Spring Data R2dbc and Spring Security|
 |[dgs-kotlin](./dgs-kotlin) | **A complete Netflix DGS example** with WebMvc/Kotlin, Spring Data Jdbc, Spring Security and Spring Session/Spring Data Redis|
 |[graphql-java](./graphql-java) | GraphQL Java vanilla Spring Boot example|
+|[graphql-kotlin](./graphql-kotlin) |  ExpediaGroup Graphql Kotlin Spring Boot example|
 |[graphql-java-kickstart](./graphql-java-kickstart)  | GraphQL Java Kickstart Spring Boot example|
 |[graphql-java-kickstart-webclient](./graphql-java-kickstart-webclient) | GraphQL Java Kickstart Spring WebClient example|
 |[graphql-java-kickstart-annotations](./graphql-java-kickstart-annotations) | GraphQL Java Kickstart Spring Boot example(Code first)|
