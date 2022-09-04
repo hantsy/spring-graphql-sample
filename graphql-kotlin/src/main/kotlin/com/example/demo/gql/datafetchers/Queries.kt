@@ -18,5 +18,5 @@ class PostsQuery(val postService: PostService) : Query {
     suspend fun allPosts(): List<Post> = postService.allPosts().toList()
 
     @GraphQLDescription("get post by id")
-    suspend fun getPostById(id: UUID): Post = postService.getPostById(id)
+    suspend fun getPostById(postId: UUID): Post = postService.getPostById(postId)
 }
