@@ -22,11 +22,10 @@ class SpringDataFetcherFactory : DataFetcherFactory<Any?>, BeanFactoryAware {
     }
 
     @Suppress("UNCHECKED_CAST")
-    override fun get(environment: DataFetcherFactoryEnvironment?): DataFetcher<Any?> {
-
+    override fun get(environment: DataFetcherFactoryEnvironment): DataFetcher<Any?> {
         // Strip out possible `Input` and `!` suffixes added to by the SchemaGenerator
-        var targetedTypeName = environment?.fieldDefinition?.type?.deepName?.removeSuffix("!")?.removeSuffix("Input")
-        log.debug("field def name:" + environment?.fieldDefinition?.name)
+        var targetedTypeName = environment.fieldDefinition?.type?.deepName?.removeSuffix("!")?.removeSuffix("Input")
+        log.debug("field def name:" + environment.fieldDefinition?.name)
         if (targetedTypeName != null && targetedTypeName.startsWith("[") && targetedTypeName.endsWith("!]")) {
             targetedTypeName = targetedTypeName.substring(1, targetedTypeName.length-2) +"List"
         }

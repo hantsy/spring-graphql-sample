@@ -1,9 +1,7 @@
 package com.example.demo
 
 import com.example.demo.gql.types.*
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.reactor.asFlux
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
@@ -87,10 +85,10 @@ class DefaultPostService(
     }
 
     //val sink = Sinks.many().replay().latest<Comment>()
-    val flow = MutableSharedFlow<Comment>()
+    val flow = MutableSharedFlow<Comment>(replay = 1)
 
     // subscription: commentAdded
-    override fun commentAdded(): Flow<Comment> = flow
+    override fun commentAdded(): Flow<Comment> = flow.asSharedFlow()
     //= sink.asFlux()
 
     override fun getCommentsByPostId(id: UUID): Flow<Comment> {

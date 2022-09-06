@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
+import io.kotest.matchers.string.shouldContain
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.BeforeEach
@@ -183,7 +184,7 @@ class DemoApplicationTests {
             .subscribe()
 
         StepVerifier.create(output)
-            .expectNext("{\"data\":{\"commentAdded\":1}}")
+            .consumeNextWith { it shouldContain "\"content\":\"comment2\"" }
             .expectComplete()
             .verify()
 

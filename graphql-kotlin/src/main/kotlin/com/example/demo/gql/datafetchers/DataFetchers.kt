@@ -29,6 +29,7 @@ class AuthorDataFetcher : DataFetcher<CompletableFuture<Author>> {
     companion object {
         private val log = LoggerFactory.getLogger(AuthorDataFetcher::class.java)
     }
+
     override fun get(environment: DataFetchingEnvironment): CompletableFuture<Author> {
         val authorId = environment.getSource<Post>().authorId
         log.debug("Fetching author of post: $authorId")
