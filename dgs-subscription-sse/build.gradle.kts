@@ -6,7 +6,7 @@ plugins {
 	id("io.spring.dependency-management") version "1.0.13.RELEASE"
 	kotlin("jvm") version "1.7.10"
 	kotlin("plugin.spring") version "1.7.10"
-	id("com.netflix.dgs.codegen") version "5.2.6" //https://plugins.gradle.org/plugin/com.netflix.dgs.codegen
+	id("com.netflix.dgs.codegen") version "5.3.1" //https://plugins.gradle.org/plugin/com.netflix.dgs.codegen
 }
 
 group = "com.example"
@@ -18,7 +18,7 @@ repositories {
 }
 
 dependencies {
-	implementation(platform("com.netflix.graphql.dgs:graphql-dgs-platform-dependencies:5.1.1"))
+	implementation(platform("com.netflix.graphql.dgs:graphql-dgs-platform-dependencies:5.2.1"))
 	implementation("com.netflix.graphql.dgs:graphql-dgs-spring-boot-starter") {
 		exclude("org.yaml", "snakeyaml")
 	}
