@@ -3,7 +3,7 @@ package com.example.demo
 import com.example.demo.gql.DgsConstants
 import com.example.demo.gql.types.*
 import com.netflix.graphql.dgs.*
-import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.toList
 import java.util.concurrent.CompletableFuture
 
 @DgsComponent
@@ -16,17 +16,19 @@ class AuthorsDataFetcher(
     suspend fun author(@InputArgument authorId: String) = authorService.getAuthorById(authorId)
 
     @DgsData(parentType = DgsConstants.AUTHOR.TYPE_NAME, field = DgsConstants.AUTHOR.Posts)
-    fun posts(dfe: DgsDataFetchingEnvironment): Flow<Post> {
+    suspend fun posts(dfe: DgsDataFetchingEnvironment): List<Post> {
         val a: Author = dfe.getSource()
-        return postService.getPostsByAuthorId(a.id)
+        return postService.getPostsByAuthorId(a.id).toList()
     }
 }
 
 @DgsComponent
 class PostsDataFetcher(val postService: PostService) {
 
+    // Kotlin Flow is not supported yet.
+    // see: https://github.com/Netflix/dgs-framework/issues/1078
     @DgsQuery
-    fun allPosts(): Flow<Post> = postService.allPosts()
+    suspend fun allPosts(): List<Post> = postService.allPosts().toList()
 
     @DgsQuery
     suspend fun postById(@InputArgument postId: String) = postService.getPostById(postId)
