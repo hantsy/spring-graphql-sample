@@ -3,6 +3,7 @@ package com.example.demo
 import com.example.demo.gql.types.*
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.reactor.asFlux
 import org.slf4j.LoggerFactory
@@ -38,7 +39,7 @@ interface PostService {
     suspend fun addComment(commentInput: CommentInput): Comment
 
     // subscription: commentAdded
-    fun commentAdded(): Flux<Comment>
+    fun commentAdded(): Flow<Comment>
     fun getCommentsByPostId(id: UUID): Flow<Comment>
     fun getCommentsByPostIdIn(ids: Set<UUID>): Flow<Comment>
 
@@ -86,11 +87,10 @@ class DefaultPostService(
     }
 
     //val sink = Sinks.many().replay().latest<Comment>()
-    val flow = MutableSharedFlow<Comment>()
+    val flow = MutableSharedFlow<Comment>(replay = 1)
 
     // subscription: commentAdded
-    override fun commentAdded(): Flux<Comment> = flow.asFlux()
-    //= sink.asFlux()
+    override fun commentAdded(): Flow<Comment> = flow.asSharedFlow()
 
     override fun getCommentsByPostId(id: UUID): Flow<Comment> {
         return this.comments.findByPostId(id)
