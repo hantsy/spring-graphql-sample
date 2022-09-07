@@ -29,7 +29,8 @@ class PostController(
 
     @BatchMapping
     suspend fun comments(posts: List<Post>): Map<Post, List<Comment>> {
-        val comments = postService.getCommentsByPostsIn(posts.toSet()).toList()
+        val keys = posts.map { it.authorId!! }.toList()
+        val comments = postService.getCommentsByPostIdIn(keys).toList()
         val mappedComments = mutableMapOf<Post, List<Comment>>()
         posts.forEach { post ->
             mappedComments[post] = comments.filter { it.postId == post.id }

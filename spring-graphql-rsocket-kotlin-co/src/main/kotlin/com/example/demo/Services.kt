@@ -24,7 +24,7 @@ class AuthorService(val authors: AuthorRepository) {
 
     // alternative to use kotlin `Flow`
     fun getAuthorByIdIn(ids: List<UUID>): Flow<Author> {
-        return authors.findAllById(ids.toList()).map { it.asGqlType() }
+        return authors.findAllById(ids).map { it.asGqlType() }
     }
 }
 
@@ -41,9 +41,7 @@ interface PostService {
     // subscription: commentAdded
     fun commentAdded(): Flow<Comment>
     fun getCommentsByPostId(id: UUID): Flow<Comment>
-    fun getCommentsByPostIdIn(ids: Set<UUID>): Flow<Comment>
-
-    fun getCommentsByPostsIn(ids: Set<Post>): Flow<Comment>
+    fun getCommentsByPostIdIn(ids: List<UUID>): Flow<Comment>
 }
 
 @Service
@@ -97,11 +95,8 @@ class DefaultPostService(
             .map { it.asGqlType() }
     }
 
-    override fun getCommentsByPostIdIn(ids: Set<UUID>): Flow<Comment> {
-        return comments.findByPostIdIn(ids.toList()).map { it.asGqlType() }
+    override fun getCommentsByPostIdIn(ids: List<UUID>): Flow<Comment> {
+        return comments.findByPostIdIn(ids).map { it.asGqlType() }
     }
 
-    override fun getCommentsByPostsIn(ids: Set<Post>): Flow<Comment> {
-        return comments.findByPostIdIn(ids.map { it.id!! }.toList()).map { it.asGqlType() }
-    }
 }
