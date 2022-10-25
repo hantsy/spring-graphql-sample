@@ -4,6 +4,8 @@ plugins {
     id 'java'
 }
 
+ext['graphql-java.version'] = '19.2'
+
 group = 'com.example'
 version = '0.0.1-SNAPSHOT'
 sourceCompatibility = '17'

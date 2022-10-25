@@ -11,6 +11,8 @@ plugins {
 	id("com.netflix.dgs.codegen") version "5.4.0" //https://plugins.gradle.org/plugin/com.netflix.dgs.codegen
 }
 
+extra['graphql-java.version'] = '19.2'
+
 group = "com.example"
 version = "0.0.1-SNAPSHOT"
 java.sourceCompatibility = JavaVersion.VERSION_17
