@@ -54,7 +54,7 @@ dependencies {
     testImplementation("com.ninja-squad:springmockk:3.1.1"){
         exclude(module = "mockk")
     }
-    testImplementation("io.kotest:kotest-runner-junit5-jvm:5.5.2")
+    testImplementation("io.kotest:kotest-runner-junit5-jvm:5.5.3")
     testImplementation("io.kotest:kotest-assertions-core-jvm:5.5.2")
     testImplementation("io.kotest:kotest-framework-concurrency:5.5.2")
 }
