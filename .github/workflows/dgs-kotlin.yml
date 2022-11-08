@@ -30,6 +30,7 @@ jobs:
     - name: Setup Postgres in Docker 
       run: |
         docker-compose up -d
+        sleep 5
         docker ps -a
     - name: Build with Gradle
       run: |
