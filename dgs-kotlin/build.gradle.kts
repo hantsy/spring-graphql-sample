@@ -6,7 +6,7 @@ plugins {
     id("io.spring.dependency-management") version "1.1.0"
     kotlin("jvm") version "1.7.20"
     kotlin("plugin.spring") version "1.7.20"
-    id("com.netflix.dgs.codegen") version "5.5.0" //https://plugins.gradle.org/plugin/com.netflix.dgs.codegen
+    id("com.netflix.dgs.codegen") version "5.6.0" //https://plugins.gradle.org/plugin/com.netflix.dgs.codegen
 }
 
 extra["graphql-java.version"] = "19.2"
@@ -22,7 +22,7 @@ repositories {
 
 dependencies {
     // dgs
-    implementation(platform("com.netflix.graphql.dgs:graphql-dgs-platform-dependencies:5.4.1"))
+    implementation(platform("com.netflix.graphql.dgs:graphql-dgs-platform-dependencies:5.4.3"))
     implementation("com.netflix.graphql.dgs:graphql-dgs-spring-boot-starter")
     implementation("com.netflix.graphql.dgs:graphql-dgs-subscriptions-websockets-autoconfigure")
     implementation("com.netflix.graphql.dgs:graphql-dgs-extended-scalars")
