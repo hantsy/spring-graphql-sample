@@ -3,6 +3,7 @@ package com.example.demo
 import com.example.demo.gql.datafetchers.PostController
 import com.example.demo.gql.types.Post
 import com.ninjasquad.springmockk.MockkBean
+import io.kotest.matchers.collections.shouldContainAll
 import io.kotest.matchers.ints.shouldBeGreaterThan
 import io.kotest.matchers.shouldBe
 import io.mockk.coEvery
@@ -62,7 +63,7 @@ internal class QueryTests {
         graphQlTester.document(query)
            .execute()
            .path("data.allPosts[*].title")
-           .entityList(String::class.java).contains("Post 1", "Post 2")
+           .entityList(String::class.java).hasSize(2).contains("POST 1", "POST 2")
 
         coVerify(exactly = 1) { postService.allPosts() }
     }
