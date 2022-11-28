@@ -4,9 +4,9 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 plugins {
     id("org.springframework.boot") version "2.7.5"
     id("io.spring.dependency-management") version "1.1.0"
-    kotlin("jvm") version "1.7.21"
-    kotlin("plugin.spring") version "1.7.21"
-    id("com.netflix.dgs.codegen") version "5.6.2" //https://plugins.gradle.org/plugin/com.netflix.dgs.codegen
+    kotlin("jvm") version "1.7.22"
+    kotlin("plugin.spring") version "1.7.22"
+    id("com.netflix.dgs.codegen") version "5.6.3" //https://plugins.gradle.org/plugin/com.netflix.dgs.codegen
 }
 
 extra["graphql-java.version"] = "19.2"

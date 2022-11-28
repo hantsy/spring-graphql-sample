@@ -4,8 +4,8 @@ plugins {
 	id("org.springframework.boot") version "2.7.5"
 	id("io.spring.dependency-management") version "1.1.0"
 
-	kotlin("jvm") version "1.7.21"
-	kotlin("plugin.spring") version "1.7.21"
+	kotlin("jvm") version "1.7.22"
+	kotlin("plugin.spring") version "1.7.22"
 
 }
 
@@ -43,7 +43,7 @@ dependencies {
 	testImplementation("io.projectreactor:reactor-test")
 	testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.6.4")
 	testImplementation("io.mockk:mockk-jvm:1.13.2")
-	testImplementation("com.ninja-squad:springmockk:3.1.1"){
+	testImplementation("com.ninja-squad:springmockk:3.1.2"){
 		exclude(module = "mockk")
 	}
 

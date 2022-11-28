@@ -5,10 +5,10 @@ plugins {
     id("org.springframework.boot") version "2.7.5"
     id("io.spring.dependency-management") version "1.1.0"
 
-    kotlin("jvm") version "1.7.21"
-    kotlin("plugin.spring") version "1.7.21"
+    kotlin("jvm") version "1.7.22"
+    kotlin("plugin.spring") version "1.7.22"
 
-    id("com.netflix.dgs.codegen") version "5.6.2" //https://plugins.gradle.org/plugin/com.netflix.dgs.codegen
+    id("com.netflix.dgs.codegen") version "5.6.3" //https://plugins.gradle.org/plugin/com.netflix.dgs.codegen
 }
 
 extra["graphql-java.version"] = "19.2"
@@ -51,7 +51,7 @@ dependencies {
     testImplementation("io.projectreactor:reactor-test")
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.6.4")
     testImplementation("io.mockk:mockk-jvm:1.13.2")
-    testImplementation("com.ninja-squad:springmockk:3.1.1"){
+    testImplementation("com.ninja-squad:springmockk:3.1.2"){
         exclude(module = "mockk")
     }
     testImplementation("io.kotest:kotest-runner-junit5-jvm:5.5.4")
