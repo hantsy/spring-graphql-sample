@@ -104,5 +104,7 @@
       }
     }
   },
-  "defaultProject": "dgs-subscription-ui"
+  "cli": {
+    "analytics": false
+  }
 }

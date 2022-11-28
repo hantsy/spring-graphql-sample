@@ -1,9 +1,9 @@
 import { NgModule } from '@angular/core';
-import { APOLLO_OPTIONS } from 'apollo-angular';
-import { HttpLink } from 'apollo-angular/http';
-import { split, ApolloClientOptions, InMemoryCache } from '@apollo/client/core';
+import { ApolloClientOptions, InMemoryCache, split } from '@apollo/client';
 import { WebSocketLink } from '@apollo/client/link/ws';
 import { getMainDefinition } from '@apollo/client/utilities';
+import { APOLLO_OPTIONS } from 'apollo-angular';
+import { HttpLink } from 'apollo-angular/http';
 import { OperationDefinitionNode } from 'graphql';
 
 const uri = 'http://localhost:8080/graphql'; // <-- add the URL of the GraphQL server here
