@@ -31,6 +31,12 @@ const MESSAGE_SUBSCRIPTION_QUERY = gql`
   }
 `;
 
+interface TextMessage {
+  id: string,
+  text: string,
+  sentAt: Date
+}
+
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
@@ -39,9 +45,9 @@ const MESSAGE_SUBSCRIPTION_QUERY = gql`
 export class AppComponent implements OnInit, OnDestroy {
   title = 'client';
   message: string | null = '';
-  messages: any[] = [];
+  messages: TextMessage[] = [];
 
-  messagesQuery: QueryRef<any>;
+  messagesQuery: QueryRef<any, any>;
 
   constructor(private apollo: Apollo) {
     this.messagesQuery = this.apollo.watchQuery({
@@ -62,13 +68,17 @@ export class AppComponent implements OnInit, OnDestroy {
     this.messagesQuery.subscribeToMore({
       document: MESSAGE_SUBSCRIPTION_QUERY,
       variables: {},
-      updateQuery: (prev, { subscriptionData }) => {
+      updateQuery:  (prev: {messages:[TextMessage]}, options: {
+        subscriptionData: {
+            data: {messageSent: TextMessage};
+        };
+    })  => {
         console.log('prev: {}', prev);
-        console.log('subscription data: {}', subscriptionData);
-        if (!subscriptionData.data) {
+        console.log('subscription data: {}', options.subscriptionData);
+        if (!options.subscriptionData.data) {
           return prev;
         }
-        const newMsg = subscriptionData.data.messageSent;
+        const newMsg = options.subscriptionData.data.messageSent;
         if (prev && prev.messages) {
           return { messages: [...prev.messages, newMsg] };
         } else {
