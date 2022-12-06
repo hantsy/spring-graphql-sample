@@ -5,18 +5,18 @@ import com.example.demo.gql.types.CreatePostInput;
 import com.example.demo.gql.types.Post;
 import com.example.demo.service.AuthorService;
 import com.example.demo.service.PostService;
+import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.graphql.GraphQlTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.graphql.test.tester.GraphQlTester;
 
-import javax.validation.ConstraintViolationException;
 import java.util.Map;
 import java.util.UUID;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
@@ -66,7 +66,7 @@ public class MutationTests {
 
 
     @Test
-    @Disabled
+        // @Disabled
         // see: https://github.com/spring-projects/spring-graphql/issues/110
     void testCreatePost_FailedValidation() {
         var data = Post.builder().id(UUID.randomUUID().toString())
@@ -84,14 +84,14 @@ public class MutationTests {
                 }""".trim();
 
         String TITLE = "test";//not valid
-        assertThatThrownBy(() -> graphQlTester.document(creatPost)
+        assertThatThrownBy(() ->graphQlTester.document(creatPost)
                 .variable("createPostInput",
                         Map.of(
                                 "title", TITLE,
                                 "content", "content of my post"
                         )
                 )
-                .executeAndVerify()
+                .execute()
         ).hasCauseInstanceOf(ConstraintViolationException.class);
 
         verify(postService, times(0)).createPost(any(CreatePostInput.class));
