@@ -23,9 +23,9 @@ public class DataInitializer implements ApplicationRunner {
     @Override
     public void run(ApplicationArguments args) throws Exception {
         log.info("start data initialization...");
-        int commentsDel = this.comments.deleteAll().block();
-        int postDel = this.posts.deleteAll().block();
-        int authorsDel = this.authors.deleteAll().block();
+        var commentsDel = this.comments.deleteAll().block();
+        var postDel = this.posts.deleteAll().block();
+        var authorsDel = this.authors.deleteAll().block();
 
         log.info("deleted rows: authors: {}, comments: {}, posts: {}", authorsDel, commentsDel, postDel);
         this.authors.create("user", "user@example.com")
