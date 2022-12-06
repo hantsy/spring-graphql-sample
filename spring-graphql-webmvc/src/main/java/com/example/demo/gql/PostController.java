@@ -4,6 +4,7 @@ import com.example.demo.gql.types.*;
 import com.example.demo.service.AuthorService;
 import com.example.demo.service.PostService;
 import graphql.schema.DataFetchingEnvironment;
+import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.dataloader.BatchLoaderEnvironment;
 import org.dataloader.DataLoader;
@@ -63,12 +64,12 @@ public class PostController {//spring boot stater created an `AnnotatedDataFetch
     }
 
     @MutationMapping
-    public Post createPost(@Argument("createPostInput") @Validated CreatePostInput input) {
+    public Post createPost(@Argument("createPostInput") @Valid CreatePostInput input) {
         return postService.createPost(input);
     }
 
     @MutationMapping
-    public Comment addComment(@Argument CommentInput commentInput) {
+    public Comment addComment(@Argument @Valid CommentInput commentInput) {
         return this.postService.addComment(commentInput);
     }
 
