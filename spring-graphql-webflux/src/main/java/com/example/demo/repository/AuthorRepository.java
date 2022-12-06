@@ -76,7 +76,7 @@ public class AuthorRepository {
 
     }
 
-    public Mono<Integer> deleteAll() {
+    public Mono<Long> deleteAll() {
         String sql = "DELETE FROM users";
         return this.client.sql(sql).fetch().rowsUpdated();
     }
