@@ -88,7 +88,7 @@ public class CommentRepository {
                 .map(r -> (UUID) r.get("id"));
     }
 
-    public Mono<Integer> deleteAll() {
+    public Mono<Long> deleteAll() {
         String sql = "DELETE FROM comments";
         return this.client.sql(sql).fetch().rowsUpdated();
     }

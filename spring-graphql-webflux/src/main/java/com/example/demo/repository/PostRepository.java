@@ -70,7 +70,7 @@ public class PostRepository {
                 .map(r -> (UUID) r.get("id"));
     }
 
-    public Mono<Integer> deleteAll() {
+    public Mono<Long> deleteAll() {
         String sql = "DELETE FROM posts";
         return this.client.sql(sql).fetch().rowsUpdated();
     }
