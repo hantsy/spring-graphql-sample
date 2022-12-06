@@ -31,7 +31,7 @@ import static org.awaitility.Awaitility.await;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @Slf4j
-public class SubscriptionTestsWithGraphQLClient {
+public class IntegrationTests {
 
     @LocalServerPort
     int port;
@@ -134,8 +134,8 @@ public class SubscriptionTestsWithGraphQLClient {
 
         var verify = StepVerifier.create(result)
                 .consumeNextWith(c -> assertThat(c.getContent()).startsWith("comment of my post at "))
-//                .consumeNextWith(c -> assertThat(c.getContent()).startsWith("comment of my post at "))
-//                .consumeNextWith(c -> assertThat(c.getContent()).startsWith("comment of my post at "))
+                .consumeNextWith(c -> assertThat(c.getContent()).startsWith("comment of my post at "))
+                .consumeNextWith(c -> assertThat(c.getContent()).startsWith("comment of my post at "))
                 .thenCancel()
                 .verifyLater();
 
