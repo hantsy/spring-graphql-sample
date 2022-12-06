@@ -50,7 +50,7 @@ dependencies {
     }
     testImplementation("io.projectreactor:reactor-test")
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.6.4")
-    testImplementation("io.mockk:mockk-jvm:1.13.2")
+    testImplementation("io.mockk:mockk-jvm:1.13.3")
     testImplementation("com.ninja-squad:springmockk:4.0.0"){
         exclude(module = "mockk")
     }
