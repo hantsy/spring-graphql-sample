@@ -19,6 +19,7 @@ import reactor.test.StepVerifier;
 import java.time.LocalDateTime;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.atomic.AtomicReference;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -69,22 +70,21 @@ class IntegrationTests {
         );
 
         var countDownLatch = new CountDownLatch(1);
-        var postIdReference = new PostIdHolder();
+        var postIdReference = new AtomicReference<String>();
         this.client.document(createPostQuery).variables(createPostVariables).execute()
                 .map(response -> objectMapper.convertValue(
                         response.<Map<String, Object>>getData().get("createPost"),
                         Post.class)
                 )
-                //.doOnTerminate(countDownLatch::countDown)
                 .subscribe(post -> {
                     log.info("created post: {}", post);
-                    postIdReference.setPostId(post.getId());
+                    postIdReference.set(post.getId());
                     countDownLatch.countDown();
                 });
 
         countDownLatch.await(5, SECONDS);
 
-        String postId = postIdReference.getPostId();
+        String postId = postIdReference.get();
         log.debug("created post id: {}", postId);
         assertThat(postId).isNotNull();
 
@@ -156,17 +156,5 @@ class IntegrationTests {
                     assertThat(comment.getId()).isNotNull();
                 })
                 .verifyComplete();
-    }
-}
-
-class PostIdHolder {
-    private String postId;
-
-    public String getPostId() {
-        return postId;
-    }
-
-    public void setPostId(String postId) {
-        this.postId = postId;
     }
 }
