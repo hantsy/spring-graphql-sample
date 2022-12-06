@@ -1,110 +1,65 @@
 package com.example.demo;
 
+import com.example.demo.gql.PostController;
 import com.example.demo.gql.types.Comment;
+import com.example.demo.service.AuthorService;
+import com.example.demo.service.PostService;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.graphql.GraphQlTest;
 import org.springframework.boot.test.autoconfigure.graphql.tester.AutoConfigureGraphQlTester;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.graphql.test.tester.GraphQlTester;
 import reactor.core.publisher.Flux;
 import reactor.test.StepVerifier;
 
-import java.time.LocalDateTime;
-import java.util.Map;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.*;
 
-@SpringBootTest
-@AutoConfigureGraphQlTester
+@GraphQlTest(controllers = {PostController.class})
 @Slf4j
 public class SubscriptionTests {
 
     @Autowired
     GraphQlTester graphQlTester;
 
-//    @MockBean
-//    AuthorService authorService;
-//
-//    @MockBean
-//    PostService postService;
+    @MockBean
+    AuthorService authorService;
+
+    @MockBean
+    PostService postService;
 
     @SneakyThrows
     @Test
     public void createPostAndAddComment() {
-        var creatPost = """
-                mutation createPost($createPostInput: CreatePostInput!){
-                   createPost(createPostInput:$createPostInput){
-                   id
-                   title
-                   content
-                   }
-                }""".trim();
+        var postId = UUID.randomUUID().toString();
+        when(postService.commentAdded())
+                .thenReturn(
+                        Flux.just(
+                                Comment.builder().id(UUID.randomUUID().toString())
+                                        .content("test comment")
+                                        .postId(postId)
+                                        .build()
+                        )
+                );
 
-        String TITLE = "my post created by Spring GraphQL";
-        String id = graphQlTester.document(creatPost)
-                .variable("createPostInput",
-                        Map.of(
-                                "title", TITLE,
-                                "content", "content of my post"
-                        ))
-                .execute()
-                .path("createPost.id").entity(String.class).get();
-
-        log.info("created post: {}", id);
-        assertThat(id).isNotNull();
-
-        var postById = """
-                query post($postId:String!){
-                   postById(postId:$postId) {
-                     id
-                     title
-                     content
-                   }
-                 }""";
-        graphQlTester.document(postById).variable("postId", id.toString())
-                .execute()
-                .path("postById.title")
-                .entity(String.class)
-                .satisfies(titles -> assertThat(titles).isEqualTo(TITLE));
-
-
-        Flux<Comment> result = this.graphQlTester.document("subscription onCommentAdded { commentAdded { id content } }")
+        String query = "subscription onCommentAdded { commentAdded { id postId content } }";
+        var verifier = graphQlTester.document(query)
                 .executeSubscription()
-                .toFlux("commentAdded", Comment.class);
+                .toFlux("commentAdded.content", String.class)
+                .as(StepVerifier::create)
+                .expectNext("test comment")
+                .thenCancel()
+                .verify();
 
-        var verify = StepVerifier.create(result)
-                .consumeNextWith(c -> assertThat(c.getContent()).startsWith("comment of my post at "))
-                .consumeNextWith(c -> assertThat(c.getContent()).startsWith("comment of my post at "))
-                .consumeNextWith(c -> assertThat(c.getContent()).startsWith("comment of my post at "))
-                .thenCancel().verifyLater();
-
-        addCommentToPost(id);
-        addCommentToPost(id);
-        addCommentToPost(id);
-
-        verify.verify();
-    }
-
-    private void addCommentToPost(String id) {
-        var addComment = """
-                mutation addComment($commentInput: CommentInput!){
-                   addComment(commentInput:$commentInput){id}
-                }""";
-
-        String commentId = graphQlTester.document(addComment)
-                .variable("commentInput",
-                        Map.of(
-                                "postId", id,
-                                "content", "comment of my post at " + LocalDateTime.now()
-                        ))
-                .execute()
-                .path("addComment.id")
-                .entity(String.class).get();
-
-        log.info("added comment of post: {}", commentId);
-        assertThat(commentId).isNotNull();
+        // verify the invocation of the mocks.
+        verify(postService, times(1)).commentAdded();
+        verifyNoMoreInteractions(postService);
     }
 
 }
