@@ -21,11 +21,11 @@
     "@angular/platform-browser": "^14.2.12",
     "@angular/platform-browser-dynamic": "^14.2.12",
     "@angular/router": "^14.2.12",
-    "@apollo/client": "^3.4.16",
+    "@apollo/client": "^3.7.2",
     "apollo-angular": "^4.1.1",
     "graphql": "^16.6.0",
-    "graphql-ws": "^5.11.2",
     "rxjs": "~6.6.0",
+    "subscriptions-transport-ws": "^0.11.0",
     "tslib": "^2.4.1",
     "zone.js": "~0.11.8"
   },

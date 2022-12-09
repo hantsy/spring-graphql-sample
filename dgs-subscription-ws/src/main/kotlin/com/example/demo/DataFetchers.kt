@@ -30,7 +30,7 @@ class MessagesDataFetcher {
     @DgsSubscription
     fun messageSent(): Publisher<TextMessage> = sink.asFlux()
 
-    private val sink: Many<TextMessage> = Sinks.many().replay().limit(100)
+    private val sink: Many<TextMessage> = Sinks.many().replay().latest()
 
     companion object {
         val STORE = mutableMapOf<String, TextMessage>()

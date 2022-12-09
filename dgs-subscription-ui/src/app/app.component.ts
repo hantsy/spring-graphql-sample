@@ -33,7 +33,7 @@ const MESSAGE_SUBSCRIPTION_QUERY = gql`
 
 interface TextMessage {
   id: string,
-  text: string,
+  body: string,
   sentAt: Date
 }
 
