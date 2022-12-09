@@ -11,6 +11,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.graphql.GraphQlTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.graphql.execution.ErrorType;
 import org.springframework.graphql.test.tester.GraphQlTester;
 
 import java.util.Map;
@@ -83,15 +84,27 @@ public class MutationTests {
                 }""".trim();
 
         String TITLE = "test";//not valid
-        assertThatThrownBy(() -> graphQlTester.document(creatPost)
-                .variable("createPostInput",
+        graphQlTester.document(creatPost)
+                .variable(
+                        "createPostInput",
                         Map.of(
                                 "title", TITLE,
                                 "content", "content of my post"
                         )
                 )
                 .execute()
-        ).hasCauseInstanceOf(ConstraintViolationException.class);
+                .errors().expect(it -> it.getErrorType() == ErrorType.INTERNAL_ERROR);
+
+// see: https://stackoverflow.com/questions/74704427/assert-unhandled-exception-in-spring-graphql
+//        assertThatThrownBy(() -> graphQlTester.document(creatPost)
+//                .variable("createPostInput",
+//                        Map.of(
+//                                "title", TITLE,
+//                                "content", "content of my post"
+//                        )
+//                )
+//                .executeAndVerify()
+//        ).hasCauseInstanceOf(ConstraintViolationException.class);
 
         verify(postService, times(0)).createPost(any(CreatePostInput.class));
         verifyNoMoreInteractions(postService);
