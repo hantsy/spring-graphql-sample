@@ -3,6 +3,7 @@ package com.example.demo.gql.datafetchers;
 import com.example.demo.AuthorService
 import com.example.demo.PostService
 import com.example.demo.gql.types.*
+import jakarta.validation.Valid
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.reactive.asPublisher
 import org.reactivestreams.Publisher
@@ -10,7 +11,6 @@ import org.springframework.graphql.data.method.annotation.*
 import org.springframework.stereotype.Controller
 import org.springframework.validation.annotation.Validated
 import java.util.*
-import javax.validation.Valid
 
 @Controller
 @Validated
