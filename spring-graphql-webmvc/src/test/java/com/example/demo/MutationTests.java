@@ -16,7 +16,6 @@ import org.springframework.graphql.test.tester.GraphQlTester;
 import java.util.Map;
 import java.util.UUID;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
@@ -84,7 +83,7 @@ public class MutationTests {
                 }""".trim();
 
         String TITLE = "test";//not valid
-        assertThatThrownBy(() ->graphQlTester.document(creatPost)
+        assertThatThrownBy(() -> graphQlTester.document(creatPost)
                 .variable("createPostInput",
                         Map.of(
                                 "title", TITLE,
