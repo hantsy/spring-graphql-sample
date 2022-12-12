@@ -14,7 +14,7 @@ repositories {
 }
 
 dependencies {
-    implementation 'com.graphql-java-kickstart:graphql-spring-boot-starter:14.1.0'
+    implementation 'com.graphql-java-kickstart:graphql-spring-boot-starter:15.0.0'
     implementation 'com.graphql-java-kickstart:graphql-java-tools:13.0.2'
     implementation 'com.graphql-java-kickstart:graphiql-spring-boot-starter:11.1.0'
     implementation 'com.graphql-java-kickstart:voyager-spring-boot-starter:11.1.0'
