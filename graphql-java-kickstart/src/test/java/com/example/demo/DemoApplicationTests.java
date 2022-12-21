@@ -34,79 +34,79 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 @EnableAutoConfiguration(exclude = GraphQLWebsocketAutoConfiguration.class)
 class DemoApplicationTests {
 
-    @Autowired
-    GraphQLTestTemplate testTemplate;
+  @Autowired
+  GraphQLTestTemplate testTemplate;
 
-    @Autowired
-    TestRestTemplate restTemplate;
+  @Autowired
+  TestRestTemplate restTemplate;
 
-    @Autowired
-    ObjectMapper objectMapper;
+  @Autowired
+  ObjectMapper objectMapper;
 
-    @Test
-    void allPosts() {
-        var allPosts = """
-                {"query": "query posts{
-                   allPosts{
-                     id
-                     title
-                     content
-                     comments{
-                       id
-                       content
-                     }
-                     author{
-                       id
-                       name
-                       email
-                     }
-                   }
-                 }"
-                 }
-                  """;
-        GraphQLResponse response = testTemplate.post(allPosts);
-        assertNotNull(response);
-        assertThat(response.isOk()).isTrue();
-        List<String> titles = response.getList("$.data.allPosts[*].title", String.class);
-        assertThat(titles).anyMatch(s -> s.startsWith("DGS POST"));
-    }
+  @Test
+  void allPosts() {
+    var allPosts = """
+        {"query": "query posts{
+           allPosts{
+             id
+             title
+             content
+             comments{
+               id
+               content
+             }
+             author{
+               id
+               name
+               email
+             }
+           }
+         }"
+         }
+          """;
+    GraphQLResponse response = testTemplate.post(allPosts);
+    assertNotNull(response);
+    assertThat(response.isOk()).isTrue();
+    List<String> titles = response.getList("$.data.allPosts[*].title", String.class);
+    assertThat(titles).anyMatch(s -> s.startsWith("DGS POST"));
+  }
 
-    // see: https://github.com/jaydenseric/graphql-multipart-request-spec/issues/6
-    @SneakyThrows
-    @Test
-    public void uploadFile() {
-        var query = """
-                mutation upload($file:Upload!){
-                    upload(file:$file)
-                }
-                """;
-        var variables = new HashMap<>();
-        variables.put("file", null);
-
-        var headers = new HttpHeaders();
-        headers.setContentType(MediaType.MULTIPART_FORM_DATA);
-
-        var body = new LinkedMultiValueMap();
-        body.add("map", Map.of("file0", List.of("variables.file")));
-        body.add("file0", new FileSystemResource(new ClassPathResource("/test.txt").getFile()));
-        body.add("operations", Map.of("query", query, "variables", variables));
-        var entity = new HttpEntity(body, headers);
-        var responseJson = restTemplate.postForEntity("/graphql", entity, String.class);
-
-        assertThat(responseJson.getStatusCode()).isEqualByComparingTo(HttpStatus.OK);
-        Boolean read = JsonPath.read(responseJson.getBody(), "$.data.upload");
-        assertThat(read).isTrue();
-    }
-
-    @TestConfiguration
-    static class TestConfig {
-
-        @Bean
-        public TestRestTemplate testRestTemplate() {
-            return new TestRestTemplate(new RestTemplateBuilder()
-                    .defaultMessageConverters().additionalMessageConverters(new ByteArrayHttpMessageConverter())
-                    .rootUri("http://localhost:8080"));
+  // see: https://github.com/jaydenseric/graphql-multipart-request-spec/issues/6
+  @SneakyThrows
+  @Test
+  public void uploadFile() {
+    var query = """
+        mutation upload($file:Upload!){
+            upload(file:$file)
         }
+        """;
+    var variables = new HashMap<>();
+    variables.put("file", null);
+
+    var headers = new HttpHeaders();
+    headers.setContentType(MediaType.MULTIPART_FORM_DATA);
+
+    var body = new LinkedMultiValueMap();
+    body.add("map", Map.of("file0", List.of("variables.file")));
+    body.add("file0", new FileSystemResource(new ClassPathResource("/test.txt").getFile()));
+    body.add("operations", Map.of("query", query, "variables", variables));
+    var entity = new HttpEntity(body, headers);
+    var responseJson = restTemplate.postForEntity("/graphql", entity, String.class);
+
+    assertThat(responseJson.getStatusCode()).isEqualTo(HttpStatus.OK);
+    Boolean read = JsonPath.read(responseJson.getBody(), "$.data.upload");
+    assertThat(read).isTrue();
+  }
+
+  @TestConfiguration
+  static class TestConfig {
+
+    @Bean
+    public TestRestTemplate testRestTemplate() {
+      return new TestRestTemplate(new RestTemplateBuilder()
+          .defaultMessageConverters().additionalMessageConverters(new ByteArrayHttpMessageConverter())
+          .rootUri("http://localhost:8080"));
     }
+  }
 
 }
