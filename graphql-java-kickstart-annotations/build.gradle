@@ -1,5 +1,5 @@
 plugins {
-    id 'org.springframework.boot' version '2.7.5'
+    id 'org.springframework.boot' version '3.0.0'
     id 'io.spring.dependency-management' version '1.1.0'
     id 'java'
 }
@@ -14,7 +14,7 @@ repositories {
 }
 
 dependencies {
-    implementation 'com.graphql-java-kickstart:graphql-spring-boot-starter:14.0.0'
+    implementation 'com.graphql-java-kickstart:graphql-spring-boot-starter:15.0.0'
 
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-data-jdbc'
@@ -27,10 +27,10 @@ dependencies {
     annotationProcessor 'org.projectlombok:lombok:1.18.24'
     testCompileOnly 'org.projectlombok:lombok:1.18.24'
     testAnnotationProcessor 'org.projectlombok:lombok:1.18.24'
-	
+
 	//test
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
-    testImplementation 'com.graphql-java-kickstart:graphql-spring-boot-starter-test:12.0.0'
+    testImplementation 'com.graphql-java-kickstart:graphql-spring-boot-starter-test:15.0.0'
 }
 
 test {
