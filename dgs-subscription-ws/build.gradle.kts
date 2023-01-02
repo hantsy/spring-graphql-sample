@@ -6,7 +6,7 @@ plugins {
 	id("io.spring.dependency-management") version "1.1.0"
 
 	kotlin("jvm") version "1.7.22"
-	kotlin("plugin.spring") version "1.7.22"
+	kotlin("plugin.spring") version "1.8.0"
 
 	id("com.netflix.dgs.codegen") version "5.6.3" //https://plugins.gradle.org/plugin/com.netflix.dgs.codegen
 }
