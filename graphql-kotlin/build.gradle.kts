@@ -1,10 +1,10 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-	id("org.springframework.boot") version "2.7.5"
+	id("org.springframework.boot") version "3.0.2"
 	id("io.spring.dependency-management") version "1.1.0"
-	kotlin("jvm") version "1.6.21"
-	kotlin("plugin.spring") version "1.6.21"
+	kotlin("jvm") version "1.8.0"
+	kotlin("plugin.spring") version "1.8.0"
 }
 
 group = "com.example"
@@ -16,10 +16,10 @@ repositories {
 }
 
 extra["testcontainersVersion"] = "1.17.3"
-extra["graphqlKotlinVersion"] = "6.2.2"
+extra["graphqlKotlinVersion"] = "6.3.5"
 extra["coroutinesVersion"] = "1.6.4"
-extra["mockkVersion"] = "1.12.5"
-extra["springmockkVersion"] = "3.1.2"
+extra["mockkVersion"] = "1.13.3"
+extra["springmockkVersion"] = "4.0.0"
 extra["ktestVersion"] = "5.5.4"
 
 dependencies {
