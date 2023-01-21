@@ -12,7 +12,7 @@ import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository
 import org.springframework.web.multipart.MultipartFile
 import java.util.concurrent.CompletableFuture
-import javax.servlet.http.HttpSession
+import jakarta.servlet.http.HttpSession
 
 @DgsComponent
 class AuthorsDataFetcher(
