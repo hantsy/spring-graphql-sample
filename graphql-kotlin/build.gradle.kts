@@ -15,7 +15,7 @@ repositories {
 	mavenCentral()
 }
 
-extra["testcontainersVersion"] = "1.17.3"
+extra["testcontainersVersion"] = "1.17.6"
 extra["graphqlKotlinVersion"] = "6.3.5"
 extra["coroutinesVersion"] = "1.6.4"
 extra["mockkVersion"] = "1.13.3"
@@ -50,7 +50,7 @@ dependencies {
 	}
 	testImplementation("io.projectreactor:reactor-test")
 	implementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:${property("coroutinesVersion")}")
-	testImplementation("io.mockk:mockk:${property("mockkVersion")}")
+	testImplementation("io.mockk:mockk-jvm:${property("mockkVersion")}")
 	testImplementation("com.ninja-squad:springmockk:${property("springmockkVersion")}")
 	testImplementation("io.kotest:kotest-runner-junit5-jvm:${property("ktestVersion")}")
 	testImplementation("io.kotest:kotest-assertions-core-jvm:${property("ktestVersion")}")

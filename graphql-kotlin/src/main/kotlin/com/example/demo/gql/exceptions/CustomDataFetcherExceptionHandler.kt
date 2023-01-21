@@ -8,6 +8,7 @@ import graphql.GraphQLError
 import graphql.execution.*
 import graphql.language.SourceLocation
 import org.slf4j.LoggerFactory
+import java.util.concurrent.CompletableFuture
 
 class CustomDataFetcherExceptionHandler : DataFetcherExceptionHandler {
     companion object {
@@ -16,7 +17,7 @@ class CustomDataFetcherExceptionHandler : DataFetcherExceptionHandler {
 
     private val simpleDataFetcherExceptionHandler = SimpleDataFetcherExceptionHandler()
 
-    override fun onException(handlerParameters: DataFetcherExceptionHandlerParameters): DataFetcherExceptionHandlerResult {
+    override fun handleException(handlerParameters: DataFetcherExceptionHandlerParameters): CompletableFuture<DataFetcherExceptionHandlerResult> {
         val exception = handlerParameters.exception
         val sourceLocation = handlerParameters.sourceLocation
         val path = handlerParameters.path
@@ -30,10 +31,12 @@ class CustomDataFetcherExceptionHandler : DataFetcherExceptionHandler {
                     sourceLocation
                 )
                 log.debug(error.message, exception)
-                return DataFetcherExceptionHandlerResult.newResult().error(error).build()
+                return CompletableFuture.completedFuture(
+                    DataFetcherExceptionHandlerResult.newResult().error(error).build()
+                )
             }
 
-            else -> simpleDataFetcherExceptionHandler.onException(handlerParameters)
+            else -> simpleDataFetcherExceptionHandler.handleException(handlerParameters)
         }
     }
 }

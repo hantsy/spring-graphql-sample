@@ -1,6 +1,6 @@
 package com.example.demo.gql.exceptions
 
-import javax.validation.ConstraintViolation
+import jakarta.validation.ConstraintViolation
 
 class ValidationException(val constraintErrors: List<ConstraintError>) : RuntimeException("Validation error")
 

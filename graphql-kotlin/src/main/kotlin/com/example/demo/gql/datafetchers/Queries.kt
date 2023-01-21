@@ -1,18 +1,13 @@
 package com.example.demo.gql.datafetchers
 
-import com.example.demo.PostService
-import com.example.demo.gql.types.Author
-import com.example.demo.gql.types.Comment
+import com.example.demo.service.PostService
 import com.example.demo.gql.types.Post
 import com.expediagroup.graphql.generator.annotations.GraphQLDescription
-import com.expediagroup.graphql.server.extensions.getValueFromDataLoader
 import com.expediagroup.graphql.server.operations.Query
-import graphql.schema.DataFetchingEnvironment
 import kotlinx.coroutines.flow.toList
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
 import java.util.*
-import java.util.concurrent.CompletableFuture
 
 @Component
 class PostsQuery(val postService: PostService) : Query {

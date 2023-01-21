@@ -1,7 +1,7 @@
 package com.example.demo.gql.datafetchers
 
-import com.example.demo.AuthorService
-import com.example.demo.PostService
+import com.example.demo.service.AuthorService
+import com.example.demo.service.PostService
 import com.example.demo.gql.types.Author
 import com.example.demo.gql.types.Comment
 import com.expediagroup.graphql.dataloader.KotlinDataLoader

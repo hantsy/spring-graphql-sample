@@ -1,6 +1,6 @@
 package com.example.demo.gql.datafetchers
 
-import com.example.demo.PostService
+import com.example.demo.service.PostService
 import com.example.demo.gql.types.Comment
 import com.example.demo.gql.types.CommentInput
 import com.example.demo.gql.types.CreatePostInput
@@ -8,7 +8,7 @@ import com.example.demo.gql.types.Post
 import com.expediagroup.graphql.generator.annotations.GraphQLDescription
 import com.expediagroup.graphql.server.operations.Mutation
 import org.springframework.stereotype.Component
-import javax.validation.Valid
+import jakarta.validation.Valid
 
 @Component
 class Mutations(val postService: PostService) : Mutation {

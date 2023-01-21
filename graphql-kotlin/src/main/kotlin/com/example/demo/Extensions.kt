@@ -3,6 +3,9 @@ package com.example.demo
 import com.example.demo.gql.types.Author
 import com.example.demo.gql.types.Comment
 import com.example.demo.gql.types.Post
+import com.example.demo.model.AuthorEntity
+import com.example.demo.model.CommentEntity
+import com.example.demo.model.PostEntity
 
 fun PostEntity.asGqlType(): Post = Post(
     id = this.id,

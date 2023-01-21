@@ -1,48 +1,21 @@
-package com.example.demo
+package com.example.demo.service
 
-import com.example.demo.gql.types.*
-import kotlinx.coroutines.flow.*
-import kotlinx.coroutines.reactor.asFlux
+import com.example.demo.asGqlType
+import com.example.demo.gql.types.Comment
+import com.example.demo.gql.types.CommentInput
+import com.example.demo.gql.types.CreatePostInput
+import com.example.demo.gql.types.Post
+import com.example.demo.model.CommentEntity
+import com.example.demo.model.PostEntity
+import com.example.demo.repository.CommentRepository
+import com.example.demo.repository.PostRepository
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.map
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
-import reactor.core.publisher.Flux
 import java.util.*
-
-class AuthorNotFoundException(id: UUID) : RuntimeException("Author: $id was not found.")
-class PostNotFoundException(id: UUID) : RuntimeException("Post: $id was not found.")
-
-@Service
-class AuthorService(val authors: AuthorRepository) {
-
-    suspend fun getAuthorById(id: UUID): Author {
-        val author = this.authors.findById(id) ?: throw AuthorNotFoundException(id)
-        return author.asGqlType()
-    }
-
-    // alternative to use kotlin `Flow`
-    fun getAuthorByIdIn(ids: List<UUID>): Flow<Author> {
-        return authors.findAllById(ids.toList()).map { it.asGqlType() }
-    }
-}
-
-interface PostService {
-    fun allPosts(): Flow<Post>
-
-    suspend fun getPostById(id: UUID): Post
-    fun getPostsByAuthorId(id: UUID): Flow<Post>
-
-    suspend fun createPost(postInput: CreatePostInput): Post
-
-    suspend fun addComment(commentInput: CommentInput): Comment
-
-    // subscription: commentAdded
-    // use Flow instead of Publisher
-    fun commentAdded(): Flow<Comment>
-    fun getCommentsByPostId(id: UUID): Flow<Comment>
-    fun getCommentsByPostIdIn(ids: Set<UUID>): Flow<Comment>
-
-    fun getCommentsByPostsIn(ids: Set<Post>): Flow<Comment>
-}
 
 @Service
 class DefaultPostService(
