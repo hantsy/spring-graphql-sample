@@ -33,8 +33,8 @@ class DataInitializer(val posts: PostRepository, val comments: CommentRepository
         runBlocking {
             comments.deleteAll()
             posts.deleteAll()
-            val saved = posts.saveAll(data)
-                .toList()
+            
+            val saved = posts.saveAll(data).toList()
             saved.forEach { log.debug("saved: {}", it) }
         }
     }
@@ -52,24 +52,6 @@ class SecurityConfig {
             .and()
             .securityMatcher(PathPatternParserServerWebExchangeMatcher("/graphql"))
             .build()
-//        http {
-//            csrf { disable() }
-//            httpBasic { }
-//            securityMatcher(PathPatternParserServerWebExchangeMatcher("/graphql/**"))
-//          use method level security control instead of url based matchers.
-//            authorizeRequests {
-//                authorize("/auth/**", authenticated)
-//                authorize(AntPathRequestMatcher("/posts/**", HttpMethod.GET.name), permitAll)
-//                authorize(HttpMethod.DELETE, "/posts/**", hasRole("ADMIN"))
-//                authorize("/posts/**", authenticated)
-//                authorize(anyRequest, permitAll)
-//            }
-//            formLogin {
-//                loginPage = "/log-in"
-//            }
-//        }
-//
-//        return http.build()
     }
 
 }
