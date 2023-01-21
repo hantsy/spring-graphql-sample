@@ -1,48 +1,21 @@
-package com.example.demo
+package com.example.demo.service
 
-import com.example.demo.gql.types.*
+import com.example.demo.model.CommentEntity
+import com.example.demo.model.PostEntity
+import com.example.demo.asGqlType
+import com.example.demo.gql.types.Comment
+import com.example.demo.gql.types.CommentInput
+import com.example.demo.gql.types.CreatePostInput
+import com.example.demo.gql.types.Post
+import com.example.demo.repository.CommentRepository
+import com.example.demo.repository.PostRepository
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.map
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Sinks
 import java.util.*
-
-class AuthorNotFoundException(id: String) : RuntimeException("Author: $id was not found.")
-class PostNotFoundException(id: String) : RuntimeException("Post: $id was not found.")
-
-@Service
-class AuthorService(val authors: AuthorRepository) {
-
-    suspend fun getAuthorById(id: String): Author {
-        val author = this.authors.findById(UUID.fromString(id)) ?: throw AuthorNotFoundException(id)
-        return author.asGqlType()
-    }
-
-    // alternative to use kotlin co `Flow`
-    fun getAuthorByIdIn(ids: List<String>): Flow<Author> {
-        val uuids = ids.map { UUID.fromString(it) };
-        return authors.findAllById(uuids).map { it.asGqlType() }
-    }
-}
-
-interface PostService {
-    fun allPosts(): Flow<Post>
-
-    suspend fun getPostById(id: String): Post
-    fun getPostsByAuthorId(id: String): Flow<Post>
-
-    suspend fun createPost(postInput: CreatePostInput): Post
-
-    suspend fun addComment(commentInput: CommentInput): Comment
-
-    // subscription: commentAdded
-    fun commentAdded(): Flux<Comment>
-    fun getCommentsByPostId(id: String): Flow<Comment>
-    fun getCommentsByPostIdIn(ids: Set<String>): Flow<Comment>
-}
 
 @Service
 class DefaultPostService(

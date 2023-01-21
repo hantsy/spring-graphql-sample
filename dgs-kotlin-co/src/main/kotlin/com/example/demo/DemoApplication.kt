@@ -1,5 +1,8 @@
 package com.example.demo
 
+import com.example.demo.model.PostEntity
+import com.example.demo.repository.CommentRepository
+import com.example.demo.repository.PostRepository
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.runBlocking
 import org.slf4j.LoggerFactory

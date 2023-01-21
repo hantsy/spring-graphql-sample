@@ -1,4 +1,4 @@
-package com.example.demo
+package com.example.demo.gql.scalar
 
 import com.netflix.graphql.dgs.DgsScalar
 import graphql.language.StringValue
