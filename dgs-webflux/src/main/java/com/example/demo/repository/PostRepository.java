@@ -54,8 +54,8 @@ public class PostRepository {
 
     public Mono<Long> create(String title, String content, String status, Long authorId) {
         String insert = """
-                INSERT INTO  posts (title, content, status, author_id) 
-                VALUES (:title, :content, :status, :author_id) 
+                INSERT INTO  posts (title, content, status, author_id)
+                VALUES (:title, :content, :status, :author_id)
                 """;
         return this.client.sql(insert)
                 .filter((statement, executeFunction) -> statement.returnGeneratedValues("id").execute())
@@ -68,7 +68,7 @@ public class PostRepository {
                 .map(r -> (Long) r.get("id"));
     }
 
-    public Mono<Integer> deleteAll() {
+    public Mono<Long> deleteAll() {
         String sql = "DELETE FROM posts";
         return this.client.sql(sql).fetch().rowsUpdated();
     }
