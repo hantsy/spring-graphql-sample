@@ -16,31 +16,36 @@ import java.util.Random;
 @RequiredArgsConstructor
 @Slf4j
 public class DataInitializer implements ApplicationRunner {
-    final PostRepository posts;
-    final CommentRepository comments;
-    final AuthorRepository authors;
+        final PostRepository posts;
+        final CommentRepository comments;
+        final AuthorRepository authors;
 
-    @Override
-    public void run(ApplicationArguments args) throws Exception {
-        log.info("start data initialization...");
-        int commentsDel = this.comments.deleteAll().block();
-        int postDel = this.posts.deleteAll().block();
-        int authorsDel = this.authors.deleteAll().block();
+        @Override
+        public void run(ApplicationArguments args) throws Exception {
+                log.info("start data initialization...");
+                long commentsDel = this.comments.deleteAll().block();
+                long postDel = this.posts.deleteAll().block();
+                long authorsDel = this.authors.deleteAll().block();
 
-        log.info("deleted rows: authors: {}, comments: {}, posts: {}", authorsDel, commentsDel, postDel);
-        this.authors.create("user", "user@example.com")
-                .flatMapMany(authorId -> Flux.range(1, 5)
-                        .flatMap(i -> this.posts.create("Dgs post #" + i, "test content of #" + i, "DRAFT", authorId)
-                                .flatMapMany(
-                                        postId -> Flux.range(1, new Random().nextInt(5) + 1)
-                                                .flatMap(c -> this.comments.create("comment #" + c, postId))
-                                )
-                        )
-                ).subscribe();
+                log.info("deleted rows: authors: {}, comments: {}, posts: {}", authorsDel, commentsDel, postDel);
+                this.authors.create("user", "user@example.com")
+                                .flatMapMany(authorId -> Flux.range(1, 5)
+                                                .flatMap(i -> this.posts
+                                                                .create("Dgs post #" + i, "test content of #" + i,
+                                                                                "DRAFT", authorId)
+                                                                .flatMapMany(
+                                                                                postId -> Flux.range(1,
+                                                                                                new Random().nextInt(5)
+                                                                                                                + 1)
+                                                                                                .flatMap(c -> this.comments
+                                                                                                                .create("comment #"
+                                                                                                                                + c,
+                                                                                                                                postId)))))
+                                .subscribe();
 
-        this.posts.findAll().subscribe(p -> log.info("post: {}", p));
-        this.comments.findAll().subscribe(p -> log.info("comment: {}", p));
-        this.authors.findAll().subscribe(p -> log.info("author: {}", p));
-        log.info("done data initialization...");
-    }
+                this.posts.findAll().subscribe(p -> log.info("post: {}", p));
+                this.comments.findAll().subscribe(p -> log.info("comment: {}", p));
+                this.authors.findAll().subscribe(p -> log.info("author: {}", p));
+                log.info("done data initialization...");
+        }
 }
