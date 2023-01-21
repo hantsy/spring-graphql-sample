@@ -19,63 +19,63 @@ import java.util.function.BiFunction;
 @RequiredArgsConstructor
 @Slf4j
 public class AuthorRepository {
-    private final DatabaseClient client;
+        private final DatabaseClient client;
 
-    public static final BiFunction<Row, RowMetadata, AuthorEntity> MAPPING_FUNCTION = (row, rowMetaData) -> new AuthorEntity(
-            row.get("id", Long.class),
-            row.get("name", String.class),
-            row.get("email", String.class)
-    );
+        public static final BiFunction<Row, RowMetadata, AuthorEntity> MAPPING_FUNCTION = (row,
+                        rowMetaData) -> new AuthorEntity(
+                                        row.get("id", Long.class),
+                                        row.get("name", String.class),
+                                        row.get("email", String.class));
 
-    public Flux<AuthorEntity> findAll() {
-        String sql = "SELECT * FROM users";
-        return this.client.sql(sql)
-                .filter((statement, executeFunction) -> statement.fetchSize(10).execute())
-                .map(MAPPING_FUNCTION)
-                .all();
-    }
+        public Flux<AuthorEntity> findAll() {
+                String sql = "SELECT * FROM users";
+                return this.client.sql(sql)
+                                .filter((statement, executeFunction) -> statement.fetchSize(10).execute())
+                                .map(MAPPING_FUNCTION)
+                                .all();
+        }
 
-    public Mono<AuthorEntity> findById(Long id) {
-        String sql = """
-                SELECT * FROM users 
-                WHERE id  = :id
-                """;
-        return this.client.sql(sql)
-                .bind("id", id)
-                .map(MAPPING_FUNCTION)
-                .one();
+        public Mono<AuthorEntity> findById(Long id) {
+                String sql = """
+                                SELECT * FROM users
+                                WHERE id  = :id
+                                """;
+                return this.client.sql(sql)
+                                .bind("id", id)
+                                .map(MAPPING_FUNCTION)
+                                .one();
 
-    }
+        }
 
-    public Flux<AuthorEntity> findByIdIn(List<Long> id) {
-        String sql = """
-                SELECT * FROM users 
-                WHERE id  in (:id)
-                """;
-        return this.client.sql(sql)
-                .bind("id", id)
-                .map(MAPPING_FUNCTION)
-                .all();
-    }
+        public Flux<AuthorEntity> findByIdIn(List<Long> id) {
+                String sql = """
+                                SELECT * FROM users
+                                WHERE id  in (:id)
+                                """;
+                return this.client.sql(sql)
+                                .bind("id", id)
+                                .map(MAPPING_FUNCTION)
+                                .all();
+        }
 
-    public Mono<Long> create(String name, String email) {
-        String insert = """
-                INSERT INTO  users  ( name, email) 
-                VALUES ( :name, :email) 
-                """;
+        public Mono<Long> create(String name, String email) {
+                String insert = """
+                                INSERT INTO  users  ( name, email)
+                                VALUES ( :name, :email)
+                                """;
 
-        return this.client.sql(insert)
-                .filter((statement, executeFunction) -> statement.returnGeneratedValues("id").execute())
-                .bind("name", name)
-                .bind("email", email)
-                .fetch()
-                .first()
-                .map(r -> (Long) r.get("id"));
+                return this.client.sql(insert)
+                                .filter((statement, executeFunction) -> statement.returnGeneratedValues("id").execute())
+                                .bind("name", name)
+                                .bind("email", email)
+                                .fetch()
+                                .first()
+                                .map(r -> (Long) r.get("id"));
 
-    }
+        }
 
-    public Mono<Integer> deleteAll() {
-        String sql = "DELETE FROM users";
-        return this.client.sql(sql).fetch().rowsUpdated();
-    }
+        public Mono<Long> deleteAll() {
+                String sql = "DELETE FROM users";
+                return this.client.sql(sql).fetch().rowsUpdated();
+        }
 }
