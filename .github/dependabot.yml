@@ -80,6 +80,10 @@ updates:
     schedule:
       interval: weekly
   - package-ecosystem: "gradle"
+    directory: "/graphql-kotlin"
+    schedule:
+      interval: weekly      
+  - package-ecosystem: "gradle"
     directory: "/graphql-java-kickstart-webclient"
     schedule:
       interval: weekly
