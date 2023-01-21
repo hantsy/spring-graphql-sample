@@ -1,8 +1,17 @@
 package com.example.demo
 
 import com.example.demo.SubscriptionTests.SubscriptionTestsConfig
+import com.example.demo.gql.datafetcher.AuthorsDataFetcher
+import com.example.demo.gql.scalar.LocalDateTimeScalar
+import com.example.demo.gql.datafetcher.PostsDataFetcher
 import com.example.demo.gql.types.Comment
 import com.example.demo.gql.types.CommentInput
+import com.example.demo.model.CommentEntity
+import com.example.demo.repository.CommentRepository
+import com.example.demo.repository.PostRepository
+import com.example.demo.service.AuthorService
+import com.example.demo.service.DefaultPostService
+import com.example.demo.service.PostService
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.netflix.graphql.dgs.autoconfig.DgsAutoConfiguration
 import com.netflix.graphql.dgs.reactive.DgsReactiveQueryExecutor

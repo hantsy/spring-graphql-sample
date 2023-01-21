@@ -1,6 +1,11 @@
 package com.example.demo
 
+import com.example.demo.gql.datafetcher.AuthorsDataFetcher
+import com.example.demo.gql.scalar.LocalDateTimeScalar
+import com.example.demo.gql.datafetcher.PostsDataFetcher
 import com.example.demo.gql.types.Post
+import com.example.demo.service.AuthorService
+import com.example.demo.service.PostService
 import com.netflix.graphql.dgs.autoconfig.DgsAutoConfiguration
 import com.netflix.graphql.dgs.reactive.DgsReactiveQueryExecutor
 import com.netflix.graphql.dgs.webflux.autoconfiguration.DgsWebFluxAutoConfiguration
