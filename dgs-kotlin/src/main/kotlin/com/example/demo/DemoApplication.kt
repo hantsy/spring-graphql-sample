@@ -6,13 +6,13 @@ import org.springframework.boot.runApplication
 import org.springframework.context.support.beans
 import org.springframework.data.domain.AuditorAware
 import org.springframework.data.jdbc.repository.config.EnableJdbcAuditing
-import org.springframework.data.mongodb.core.query.Criteria.*
-import org.springframework.data.mongodb.core.query.Query.*
+import org.springframework.data.mongodb.core.query.Criteria.where
+import org.springframework.data.mongodb.core.query.Query.query
 import org.springframework.data.mongodb.core.query.isEqualTo
 import org.springframework.data.mongodb.gridfs.GridFsTemplate
 import org.springframework.http.MediaType
 import org.springframework.security.authentication.*
-import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.invoke
 import org.springframework.security.core.GrantedAuthority
@@ -33,7 +33,7 @@ import java.util.*
 
 @SpringBootApplication
 @EnableJdbcAuditing
-@EnableGlobalMethodSecurity(securedEnabled = true, prePostEnabled = true)
+@EnableMethodSecurity(securedEnabled = true, prePostEnabled = true)
 class DemoApplication
 
 fun main(args: Array<String>) {

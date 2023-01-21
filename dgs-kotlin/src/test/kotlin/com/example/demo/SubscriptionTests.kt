@@ -12,8 +12,8 @@ import org.slf4j.LoggerFactory
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.context.TestConfiguration
 import org.springframework.boot.test.web.client.TestRestTemplate
-import org.springframework.boot.web.client.RestTemplateBuilder
 import org.springframework.boot.test.web.server.LocalServerPort
+import org.springframework.boot.web.client.RestTemplateBuilder
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Import
 import org.springframework.core.ParameterizedTypeReference
@@ -21,6 +21,7 @@ import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.http.RequestEntity
+import org.springframework.test.context.ContextConfiguration
 import org.springframework.web.client.RestTemplate
 import org.springframework.web.socket.TextMessage
 import org.springframework.web.socket.WebSocketHandler
@@ -32,9 +33,9 @@ import java.net.URI
 
 @SpringBootTest(
     classes = [DemoApplication::class],
-    properties = ["context.initializer.classes=com.example.demo.TestConfigInitializer"],
     webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT
 )
+@ContextConfiguration(initializers = [TestConfigInitializer::class])
 @Import(SubscriptionTests.TestConfig::class)
 class SubscriptionTests {
 
@@ -188,12 +189,11 @@ class SubscriptionTests {
         val uri: URI = URI.create("ws://localhost:$port/subscriptions")
         val headers: WebSocketHttpHeaders = WebSocketHttpHeaders(HttpHeaders())
 
-        socketClient.doHandshake(socketHandler, headers, uri)
-            .addCallback(
-                { log.debug("success: {}", it) },
-                { log.error("error: {}", it) }
-            )
-
+        socketClient.execute(socketHandler, headers, uri)
+            .thenApply {
+                log.debug("success: {}", it)
+            }
+            .join()
         Thread.sleep(1000L)
 
         log.debug("comment replay: {}", commentsReplay)

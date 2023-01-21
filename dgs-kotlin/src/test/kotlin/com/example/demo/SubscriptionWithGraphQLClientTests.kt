@@ -23,15 +23,16 @@ import org.springframework.context.annotation.Import
 import org.springframework.http.HttpEntity
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpMethod.POST
+import org.springframework.test.context.ContextConfiguration
 import org.springframework.web.client.RestTemplate
 import reactor.test.StepVerifier
 
 
 @SpringBootTest(
     classes = [DemoApplication::class],
-    properties = ["context.initializer.classes=com.example.demo.TestConfigInitializer"],
     webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT
 )
+@ContextConfiguration(initializers = [TestConfigInitializer::class])
 @Import(SubscriptionWithGraphQLClientTests.TestConfig::class)
 @Disabled
 class SubscriptionWithGraphQLClientTests {
@@ -61,7 +62,7 @@ class SubscriptionWithGraphQLClientTests {
                 HttpEntity(body, requestHeaders),
                 String::class.java
             )
-            HttpResponse(result.statusCodeValue, result.body)
+            HttpResponse(result.statusCode.value(), result.body)
         }
         client = GraphQLClient.createCustom("http://localhost:$port/graphql", requestExecutor)
     }
@@ -113,7 +114,7 @@ class SubscriptionWithGraphQLClientTests {
                 HttpEntity(body, requestHeaders),
                 String::class.java
             )
-            HttpResponse(result.statusCodeValue, result.body)
+            HttpResponse(result.statusCode.value(), result.body)
         }
 
 
@@ -178,7 +179,7 @@ class SubscriptionWithGraphQLClientTests {
 
         val comment1Result = comment1Response.extractValueAsObject("addComment", Comment::class.java)
 
-        assertThat(comment1Result!!.content).isEqualTo("comment1")
+        assertThat(comment1Result.content).isEqualTo("comment1")
 
         val comment2Response = client.executeQuery(commentQuery, comment2Variables)
 

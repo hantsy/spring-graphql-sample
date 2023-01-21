@@ -14,12 +14,13 @@ import org.springframework.core.ParameterizedTypeReference
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.http.RequestEntity
+import org.springframework.test.context.ContextConfiguration
 
 @SpringBootTest(
     classes = [DemoApplication::class],
-    properties = ["context.initializer.classes=com.example.demo.TestConfigInitializer"],
     webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT
 )
+@ContextConfiguration(initializers = [TestConfigInitializer::class])
 class MutationTests {
     private val log = LoggerFactory.getLogger(MutationTests::class.java)
 

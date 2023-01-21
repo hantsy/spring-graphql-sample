@@ -10,14 +10,15 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.http.HttpHeaders
 import org.springframework.security.test.context.support.WithMockUser
+import org.springframework.test.context.ContextConfiguration
 import reactor.test.StepVerifier
 import java.util.*
 
 
 @SpringBootTest(
-    classes = [DemoApplication::class],
-    properties = ["context.initializer.classes=com.example.demo.TestConfigInitializer"]
+    classes = [DemoApplication::class]
 )
+@ContextConfiguration(initializers = [TestConfigInitializer::class])
 class QueryTests {
 
     @Autowired
