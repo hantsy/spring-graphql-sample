@@ -4,6 +4,10 @@ import com.example.demo.gql.types.Author
 import com.example.demo.gql.types.Comment
 import com.example.demo.gql.types.Post
 import com.example.demo.gql.types.Profile
+import com.example.demo.model.AuthorEntity
+import com.example.demo.model.CommentEntity
+import com.example.demo.model.PostEntity
+import com.example.demo.model.ProfileEntity
 
 fun PostEntity.asGqlType(): Post = Post(
     id = this.id!!.toString(),

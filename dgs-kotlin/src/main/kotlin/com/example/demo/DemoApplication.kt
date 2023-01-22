@@ -1,5 +1,10 @@
 package com.example.demo
 
+import com.example.demo.model.AuthorEntity
+import com.example.demo.repository.AuthorRepository
+import com.example.demo.repository.CommentRepository
+import com.example.demo.repository.PostRepository
+import com.example.demo.repository.ProfileRepository
 import org.springframework.boot.ApplicationRunner
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication

@@ -1,45 +1,28 @@
-package com.example.demo
+package com.example.demo.service
 
-import com.example.demo.gql.types.*
+import com.example.demo.asGqlType
+import com.example.demo.gql.types.Comment
+import com.example.demo.gql.types.CommentInput
+import com.example.demo.gql.types.CreatePostInput
+import com.example.demo.gql.types.Post
+import com.example.demo.model.CommentEntity
+import com.example.demo.model.PostEntity
+import com.example.demo.repository.CommentRepository
+import com.example.demo.repository.PostRepository
 import org.reactivestreams.Publisher
-import org.springframework.data.mongodb.gridfs.GridFsTemplate
+import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
-import org.springframework.web.multipart.MultipartFile
 import reactor.core.publisher.Sinks
 import java.util.*
-
-class AuthorNotFoundException(id: String) : RuntimeException("Author: $id was not found.")
-class PostNotFoundException(id: String) : RuntimeException("Post: $id was not found.")
-
-@Service
-class AuthorService(val authors: AuthorRepository, val profiles: ProfileRepository, val gridFsTemplate: GridFsTemplate) {
-
-    fun getAuthorById(id: String): Author = this.authors.findById(UUID.fromString(id))
-        .map { it.asGqlType() }
-        .orElseThrow { AuthorNotFoundException(id) }
-
-    fun getAuthorByIdIn(ids: List<String>): List<Author> {
-        val uuids = ids.map { UUID.fromString(it) };
-        val authorEntities = authors.findAllById(uuids)
-        return authorEntities.map { it.asGqlType() }
-    }
-
-    fun updateProfile(bio: String, coverImage: MultipartFile): Profile {
-        val objectId = gridFsTemplate.store(coverImage.inputStream, coverImage.originalFilename, coverImage.contentType)
-            .toHexString();
-        return profiles.save(ProfileEntity(coverImgId = objectId, bio = bio)).asGqlType()
-    }
-
-    fun getProfileByUserId(id: String): Profile? {
-        return profiles.findByUserId(UUID.fromString(id))?.asGqlType()
-    }
-}
 
 @Service
 class PostService(
     val posts: PostRepository,
     val comments: CommentRepository
 ) {
+    companion object{
+        private val log = LoggerFactory.getLogger(PostService::class.java)
+    }
 
     fun allPosts() = this.posts.findAll().map { it.asGqlType() }
 
@@ -62,6 +45,7 @@ class PostService(
                 val data = CommentEntity(content = commentInput.content, postId = postId)
                 val saved = this.comments.save(data)
                 val comment = saved.asGqlType()
+                log.debug("emitting $comment to event `commentAdded`")
                 sink.emitNext(comment, Sinks.EmitFailureHandler.FAIL_FAST)
                 comment
             }
