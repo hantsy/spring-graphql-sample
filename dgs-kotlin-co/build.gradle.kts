@@ -11,7 +11,7 @@ plugins {
     id("com.netflix.dgs.codegen") version "5.6.6" //https://plugins.gradle.org/plugin/com.netflix.dgs.codegen
 }
 
-extra["graphql-java.version"] = "19.2"
+// extra["graphql-java.version"] = "19.2"
 
 group = "com.example"
 version = "0.0.1-SNAPSHOT"
@@ -37,7 +37,7 @@ dependencies {
     //kotlin
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
-    implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
+    implementation("org.jetbrains.kotlin:kotlin-stdlib")
     implementation("io.projectreactor.kotlin:reactor-kotlin-extensions")
 
     //kotlin coroutines extensions
