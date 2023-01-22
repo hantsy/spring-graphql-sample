@@ -25,8 +25,9 @@ import reactor.core.publisher.Mono
 import reactor.test.StepVerifier
 import reactor.test.publisher.TestPublisher
 import java.net.URI
-import java.time.Duration
 import java.util.*
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
 import kotlin.random.Random
 
 
@@ -89,15 +90,68 @@ class DemoApplicationTests {
         val uri: URI = URI.create("ws://localhost:$port/subscriptions")
 
         // create a post
+        val postId = createPost()
+
+        // get post by id
+        getPostById(postId)
+
+        // subscribe to event `commentAdded`
+        val query = "subscription onCommentAdded { commentAdded { id content } }"
+        val output = TestPublisher.create<String>()
+
+        // add comments  to post
+        addComment(postId, "comment1")
+        addComment(postId, "comment2")
+
+        val countDownLatch = CountDownLatch(1)
+        val subscription = socketClient.execute(uri) { session -> executeSubscription(session, query, output) }
+            .subscribe { countDownLatch.countDown() }
+
+        countDownLatch.await(500, TimeUnit.MILLISECONDS)
+
+        StepVerifier.create(output)
+            .consumeNextWith { it shouldContain "\"content\":\"comment2\"" }
+            .expectComplete()
+            .verify()
+
+        subscription.dispose()
+    }
+
+    private suspend fun getPostById(postId: UUID) {
+        val postByIdRequest = mapOf(
+            "query" to """
+                query postById(${'$'}id: UUID!){
+                    getPostById(postId:${'$'}id){
+                        id
+                        title
+                    }
+                }
+                """.trimIndent(),
+            "variables" to mapOf(
+                "id" to postId
+            )
+        )
+        val postByIdResponse = client.post()
+            .bodyValue(postByIdRequest)
+            .awaitExchange<Map<String, Map<String, Map<String, Any>>>> {
+                it.statusCode() shouldBe HttpStatus.OK
+                it.awaitBody()
+            }
+
+        val postByIdData = postByIdResponse["data"]
+        (postByIdData!!["getPostById"]!!["title"] as String) shouldBe "MY TITLE"
+    }
+
+    private suspend fun createPost(): UUID {
         val createPostRequest = mapOf(
             "query" to """
-            mutation createPost(${'$'}input: CreatePostInput!){
-                createPost(input:${'$'}input){ 
-                    id  
-                    title 
+                mutation createPost(${'$'}input: CreatePostInput!){
+                    createPost(input:${'$'}input){ 
+                        id  
+                        title 
+                    }
                 }
-            }
-			""".trimIndent(),
+                """.trimIndent(),
             "variables" to mapOf(
                 "input" to mapOf(
                     "title" to "my title",
@@ -113,84 +167,30 @@ class DemoApplicationTests {
             }
 
         val createPostData = createPostResponse["data"]
-        val postId = UUID.fromString(createPostData!!["createPost"]!!["id"] as String)
+        return UUID.fromString(createPostData!!["createPost"]!!["id"] as String)
+    }
 
-        // get post by id
-        val postByIdRequest = mapOf(
-            "query" to """
-			query postById(${'$'}id: UUID!){
-                getPostById(postId:${'$'}id){
-                    id
-                    title
-                }
-            }
-			""".trimIndent(),
-            "variables" to mapOf(
-                "id" to postId
-            )
-        )
-        val postByIdResponse = client.post()
-            .bodyValue(postByIdRequest)
-            .awaitExchange<Map<String, Map<String, Map<String, Any>>>> {
-                it.statusCode() shouldBe HttpStatus.OK
-                it.awaitBody()
-            }
-
-        val postByIdData = postByIdResponse["data"]
-        (postByIdData!!["getPostById"]!!["title"] as String) shouldBe "MY TITLE"
-
-
-        // add comments  to post
+    private suspend fun addComment(postId: UUID, comment: String) {
         val commentQuery =
             "mutation addComment(\$input: CommentInput!) { addComment(input:\$input) { id postId content}}"
+
         val comment1Variables = mapOf(
             "input" to mapOf(
                 "postId" to postId,
-                "content" to "comment1"
-            )
-        )
-        val comment2Variables = mapOf(
-            "input" to mapOf(
-                "postId" to postId,
-                "content" to "comment2"
+                "content" to comment
             )
         )
 
-        val addComment1Response = client.post()
+        val response = client.post()
             .bodyValue(mapOf("query" to commentQuery, "variables" to comment1Variables))
             .awaitExchange<Map<String, Map<String, Map<String, Any>>>> {
                 it.statusCode() shouldBe HttpStatus.OK
                 it.awaitBody()
             }
 
-        val addComment1Data = addComment1Response["data"]
-        (addComment1Data!!["addComment"]!!["content"] as String) shouldBe "comment1"
-
-        val addComment2Response = client.post()
-            .bodyValue(mapOf("query" to commentQuery, "variables" to comment2Variables))
-            .awaitExchange<Map<String, Map<String, Map<String, Any>>>> {
-                it.statusCode() shouldBe HttpStatus.OK
-                it.awaitBody()
-            }
-
-        val addComment2Data = addComment2Response["data"]
-        (addComment2Data!!["addComment"]!!["content"] as String) shouldBe "comment2"
-
-        // subscribe to event `commentAdded`
-        val query = "subscription onCommentAdded { commentAdded { id content } }"
-        val output = TestPublisher.create<String>()
-
-       val subscription = socketClient.execute(uri) { session -> executeSubscription(session, query, output) }
-            .subscribe()
-
-        StepVerifier.create(output)
-            .consumeNextWith { it shouldContain "\"content\":\"comment2\"" }
-            .expectComplete()
-            .verify()
-
-        subscription.dispose()
+        val data = response["data"]
+        (data!!["addComment"]!!["content"] as String) shouldBe comment
     }
-
 
     // see: https://github.com/ExpediaGroup/graphql-kotlin/blob/master/examples/server/spring-server/src/test/kotlin/com/expediagroup/graphql/examples/server/spring/subscriptions/SimpleSubscriptionIT.kt
     private fun executeSubscription(
