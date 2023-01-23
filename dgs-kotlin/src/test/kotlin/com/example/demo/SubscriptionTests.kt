@@ -77,7 +77,7 @@ class SubscriptionTests {
                 "query" to "subscription onCommentAdded { commentAdded { id postId content } }",
                 "variables" to emptyMap<String, Any>()// have to add this to avoid a NPE exception.
             ),
-            "type" to "start",
+            "type" to "subscribe",
             "id" to 1
         )
 
@@ -90,7 +90,7 @@ class SubscriptionTests {
                     TextMessage(
                         """
                         {
-                            "type":"init", 
+                            "type":"connection_init", 
                             "id":1
                         }
                         """.trimIndent()
