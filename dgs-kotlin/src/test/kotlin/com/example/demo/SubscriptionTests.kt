@@ -23,9 +23,7 @@ import org.springframework.http.MediaType
 import org.springframework.http.RequestEntity
 import org.springframework.test.context.ContextConfiguration
 import org.springframework.web.client.RestTemplate
-import org.springframework.web.socket.TextMessage
-import org.springframework.web.socket.WebSocketHandler
-import org.springframework.web.socket.WebSocketHttpHeaders
+import org.springframework.web.socket.*
 import org.springframework.web.socket.client.standard.StandardWebSocketClient
 import org.springframework.web.socket.handler.TextWebSocketHandler
 import java.net.URI
@@ -81,27 +79,25 @@ class SubscriptionTests {
         // now it is switched to GraphQL WS protocol.
         // see: https://github.com/enisdenjo/graphql-ws/blob/master/PROTOCOL.md
         val socketHandler: WebSocketHandler = object : TextWebSocketHandler() {
-            override fun afterConnectionEstablished(session: org.springframework.web.socket.WebSocketSession) {
-                log.debug("after connection established.")
-                val initMessage = """
-                        {
-                            "type":"connection_init", 
-                            "id":1
-                        }
-                        """.trimIndent()
-                val subscribeMessage = """{
-                            "payload": ${subscriptionsQuery.toJson()},
-                            "type": "subscribe",
-                            "id": 1  
-                        }
-                        """.trimIndent()
+            override fun afterConnectionEstablished(session: WebSocketSession) {
+                log.debug("after connection established: $session")
 
-                session.sendMessage(TextMessage(initMessage))
-                session.sendMessage(TextMessage(subscribeMessage))
+                val initMessage = mapOf(
+                    "payload" to emptyMap<String, Any>(),
+                    "type" to "connection_init"
+                )
+                val subscribeMessage = mapOf(
+                    "payload" to subscriptionsQuery,
+                    "type" to "subscribe",
+                    "id" to "1"
+                )
+
+                session.sendMessage(TextMessage(initMessage.toJson()))
+                session.sendMessage(TextMessage(subscribeMessage.toJson()))
             }
 
             override fun handleTextMessage(
-                session: org.springframework.web.socket.WebSocketSession,
+                session: WebSocketSession,
                 message: TextMessage
             ) {
                 log.debug("handling message: {}", message)
@@ -112,17 +108,29 @@ class SubscriptionTests {
                 log.debug("received comments: {}", comment)
                 commentsReplay.add(comment.content)
             }
+
+            override fun handleTransportError(session: WebSocketSession, exception: Throwable) {
+                log.debug("handling errors: $session, $exception")
+            }
+
+            override fun afterConnectionClosed(session: WebSocketSession, status: CloseStatus) {
+                log.debug("afterConnectionClosed: $session, $status")
+            }
         }
 
         // do shakehands
         val uri: URI = URI.create("ws://localhost:$port/subscriptions")
         val headers: WebSocketHttpHeaders = WebSocketHttpHeaders(HttpHeaders())
 
-        socketClient.execute(socketHandler, headers, uri)
-            .thenAccept { log.debug("connected session: {}", it) }
+        val clientSession = socketClient.execute(socketHandler, headers, uri)
+            .thenApply { session ->
+                log.debug("connected session: $session")
+                session
+            }
             .join()
 
         Thread.sleep(1000L)
+        clientSession.close()
 
         log.debug("comment replay: {}", commentsReplay)
         // limit to the `latest` item in the `Sinks.replay`
