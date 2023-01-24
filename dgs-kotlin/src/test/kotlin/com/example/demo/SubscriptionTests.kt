@@ -29,7 +29,6 @@ import org.springframework.web.socket.WebSocketHttpHeaders
 import org.springframework.web.socket.client.standard.StandardWebSocketClient
 import org.springframework.web.socket.handler.TextWebSocketHandler
 import java.net.URI
-import java.util.concurrent.TimeUnit
 
 
 @SpringBootTest(
@@ -72,31 +71,33 @@ class SubscriptionTests {
         val socketClient = StandardWebSocketClient()
         val commentsReplay = ArrayList<String>(2)
 
-        val subscriptionQuery = mapOf(
-            "payload" to mapOf(
-                "query" to "subscription onCommentAdded { commentAdded { id postId content } }",
-                "variables" to emptyMap<String, Any>()// have to add this to avoid a NPE exception.
-            ),
-            "type" to "subscribe",
-            "id" to 1
+        val subscriptionsQuery = mapOf(
+            "query" to "subscription onCommentAdded { commentAdded { id postId content } }",
+            "variables" to emptyMap<String, Any>()// have to add this to avoid a NPE exception.
         )
 
-        // The Dgs webmvc subscription is handled by DgsWebsocketHandler which also implements Apollo subscription websocket protocol.
+        // The original Dgs webmvc subscription handling is based on  Apollo subscription websocket protocol.
         // see: https://github.com/apollographql/subscriptions-transport-ws/blob/master/PROTOCOL.md
-        // declare a websocket handler to send message and receive message
+        // now it is switched to GraphQL WS protocol.
+        // see: https://github.com/enisdenjo/graphql-ws/blob/master/PROTOCOL.md
         val socketHandler: WebSocketHandler = object : TextWebSocketHandler() {
             override fun afterConnectionEstablished(session: org.springframework.web.socket.WebSocketSession) {
-                session.sendMessage(
-                    TextMessage(
-                        """
+                log.debug("after connection established.")
+                val initMessage = """
                         {
                             "type":"connection_init", 
                             "id":1
                         }
                         """.trimIndent()
-                    )
-                )
-                session.sendMessage(TextMessage(objectMapper.writeValueAsBytes(subscriptionQuery)))
+                val subscribeMessage = """{
+                            "payload": ${subscriptionsQuery.toJson()},
+                            "type": "subscribe",
+                            "id": 1  
+                        }
+                        """.trimIndent()
+
+                session.sendMessage(TextMessage(initMessage))
+                session.sendMessage(TextMessage(subscribeMessage))
             }
 
             override fun handleTextMessage(
@@ -118,11 +119,7 @@ class SubscriptionTests {
         val headers: WebSocketHttpHeaders = WebSocketHttpHeaders(HttpHeaders())
 
         socketClient.execute(socketHandler, headers, uri)
-            .thenApply {
-                log.debug("session: {}", it)
-
-                it
-            }
+            .thenAccept { log.debug("connected session: {}", it) }
             .join()
 
         Thread.sleep(1000L)
@@ -222,3 +219,5 @@ class SubscriptionTests {
     }
 
 }
+
+private fun <K, V> Map<K, V>.toJson(): String = objectMapper.writeValueAsString(this)
