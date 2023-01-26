@@ -121,6 +121,8 @@ class SubscriptionTests {
         // do shakehands
         val uri: URI = URI.create("ws://localhost:$port/subscriptions")
 
+        // see: https://github.com/Netflix/dgs-framework/discussions/1399
+        // add header to use graphql-transport-ws
         // https://github.com/enisdenjo/graphql-ws/blob/master/PROTOCOL.md#successful-connection-initialisation
         val headers: WebSocketHttpHeaders = WebSocketHttpHeaders().apply {
             secWebSocketProtocol = listOf("graphql-transport-ws")
