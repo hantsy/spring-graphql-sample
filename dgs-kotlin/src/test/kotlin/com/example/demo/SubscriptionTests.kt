@@ -120,7 +120,11 @@ class SubscriptionTests {
 
         // do shakehands
         val uri: URI = URI.create("ws://localhost:$port/subscriptions")
-        val headers: WebSocketHttpHeaders = WebSocketHttpHeaders(HttpHeaders())
+
+        // https://github.com/enisdenjo/graphql-ws/blob/master/PROTOCOL.md#successful-connection-initialisation
+        val headers: WebSocketHttpHeaders = WebSocketHttpHeaders().apply {
+            secWebSocketProtocol = listOf("graphql-transport-ws")
+        }
 
         val clientSession = socketClient.execute(socketHandler, headers, uri)
             .thenApply { session ->
