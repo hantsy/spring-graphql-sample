@@ -4,6 +4,8 @@ import com.example.demo.gql.types.Comment
 import com.example.demo.gql.types.Post
 import com.netflix.graphql.dgs.client.WebClientGraphQLClient
 import com.netflix.graphql.dgs.client.WebSocketGraphQLClient
+import io.kotest.common.ExperimentalKotest
+import io.kotest.framework.concurrency.continually
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -17,9 +19,9 @@ import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.web.server.LocalServerPort
 import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.reactive.socket.client.ReactorNettyWebSocketClient
-import reactor.test.StepVerifier
+import kotlin.time.Duration.Companion.milliseconds
 
-@OptIn(ExperimentalCoroutinesApi::class)
+@OptIn(ExperimentalCoroutinesApi::class, ExperimentalKotest::class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class SubscriptionWithGraphQLClientTests {
     companion object {
@@ -67,10 +69,12 @@ class SubscriptionWithGraphQLClientTests {
             .doOnNext {
                 log.debug("doOnNext: $it")
             }
-            .`as` { StepVerifier.create(it) }
-            .expectNextCount(1) // only one comment in the sinks.
-            .thenCancel()
-            .verifyLater()
+            .subscribe { it -> comments.add(it) }
+
+//            .`as` { StepVerifier.create(it) }
+//            .expectNextCount(1) // only one comment in the sinks.
+//            .thenCancel()
+//            .verifyLater()
 
         // add comments to post
         addComment(postId, "comment1")
@@ -78,7 +82,11 @@ class SubscriptionWithGraphQLClientTests {
         addComment(postId, "comment3 ")
 
         //verify the commentAdded event is tracked.
-        verifier.verify()
+        continually(500.milliseconds) {
+            log.debug("received comments: $comments")
+            comments.size shouldBe 3
+        }
+//        verifier.verify()
     }
 
     private suspend fun addComment(postId: String, comment: String) {
