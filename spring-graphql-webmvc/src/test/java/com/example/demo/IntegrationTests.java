@@ -15,17 +15,16 @@ import org.springframework.graphql.client.HttpGraphQlClient;
 import org.springframework.graphql.client.WebSocketGraphQlClient;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.socket.client.ReactorNettyWebSocketClient;
-import reactor.core.publisher.Flux;
 import reactor.test.StepVerifier;
 
 import java.net.URI;
-import java.time.LocalDateTime;
 import java.util.Map;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
-import static java.util.concurrent.TimeUnit.SECONDS;
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.awaitility.Awaitility.await;
 
@@ -57,44 +56,36 @@ public class IntegrationTests {
     @SneakyThrows
     @Test
     public void createPostAndAddComment() {
-        var creatPost = """
-                mutation createPost($createPostInput: CreatePostInput!){
-                   createPost(createPostInput:$createPostInput){
-                   id
-                   title
-                   content
-                   }
-                }""".trim();
 
-        String TITLE = "my post created by Spring GraphQL";
-        var postIdHolder = new AtomicReference<String>();
-        var countDownLatch = new CountDownLatch(1);
+        // create a post
+        var id = createPost();
 
-        client.document(creatPost)
-                .variable("createPostInput",
-                        Map.of(
-                                "title", TITLE,
-                                "content", "content of my post"
-                        ))
-                .execute()
+        // get post by id
+        getPostById(id);
+
+
+        var subscriptionQuery = "subscription onCommentAdded { commentAdded { id content } }";
+        var comments = new CopyOnWriteArrayList<Comment>();
+        socketClient.document(subscriptionQuery)
+                .executeSubscription()
                 .map(response -> objectMapper.convertValue(
-                        response.<Map<String, Object>>getData().get("createPost"),
-                        Post.class)
+                        response.<Map<String, Object>>getData().get("commentAdded"),
+                        Comment.class
+                ))
+                .doOnNext(it -> log.debug("received CommentAdded: {}", it))
+                .subscribe(comments::add);
 
-                )
-                //.doOnTerminate(countDownLatch::countDown)
-                .subscribe(post -> {
-                    log.debug("created post: {}", post);
-                    postIdHolder.set(post.getId());
-                    countDownLatch.countDown();
-                });
+        addCommentToPost(id, "comment1");
+        addCommentToPost(id, "comment2");
+        addCommentToPost(id, "comment3");
 
-        countDownLatch.await(1000, TimeUnit.MILLISECONDS);
+        await().atMost(500, MILLISECONDS)
+                .untilAsserted(
+                        () -> assertThat(comments.size()).isEqualTo(3)
+                );
+    }
 
-        String id = postIdHolder.get();
-        log.info("created post id: {}", id);
-        assertThat(id).isNotNull();
-
+    private void getPostById(String id) {
         var postByIdQuery = """
                 query post($postId:String!){
                    postById(postId:$postId) {
@@ -119,38 +110,54 @@ public class IntegrationTests {
                 .as(StepVerifier::create)
                 .consumeNextWith(post -> {
                     log.debug("postById: {}", post);
-                    assertThat(post.getTitle()).isEqualTo(TITLE);
+                    assertThat(post.getTitle()).isEqualTo("SpringGraphQL");
                 })
                 .verifyComplete();
-
-
-        var subscriptionQuery = "subscription onCommentAdded { commentAdded { id content } }";
-        Flux<Comment> result = socketClient.document(subscriptionQuery)
-                .executeSubscription()
-                .map(response -> objectMapper.convertValue(
-                        response.<Map<String, Object>>getData().get("commentAdded"),
-                        Comment.class
-                ));
-
-        var verify = StepVerifier.create(result)
-                .consumeNextWith(c -> assertThat(c.getContent()).startsWith("comment of my post at "))
-                .consumeNextWith(c -> assertThat(c.getContent()).startsWith("comment of my post at "))
-                .consumeNextWith(c -> assertThat(c.getContent()).startsWith("comment of my post at "))
-                .thenCancel()
-                .verifyLater();
-
-        addCommentToPost(id);
-        addCommentToPost(id);
-        addCommentToPost(id);
-
-        await().atMost(5, SECONDS)
-                .untilAsserted(
-                        () -> verify.verify()
-                );
-        ;
     }
 
-    private void addCommentToPost(String id) {
+    @SneakyThrows
+    private String createPost() {
+        var creatPost = """
+                mutation createPost($createPostInput: CreatePostInput!){
+                   createPost(createPostInput:$createPostInput){
+                   id
+                   title
+                   content
+                   }
+                }""".trim();
+
+        var postIdHolder = new AtomicReference<String>();
+        var countDownLatch = new CountDownLatch(1);
+
+        client.document(creatPost)
+                .variable("createPostInput",
+                        Map.of(
+                                "title", "SpringGraphQL",
+                                "content", "content of my post"
+                        ))
+                .execute()
+                .map(response -> objectMapper.convertValue(
+                        response.<Map<String, Object>>getData().get("createPost"),
+                        Post.class)
+
+                )
+                //.doOnTerminate(countDownLatch::countDown)
+                .subscribe(post -> {
+                    log.debug("created post: {}", post);
+                    postIdHolder.set(post.getId());
+                    countDownLatch.countDown();
+                });
+
+        countDownLatch.await(1000, TimeUnit.MILLISECONDS);
+
+        String id = postIdHolder.get();
+        log.info("created post id: {}", id);
+        assertThat(id).isNotNull();
+
+        return id;
+    }
+
+    private void addCommentToPost(String id, String comment) {
         var addCommentQuery = """
                 mutation addComment($commentInput: CommentInput!){
                    addComment(commentInput:$commentInput){id}
@@ -158,7 +165,7 @@ public class IntegrationTests {
         Map<String, Object> addCommentVariables = Map.of(
                 "commentInput",
                 Map.of(
-                        "content", "comment of my post at " + LocalDateTime.now(),
+                        "content", comment,
                         "postId", id
                 )
         );
@@ -168,13 +175,13 @@ public class IntegrationTests {
                 .execute()
                 .as(StepVerifier::create)
                 .consumeNextWith(response -> {
-                    var comment = objectMapper.convertValue(
+                    var addedComment = objectMapper.convertValue(
                             response.<Map<String, Object>>getData().get("addComment"),
                             Comment.class
                     );
-                    log.debug("added comment: {}", comment);
-                    assertThat(comment).isNotNull();
-                    assertThat(comment.getId()).isNotNull();
+                    log.debug("added comment: {}", addedComment);
+                    assertThat(addedComment).isNotNull();
+                    assertThat(addedComment.getId()).isNotNull();
                 })
                 .verifyComplete();
     }
