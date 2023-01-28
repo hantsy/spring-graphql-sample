@@ -22,9 +22,9 @@ import org.springframework.data.r2dbc.config.EnableR2dbcAuditing
 import org.springframework.stereotype.Component
 
 @SpringBootApplication()
-// GraphQL kotlin autoconfig does not work in Spring Boot 3.0
+// GraphQL kotlin autoconfig does not work in Spring Boot 3.0, fixed in 7.0.x
 // see: https://github.com/ExpediaGroup/graphql-kotlin/issues/1609
-@ImportAutoConfiguration(GraphQLAutoConfiguration::class)
+// @ImportAutoConfiguration(GraphQLAutoConfiguration::class)
 class DemoApplication
 
 fun main(args: Array<String>) {
