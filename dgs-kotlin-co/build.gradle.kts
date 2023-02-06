@@ -8,7 +8,7 @@ plugins {
     kotlin("jvm") version "1.8.0"
     kotlin("plugin.spring") version "1.8.0"
 
-    id("com.netflix.dgs.codegen") version "5.6.6" //https://plugins.gradle.org/plugin/com.netflix.dgs.codegen
+    id("com.netflix.dgs.codegen") version "5.6.9" //https://plugins.gradle.org/plugin/com.netflix.dgs.codegen
 }
 
 // extra["graphql-java.version"] = "19.2"
@@ -54,9 +54,9 @@ dependencies {
     testImplementation("com.ninja-squad:springmockk:4.0.0"){
         exclude(module = "mockk")
     }
-    testImplementation("io.kotest:kotest-runner-junit5-jvm:5.5.4")
-    testImplementation("io.kotest:kotest-assertions-core-jvm:5.5.4")
-    testImplementation("io.kotest:kotest-framework-concurrency:5.5.4")
+    testImplementation("io.kotest:kotest-runner-junit5-jvm:5.5.5")
+    testImplementation("io.kotest:kotest-assertions-core-jvm:5.5.5")
+    testImplementation("io.kotest:kotest-framework-concurrency:5.5.5")
 }
 
 tasks.withType<GenerateJavaTask> {

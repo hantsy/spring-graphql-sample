@@ -2,7 +2,7 @@ plugins {
     id 'org.springframework.boot' version '3.0.2'
     id 'io.spring.dependency-management' version '1.1.0'
     id 'java'
-    id "com.netflix.dgs.codegen" version "5.6.6" //https://plugins.gradle.org/plugin/com.netflix.dgs.codegen
+    id "com.netflix.dgs.codegen" version "5.6.9" //https://plugins.gradle.org/plugin/com.netflix.dgs.codegen
 }
 // ext['graphql-java.version'] = '19.2'
 
@@ -37,10 +37,10 @@ dependencies {
     implementation 'org.yaml:snakeyaml:1.33'
 
     //configure Lombok for compile java/ compile tests
-    compileOnly 'org.projectlombok:lombok:1.18.24'
-    annotationProcessor 'org.projectlombok:lombok:1.18.24'
-    testCompileOnly 'org.projectlombok:lombok:1.18.24'
-    testAnnotationProcessor 'org.projectlombok:lombok:1.18.24'
+    compileOnly 'org.projectlombok:lombok:1.18.26'
+    annotationProcessor 'org.projectlombok:lombok:1.18.26'
+    testCompileOnly 'org.projectlombok:lombok:1.18.26'
+    testAnnotationProcessor 'org.projectlombok:lombok:1.18.26'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
 }
 

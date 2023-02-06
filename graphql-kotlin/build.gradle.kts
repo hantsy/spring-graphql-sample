@@ -20,7 +20,7 @@ extra["graphqlKotlinVersion"] = "7.0.0-alpha.1"
 extra["coroutinesVersion"] = "1.6.4"
 extra["mockkVersion"] = "1.13.3"
 extra["springmockkVersion"] = "4.0.0"
-extra["ktestVersion"] = "5.5.4"
+extra["ktestVersion"] = "5.5.5"
 
 dependencies {
 	// webflux
