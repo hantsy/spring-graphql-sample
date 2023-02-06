@@ -37,7 +37,7 @@ dependencies {
     implementation 'org.yaml:snakeyaml:1.33'
 
     //configure Lombok for compile java/ compile tests
-    compileOnly 'org.projectlombok:lombok:1.18.24'
+    compileOnly 'org.projectlombok:lombok:1.18.26'
     annotationProcessor 'org.projectlombok:lombok:1.18.24'
     testCompileOnly 'org.projectlombok:lombok:1.18.24'
     testAnnotationProcessor 'org.projectlombok:lombok:1.18.24'
