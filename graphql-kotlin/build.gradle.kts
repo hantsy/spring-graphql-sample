@@ -29,7 +29,7 @@ dependencies {
 
 	// Expediagroup GraphQL Kotlin
 	implementation("com.expediagroup:graphql-kotlin-spring-server:${property("graphqlKotlinVersion")}")
-	implementation("com.graphql-java:graphql-java:20.0")
+	implementation("com.graphql-java:graphql-java:20.2")
 	// r2dbc
 	implementation("org.springframework.boot:spring-boot-starter-data-r2dbc")
 	runtimeOnly("org.postgresql:r2dbc-postgresql")
