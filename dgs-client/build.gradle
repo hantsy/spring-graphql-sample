@@ -2,7 +2,7 @@ plugins {
     id 'org.springframework.boot' version '3.0.4'
     id 'io.spring.dependency-management' version '1.1.0'
     id 'java'
-    id "com.netflix.dgs.codegen" version "5.7.0" //https://plugins.gradle.org/plugin/com.netflix.dgs.codegen
+    id "com.netflix.dgs.codegen" version "5.7.1" //https://plugins.gradle.org/plugin/com.netflix.dgs.codegen
 }
 
 group = 'com.example'
@@ -15,7 +15,7 @@ repositories {
 }
 
 dependencies {
-    implementation(platform("com.netflix.graphql.dgs:graphql-dgs-platform-dependencies:6.0.01"))
+    implementation(platform("com.netflix.graphql.dgs:graphql-dgs-platform-dependencies:6.0.3"))
     implementation "com.netflix.graphql.dgs:graphql-dgs-client"
 
     //spring boot starter
