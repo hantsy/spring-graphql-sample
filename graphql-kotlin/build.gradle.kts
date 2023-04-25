@@ -1,7 +1,7 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-	id("org.springframework.boot") version "3.0.5"
+	id("org.springframework.boot") version "3.0.6"
 	id("io.spring.dependency-management") version "1.1.0"
 	kotlin("jvm") version "1.8.20"
 	kotlin("plugin.spring") version "1.8.20"
@@ -20,7 +20,7 @@ extra["graphqlKotlinVersion"] = "7.0.0-alpha.3"
 extra["coroutinesVersion"] = "1.6.4"
 extra["mockkVersion"] = "1.13.3"
 extra["springmockkVersion"] = "4.0.0"
-extra["ktestVersion"] = "5.5.5"
+extra["ktestVersion"] = "5.6.1"
 
 dependencies {
 	// webflux
@@ -29,7 +29,7 @@ dependencies {
 
 	// Expediagroup GraphQL Kotlin
 	implementation("com.expediagroup:graphql-kotlin-spring-server:${property("graphqlKotlinVersion")}")
-	implementation("com.graphql-java:graphql-java:20.0")
+	implementation("com.graphql-java:graphql-java:20.2")
 	// r2dbc
 	implementation("org.springframework.boot:spring-boot-starter-data-r2dbc")
 	runtimeOnly("org.postgresql:r2dbc-postgresql")
