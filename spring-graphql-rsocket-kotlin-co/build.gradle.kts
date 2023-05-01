@@ -1,11 +1,11 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-	id("org.springframework.boot") version "3.0.4"
+	id("org.springframework.boot") version "3.0.6"
 	id("io.spring.dependency-management") version "1.1.0"
 
-	kotlin("jvm") version "1.8.10"
-	kotlin("plugin.spring") version "1.8.10"
+	kotlin("jvm") version "1.8.21"
+	kotlin("plugin.spring") version "1.8.21"
 
 }
 
@@ -42,14 +42,14 @@ dependencies {
 	}
 	testImplementation("io.projectreactor:reactor-test")
 	testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.6.4")
-	testImplementation("io.mockk:mockk-jvm:1.13.4")
+	testImplementation("io.mockk:mockk-jvm:1.13.5")
 	testImplementation("com.ninja-squad:springmockk:4.0.2"){
 		exclude(module = "mockk")
 	}
 
-	testImplementation("io.kotest:kotest-runner-junit5-jvm:5.5.5")
-	testImplementation("io.kotest:kotest-assertions-core-jvm:5.5.5")
-	testImplementation("io.kotest:kotest-framework-concurrency:5.5.5")
+	testImplementation("io.kotest:kotest-runner-junit5-jvm:5.6.1")
+	testImplementation("io.kotest:kotest-assertions-core-jvm:5.6.1")
+	testImplementation("io.kotest:kotest-framework-concurrency:5.6.1")
 }
 
 tasks.withType<KotlinCompile> {
