@@ -17,7 +17,7 @@ repositories {
 
 dependencies {
     //dgs
-    implementation(platform("com.netflix.graphql.dgs:graphql-dgs-platform-dependencies:6.0.5"))
+    implementation(platform("com.netflix.graphql.dgs:graphql-dgs-platform-dependencies:7.0.0"))
     implementation "com.netflix.graphql.dgs:graphql-dgs-webflux-starter"
 
     // spring boot
