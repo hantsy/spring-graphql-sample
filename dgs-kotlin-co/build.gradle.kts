@@ -42,7 +42,7 @@ dependencies {
 
     //kotlin coroutines extensions
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:1.7.1")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor:1.6.4")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor:1.7.1")
 
     // test
     testImplementation("org.springframework.boot:spring-boot-starter-test") {
