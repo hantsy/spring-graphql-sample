@@ -15,12 +15,12 @@ repositories {
 	mavenCentral()
 }
 
-extra["testcontainersVersion"] = "1.17.6"
-extra["graphqlKotlinVersion"] = "7.0.0-alpha.3"
-extra["coroutinesVersion"] = "1.6.4"
+extra["testcontainersVersion"] = "1.18.1"
+extra["graphqlKotlinVersion"] = "7.0.0-alpha.5"
+extra["coroutinesVersion"] = "1.7.1
 extra["mockkVersion"] = "1.13.3"
 extra["springmockkVersion"] = "4.0.0"
-extra["ktestVersion"] = "5.6.1"
+extra["ktestVersion"] = "5.6.2
 
 dependencies {
 	// webflux
