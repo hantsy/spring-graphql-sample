@@ -17,8 +17,8 @@ repositories {
 
 extra["testcontainersVersion"] = "1.18.1"
 extra["graphqlKotlinVersion"] = "7.0.0-alpha.5"
-extra["coroutinesVersion"] = "1.7.1
-extra["mockkVersion"] = "1.13.3"
+extra["coroutinesVersion"] = "1.7.1"
+extra["mockkVersion"] = "1.13.5"
 extra["springmockkVersion"] = "4.0.0"
 extra["ktestVersion"] = "5.6.2
 
