@@ -21,6 +21,7 @@ extra["coroutinesVersion"] = "1.7.1"
 extra["mockkVersion"] = "1.13.5"
 extra["springmockkVersion"] = "4.0.2"
 extra["ktestVersion"] = "5.6.2"
+extra["graphqlJavaVersion"]="20.2"
 
 dependencies {
 	// webflux
@@ -29,7 +30,7 @@ dependencies {
 
 	// Expediagroup GraphQL Kotlin
 	implementation("com.expediagroup:graphql-kotlin-spring-server:${property("graphqlKotlinVersion")}")
-	implementation("com.graphql-java:graphql-java:20.2")
+	implementation("com.graphql-java:graphql-java:${property("graphqlJavaVersion")}")
 	// r2dbc
 	implementation("org.springframework.boot:spring-boot-starter-data-r2dbc")
 	runtimeOnly("org.postgresql:r2dbc-postgresql")
@@ -41,7 +42,10 @@ dependencies {
 	implementation("org.jetbrains.kotlin:kotlin-stdlib")
 
 	// kotlin coroutines
+	developmentOnly("org.jetbrains.kotlinx:kotlinx-coroutines-debug:${property("coroutinesVersion")}")
+	implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:${property("coroutinesVersion")}")
 	implementation("org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:${property("coroutinesVersion")}")
+	implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactive:${property("coroutinesVersion")}")
 	implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor:${property("coroutinesVersion")}")
 
 	// test
@@ -49,7 +53,7 @@ dependencies {
 		exclude(module = "mockito-core")
 	}
 	testImplementation("io.projectreactor:reactor-test")
-	implementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:${property("coroutinesVersion")}")
+	implementation("org.jetbrains.kotlinx:kotlinx-coroutines-test-jvm:${property("coroutinesVersion")}")
 	testImplementation("io.mockk:mockk-jvm:${property("mockkVersion")}")
 	testImplementation("com.ninja-squad:springmockk:${property("springmockkVersion")}")
 	testImplementation("io.kotest:kotest-runner-junit5-jvm:${property("ktestVersion")}")
