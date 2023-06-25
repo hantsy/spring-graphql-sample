@@ -9,8 +9,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.graphql.GraphQlTest;
-import org.springframework.boot.test.autoconfigure.graphql.tester.AutoConfigureGraphQlTester;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.graphql.test.tester.GraphQlTester;
 import reactor.core.publisher.Flux;
@@ -18,7 +16,6 @@ import reactor.test.StepVerifier;
 
 import java.util.UUID;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
 @GraphQlTest(controllers = {PostController.class})
@@ -49,7 +46,7 @@ public class SubscriptionTests {
                 );
 
         String query = "subscription onCommentAdded { commentAdded { id postId content } }";
-        var verifier = graphQlTester.document(query)
+        graphQlTester.document(query)
                 .executeSubscription()
                 .toFlux("commentAdded.content", String.class)
                 .as(StepVerifier::create)
