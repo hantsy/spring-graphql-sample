@@ -18,7 +18,7 @@ import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@SpringBootTest(classes = TestDemoApplication.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @Slf4j
 class SubscriptionTestsWithWebSocketGraphqlTester {
 
@@ -70,7 +70,6 @@ class SubscriptionTestsWithWebSocketGraphqlTester {
                 .path("postById.title")
                 .entity(String.class)
                 .satisfies(titles -> assertThat(titles).isEqualTo(TITLE));
-
 
 
         Flux<Comment> result = this.graphQlTester.document("subscription onCommentAdded { commentAdded { id content } }")

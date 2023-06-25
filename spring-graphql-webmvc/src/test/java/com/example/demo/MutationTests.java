@@ -104,7 +104,7 @@ public class MutationTests {
 //                        )
 //                )
 //                .executeAndVerify()
-//        ).hasCauseInstanceOf(ConstraintViolationException.class);
+//        ).hasRootCauseInstanceOf(ConstraintViolationException.class);
 
         verify(postService, times(0)).createPost(any(CreatePostInput.class));
         verifyNoMoreInteractions(postService);
