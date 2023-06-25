@@ -71,7 +71,7 @@ class SubscriptionTestsWithWebSocketGraphqlTester {
                 .entity(String.class)
                 .satisfies(titles -> assertThat(titles).isEqualTo(TITLE));
 
-        addCommentToPost(id);
+
 
         Flux<Comment> result = this.graphQlTester.document("subscription onCommentAdded { commentAdded { id content } }")
                 .executeSubscription()
@@ -82,6 +82,9 @@ class SubscriptionTestsWithWebSocketGraphqlTester {
                 .thenCancel()
                 .verifyLater();
 
+        addCommentToPost(id);
+        addCommentToPost(id);
+        addCommentToPost(id);
         verify.verify();
     }
 
