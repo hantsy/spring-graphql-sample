@@ -4,7 +4,6 @@ import { AppComponent } from './app.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { GraphQLModule } from './graphql.module';
 import { HttpClientModule } from '@angular/common/http';
-import { FlexLayoutModule } from '@angular/flex-layout';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
@@ -19,7 +18,6 @@ import { NgModule } from '@angular/core';
     BrowserAnimationsModule,
     GraphQLModule,
     HttpClientModule,
-    FlexLayoutModule,
     FormsModule,
     MatFormFieldModule,
     MatButtonModule,
@@ -28,7 +26,6 @@ import { NgModule } from '@angular/core';
   ],
   exports: [
     FormsModule,
-    FlexLayoutModule,
     MatFormFieldModule,
     MatButtonModule,
     MatIconModule,

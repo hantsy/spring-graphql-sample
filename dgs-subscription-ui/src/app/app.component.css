@@ -1,3 +1,27 @@
-body {
+.container {
   font-size: 14px;
+  display: flex;
+  flex-flow: column nowrap;
+  justify-content: space-around;
+  height: 100%;
+
+}
+
+.messages{
+  display: flex;
+  flex-basis: auto;
+  flex-grow: 4;
+  margin: 5rem 2rem;
+}
+
+.messageBox{
+  display: flex;
+  flex-flow: row nowrap;
+  justify-content: space-between;
+  margin: 5rem 2rem;
+}
+
+.messageField{
+  flex-grow: 4;
+  flex-flow: column nowrap;
 }
