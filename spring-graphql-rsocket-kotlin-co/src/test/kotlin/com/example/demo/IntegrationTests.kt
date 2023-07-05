@@ -44,7 +44,7 @@ internal class IntegrationTests {
     fun setUp() = runTest {
         log.debug("connecting to port: $port")
         client = RSocketGraphQlClient.builder()
-            .dataMimeType(MediaType.APPLICATION_GRAPHQL)
+            .dataMimeType(MediaType.APPLICATION_JSON)
             .tcp("localhost", port)
             .route("graphql")
             .build()
