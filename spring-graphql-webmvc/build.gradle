@@ -20,8 +20,6 @@ configurations {
 repositories {
     mavenLocal()
     mavenCentral()
-
-    // Spring GraphQl is not released yet, add spring snapshot repo
     maven { url "https://repo.spring.io/milestone" }
     maven { url "https://repo.spring.io/snapshot" }
 }
