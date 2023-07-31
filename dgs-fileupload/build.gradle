@@ -24,7 +24,7 @@ dependencies {
         exclude group: 'org.yaml', module: 'snakeyaml'
     }// auto-configure graphql extended scalars
     implementation 'org.yaml:snakeyaml:2.0'
-    implementation 'org.apache.commons:commons-lang3:3.12.0'
+    implementation 'org.apache.commons:commons-lang3:3.13.0'
 
     // spring web
     implementation 'org.springframework.boot:spring-boot-starter-web'
