@@ -24,7 +24,7 @@ dependencies {
     implementation("com.netflix.graphql.dgs:graphql-dgs-webflux-starter") {
         exclude("org.yaml", "snakeyaml")
     }
-    implementation("org.yaml:snakeyaml:2.0")
+    implementation("org.yaml:snakeyaml:2.1")
 
     //Spring
     implementation("org.springframework.boot:spring-boot-starter-webflux")
