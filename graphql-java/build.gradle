@@ -21,7 +21,7 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-data-jdbc'
     implementation 'org.postgresql:postgresql'
     implementation 'org.apache.commons:commons-lang3:3.13.0'
-    implementation 'org.yaml:snakeyaml:2.1'
+    implementation 'org.yaml:snakeyaml:2.2'
 
 
     //configure Lombok for compile java/ compile tests
