@@ -9,10 +9,8 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.stereotype.Component;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
 @Component
 @RequiredArgsConstructor
@@ -59,7 +57,7 @@ public class PostRepository {
         GeneratedKeyHolder generatedKeyHolder = new GeneratedKeyHolder();
         int inserted = this.jdbcTemplate.update(
                 insert,
-                new MapSqlParameterSource(Map.of("title", title, "content", content, "status", status, "author_id", authorId )),
+                new MapSqlParameterSource(Map.of("title", title, "content", content, "status", status, "author_id", authorId)),
                 generatedKeyHolder
         );
         log.info("inserted rows: {}", inserted);
