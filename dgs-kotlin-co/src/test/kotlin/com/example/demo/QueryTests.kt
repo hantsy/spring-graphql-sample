@@ -53,15 +53,10 @@ class QueryTests {
             WebFluxAutoConfiguration::class
         ]
     )
-    class TestConfig {
-
-    }
+    class TestConfig
 
     @Autowired
     lateinit var dgsQueryExecutor: DgsReactiveQueryExecutor
-
-    @MockkBean
-    lateinit var authorService: AuthorService
 
     @MockkBean
     lateinit var postService: PostService
