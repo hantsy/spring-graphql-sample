@@ -36,7 +36,7 @@ class DataInitializer(val posts: PostRepository, val comments: CommentRepository
         runBlocking {
             comments.deleteAll()
             posts.deleteAll()
-            
+
             val saved = posts.saveAll(data).toList()
             saved.forEach { log.debug("saved: {}", it) }
         }
@@ -51,8 +51,7 @@ class SecurityConfig {
     fun springSecurityFilterChain(http: ServerHttpSecurity): SecurityWebFilterChain {
         return http
             .csrf { it.disable() }
-            .httpBasic()
-            .and()
+            .httpBasic{}
             .securityMatcher(PathPatternParserServerWebExchangeMatcher("/graphql"))
             .build()
     }

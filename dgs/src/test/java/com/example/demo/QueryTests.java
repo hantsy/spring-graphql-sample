@@ -48,17 +48,19 @@ class QueryTests {
 
     @Test
     void allPosts() {
-        when(postService.getAllPosts()).thenReturn(List.of(
-                        Post.builder().id(1L)
-                                .title("test title")
-                                .content("test content")
-                                .build(),
-                        Post.builder().id(2L)
-                                .title("test title2")
-                                .content("test content2")
-                                .build()
-                )
-        );
+        when(postService.getAllPosts())
+                .thenReturn(
+                        List.of(
+                                Post.builder().id(1L)
+                                        .title("test title")
+                                        .content("test content")
+                                        .build(),
+                                Post.builder().id(2L)
+                                        .title("test title2")
+                                        .content("test content2")
+                                        .build()
+                        )
+                );
         List<String> titles = dgsQueryExecutor.executeAndExtractJsonPath(
                 " { allPosts { title content }}",
                 "data.allPosts[*].title");
