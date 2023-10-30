@@ -1,18 +1,19 @@
 package com.example.demo;
 
-import com.example.demo.gql.types.Comment;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import org.awaitility.Awaitility;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.graphql.test.tester.WebSocketGraphQlTester;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.web.reactive.socket.client.ReactorNettyWebSocketClient;
-import reactor.core.publisher.Flux;
 import reactor.test.StepVerifier;
 
 import java.net.URI;
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.Map;
 
@@ -72,19 +73,32 @@ class SubscriptionTestsWithWebSocketGraphqlTester {
                 .satisfies(titles -> assertThat(titles).isEqualTo(TITLE));
 
 
-        Flux<Comment> result = this.graphQlTester.document("subscription onCommentAdded { commentAdded { id content } }")
+        String subscriptionQuery = """
+                subscription onCommentAdded{
+                    commentAdded{
+                        id 
+                        content 
+                    } 
+                }
+                """.trim();
+        var subscribedCommentsFlux = this.graphQlTester.document(subscriptionQuery)
                 .executeSubscription()
-                .toFlux("commentAdded", Comment.class);
+                .toFlux("commentAdded.content", String.class);
 
-        var verify = StepVerifier.create(result)
-                .consumeNextWith(c -> assertThat(c.getContent()).startsWith("comment of my post at "))
+        var verifier = StepVerifier.create(subscribedCommentsFlux)
+                .consumeNextWith(c -> assertThat(c).startsWith("comment of my post at "))
+                .consumeNextWith(c -> assertThat(c).startsWith("comment of my post at "))
+                .consumeNextWith(c -> assertThat(c).startsWith("comment of my post at "))
                 .thenCancel()
                 .verifyLater();
 
         addCommentToPost(id);
         addCommentToPost(id);
         addCommentToPost(id);
-        verify.verify();
+
+        Awaitility.await().atMost(Duration.ofMillis(500)).untilAsserted(
+                () -> verifier.verify()
+        );
     }
 
     private void addCommentToPost(String id) {

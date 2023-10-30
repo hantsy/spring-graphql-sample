@@ -19,10 +19,10 @@ data class Post(
     val authorId: UUID? = null,
 ) {
     fun comments(environment: DataFetchingEnvironment): CompletableFuture<List<Comment>> {
-        return environment.getValueFromDataLoader(CommentsDataLoader.name, id)
+        return environment.getValueFromDataLoader(CommentsDataLoader.NAME, id)
     }
 
     fun author(environment: DataFetchingEnvironment): CompletableFuture<Author> {
-        return environment.getValueFromDataLoader(AuthorsDataLoader.name, authorId)
+        return environment.getValueFromDataLoader(AuthorsDataLoader.NAME, authorId)
     }
 }

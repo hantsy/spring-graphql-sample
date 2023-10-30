@@ -38,7 +38,14 @@ class QueryTests {
 
     @Test
     fun `get an non-existing post should return errors NOT_FOUND`() {
-        val query = "query notExisted(\$id: String!){postById(postId:\$id){ id title }}"
+        val query = """
+            query notExisted(${'$'}id: String!){
+                postById(postId:${'$'}id){ 
+                    id
+                    title 
+                }
+            }
+            """.trimIndent()
 
         val result = dgsQueryExecutor.execute(query, mapOf("id" to UUID.randomUUID().toString()))
         assertThat(result.errors).isNotNull
@@ -50,8 +57,15 @@ class QueryTests {
     @Test
     @Disabled // see `MutationTests` for the details.
     fun `create a post without auth should return errors PERMISSION_DENIED`() {
-        val query = "mutation createPost(\$input: CreatePostInput!){createPost(createPostInput:\$input){ id title }}"
-
+        val query = """
+           mutation createPost(${'$'}input: CreatePostInput!){
+               createPost(createPostInput:${'$'}input){ 
+                   id 
+                   title 
+               }
+           }
+ 
+        """.trimIndent()
         val result = dgsQueryExecutor.execute(
             query,
             mapOf("input" to mapOf("title" to "my title", "content" to "my content of my title"))

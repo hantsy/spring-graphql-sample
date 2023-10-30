@@ -15,11 +15,12 @@ import org.springframework.graphql.client.HttpGraphQlClient;
 import org.springframework.graphql.client.WebSocketGraphQlClient;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.socket.client.ReactorNettyWebSocketClient;
+import reactor.core.publisher.Flux;
 import reactor.test.StepVerifier;
 
 import java.net.URI;
+import java.time.LocalDateTime;
 import java.util.Map;
-import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
@@ -65,23 +66,31 @@ public class IntegrationTests {
 
 
         var subscriptionQuery = "subscription onCommentAdded { commentAdded { id content } }";
-        var comments = new CopyOnWriteArrayList<Comment>();
-        socketClient.document(subscriptionQuery)
+        Flux<Comment> result = this.socketClient.document(subscriptionQuery)
                 .executeSubscription()
-                .map(response -> objectMapper.convertValue(
-                        response.<Map<String, Object>>getData().get("commentAdded"),
-                        Comment.class
-                ))
-                .doOnNext(it -> log.debug("received CommentAdded: {}", it))
-                .subscribe(comments::add);
+                .map(response -> {
+                            Comment comment = objectMapper.convertValue(
+                                    response.<Map<String, Object>>getData().get("commentAdded"),
+                                    Comment.class);
+                            log.debug("received comment: {}", comment);
+                            return comment;
+                        }
+                );
 
-        addCommentToPost(id, "comment1");
-        addCommentToPost(id, "comment2");
-        addCommentToPost(id, "comment3");
+        var verifier = StepVerifier.create(result)
+                .consumeNextWith(c -> assertThat(c.getContent()).startsWith("comment of my post at "))
+                .consumeNextWith(c -> assertThat(c.getContent()).startsWith("comment of my post at "))
+                .consumeNextWith(c -> assertThat(c.getContent()).startsWith("comment of my post at "))
+                .thenCancel()
+                .verifyLater();
 
-        await().atMost(500, MILLISECONDS)
+        addCommentToPost(id);
+        addCommentToPost(id);
+        addCommentToPost(id);
+
+        await().atMost(5000, MILLISECONDS)
                 .untilAsserted(
-                        () -> assertThat(comments.size()).isEqualTo(3)
+                        () -> verifier.verify()
                 );
     }
 
@@ -157,7 +166,7 @@ public class IntegrationTests {
         return id;
     }
 
-    private void addCommentToPost(String id, String comment) {
+    private void addCommentToPost(String id) {
         var addCommentQuery = """
                 mutation addComment($commentInput: CommentInput!){
                    addComment(commentInput:$commentInput){id}
@@ -165,7 +174,7 @@ public class IntegrationTests {
         Map<String, Object> addCommentVariables = Map.of(
                 "commentInput",
                 Map.of(
-                        "content", comment,
+                        "content", "comment of my post at " + LocalDateTime.now(),
                         "postId", id
                 )
         );

@@ -63,18 +63,13 @@ class SubscriptionTests {
             WebFluxAutoConfiguration::class
         ]
     )
-    class SubscriptionTestsConfig {
-
-    }
+    class SubscriptionTestsConfig
 
     @Autowired
     lateinit var dgsQueryExecutor: DgsReactiveQueryExecutor
 
     @Autowired
     lateinit var objectMapper: ObjectMapper
-
-    @MockkBean
-    lateinit var authorService: AuthorService
 
     @MockkBean
     lateinit var postRepository: PostRepository
@@ -85,9 +80,20 @@ class SubscriptionTests {
     @SpykBean
     lateinit var postService: PostService
 
+    @MockkBean
+    lateinit var  authorService: AuthorService
+
     @Test
     fun `test subscriptions`() = runTest {
-        val subscriptionQuery = "subscription onCommentAdded { commentAdded { id postId content } }"
+        val subscriptionQuery = """
+            subscription onCommentAdded { 
+                commentAdded { 
+                    id 
+                    postId 
+                    content 
+                } 
+            }
+        """.trimIndent()
         val subscription = dgsQueryExecutor.execute(subscriptionQuery, emptyMap()).awaitSingle()
         val commentsPublisher = subscription.getData<Publisher<ExecutionResult>>()
 
@@ -142,5 +148,6 @@ class SubscriptionTests {
         // verify mock callings
         coVerify(exactly = 2) { postRepository.existsById(any()) }
         coVerify(exactly = 2) { commentRepository.save(any()) }
+        coVerify(atLeast = 2) { postService.addComment(any())}
     }
 }
