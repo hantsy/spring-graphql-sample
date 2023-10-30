@@ -41,7 +41,6 @@ class QueryTests {
     @Configuration
     @Import(
         value = [
-            AuthorsDataFetcher::class,
             PostsDataFetcher::class,
             LocalDateTimeScalar::class
         ]
@@ -53,15 +52,10 @@ class QueryTests {
             WebFluxAutoConfiguration::class
         ]
     )
-    class TestConfig {
-
-    }
+    class TestConfig
 
     @Autowired
     lateinit var dgsQueryExecutor: DgsReactiveQueryExecutor
-
-    @MockkBean
-    lateinit var authorService: AuthorService
 
     @MockkBean
     lateinit var postService: PostService
@@ -82,9 +76,20 @@ class QueryTests {
                     ),
                 )
 
+        val query ="""
+            query allPosts 
+            { 
+                allPosts 
+                { 
+                    title 
+                    content 
+                }
+            }
+        """.trimIndent()
+
         val titles = dgsQueryExecutor
             .executeAndExtractJsonPath<List<String>>(
-                "{ allPosts { title content }}",
+                query,
                 "data.allPosts[*].title"
             )
             .awaitSingle()

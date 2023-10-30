@@ -5,6 +5,7 @@ import com.example.demo.service.PostService
 import com.example.demo.gql.types.Author
 import com.example.demo.gql.types.Comment
 import com.expediagroup.graphql.dataloader.KotlinDataLoader
+import graphql.GraphQLContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.flow.toList
@@ -21,13 +22,12 @@ val loaderScope = CoroutineScope(Executors.newCachedThreadPool().asCoroutineDisp
 @Component
 class AuthorsDataLoader(val authorService: AuthorService) : KotlinDataLoader<UUID, Author> {
     companion object {
-        const val name = "AuthorsDataLoader"
+        const val NAME = "AuthorsDataLoader"
     }
 
-    override val dataLoaderName = name
-
-    override fun getDataLoader(): DataLoader<UUID, Author> {
-        return DataLoaderFactory.newDataLoader { keys, environment ->
+    override val dataLoaderName = NAME
+    override fun getDataLoader(graphQLContext: GraphQLContext): DataLoader<UUID, Author> {
+        return DataLoaderFactory.newDataLoader { keys, _ ->
             loaderScope.future {
                 authorService.getAuthorByIdIn(keys).toList()
             }
@@ -40,13 +40,12 @@ class AuthorsDataLoader(val authorService: AuthorService) : KotlinDataLoader<UUI
 class CommentsDataLoader(val postService: PostService) : KotlinDataLoader<UUID, List<Comment>> {
     companion object {
         private val log = LoggerFactory.getLogger(CommentsDataLoader::class.java)
-        const val name = "CommentsDataLoader"
+        const val NAME = "CommentsDataLoader"
     }
 
-    override val dataLoaderName = name
-
-    override fun getDataLoader(): DataLoader<UUID, List<Comment>> {
-        return DataLoaderFactory.newMappedDataLoader { keys, environment ->
+    override val dataLoaderName = NAME
+    override fun getDataLoader(graphQLContext: GraphQLContext): DataLoader<UUID, List<Comment>> {
+        return DataLoaderFactory.newMappedDataLoader { keys, _ ->
             loaderScope.future {
                 val comments = postService.getCommentsByPostIdIn(keys).toList()
                 val mappedComments: MutableMap<UUID, List<Comment>> = mutableMapOf()

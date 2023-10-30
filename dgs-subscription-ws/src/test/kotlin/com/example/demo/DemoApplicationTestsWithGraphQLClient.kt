@@ -61,7 +61,7 @@ class DemoApplicationTestsWithGraphQLClient {
 //        assertThat(sendText2).contains("text2");
 
         //verify it now.
-        verifier.verify();
+        verifier.verify()
 
         val msgs = dgsQueryExecutor.executeAndExtractJsonPath<List<String>>(
             " { messages { body }}",

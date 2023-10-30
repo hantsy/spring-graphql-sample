@@ -42,6 +42,7 @@ input CommentInput{
 type Query {
     allPosts: [Post!]!
     postById(postId: String!): Post
+    author(authorId: String!): Author
 }
 
 type Mutation {

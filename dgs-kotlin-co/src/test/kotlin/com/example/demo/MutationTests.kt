@@ -33,7 +33,6 @@ class MutationTests {
     @Configuration
     @Import(
         value = [
-            AuthorsDataFetcher::class,
             PostsDataFetcher::class,
             LocalDateTimeScalar::class
         ]
@@ -45,21 +44,14 @@ class MutationTests {
             WebFluxAutoConfiguration::class
         ]
     )
-    class TestConfig {
-
-    }
+    class TestConfig
 
     @Autowired
     lateinit var dgsQueryExecutor: DgsReactiveQueryExecutor
 
-    @MockkBean
-    lateinit var authorService: AuthorService
 
     @MockkBean
     lateinit var postService: PostService
-
-    @Autowired
-    lateinit var objectMapper: ObjectMapper
 
     @Test
     fun `create new post`() = runTest {
@@ -70,7 +62,16 @@ class MutationTests {
         )
         coEvery { postService.createPost(any()) } returns post
 
-        val query = "mutation createPost(\$input: CreatePostInput!){ createPost(createPostInput:\$input) {id, title} }"
+        val query = """
+            mutation createPost(${'$'}input: CreatePostInput!){
+                 createPost(createPostInput:${'$'}input) 
+                 {
+                     id
+                     title
+                 } 
+             }
+        """.trimIndent()
+
         val variables = mapOf(
             "input" to mapOf(
                 "title" to "test title",

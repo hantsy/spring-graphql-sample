@@ -5,4 +5,4 @@ pluginManagement {
 	}
 }
 
-rootProject.name = 'dgs-fileupload'
+rootProject.name = 'graphql-java-example'

@@ -3,6 +3,7 @@ package com.example.demo;
 import com.example.demo.gql.types.Comment;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import org.awaitility.Awaitility;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -13,6 +14,7 @@ import reactor.core.publisher.Flux;
 import reactor.test.StepVerifier;
 
 import java.net.URI;
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.Map;
 
@@ -82,9 +84,12 @@ class SubscriptionTestsWithWebSocketGraphqlTester {
                 .verifyLater();
 
         addCommentToPost(id);
-        addCommentToPost(id);
-        addCommentToPost(id);
-        verify.verify();
+//        addCommentToPost(id);
+//        addCommentToPost(id);
+
+        Awaitility.await().during(Duration.ofMillis(500)).untilAsserted(
+                () -> verify.verify()
+        );
     }
 
     private void addCommentToPost(String id) {

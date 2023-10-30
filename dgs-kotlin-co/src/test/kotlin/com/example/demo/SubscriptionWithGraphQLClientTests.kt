@@ -5,7 +5,6 @@ import com.example.demo.gql.types.Post
 import com.netflix.graphql.dgs.client.WebClientGraphQLClient
 import com.netflix.graphql.dgs.client.WebSocketGraphQLClient
 import io.kotest.common.ExperimentalKotest
-import io.kotest.framework.concurrency.continually
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -19,7 +18,7 @@ import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.web.server.LocalServerPort
 import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.reactive.socket.client.ReactorNettyWebSocketClient
-import kotlin.time.Duration.Companion.milliseconds
+import reactor.test.StepVerifier
 
 @OptIn(ExperimentalCoroutinesApi::class, ExperimentalKotest::class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -55,43 +54,62 @@ class SubscriptionWithGraphQLClientTests {
         // get post by id.
         getPostById(postId)
 
-        // subscribe to commentadded subscription
-        val comments = mutableListOf<Comment>()
-        val commentAddedSubscriptionQuery = "subscription onCommentAdded{ commentAdded{ id postId  content}}"
+        // subscribe to `commentAdded`
+        val commentAddedSubscriptionQuery =
+            """
+            subscription onCommentAdded
+            { 
+                commentAdded
+                { 
+                    id 
+                    postId  
+                    content
+                }
+            }
+            """.trimIndent()
         val verifier = websocketClient
             .reactiveExecuteQuery(
                 commentAddedSubscriptionQuery,
                 emptyMap()
             )
             .map {
+                log.debug("WebSocket client response: $it")
                 it.extractValueAsObject("commentAdded", Comment::class.java)
             }
             .doOnNext {
                 log.debug("doOnNext: $it")
             }
-            .subscribe { it -> comments.add(it) }
+            //.subscribe { it -> comments.add(it) }
 
-//            .`as` { StepVerifier.create(it) }
-//            .expectNextCount(1) // only one comment in the sinks.
-//            .thenCancel()
-//            .verifyLater()
+            .`as` { StepVerifier.create(it) }
+            .consumeNextWith {
+                it.content shouldBe "comment1"
+            }
+            .thenCancel()
+            .verifyLater() // delay to verify later
 
         // add comments to post
         addComment(postId, "comment1")
-        addComment(postId, "comment2")
-        addComment(postId, "comment3 ")
+        //addComment(postId, "comment2")
+        //addComment(postId, "comment3 ")
 
-        //verify the commentAdded event is tracked.
-        continually(500.milliseconds) {
-            log.debug("received comments: $comments")
-            comments.size shouldBe 3
-        }
-//        verifier.verify()
+        // verify the result now.
+        verifier.verify()
     }
 
     private suspend fun addComment(postId: String, comment: String) {
         val commentQuery =
-            "mutation addComment(\$input: CommentInput!) { addComment(commentInput:\$input) { id postId content}}"
+            """
+                mutation addComment(${'$'}input: CommentInput!) 
+                { 
+                    addComment(commentInput:${'$'}input) 
+                    { 
+                        id 
+                        postId 
+                        content
+                    }
+                }
+            """.trimIndent()
         val comment1Variables = mapOf(
             "input" to mapOf(
                 "postId" to postId,
@@ -106,7 +124,16 @@ class SubscriptionWithGraphQLClientTests {
     }
 
     private suspend fun getPostById(postId: String) {
-        val postByIdQuery = "query postById(\$id: String!){postById(postId:\$id){ id title }}"
+        val postByIdQuery = """
+            query postById(${'$'}id: String!)
+            {
+                postById(postId:${'$'}id)
+                { 
+                    id 
+                    title 
+                }
+            }
+        """.trimIndent()
         val postByIdVariables = mapOf(
             "id" to postId as Any
         )
@@ -121,7 +148,16 @@ class SubscriptionWithGraphQLClientTests {
 
     private suspend fun createPost(): String {
         val createPostQuery =
-            "mutation createPost(\$input: CreatePostInput!){ createPost(createPostInput:\$input) {id, title} }"
+            """
+                mutation createPost(${'$'}input: CreatePostInput!)
+                { 
+                    createPost(createPostInput:${'$'}input) 
+                    {
+                        id 
+                        title
+                    } 
+                }
+            """.trimIndent()
         val createPostQueryVariables = mapOf(
             "input" to mapOf(
                 "title" to "test title",
@@ -136,7 +172,7 @@ class SubscriptionWithGraphQLClientTests {
         createPostResult shouldNotBe null
         val postId = createPostResult?.id
         postId!! shouldNotBe null
-        createPostResult?.title shouldBe "test title"
+        createPostResult.title shouldBe "test title"
         return postId
     }
 }

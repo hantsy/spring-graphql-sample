@@ -71,14 +71,6 @@ updates:
     directory: "/graphql-spqr"
     schedule:
       interval: weekly
-    ignore: 
-      - dependency-name: "com.graphql-java:graphql-java"
-        update-types: ["version-update:semver-major"]  
-
-  - package-ecosystem: "gradle"
-    directory: "/graphql-java"
-    schedule:
-      interval: weekly
   - package-ecosystem: "gradle"
     directory: "/graphql-kotlin"
     schedule:
