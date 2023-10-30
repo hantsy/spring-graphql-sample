@@ -34,7 +34,6 @@ public class PostService {
     final CommentRepository comments;
     final AuthorRepository authors;
 
-
     public List<Post> getAllPosts() {
         return this.posts.findAll()
                 .stream()

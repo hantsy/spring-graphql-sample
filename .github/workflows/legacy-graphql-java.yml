@@ -6,11 +6,11 @@ name: graphql-java
 on:
   push:
     paths:
-      - "graphql-java/**"
+      - "legacy/graphql-java/**"
     branches: [ master ]
   pull_request:
     paths:
-      - "graphql-java/**"  
+      - "legacy/graphql-java/**"  
     types:
       - opened
       - synchronize
@@ -34,7 +34,7 @@ jobs:
         docker ps -a
     - name: Build with Gradle
       run: |
-        cd graphql-java
+        cd legacy/graphql-java
         chmod +x gradlew
         ./gradlew build
 

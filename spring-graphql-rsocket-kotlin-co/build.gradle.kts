@@ -1,7 +1,7 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-	id("org.springframework.boot") version "3.1.4"
+	id("org.springframework.boot") version "3.2.0-RC1"
 	id("io.spring.dependency-management") version "1.1.3"
 
 	kotlin("jvm") version "1.9.10"
@@ -14,6 +14,8 @@ java.sourceCompatibility = JavaVersion.VERSION_17
 
 repositories {
 	mavenCentral()
+	maven { url = uri("https://repo.spring.io/milestone") }
+    maven { url = uri("https://repo.spring.io/snapshot") }
 }
 
 extra["coroutinesVersion"]="1.7.1"

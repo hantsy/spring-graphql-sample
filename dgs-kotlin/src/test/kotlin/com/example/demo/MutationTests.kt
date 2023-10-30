@@ -41,8 +41,16 @@ class MutationTests {
     @Test
     fun `create new post without auth`() {
 
-        val requestData = mapOf<String, Any>(
-            "query" to "mutation createPost(\$input: CreatePostInput!){ createPost(createPostInput:\$input) {id, title} }",
+        val query = """
+            mutation createPost(${'$'}input: CreatePostInput!){ 
+                createPost(createPostInput:${'$'}input) {
+                    id
+                    title
+                }
+            }
+        """.trimIndent()
+        val requestData = mapOf(
+            "query" to query,
             "variables" to mapOf(
                 "input" to mapOf(
                     "title" to "test title",
@@ -78,8 +86,17 @@ class MutationTests {
     @Test
     fun `create new post`() {
 
-        val signinData = mapOf<String, Any>(
-            "query" to "mutation signIn(\$input: Credentials!){ signIn(credentials:\$input) {name, roles, token} }",
+        val query = """
+            mutation signIn(${'$'}input: Credentials!){
+                signIn(credentials:${'$'}input) {
+                    name
+                    roles
+                    token
+                } 
+            }
+        """.trimIndent()
+        val signinData = mapOf(
+            "query" to query,
             "variables" to mapOf(
                 "input" to mapOf(
                     "username" to "user",
@@ -105,8 +122,16 @@ class MutationTests {
 
         assertThat(token).isNotNull
 
-        val requestData = mapOf<String, Any>(
-            "query" to "mutation createPost(\$input: CreatePostInput!){ createPost(createPostInput:\$input) {id, title} }",
+        val queryOfCreatingPost = """
+            mutation createPost(${'$'}input: CreatePostInput!){ 
+                createPost(createPostInput:${'$'}input) {
+                    id, 
+                    title
+                } 
+            }
+        """.trimIndent()
+        val requestData = mapOf(
+            "query" to queryOfCreatingPost,
             "variables" to mapOf(
                 "input" to mapOf(
                     "title" to "test title",
