@@ -25,7 +25,7 @@ class ExceptionHandlers : DataFetcherExceptionHandler {
                 val result = DataFetcherExceptionHandlerResult.newResult()
                     .error(graphqlError)
                     .build()
-                return CompletableFuture.completedFuture(result);
+                return CompletableFuture.completedFuture(result)
             }
 
             else -> defaultHandler.handleException(handlerParameters)
