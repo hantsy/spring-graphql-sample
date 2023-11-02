@@ -14,13 +14,14 @@ import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 
 @Component
 public class CustomExceptionHandlers implements DataFetcherExceptionHandler {
     private final DefaultDataFetcherExceptionHandler defaultHandler = new DefaultDataFetcherExceptionHandler();
 
     @Override
-    public DataFetcherExceptionHandlerResult onException(DataFetcherExceptionHandlerParameters handlerParameters) {
+    public CompletableFuture<DataFetcherExceptionHandlerResult> handleException(DataFetcherExceptionHandlerParameters handlerParameters) {
         Throwable exception = handlerParameters.getException();
         if (exception instanceof PostNotFoundException || exception instanceof AuthorNotFoundException) {
             Map<String, Object> debugInfo = new HashMap<>();
@@ -30,9 +31,9 @@ public class CustomExceptionHandlers implements DataFetcherExceptionHandler {
                     .debugInfo(debugInfo)
                     .path(handlerParameters.getPath())
                     .build();
-            return DataFetcherExceptionHandlerResult.newResult()
+            return CompletableFuture.completedFuture(DataFetcherExceptionHandlerResult.newResult()
                     .error(graphqlError)
-                    .build();
+                    .build());
         } else if (exception instanceof ConstraintViolationException ex) {
             Map<String, Object> debugInfo = new HashMap<>();
 
@@ -49,11 +50,11 @@ public class CustomExceptionHandlers implements DataFetcherExceptionHandler {
                     .path(handlerParameters.getPath())
                     .extensions(extensions)
                     .build();
-            return DataFetcherExceptionHandlerResult.newResult()
+            return CompletableFuture.completedFuture(DataFetcherExceptionHandlerResult.newResult()
                     .error(graphqlError)
-                    .build();
+                    .build());
         } else {
-            return defaultHandler.onException(handlerParameters);
+            return defaultHandler.handleException(handlerParameters);
         }
     }
 }
