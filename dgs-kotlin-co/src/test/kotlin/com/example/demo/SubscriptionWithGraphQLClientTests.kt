@@ -57,7 +57,14 @@ class SubscriptionWithGraphQLClientTests {
 
         // subscribe to commentadded subscription
         val comments = mutableListOf<Comment>()
-        val commentAddedSubscriptionQuery = "subscription onCommentAdded{ commentAdded{ id postId  content}}"
+        val commentAddedSubscriptionQuery =
+            """
+            subscription onCommentAdded
+            { 
+                commentAdded{ id postId  content
+                }
+            }
+            """.trimIndent()
         val verifier = websocketClient
             .reactiveExecuteQuery(
                 commentAddedSubscriptionQuery,
@@ -91,7 +98,16 @@ class SubscriptionWithGraphQLClientTests {
 
     private suspend fun addComment(postId: String, comment: String) {
         val commentQuery =
-            "mutation addComment(\$input: CommentInput!) { addComment(commentInput:\$input) { id postId content}}"
+            """
+                mutation addComment(${'$'}input: CommentInput!) { 
+                    addComment(commentInput:${'$'}input) 
+                    { 
+                        id 
+                        postId 
+                        content
+                    }
+                }
+            """.trimIndent()
         val comment1Variables = mapOf(
             "input" to mapOf(
                 "postId" to postId,
@@ -106,7 +122,15 @@ class SubscriptionWithGraphQLClientTests {
     }
 
     private suspend fun getPostById(postId: String) {
-        val postByIdQuery = "query postById(\$id: String!){postById(postId:\$id){ id title }}"
+        val postByIdQuery = """
+            query postById(${'$'}id: String!){
+                postById(postId:${'$'}id)
+                { 
+                    id 
+                    title 
+                }
+            }
+        """.trimIndent()
         val postByIdVariables = mapOf(
             "id" to postId as Any
         )
@@ -121,7 +145,15 @@ class SubscriptionWithGraphQLClientTests {
 
     private suspend fun createPost(): String {
         val createPostQuery =
-            "mutation createPost(\$input: CreatePostInput!){ createPost(createPostInput:\$input) {id, title} }"
+            """
+                mutation createPost(${'$'}input: CreatePostInput!){ 
+                    createPost(createPostInput:${'$'}input) 
+                    {
+                        id 
+                        title
+                    } 
+                }
+            """.trimIndent()
         val createPostQueryVariables = mapOf(
             "input" to mapOf(
                 "title" to "test title",
