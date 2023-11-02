@@ -17,7 +17,6 @@ import org.springframework.boot.web.client.RestTemplateBuilder
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Import
 import org.springframework.core.ParameterizedTypeReference
-import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.http.RequestEntity
@@ -65,12 +64,20 @@ class SubscriptionTests {
         addComment(postId, "comment1", token)
         addComment(postId, "comment2", token)
 
-        // subscribe commentaAdded event
         val socketClient = StandardWebSocketClient()
         val commentsReplay = ArrayList<String>(2)
 
+        val query = """
+            subscription onCommentAdded { 
+                commentAdded { 
+                    id 
+                    postId 
+                    content 
+                } 
+            }
+        """.trimIndent()
         val subscriptionsQuery = mapOf(
-            "query" to "subscription onCommentAdded { commentAdded { id postId content } }",
+            "query" to query,
             "variables" to emptyMap<String, Any>()// have to add this to avoid a NPE exception.
         )
 
@@ -145,8 +152,17 @@ class SubscriptionTests {
 
     private fun addComment(postId: String, comment: String, token: String) {
         log.debug("add comment:[$comment] to post:[$postId]")
+        val query = """
+            mutation addComment(${'$'}input: CommentInput!) { 
+                addComment(commentInput:${'$'}input) { 
+                    id 
+                    postId 
+                    content
+                }
+            }
+        """.trimIndent()
         val requestData = mapOf(
-            "query" to "mutation addComment(\$input: CommentInput!) { addComment(commentInput:\$input) { id postId content}}",
+            "query" to query,
             "variables" to mapOf(
                 "input" to mapOf(
                     "postId" to postId,
@@ -167,8 +183,16 @@ class SubscriptionTests {
     }
 
     private fun createPost(token: String): String {
-        val requestData = mapOf<String, Any>(
-            "query" to "mutation createPost(\$input: CreatePostInput!){ createPost(createPostInput:\$input) {id, title} }",
+        val query = """
+            mutation createPost(${'$'}input: CreatePostInput!){
+                createPost(createPostInput:${'$'}input) {
+                    id
+                    title
+                } 
+            }
+        """.trimIndent()
+        val requestData = mapOf(
+            "query" to query,
             "variables" to mapOf(
                 "input" to mapOf(
                     "title" to "test title",
@@ -196,8 +220,17 @@ class SubscriptionTests {
     }
 
     private fun signIn(): String {
+        val query = """
+            mutation signIn(${'$'}input: Credentials!){ 
+                signIn(credentials:${'$'}input) {
+                    name 
+                    roles 
+                    token
+                } 
+            }
+            """.trimIndent()
         val signinData = mapOf<String, Any>(
-            "query" to "mutation signIn(\$input: Credentials!){ signIn(credentials:\$input) {name, roles, token} }",
+            "query" to query,
             "variables" to mapOf(
                 "input" to mapOf(
                     "username" to "user",

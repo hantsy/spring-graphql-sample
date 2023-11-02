@@ -2,12 +2,11 @@ package com.example.demo;
 
 import com.example.demo.gql.client.AllPostsGraphQLQuery;
 import com.example.demo.gql.client.AllPostsProjectionRoot;
+import com.example.demo.gql.client.AuthorProjection;
+import com.example.demo.gql.client.PostProjection;
 import com.example.demo.gql.types.Post;
 import com.jayway.jsonpath.TypeRef;
-import com.netflix.graphql.dgs.client.DefaultGraphQLClient;
-import com.netflix.graphql.dgs.client.GraphQLClient;
-import com.netflix.graphql.dgs.client.GraphQLResponse;
-import com.netflix.graphql.dgs.client.HttpResponse;
+import com.netflix.graphql.dgs.client.*;
 import com.netflix.graphql.dgs.client.codegen.GraphQLQueryRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -88,7 +87,7 @@ public class DemoApplication implements ApplicationRunner {
         GraphQLQueryRequest graphQLQueryRequest =
                 new GraphQLQueryRequest(
                         new AllPostsGraphQLQuery(),
-                        new AllPostsProjectionRoot()
+                        new AllPostsProjectionRoot<AuthorProjection<?,?>,PostProjection<?,?>>()
                                 .id()
                                 .title()
                                 .content()
@@ -100,11 +99,10 @@ public class DemoApplication implements ApplicationRunner {
                 );
 
         String query = graphQLQueryRequest.serialize();
-        GraphQLClient client = new DefaultGraphQLClient(url);
-        GraphQLResponse response = client.executeQuery(query, new HashMap<>(), DemoApplication::execute);
+        GraphQLClient client = new CustomGraphQLClient(url, DemoApplication::execute);
+        GraphQLResponse response = client.executeQuery(query, new HashMap<>() );
 
-        var data = response.extractValueAsObject("allPosts", new TypeRef<List<Post>>() {
-        });
+        var data = response.extractValueAsObject("allPosts", new TypeRef<List<Post>>() {  });
         log.info("fetched all posts from client: {}", data);
     }
 }

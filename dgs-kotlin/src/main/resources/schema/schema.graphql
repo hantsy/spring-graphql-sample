@@ -59,7 +59,7 @@ type Mutation {
     signIn(credentials: Credentials!): AuthResult
     logout:Boolean
     createPost(createPostInput: CreatePostInput!): Post!
-    updateProfile(bio:String, coverIamge: Upload!): Profile! @skipcodegen
+    updateProfile(bio:String, coverImage: Upload!): Profile! @skipcodegen
     addComment(commentInput: CommentInput!): Comment!
 }
 
