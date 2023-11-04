@@ -31,7 +31,6 @@ TBD
 |[dgs-client](./dgs-client) | Netflix DGS Typesafe Client example|
 |[dgs-kotlin-co](./dgs-kotlin-co) | **A complete Netflix DGS example** with WebFlux, Kotlin Coroutines, Spring Data R2dbc and Spring Security|
 |[dgs-kotlin](./dgs-kotlin) | **A complete Netflix DGS example** with WebMvc/Kotlin, Spring Data Jdbc, Spring Security and Spring Session/Spring Data Redis|
-|[graphql-java](./graphql-java) | GraphQL Java vanilla Spring Boot example|
 |[graphql-kotlin](./graphql-kotlin) |  ExpediaGroup Graphql Kotlin Spring Boot example|
 |[graphql-java-kickstart](./graphql-java-kickstart)  | GraphQL Java Kickstart Spring Boot example|
 |[graphql-java-kickstart-webclient](./graphql-java-kickstart-webclient) | GraphQL Java Kickstart Spring WebClient example|
@@ -43,11 +42,18 @@ TBD
 |[spring-graphql-webflux](./spring-graphql-webflux) | Spring GraphQL/WebFlux example with WebSocket transport protocol |
 |[spring-graphql-rsocket-kotlin-co](./spring-graphql-rsocket-kotlin-co) | Spring GraphQL/WebFlux/Kotlin Coroutines example with RSocket transport protocol |
 
+
+The discontinued project examples.
+
+|  Example name       | Description     |
+| ---- | ---- |
+|[graphql-java](./graphql-java) | GraphQL Java vanilla Spring Boot example|
+
 ## Prerequisites
 
 Make sure you have installed the following software.
 
-* Java 17 
+* Java 21
 * Apache Maven 3.8.x / Gradle 7.x
 * Docker
 
