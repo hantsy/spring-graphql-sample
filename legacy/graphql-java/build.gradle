@@ -6,7 +6,9 @@ plugins {
 
 group = 'com.example'
 version = '0.0.1-SNAPSHOT'
-sourceCompatibility = '17'
+java {
+    sourceCompatibility = '17'
+}
 
 repositories {
     mavenLocal()
@@ -16,9 +18,9 @@ repositories {
 }
 
 dependencies {
-    implementation "com.graphql-java:graphql-java:15.0"
-	implementation "com.graphql-java:graphql-java-spring-boot-starter-webmvc:2.0"
-    
+    implementation "com.graphql-java:graphql-java:16.0"
+    implementation "com.graphql-java:graphql-java-spring-boot-starter-webmvc:2.0"
+
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-data-jdbc'
     implementation 'org.postgresql:postgresql'
@@ -31,8 +33,8 @@ dependencies {
     annotationProcessor 'org.projectlombok:lombok:1.18.30'
     testCompileOnly 'org.projectlombok:lombok:1.18.30'
     testAnnotationProcessor 'org.projectlombok:lombok:1.18.30'
-	
-	//test
+
+    //test
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
 }
 
