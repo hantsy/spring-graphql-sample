@@ -22,7 +22,7 @@ val loaderScope = CoroutineScope(Executors.newCachedThreadPool().asCoroutineDisp
 @Component
 class AuthorsDataLoader(val authorService: AuthorService) : KotlinDataLoader<UUID, Author> {
     companion object {
-        private const val NAME = "AuthorsDataLoader"
+        const val NAME = "AuthorsDataLoader"
     }
 
     override val dataLoaderName = NAME
@@ -40,7 +40,7 @@ class AuthorsDataLoader(val authorService: AuthorService) : KotlinDataLoader<UUI
 class CommentsDataLoader(val postService: PostService) : KotlinDataLoader<UUID, List<Comment>> {
     companion object {
         private val log = LoggerFactory.getLogger(CommentsDataLoader::class.java)
-        private const val NAME = "CommentsDataLoader"
+        const val NAME = "CommentsDataLoader"
     }
 
     override val dataLoaderName = NAME

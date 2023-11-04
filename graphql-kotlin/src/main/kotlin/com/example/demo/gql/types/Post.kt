@@ -23,6 +23,6 @@ data class Post(
     }
 
     fun author(environment: DataFetchingEnvironment): CompletableFuture<Author> {
-        return environment.getValueFromDataLoader(AuthorsDataLoader.name, authorId)
+        return environment.getValueFromDataLoader(AuthorsDataLoader.NAME, authorId)
     }
 }
