@@ -35,7 +35,6 @@ TBD
 |[graphql-java-kickstart](./graphql-java-kickstart)  | GraphQL Java Kickstart Spring Boot example|
 |[graphql-java-kickstart-webclient](./graphql-java-kickstart-webclient) | GraphQL Java Kickstart Spring WebClient example|
 |[graphql-java-kickstart-annotations](./graphql-java-kickstart-annotations) | GraphQL Java Kickstart Spring Boot example(Code first)|
-|[graphql-spqr](./graphql-spqr)| GraphQL SPQR Spring example|
 |[spring-graphql](./spring-graphql) | Spring GraphQL example|
 |[spring-graphql-webmvc](./spring-graphql-webmvc) | Spring GraphQL with WebMvc Controller annotation example|
 |[spring-graphql-querydsl](./spring-graphql-querydsl)| Spring GraphQL/JPA/QueryDSl Data Fetchers example|
@@ -43,11 +42,14 @@ TBD
 |[spring-graphql-rsocket-kotlin-co](./spring-graphql-rsocket-kotlin-co) | Spring GraphQL/WebFlux/Kotlin Coroutines example with RSocket transport protocol |
 
 
-The discontinued project examples.
+### Legacy Codes
+
+Some example codes are moved to legacy folder, because the upstream project is discontinued or under an inactive development status.
 
 |  Example name       | Description     |
 | ---- | ---- |
-|[graphql-java](./graphql-java) | GraphQL Java vanilla Spring Boot example|
+|[graphql-java](./legacy/graphql-java) | GraphQL Java vanilla Spring Boot example|
+|[graphql-spqr](./legacy/graphql-spqr)| GraphQL SPQR Spring example|
 
 ## Prerequisites
 

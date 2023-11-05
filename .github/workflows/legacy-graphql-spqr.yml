@@ -6,11 +6,11 @@ name: graphql-spqr
 on:
   push:
     paths:
-      - "graphql-spqr/**"
+      - "legacy/graphql-spqr/**"
     branches: [ master ]
   pull_request:
     paths:
-      - "graphql-spqr/**"  
+      - "legacy/graphql-spqr/**"  
     types:
       - opened
       - synchronize
@@ -34,7 +34,7 @@ jobs:
         docker ps -a
     - name: Build with Gradle
       run: |
-        cd graphql-spqr
+        cd legacy/graphql-spqr
         chmod +x gradlew
         ./gradlew build
 

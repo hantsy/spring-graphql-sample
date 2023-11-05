@@ -68,10 +68,6 @@ updates:
         update-types: ["version-update:semver-major", "version-update:semver-minor"]    
 
   - package-ecosystem: "gradle"
-    directory: "/graphql-spqr"
-    schedule:
-      interval: weekly
-  - package-ecosystem: "gradle"
     directory: "/graphql-kotlin"
     schedule:
       interval: weekly      
