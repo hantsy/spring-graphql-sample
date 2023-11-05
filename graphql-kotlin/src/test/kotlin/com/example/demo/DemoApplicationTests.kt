@@ -1,4 +1,5 @@
 package com.example.demo
+
 import com.expediagroup.graphql.server.spring.subscriptions.ApolloSubscriptionOperationMessage
 import com.expediagroup.graphql.server.types.GraphQLRequest
 import com.fasterxml.jackson.databind.ObjectMapper
@@ -10,6 +11,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.web.server.LocalServerPort
@@ -33,6 +35,11 @@ import kotlin.random.Random
 @OptIn(ExperimentalCoroutinesApi::class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class DemoApplicationTests {
+
+    companion object {
+        private val log = LoggerFactory.getLogger(DemoApplicationTests::class.java)
+    }
+
 
     @Autowired
     lateinit var objectMapper: ObjectMapper
@@ -95,20 +102,24 @@ class DemoApplicationTests {
         getPostById(postId)
 
         // subscribe to event `commentAdded`
-        val query = "subscription onCommentAdded { commentAdded { id content } }"
+        val query = """
+            subscription onCommentAdded {
+                commentAdded {
+                    id
+                    content
+                }
+            }
+        """.trimIndent()
         val output = TestPublisher.create<String>()
+        val subscription = socketClient.execute(uri) { session -> executeSubscription(session, query, output) }
+            .subscribe()
 
         // add comments  to post
         addComment(postId, "comment1")
         addComment(postId, "comment2")
 
-        val countDownLatch = CountDownLatch(1)
-        val subscription = socketClient.execute(uri) { session -> executeSubscription(session, query, output) }
-            .subscribe { countDownLatch.countDown() }
-
-        countDownLatch.await(500, TimeUnit.MILLISECONDS)
-
         StepVerifier.create(output)
+            .consumeNextWith { it shouldContain "\"content\":\"comment1\"" }
             .consumeNextWith { it shouldContain "\"content\":\"comment2\"" }
             .expectComplete()
             .verify()
@@ -208,6 +219,7 @@ class DemoApplicationTests {
                 session.receive()
                     .map { objectMapper.readValue<ApolloSubscriptionOperationMessage>(it.payloadAsText) }
                     .doOnNext {
+                        log.debug("received message:$it")
                         if (it.type == ApolloSubscriptionOperationMessage.ServerMessages.GQL_DATA.type) {
                             val data = objectMapper.writeValueAsString(it.payload)
                             output.next(data)
