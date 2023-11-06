@@ -24,13 +24,13 @@ repositories {
 
 dependencyManagement {
     imports {
-        mavenBom("com.netflix.graphql.dgs:graphql-dgs-platform-dependencies:8.0.0")
+        mavenBom("com.netflix.graphql.dgs:graphql-dgs-platform-dependencies:8.0.1")
     }
 }
 
 dependencies {
     // dgs
-    //implementation(platform("com.netflix.graphql.dgs:graphql-dgs-platform-dependencies:8.0.0"))
+    //implementation(platform("com.netflix.graphql.dgs:graphql-dgs-platform-dependencies:8.0.1"))
     implementation("com.netflix.graphql.dgs:graphql-dgs-spring-boot-starter")
     implementation("com.netflix.graphql.dgs:graphql-dgs-subscriptions-websockets-autoconfigure")
     implementation("com.netflix.graphql.dgs:graphql-dgs-extended-scalars")

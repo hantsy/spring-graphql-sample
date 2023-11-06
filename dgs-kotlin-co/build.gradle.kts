@@ -23,12 +23,12 @@ repositories {
 
 dependencyManagement {
     imports {
-        mavenBom("com.netflix.graphql.dgs:graphql-dgs-platform-dependencies:8.0.0")
+        mavenBom("com.netflix.graphql.dgs:graphql-dgs-platform-dependencies:8.0.1")
     }
 }
 
 dependencies {
-    //implementation(platform("com.netflix.graphql.dgs:graphql-dgs-platform-dependencies:8.0.0"))
+    //implementation(platform("com.netflix.graphql.dgs:graphql-dgs-platform-dependencies:8.0.1"))
     implementation("com.netflix.graphql.dgs:graphql-dgs-webflux-starter")
     implementation("io.projectreactor:reactor-core:3.6.0-RC1")
 
