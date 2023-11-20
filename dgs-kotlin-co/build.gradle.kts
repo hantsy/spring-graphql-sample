@@ -30,7 +30,7 @@ dependencyManagement {
 dependencies {
     //implementation(platform("com.netflix.graphql.dgs:graphql-dgs-platform-dependencies:8.0.1"))
     implementation("com.netflix.graphql.dgs:graphql-dgs-webflux-starter")
-    implementation("io.projectreactor:reactor-core:3.6.0-RC1")
+    implementation("io.projectreactor:reactor-core:3.6.1-SNAPSHOT")
 
     //Spring
     implementation("org.springframework.boot:spring-boot-starter-webflux")
