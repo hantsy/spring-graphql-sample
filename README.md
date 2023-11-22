@@ -48,8 +48,8 @@ Some example codes are moved to legacy folder, because the upstream project is d
 
 |  Example name       | Description     |
 | ---- | ---- |
-|[graphql-java](./legacy/graphql-java) | GraphQL Java vanilla Spring Boot example|
-|[graphql-spqr](./legacy/graphql-spqr)| GraphQL SPQR Spring example|
+|[graphql-java](./legacy/graphql-java) | GraphQL Java vanilla Spring Boot example, upstream project is discontinuned, replaced by Spring GraphQL|
+|[graphql-spqr](./legacy/graphql-spqr)| GraphQL SPQR Spring example, inactive|
 
 ## Prerequisites
 
@@ -93,8 +93,6 @@ java -jar target/xxx.jar
 ## Contribution
 
 Any suggestions are welcome, filing an issue or submitting a PR is also highly recommended.  
-
-
 
 ## References
 
