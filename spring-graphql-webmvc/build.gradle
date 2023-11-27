@@ -47,7 +47,7 @@ dependencies {
     implementation 'org.postgresql:postgresql'
 
     // validations manually
-    implementation 'org.apache.commons:commons-lang3:3.13.0'
+    implementation 'org.apache.commons:commons-lang3:3.14.0'
 
     //configure Lombok for compile java/ compile tests
     compileOnly 'org.projectlombok:lombok:1.18.30'
