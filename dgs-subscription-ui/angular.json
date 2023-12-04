@@ -69,10 +69,10 @@
           "builder": "@angular-devkit/build-angular:dev-server",
           "configurations": {
             "production": {
-              "browserTarget": "dgs-subscription-ui:build:production"
+              "buildTarget": "dgs-subscription-ui:build:production"
             },
             "development": {
-              "browserTarget": "dgs-subscription-ui:build:development"
+              "buildTarget": "dgs-subscription-ui:build:development"
             }
           },
           "defaultConfiguration": "development"
@@ -80,7 +80,7 @@
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",
           "options": {
-            "browserTarget": "dgs-subscription-ui:build"
+            "buildTarget": "dgs-subscription-ui:build"
           }
         },
         "test": {
