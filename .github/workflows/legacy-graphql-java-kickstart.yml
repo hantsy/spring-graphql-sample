@@ -1,25 +1,27 @@
 # This workflow will build a Java project with Gradle
 # For more information see: https://help.github.com/actions/language-and-framework-guides/building-and-testing-java-with-gradle
 
-name: graphql-java-kickstart-annotations
+name: legacy-graphql-java-kickstart
 
 on:
   push:
     paths:
-      - "graphql-java-kickstart-annotations/**"
+      - "legacy/legacy/graphql-java-kickstart/**"
     branches: [ master ]
   pull_request:
     paths:
-      - "graphql-java-kickstart-annotations/**"
+      - "graphql-java-kickstart/**"  
     types:
       - opened
       - synchronize
       - reopened
 
 jobs:
-        
+
   build:
+
     runs-on: ubuntu-latest
+
     steps:
     - uses: actions/checkout@v4
     - name: Set up JDK
@@ -33,8 +35,7 @@ jobs:
         docker ps -a
     - name: Build with Gradle
       run: |
-        cd graphql-java-kickstart-annotations
+        cd legacy/graphql-java-kickstart
         chmod +x gradlew
         ./gradlew build
 
- 

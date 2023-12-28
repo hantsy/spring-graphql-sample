@@ -71,18 +71,6 @@ updates:
     directory: "/graphql-kotlin"
     schedule:
       interval: weekly      
-  - package-ecosystem: "gradle"
-    directory: "/graphql-java-kickstart-webclient"
-    schedule:
-      interval: weekly
-  - package-ecosystem: "gradle"
-    directory: "/graphql-java-kickstart"
-    schedule:
-      interval: weekly
-  - package-ecosystem: "gradle"
-    directory: "/spring-graphql-kickstart-annotations"
-    schedule:
-      interval: weekly
 
   - package-ecosystem: "gradle"
     directory: "/spring-graphql"
