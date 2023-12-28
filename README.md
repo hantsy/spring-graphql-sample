@@ -32,9 +32,6 @@ TBD
 |[dgs-kotlin-co](./dgs-kotlin-co) | **A complete Netflix DGS example** with WebFlux, Kotlin Coroutines, Spring Data R2dbc and Spring Security|
 |[dgs-kotlin](./dgs-kotlin) | **A complete Netflix DGS example** with WebMvc/Kotlin, Spring Data Jdbc, Spring Security and Spring Session/Spring Data Redis|
 |[graphql-kotlin](./graphql-kotlin) |  ExpediaGroup Graphql Kotlin Spring Boot example|
-|[graphql-java-kickstart](./graphql-java-kickstart)  | GraphQL Java Kickstart Spring Boot example|
-|[graphql-java-kickstart-webclient](./graphql-java-kickstart-webclient) | GraphQL Java Kickstart Spring WebClient example|
-|[graphql-java-kickstart-annotations](./graphql-java-kickstart-annotations) | GraphQL Java Kickstart Spring Boot example(Code first)|
 |[spring-graphql](./spring-graphql) | Spring GraphQL example|
 |[spring-graphql-webmvc](./spring-graphql-webmvc) | Spring GraphQL with WebMvc Controller annotation example|
 |[spring-graphql-querydsl](./spring-graphql-querydsl)| Spring GraphQL/JPA/QueryDSl Data Fetchers example|
@@ -50,6 +47,9 @@ Some example codes are moved to legacy folder, because the upstream project is d
 | ---- | ---- |
 |[graphql-java](./legacy/graphql-java) | GraphQL Java vanilla Spring Boot example, upstream project is discontinuned, replaced by Spring GraphQL|
 |[graphql-spqr](./legacy/graphql-spqr)| GraphQL SPQR Spring example, inactive|
+|[graphql-java-kickstart](./graphql-java-kickstart)  | GraphQL Java Kickstart Spring Boot example|
+|[graphql-java-kickstart-webclient](./graphql-java-kickstart-webclient) | GraphQL Java Kickstart Spring WebClient example|
+|[graphql-java-kickstart-annotations](./graphql-java-kickstart-annotations) | GraphQL Java Kickstart Spring Boot example(Code first)|
 
 ## Prerequisites
 
