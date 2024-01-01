@@ -19,7 +19,7 @@
     "@angular/material": "^17.0.4",
     "@angular/platform-browser": "^17.0.7",
     "@angular/platform-browser-dynamic": "^17.0.7",
-    "@angular/router": "^17.0.7",
+    "@angular/router": "^17.0.8",
     "@apollo/client": "^3.8.8",
     "apollo-angular": "^5.0.2",
     "graphql": "^16.8.1",
