@@ -1,0 +1,862 @@
+repo_name: hantsy/spring-graphql-sample
+report_id: 435dddbd76fe5a0016d1f6fff8b9f915
+version: 0.1
+repo_type: Public
+timestamp: '2024-01-31T08:19:42+00:00'
+requested_by: hantsy
+provider: github
+branch: master
+detected_tools_count: 65
+tools:
+- name: CSS 3
+  description: The latest evolution of the Cascading Style Sheets language
+  website_url: https://developer.mozilla.org/en-US/docs/Web/CSS/CSS3
+  open_source: true
+  hosted_saas: false
+  category: Languages & Frameworks
+  sub_category: Languages
+  image_url: https://img.stackshare.io/service/6727/css.png
+  detection_source_url: https://github.com/hantsy/spring-graphql-sample
+  detection_source: Repo Metadata
+- name: Java
+  description: A concurrent, class-based, object-oriented, language specifically designed
+    to have as few implementation dependencies as possible
+  website_url: https://www.java.com
+  open_source: true
+  hosted_saas: false
+  category: Languages & Frameworks
+  sub_category: Languages
+  image_url: https://img.stackshare.io/service/995/K85ZWV2F.png
+  detection_source_url: https://github.com/hantsy/spring-graphql-sample
+  detection_source: Repo Metadata
+- name: JavaScript
+  description: Lightweight, interpreted, object-oriented language with first-class
+    functions
+  website_url: https://developer.mozilla.org/en-US/docs/Web/JavaScript
+  open_source: true
+  hosted_saas: false
+  category: Languages & Frameworks
+  sub_category: Languages
+  image_url: https://img.stackshare.io/service/1209/javascript.jpeg
+  detection_source_url: https://github.com/hantsy/spring-graphql-sample
+  detection_source: Repo Metadata
+- name: Kotlin
+  description: Statically typed Programming Language targeting JVM and JavaScript
+  website_url: https://kotlinlang.org/
+  open_source: true
+  hosted_saas: true
+  category: Languages & Frameworks
+  sub_category: Languages
+  image_url: https://img.stackshare.io/service/3750/pCfEzr6L.png
+  detection_source_url: https://github.com/hantsy/spring-graphql-sample
+  detection_source: Repo Metadata
+- name: SQL
+  description: It is a domain-specific language used in programming
+  website_url: https://en.wikipedia.org/wiki/SQL
+  open_source: true
+  hosted_saas: false
+  category: Languages & Frameworks
+  sub_category: Languages
+  image_url: https://img.stackshare.io/service/2271/default_068d33483bba6b81ee13fbd4dc7aab9780896a54.png
+  detection_source_url: https://github.com/hantsy/spring-graphql-sample/blob/master/dgs-codegen/src/main/resources/schema.sql
+  detection_source: dgs-codegen/src/main/resources/schema.sql
+  last_updated_by: hantsy
+  last_updated_on: 2022-05-28 14:31:33.000000000 Z
+- name: TypeScript
+  description: A superset of JavaScript that compiles to clean JavaScript output
+  website_url: http://www.typescriptlang.org
+  license: Apache-2.0
+  open_source: true
+  hosted_saas: false
+  category: Languages & Frameworks
+  sub_category: Languages
+  image_url: https://img.stackshare.io/service/1612/bynNY5dJ.jpg
+  detection_source_url: https://github.com/hantsy/spring-graphql-sample
+  detection_source: Repo Metadata
+- name: Angular
+  description: A platform for building mobile and desktop web applications
+  website_url: https://angular.io
+  version: 17.1.1
+  license: MIT
+  open_source: true
+  hosted_saas: false
+  category: Languages & Frameworks
+  sub_category: Javascript MVC Frameworks
+  image_url: https://img.stackshare.io/service/3745/cb8U-gL6_400x400.jpg
+  detection_source_url: https://github.com/hantsy/spring-graphql-sample/blob/master/dgs-subscription-ui/package-lock.json
+  detection_source: dgs-subscription-ui/package.json
+  last_updated_by: hantsy
+  last_updated_on: 2024-01-31 08:10:58.000000000 Z
+- name: Node.js
+  description: A platform built on Chrome's JavaScript runtime for easily building
+    fast, scalable network applications
+  website_url: http://nodejs.org/
+  open_source: true
+  hosted_saas: false
+  category: Languages & Frameworks
+  sub_category: Frameworks (Full Stack)
+  image_url: https://img.stackshare.io/service/1011/n1JRsFeB_400x400.png
+  detection_source_url: https://github.com/hantsy/spring-graphql-sample/blob/master/dgs-subscription-ui/package.json
+  detection_source: dgs-subscription-ui/package.json
+  last_updated_by: hantsy
+  last_updated_on: 2023-12-04 14:53:33.000000000 Z
+- name: Project Reactor
+  description: Library for building non-blocking applications on JVM
+  website_url: https://projectreactor.io/
+  open_source: false
+  hosted_saas: false
+  category: Languages & Frameworks
+  sub_category: Java Tools
+  image_url: https://img.stackshare.io/service/5807/default_cbd8ab670309059d7e315252d307d409aa40d793.png
+  detection_source_url: https://github.com/hantsy/spring-graphql-sample/blob/master/dgs-webflux/build.gradle
+  detection_source: dgs-webflux/build.gradle
+  last_updated_by: dependabot[bot]
+  last_updated_on: 2024-01-17 02:24:09.000000000 Z
+- name: RxJS
+  description: The Reactive Extensions for JavaScript
+  website_url: http://reactivex.io/rxjs/
+  version: 7.8.1
+  open_source: true
+  hosted_saas: false
+  category: Languages & Frameworks
+  sub_category: Concurrency Frameworks
+  image_url: https://img.stackshare.io/service/1796/984368.png
+  detection_source_url: https://github.com/hantsy/spring-graphql-sample/blob/master/dgs-subscription-ui/package-lock.json
+  detection_source: dgs-subscription-ui/package.json
+  last_updated_by: Hantsy Bai
+  last_updated_on: 2021-06-17 07:17:33.000000000 Z
+- name: Spring Framework
+  description: An application framework and inversion of control container for the
+    Java platform
+  website_url: https://spring.io/projects/spring-framework
+  license: Apache-2.0
+  open_source: true
+  hosted_saas: false
+  category: Languages & Frameworks
+  sub_category: Frameworks (Full Stack)
+  image_url: https://img.stackshare.io/service/2006/spring-framework-project-logo.png
+  detection_source_url: https://github.com/hantsy/spring-graphql-sample/blob/master/dgs-client/build.gradle
+  detection_source: dgs-client/build.gradle
+  last_updated_by: dependabot[bot]
+  last_updated_on: 2024-01-23 07:26:53.000000000 Z
+- name: GraphQL
+  description: A data query language and runtime
+  website_url: http://graphql.org/
+  open_source: false
+  hosted_saas: false
+  category: Languages & Frameworks
+  sub_category: Query Languages
+  image_url: https://img.stackshare.io/service/3820/12972006.png
+  detection_source_url: https://github.com/hantsy/spring-graphql-sample/blob/master/dgs-client/src/main/resources/schema/schema.graphql
+  detection_source: dgs-client/src/main/resources/schema/schema.graphql
+  last_updated_by: Hantsy Bai
+  last_updated_on: 2021-06-19 02:30:00.000000000 Z
+- name: MongoDB
+  description: The database for giant ideas
+  website_url: http://www.mongodb.com/
+  open_source: true
+  hosted_saas: false
+  category: Data Stores
+  sub_category: Databases
+  image_url: https://img.stackshare.io/service/1030/leaf-360x360.png
+  detection_source_url: https://github.com/hantsy/spring-graphql-sample/blob/master/docker-compose.yml
+  detection_source: docker-compose.yml
+  last_updated_by: Hantsy Bai
+  last_updated_on: 2021-06-29 14:26:21.000000000 Z
+- name: PostgreSQL
+  description: A powerful, open source object-relational database system
+  website_url: http://www.postgresql.org/
+  open_source: true
+  hosted_saas: false
+  category: Data Stores
+  sub_category: Databases
+  image_url: https://img.stackshare.io/service/1028/ASOhU5xJ.png
+  detection_source_url: https://github.com/hantsy/spring-graphql-sample/blob/master/dgs-codegen/build.gradle
+  detection_source: dgs-codegen/build.gradle
+  last_updated_by: Hantsy Bai
+  last_updated_on: 2021-06-12 13:54:02.000000000 Z
+- name: Redis
+  description: Open source (BSD licensed), in-memory data structure store
+  website_url: http://redis.io/
+  license: BSD-3-Clause
+  open_source: true
+  hosted_saas: false
+  category: Data Stores
+  sub_category: In-Memory Databases
+  image_url: https://img.stackshare.io/service/1031/default_cbce472cd134adc6688572f999e9122b9657d4ba.png
+  detection_source_url: https://github.com/hantsy/spring-graphql-sample/blob/master/docker-compose.yml
+  detection_source: docker-compose.yml
+  last_updated_by: Hantsy Bai
+  last_updated_on: 2021-06-15 06:46:43.000000000 Z
+- name: Docker
+  description: Enterprise Container Platform for High-Velocity Innovation.
+  website_url: https://www.docker.com/
+  license: Apache-2.0
+  open_source: true
+  hosted_saas: false
+  category: Build, Test, Deploy
+  sub_category: Virtual Machine Platforms & Containers
+  image_url: https://img.stackshare.io/service/586/n4u37v9t_400x400.png
+  detection_source_url: https://github.com/hantsy/spring-graphql-sample/blob/master/docker-compose.yml
+  detection_source: docker-compose.yml
+  last_updated_by: Hantsy Bai
+  last_updated_on: 2021-06-15 06:46:43.000000000 Z
+- name: Docker Compose
+  description: Define and run multi-container applications with Docker
+  website_url: https://github.com/docker/compose
+  license: Apache-2.0
+  open_source: true
+  hosted_saas: false
+  category: Build, Test, Deploy
+  sub_category: Container Tools
+  image_url: https://img.stackshare.io/service/3136/docker-compose.png
+  detection_source_url: https://github.com/hantsy/spring-graphql-sample/blob/master/docker-compose.yml
+  detection_source: docker-compose.yml
+  last_updated_by: Hantsy Bai
+  last_updated_on: 2021-06-15 06:46:43.000000000 Z
+- name: Git
+  description: Fast, scalable, distributed revision control system
+  website_url: http://git-scm.com/
+  open_source: true
+  hosted_saas: false
+  category: Build, Test, Deploy
+  sub_category: Version Control System
+  image_url: https://img.stackshare.io/service/1046/git.png
+  detection_source_url: https://github.com/hantsy/spring-graphql-sample
+  detection_source: Repo Metadata
+- name: GitHub Actions
+  description: Automate your workflow from idea to production
+  website_url: https://github.com/features/actions
+  open_source: false
+  hosted_saas: true
+  category: Build, Test, Deploy
+  sub_category: Continuous Integration
+  image_url: https://img.stackshare.io/service/11563/actions.png
+  detection_source_url: https://github.com/hantsy/spring-graphql-sample/blob/master/.github/workflows/dgs-client.yml
+  detection_source: ".github/workflows/dgs-client.yml"
+  last_updated_by: dependabot[bot]
+  last_updated_on: 2023-12-04 12:57:05.000000000 Z
+- name: Gradle
+  description: A powerful build system for the JVM
+  website_url: https://www.gradle.org/
+  license: Apache-2.0
+  open_source: true
+  hosted_saas: false
+  category: Build, Test, Deploy
+  sub_category: Java Build Tools
+  image_url: https://img.stackshare.io/service/975/gradlephant-social-black-bg.png
+  detection_source_url: https://github.com/hantsy/spring-graphql-sample/blob/master/dgs-client/build.gradle
+  detection_source: dgs-client/build.gradle
+  last_updated_by: dependabot[bot]
+  last_updated_on: 2024-01-31 07:59:09.000000000 Z
+- name: Jasmine
+  description: DOM-less simple JavaScript testing framework
+  website_url: http://jasmine.github.io/
+  open_source: false
+  hosted_saas: true
+  category: Build, Test, Deploy
+  sub_category: Javascript Testing Framework
+  image_url: https://img.stackshare.io/service/831/7c0b595409af531b9cdeb07f8c513e8b.png
+  detection_source_url: https://github.com/hantsy/spring-graphql-sample/blob/master/dgs-subscription-ui/package.json
+  detection_source: dgs-subscription-ui/package.json
+  last_updated_by: dependabot[bot]
+  last_updated_on: 2022-04-04 11:12:18.000000000 Z
+- name: Karma
+  description: Spectacular Test Runner for JavaScript
+  website_url: http://karma-runner.github.io/
+  version: 6.3.20
+  license: MIT
+  open_source: true
+  hosted_saas: false
+  category: Build, Test, Deploy
+  sub_category: Browser Testing
+  image_url: https://img.stackshare.io/service/1420/TidYGd6a.png
+  detection_source_url: https://github.com/hantsy/spring-graphql-sample/blob/master/dgs-subscription-ui/package-lock.json
+  detection_source: dgs-subscription-ui/package.json
+  last_updated_by: dependabot[bot]
+  last_updated_on: 2022-05-16 11:09:55.000000000 Z
+- name: npm
+  description: The package manager for JavaScript.
+  website_url: https://www.npmjs.com/
+  open_source: false
+  hosted_saas: false
+  category: Build, Test, Deploy
+  sub_category: Front End Package Manager
+  image_url: https://img.stackshare.io/service/1120/lejvzrnlpb308aftn31u.png
+  detection_source_url: https://github.com/hantsy/spring-graphql-sample/blob/master/dgs-subscription-ui/package.json
+  detection_source: dgs-subscription-ui/package.json
+  last_updated_by: Hantsy Bai
+  last_updated_on: 2021-06-17 07:17:33.000000000 Z
+- name: Apache Camel
+  description: A versatile open source integration framework
+  website_url: https://camel.apache.org/
+  license: Apache-2.0
+  open_source: true
+  hosted_saas: false
+  category: Application Hosting
+  sub_category: Platform as a Service
+  image_url: https://img.stackshare.io/service/3276/xWt1RFo6_400x400.jpg
+  detection_source_url: https://github.com/hantsy/spring-graphql-sample/blob/master/dgs-client/src/main/resources/application.properties
+  detection_source: dgs-client/src/main/resources/application.properties
+  last_updated_by: Hantsy Bai
+  last_updated_on: 2021-06-19 02:30:00.000000000 Z
+- name: Mongo
+  description: Heroku provides services and tools to build, run, and scale web applications.
+    Follow @herokustatus for platform updates. A @salesforce company.
+  website_url: http://wedesignapps.herokuapp.com
+  open_source: false
+  hosted_saas: false
+  image_url: https://img.stackshare.io/service/3519/3wgIDj3j_normal.png
+  detection_source_url: https://github.com/hantsy/spring-graphql-sample/blob/master/docker-compose.yml
+  detection_source: docker-compose.yml
+  last_updated_by: Hantsy Bai
+  last_updated_on: 2021-06-29 14:26:21.000000000 Z
+- name: "@angular-devkit/build-angular"
+  description: Angular Webpack Build Facade
+  package_url: https://www.npmjs.com/@angular-devkit/build-angular
+  version: 17.1.1
+  license: MIT
+  open_source: true
+  hosted_saas: false
+  category: Libraries
+  sub_category: npm Packages
+  image_url: https://img.stackshare.io/package/16162/default_77b54a203c743d16eddb6b6390cba17218454fa0.png
+  detection_source_url: https://github.com/hantsy/spring-graphql-sample/blob/master/dgs-subscription-ui/package-lock.json
+  detection_source: dgs-subscription-ui/package.json
+  last_updated_by: hantsy
+  last_updated_on: 2024-01-31 08:10:58.000000000 Z
+- name: "@angular/animations"
+  description: Angular - animations integration with web-animations
+  package_url: https://www.npmjs.com/@angular/animations
+  version: 17.1.1
+  license: MIT
+  open_source: true
+  hosted_saas: false
+  category: Libraries
+  sub_category: npm Packages
+  image_url: https://img.stackshare.io/package/16010/default_af9df0bc9fa88191d2fe609204c5bd7599c1a797.png
+  detection_source_url: https://github.com/hantsy/spring-graphql-sample/blob/master/dgs-subscription-ui/package-lock.json
+  detection_source: dgs-subscription-ui/package.json
+  last_updated_by: hantsy
+  last_updated_on: 2024-01-31 08:10:58.000000000 Z
+- name: "@angular/cdk"
+  description: Angular Material Component Development Kit
+  package_url: https://www.npmjs.com/@angular/cdk
+  version: 17.1.1
+  license: MIT
+  open_source: true
+  hosted_saas: false
+  category: Libraries
+  sub_category: npm Packages
+  image_url: https://img.stackshare.io/package/16358/default_22cf6cee54c697b5a223902962cc57a55ee80be9.png
+  detection_source_url: https://github.com/hantsy/spring-graphql-sample/blob/master/dgs-subscription-ui/package-lock.json
+  detection_source: dgs-subscription-ui/package.json
+  last_updated_by: hantsy
+  last_updated_on: 2024-01-31 08:10:58.000000000 Z
+- name: "@angular/cli"
+  description: CLI tool for Angular
+  package_url: https://www.npmjs.com/@angular/cli
+  version: 17.1.1
+  license: MIT
+  open_source: true
+  hosted_saas: false
+  category: Libraries
+  sub_category: npm Packages
+  image_url: https://img.stackshare.io/package/16000/default_976847109ccfe67d00b33d9ff71329b6e82f5f89.png
+  detection_source_url: https://github.com/hantsy/spring-graphql-sample/blob/master/dgs-subscription-ui/package-lock.json
+  detection_source: dgs-subscription-ui/package.json
+  last_updated_by: hantsy
+  last_updated_on: 2024-01-31 08:13:08.000000000 Z
+- name: "@angular/common"
+  description: Angular - commonly needed directives and services
+  package_url: https://www.npmjs.com/@angular/common
+  version: 17.1.1
+  license: MIT
+  open_source: true
+  hosted_saas: false
+  category: Libraries
+  sub_category: npm Packages
+  image_url: https://img.stackshare.io/package/15913/default_ac622bc364a601d766b9a6f6039f191492f54d65.png
+  detection_source_url: https://github.com/hantsy/spring-graphql-sample/blob/master/dgs-subscription-ui/package-lock.json
+  detection_source: dgs-subscription-ui/package.json
+  last_updated_by: hantsy
+  last_updated_on: 2024-01-31 08:10:58.000000000 Z
+- name: "@angular/compiler"
+  description: Angular - the compiler library
+  package_url: https://www.npmjs.com/@angular/compiler
+  version: 17.1.1
+  license: MIT
+  open_source: true
+  hosted_saas: false
+  category: Libraries
+  sub_category: npm Packages
+  image_url: https://img.stackshare.io/package/15917/default_4040fefea2f98006727f63d042275b96a275ab2d.png
+  detection_source_url: https://github.com/hantsy/spring-graphql-sample/blob/master/dgs-subscription-ui/package-lock.json
+  detection_source: dgs-subscription-ui/package.json
+  last_updated_by: hantsy
+  last_updated_on: 2024-01-31 08:10:58.000000000 Z
+- name: "@angular/compiler-cli"
+  description: Angular - the compiler CLI for Node.js
+  package_url: https://www.npmjs.com/@angular/compiler-cli
+  version: 17.1.1
+  license: MIT
+  open_source: true
+  hosted_saas: false
+  category: Libraries
+  sub_category: npm Packages
+  image_url: https://img.stackshare.io/package/15927/default_e0a4fb1126d7400f419f0931cf1669947a5bc552.png
+  detection_source_url: https://github.com/hantsy/spring-graphql-sample/blob/master/dgs-subscription-ui/package-lock.json
+  detection_source: dgs-subscription-ui/package.json
+  last_updated_by: hantsy
+  last_updated_on: 2024-01-31 08:10:58.000000000 Z
+- name: "@angular/forms"
+  description: Angular - directives and services for creating forms
+  package_url: https://www.npmjs.com/@angular/forms
+  version: 17.1.1
+  license: MIT
+  open_source: true
+  hosted_saas: false
+  category: Libraries
+  sub_category: npm Packages
+  image_url: https://img.stackshare.io/package/15944/default_8b5680d4e916298d08363c291a0d6e34c07ceb15.png
+  detection_source_url: https://github.com/hantsy/spring-graphql-sample/blob/master/dgs-subscription-ui/package-lock.json
+  detection_source: dgs-subscription-ui/package.json
+  last_updated_by: hantsy
+  last_updated_on: 2024-01-31 08:10:58.000000000 Z
+- name: "@angular/material"
+  description: Angular Material
+  package_url: https://www.npmjs.com/@angular/material
+  version: 17.1.1
+  license: MIT
+  open_source: true
+  hosted_saas: false
+  category: Libraries
+  sub_category: npm Packages
+  image_url: https://img.stackshare.io/package/16444/default_5ffcf8d02a3454bd25d27d236025c6d078c3b672.png
+  detection_source_url: https://github.com/hantsy/spring-graphql-sample/blob/master/dgs-subscription-ui/package-lock.json
+  detection_source: dgs-subscription-ui/package.json
+  last_updated_by: hantsy
+  last_updated_on: 2024-01-31 08:10:58.000000000 Z
+- name: "@angular/platform-browser"
+  description: Angular - library for using Angular in a web browser
+  package_url: https://www.npmjs.com/@angular/platform-browser
+  version: 17.1.1
+  license: MIT
+  open_source: true
+  hosted_saas: false
+  category: Libraries
+  sub_category: npm Packages
+  image_url: https://img.stackshare.io/package/15921/default_54b691c123fc8979741e800e4dcd3936c0f3b246.png
+  detection_source_url: https://github.com/hantsy/spring-graphql-sample/blob/master/dgs-subscription-ui/package-lock.json
+  detection_source: dgs-subscription-ui/package.json
+  last_updated_by: hantsy
+  last_updated_on: 2024-01-31 08:10:58.000000000 Z
+- name: "@angular/platform-browser-dynamic"
+  description: Angular - library for using Angular in a web browser with JIT compilation
+  package_url: https://www.npmjs.com/@angular/platform-browser-dynamic
+  version: 17.1.1
+  license: MIT
+  open_source: true
+  hosted_saas: false
+  category: Libraries
+  sub_category: npm Packages
+  image_url: https://img.stackshare.io/package/15933/default_b45165a5d30e541ab11711a34a78209b3e8ed7fd.png
+  detection_source_url: https://github.com/hantsy/spring-graphql-sample/blob/master/dgs-subscription-ui/package-lock.json
+  detection_source: dgs-subscription-ui/package.json
+  last_updated_by: hantsy
+  last_updated_on: 2024-01-31 08:10:58.000000000 Z
+- name: "@angular/router"
+  description: Angular - the routing library
+  package_url: https://www.npmjs.com/@angular/router
+  version: 17.1.1
+  license: MIT
+  open_source: true
+  hosted_saas: false
+  category: Libraries
+  sub_category: npm Packages
+  image_url: https://img.stackshare.io/package/15965/default_8b5680d4e916298d08363c291a0d6e34c07ceb15.png
+  detection_source_url: https://github.com/hantsy/spring-graphql-sample/blob/master/dgs-subscription-ui/package-lock.json
+  detection_source: dgs-subscription-ui/package.json
+  last_updated_by: hantsy
+  last_updated_on: 2024-01-31 08:10:58.000000000 Z
+- name: "@apollo/client"
+  description: A fully-featured caching GraphQL client
+  package_url: https://www.npmjs.com/@apollo/client
+  version: 3.9.0
+  open_source: false
+  hosted_saas: false
+  category: Build, Test, Deploy
+  sub_category: Package Managers
+  image_url: https://img.stackshare.io/package/npm/image.png
+  detection_source_url: https://github.com/hantsy/spring-graphql-sample/blob/master/dgs-subscription-ui/package-lock.json
+  detection_source: dgs-subscription-ui/package.json
+  last_updated_by: hantsy
+  last_updated_on: 2024-01-31 08:13:08.000000000 Z
+- name: "@types/jasmine"
+  description: TypeScript definitions for Jasmine
+  package_url: https://www.npmjs.com/@types/jasmine
+  version: 3.8.2
+  license: MIT
+  open_source: true
+  hosted_saas: false
+  category: Libraries
+  sub_category: npm Packages
+  image_url: https://img.stackshare.io/package/15924/default_ac622bc364a601d766b9a6f6039f191492f54d65.png
+  detection_source_url: https://github.com/hantsy/spring-graphql-sample/blob/master/dgs-subscription-ui/package-lock.json
+  detection_source: dgs-subscription-ui/package.json
+  last_updated_by: dependabot[bot]
+  last_updated_on: 2024-01-18 05:40:23.000000000 Z
+- name: "@types/node"
+  description: TypeScript definitions for Node.js
+  package_url: https://www.npmjs.com/@types/node
+  version: 20.11.13
+  license: MIT
+  open_source: true
+  hosted_saas: false
+  category: Libraries
+  sub_category: npm Packages
+  image_url: https://img.stackshare.io/package/15809/default_5e5e8ac63beda29f31f1844df64d4b8247570a66.png
+  detection_source_url: https://github.com/hantsy/spring-graphql-sample/blob/master/dgs-subscription-ui/package-lock.json
+  detection_source: dgs-subscription-ui/package.json
+  last_updated_by: dependabot[bot]
+  last_updated_on: 2024-01-18 05:40:23.000000000 Z
+- name: "@types/ws"
+  description: TypeScript definitions for ws
+  package_url: https://www.npmjs.com/@types/ws
+  version: 7.4.7
+  license: MIT
+  open_source: true
+  hosted_saas: false
+  category: Libraries
+  sub_category: npm Packages
+  image_url: https://img.stackshare.io/package/16711/default_9cd376f2200c8f6c32ebd690bb6c290852dee64d.png
+  detection_source_url: https://github.com/hantsy/spring-graphql-sample/blob/master/dgs-subscription-ui/package-lock.json
+  detection_source: dgs-subscription-ui/package.json
+  last_updated_by: dependabot[bot]
+  last_updated_on: 2024-01-18 05:40:23.000000000 Z
+- name: jasmine-core
+  description: Official packaging of Jasmine's core files for use by Node.js projects
+  package_url: https://www.npmjs.com/jasmine-core
+  version: 3.9.0
+  license: MIT
+  open_source: true
+  hosted_saas: false
+  category: Libraries
+  sub_category: npm Packages
+  image_url: https://img.stackshare.io/package/15905/default_3af1504b6f77c55205ba630fe08c472f43b95f6e.png
+  detection_source_url: https://github.com/hantsy/spring-graphql-sample/blob/master/dgs-subscription-ui/package-lock.json
+  detection_source: dgs-subscription-ui/package.json
+  last_updated_by: hantsy
+  last_updated_on: 2024-01-31 08:09:24.000000000 Z
+- name: karma-chrome-launcher
+  description: A Karma plugin. Launcher for Chrome and Chrome Canary
+  package_url: https://www.npmjs.com/karma-chrome-launcher
+  version: 3.1.1
+  license: MIT
+  open_source: true
+  hosted_saas: false
+  category: Libraries
+  sub_category: npm Packages
+  image_url: https://img.stackshare.io/package/15860/default_6743ba96cf149a3c3c68a185199f9705d6eff80e.png
+  detection_source_url: https://github.com/hantsy/spring-graphql-sample/blob/master/dgs-subscription-ui/package-lock.json
+  detection_source: dgs-subscription-ui/package.json
+  last_updated_by: dependabot[bot]
+  last_updated_on: 2022-05-16 11:09:55.000000000 Z
+- name: karma-coverage
+  description: A Karma plugin. Generate code coverage
+  package_url: https://www.npmjs.com/karma-coverage
+  version: 2.0.3
+  license: MIT
+  open_source: true
+  hosted_saas: false
+  category: Libraries
+  sub_category: npm Packages
+  image_url: https://img.stackshare.io/package/15951/default_b45165a5d30e541ab11711a34a78209b3e8ed7fd.png
+  detection_source_url: https://github.com/hantsy/spring-graphql-sample/blob/master/dgs-subscription-ui/package-lock.json
+  detection_source: dgs-subscription-ui/package.json
+  last_updated_by: dependabot[bot]
+  last_updated_on: 2022-05-16 11:09:55.000000000 Z
+- name: karma-jasmine
+  description: A Karma plugin - adapter for Jasmine testing framework
+  package_url: https://www.npmjs.com/karma-jasmine
+  version: 4.0.2
+  license: MIT
+  open_source: true
+  hosted_saas: false
+  category: Libraries
+  sub_category: npm Packages
+  image_url: https://img.stackshare.io/package/15886/default_7c39a83d4acd952df89b1ebfdb94c8646324fbf1.png
+  detection_source_url: https://github.com/hantsy/spring-graphql-sample/blob/master/dgs-subscription-ui/package-lock.json
+  detection_source: dgs-subscription-ui/package.json
+  last_updated_by: dependabot[bot]
+  last_updated_on: 2022-05-16 11:09:55.000000000 Z
+- name: karma-jasmine-html-reporter
+  description: A Karma plugin
+  package_url: https://www.npmjs.com/karma-jasmine-html-reporter
+  version: 1.7.0
+  license: MIT
+  open_source: true
+  hosted_saas: false
+  category: Libraries
+  sub_category: npm Packages
+  image_url: https://img.stackshare.io/package/15999/default_7a465bc85b23fd837cbc038fd1d504632c41a884.png
+  detection_source_url: https://github.com/hantsy/spring-graphql-sample/blob/master/dgs-subscription-ui/package-lock.json
+  detection_source: dgs-subscription-ui/package.json
+  last_updated_by: hantsy
+  last_updated_on: 2022-12-09 12:02:23.000000000 Z
+- name: subscriptions-transport-ws
+  description: A websocket transport for GraphQL subscriptions
+  package_url: https://www.npmjs.com/subscriptions-transport-ws
+  version: 0.11.0
+  license: MIT
+  open_source: true
+  hosted_saas: false
+  category: Libraries
+  sub_category: npm Packages
+  image_url: https://img.stackshare.io/package/17948/default_e0b07170ab7d7ea66954ff35fdeaae5255c4c0aa.png
+  detection_source_url: https://github.com/hantsy/spring-graphql-sample/blob/master/dgs-subscription-ui/package-lock.json
+  detection_source: dgs-subscription-ui/package.json
+  last_updated_by: hantsy
+  last_updated_on: 2024-01-31 08:09:24.000000000 Z
+- name: tslib
+  description: Runtime library for TypeScript helper functions
+  package_url: https://www.npmjs.com/tslib
+  version: 1.14.1
+  license: 0BSD
+  open_source: true
+  hosted_saas: false
+  category: Libraries
+  sub_category: npm Packages
+  image_url: https://img.stackshare.io/package/15853/default_97d4687bd07ff1bb963fd566c84e7cbf7c73bbee.png
+  detection_source_url: https://github.com/hantsy/spring-graphql-sample/blob/master/dgs-subscription-ui/package-lock.json
+  detection_source: dgs-subscription-ui/package.json
+  last_updated_by: Hantsy Bai
+  last_updated_on: 2023-06-29 07:48:17.000000000 Z
+- name: zone.js
+  description: Zones for JavaScript
+  package_url: https://www.npmjs.com/zone.js
+  version: 0.14.2
+  license: MIT
+  open_source: true
+  hosted_saas: false
+  category: Libraries
+  sub_category: npm Packages
+  image_url: https://img.stackshare.io/package/15915/default_59a1b5716eefa3750c20936c3d53ff13a6390ee1.png
+  detection_source_url: https://github.com/hantsy/spring-graphql-sample/blob/master/dgs-subscription-ui/package-lock.json
+  detection_source: dgs-subscription-ui/package.json
+  last_updated_by: hantsy
+  last_updated_on: 2023-12-04 14:53:33.000000000 Z
+- name: com.graphql-java:graphql-java
+  description: GraphqL Java
+  version: '16.0'
+  license: MIT
+  open_source: true
+  hosted_saas: false
+  category: Libraries
+  sub_category: Maven Packages
+  image_url: https://img.stackshare.io/package/maven/image.png
+  detection_source_url: https://github.com/hantsy/spring-graphql-sample/blob/master/legacy/graphql-java/build.gradle
+  detection_source: legacy/graphql-java/build.gradle
+  last_updated_by: dependabot[bot]
+  last_updated_on: 2023-10-30 11:21:48.000000000 Z
+  vulnerabilities:
+  - name: GraphQL Java vulnerable to stack consumption
+    cve_id: CVE-2023-28867
+    cve_url: https://github.com/advisories/GHSA-p4qx-6w5p-4rj2
+    detected_date: Mar 28
+    severity: high
+    first_patched: '17.5'
+  - name: graphql-java vulnerable to Denial of Service via GraphQL query that consumes
+      CPU resources
+    cve_id: CVE-2022-37734
+    cve_url: https://github.com/advisories/GHSA-v62j-cxhh-fq22
+    detected_date: Sep 17
+    severity: high
+    first_patched: '17.4'
+- name: io.projectreactor.netty:reactor-netty
+  description: Reactive Streams Netty driver
+  license: Apache-2.0
+  open_source: true
+  hosted_saas: false
+  category: Libraries
+  sub_category: Maven Packages
+  image_url: https://img.stackshare.io/package/maven/image.png
+  detection_source_url: https://github.com/hantsy/spring-graphql-sample/blob/master/legacy/graphql-spqr/build.gradle
+  detection_source: legacy/graphql-spqr/build.gradle
+  last_updated_by: hantsy
+  last_updated_on: 2023-09-25 14:31:44.000000000 Z
+- name: io.projectreactor:reactor-test
+  description: Reactor Test support
+  license: Apache-2.0
+  open_source: true
+  hosted_saas: false
+  category: Libraries
+  sub_category: Maven Packages
+  image_url: https://img.stackshare.io/package/maven/image.png
+  detection_source_url: https://github.com/hantsy/spring-graphql-sample/blob/master/dgs-webflux/build.gradle
+  detection_source: dgs-webflux/build.gradle
+  last_updated_by: dependabot[bot]
+  last_updated_on: 2024-01-17 02:24:09.000000000 Z
+- name: org.apache.commons:commons-lang3
+  description: Apache Commons Lang
+  version: 3.14.0
+  license: Apache-2.0
+  open_source: true
+  hosted_saas: false
+  category: Libraries
+  sub_category: Maven Packages
+  image_url: https://img.stackshare.io/package/maven/image.png
+  detection_source_url: https://github.com/hantsy/spring-graphql-sample/blob/master/dgs-codegen/build.gradle
+  detection_source: dgs-codegen/build.gradle
+  last_updated_by: dependabot[bot]
+  last_updated_on: 2024-01-23 07:27:35.000000000 Z
+- name: org.awaitility:awaitility
+  description: A Java DSL for synchronizing asynchronous operations
+  version: 4.2.0
+  license: Apache-2.0
+  open_source: true
+  hosted_saas: false
+  category: Libraries
+  sub_category: Maven Packages
+  image_url: https://img.stackshare.io/package/maven/image.png
+  detection_source_url: https://github.com/hantsy/spring-graphql-sample/blob/master/dgs-webflux/build.gradle
+  detection_source: dgs-webflux/build.gradle
+  last_updated_by: dependabot[bot]
+  last_updated_on: 2024-01-23 07:25:23.000000000 Z
+- name: org.postgresql:postgresql
+  description: The PostgreSQL Driver JDBC4
+  license: BSD-2-Clause
+  open_source: true
+  hosted_saas: false
+  category: Libraries
+  sub_category: Maven Packages
+  image_url: https://img.stackshare.io/package/maven/image.png
+  detection_source_url: https://github.com/hantsy/spring-graphql-sample/blob/master/dgs-codegen/build.gradle
+  detection_source: dgs-codegen/build.gradle
+  last_updated_by: dependabot[bot]
+  last_updated_on: 2024-01-23 07:27:35.000000000 Z
+- name: org.projectlombok:lombok
+  description: 'Spice up your java: Automatic Resource Management'
+  version: 1.18.30
+  license: MIT
+  open_source: true
+  hosted_saas: false
+  category: Libraries
+  sub_category: Maven Packages
+  image_url: https://img.stackshare.io/package/maven/image.png
+  detection_source_url: https://github.com/hantsy/spring-graphql-sample/blob/master/dgs-client/build.gradle
+  detection_source: dgs-client/build.gradle
+  last_updated_by: dependabot[bot]
+  last_updated_on: 2024-01-23 07:26:53.000000000 Z
+- name: org.springframework.boot:spring-boot-starter
+  description: Core starter
+  license: Apache-2.0
+  open_source: true
+  hosted_saas: false
+  category: Libraries
+  sub_category: Maven Packages
+  image_url: https://img.stackshare.io/package/maven/image.png
+  detection_source_url: https://github.com/hantsy/spring-graphql-sample/blob/master/legacy/graphql-java-kickstart-webclient/build.gradle
+  detection_source: legacy/graphql-java-kickstart-webclient/build.gradle
+  last_updated_by: hantsy
+  last_updated_on: 2023-11-24 02:12:37.000000000 Z
+- name: org.springframework.boot:spring-boot-starter-data-jpa
+  description: Starter for using Spring Data JPA with Hibernate
+  license: Apache-2.0
+  open_source: true
+  hosted_saas: false
+  category: Libraries
+  sub_category: Maven Packages
+  image_url: https://img.stackshare.io/package/maven/image.png
+  detection_source_url: https://github.com/hantsy/spring-graphql-sample/blob/master/spring-graphql-querydsl/build.gradle
+  detection_source: spring-graphql-querydsl/build.gradle
+  last_updated_by: dependabot[bot]
+  last_updated_on: 2024-01-23 07:26:38.000000000 Z
+- name: org.springframework.boot:spring-boot-starter-test
+  description: Starter for testing Spring Boot applications with libraries including
+    JUnit
+  license: Apache-2.0
+  open_source: true
+  hosted_saas: false
+  category: Libraries
+  sub_category: Maven Packages
+  image_url: https://img.stackshare.io/package/maven/image.png
+  detection_source_url: https://github.com/hantsy/spring-graphql-sample/blob/master/dgs-client/build.gradle
+  detection_source: dgs-client/build.gradle
+  last_updated_by: dependabot[bot]
+  last_updated_on: 2024-01-23 07:26:53.000000000 Z
+- name: org.springframework.boot:spring-boot-starter-validation
+  description: Starter for using Java Bean Validation with Hibernate Validator
+  license: Apache-2.0
+  open_source: true
+  hosted_saas: false
+  category: Libraries
+  sub_category: Maven Packages
+  image_url: https://img.stackshare.io/package/maven/image.png
+  detection_source_url: https://github.com/hantsy/spring-graphql-sample/blob/master/dgs-webflux/build.gradle
+  detection_source: dgs-webflux/build.gradle
+  last_updated_by: dependabot[bot]
+  last_updated_on: 2024-01-23 07:25:23.000000000 Z
+- name: org.springframework.boot:spring-boot-starter-web
+  description: Starter for building web, including RESTful, applications using Spring
+    MVC
+  license: Apache-2.0
+  open_source: true
+  hosted_saas: false
+  category: Libraries
+  sub_category: Maven Packages
+  image_url: https://img.stackshare.io/package/maven/image.png
+  detection_source_url: https://github.com/hantsy/spring-graphql-sample/blob/master/dgs-client/build.gradle
+  detection_source: dgs-client/build.gradle
+  last_updated_by: dependabot[bot]
+  last_updated_on: 2024-01-23 07:26:53.000000000 Z
+- name: org.springframework.boot:spring-boot-starter-websocket
+  description: Starter for building WebSocket applications using Spring Framework's
+    WebSocket support
+  license: Apache-2.0
+  open_source: true
+  hosted_saas: false
+  category: Libraries
+  sub_category: Maven Packages
+  image_url: https://img.stackshare.io/package/maven/image.png
+  detection_source_url: https://github.com/hantsy/spring-graphql-sample/blob/master/legacy/graphql-java-kickstart/build.gradle
+  detection_source: legacy/graphql-java-kickstart/build.gradle
+  last_updated_by: dependabot[bot]
+  last_updated_on: 2023-12-11 11:34:07.000000000 Z
+- name: org.springframework:spring-webflux
+  description: Spring WebFlux
+  license: Apache-2.0
+  open_source: true
+  hosted_saas: false
+  category: Libraries
+  sub_category: Maven Packages
+  image_url: https://img.stackshare.io/package/maven/image.png
+  detection_source_url: https://github.com/hantsy/spring-graphql-sample/blob/master/legacy/graphql-spqr/build.gradle
+  detection_source: legacy/graphql-spqr/build.gradle
+  last_updated_by: hantsy
+  last_updated_on: 2023-11-22 11:59:35.000000000 Z
+- name: org.testcontainers:postgresql
+  description: Testcontainers is a Java library that supports JUnit tests
+  license: MIT
+  open_source: true
+  hosted_saas: false
+  category: Libraries
+  sub_category: Maven Packages
+  image_url: https://img.stackshare.io/package/maven/image.png
+  detection_source_url: https://github.com/hantsy/spring-graphql-sample/blob/master/spring-graphql-webmvc/build.gradle
+  detection_source: spring-graphql-webmvc/build.gradle
+  last_updated_by: dependabot[bot]
+  last_updated_on: 2024-01-23 07:28:04.000000000 Z
+- name: org.yaml:snakeyaml
+  description: YAML 1.1 parser and emitter for Java
+  version: '2.2'
+  license: Apache-2.0
+  open_source: true
+  hosted_saas: false
+  category: Libraries
+  sub_category: Maven Packages
+  image_url: https://img.stackshare.io/package/maven/image.png
+  detection_source_url: https://github.com/hantsy/spring-graphql-sample/blob/master/dgs-codegen/build.gradle
+  detection_source: dgs-codegen/build.gradle
+  last_updated_by: dependabot[bot]
+  last_updated_on: 2024-01-23 07:27:35.000000000 Z
