@@ -45,7 +45,7 @@ dependencies {
     implementation("io.projectreactor.kotlin:reactor-kotlin-extensions")
 
     //kotlin coroutines extensions
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:1.7.3")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:1.8.0")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor:1.7.3")
 
     // test
