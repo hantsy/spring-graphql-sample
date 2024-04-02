@@ -4,7 +4,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 plugins {
     id("org.springframework.boot") version "3.2.3"
     id("io.spring.dependency-management") version "1.1.4"
-    kotlin("jvm") version "1.9.22"
+    kotlin("jvm") version "1.9.23"
     kotlin("plugin.spring") version "1.9.23"
     id("com.netflix.dgs.codegen") version "6.1.5" //https://plugins.gradle.org/plugin/com.netflix.dgs.codegen
 }
@@ -24,7 +24,7 @@ repositories {
 
 dependencyManagement {
     imports {
-        mavenBom("com.netflix.graphql.dgs:graphql-dgs-platform-dependencies:8.4.1")
+        mavenBom("com.netflix.graphql.dgs:graphql-dgs-platform-dependencies:8.5.0")
     }
 }
 
