@@ -54,12 +54,12 @@ dependencies {
     }
     testImplementation("io.projectreactor:reactor-test")
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.8.0")
-    testImplementation("io.mockk:mockk-jvm:1.13.9")
+    testImplementation("io.mockk:mockk-jvm:1.13.10")
     testImplementation("com.ninja-squad:springmockk:4.0.2"){
         exclude(module = "mockk")
     }
-    testImplementation("io.kotest:kotest-runner-junit5-jvm:5.8.0")
-    testImplementation("io.kotest:kotest-assertions-core-jvm:5.8.0")
+    testImplementation("io.kotest:kotest-runner-junit5-jvm:5.8.1")
+    testImplementation("io.kotest:kotest-assertions-core-jvm:5.8.1")
     testImplementation("io.kotest:kotest-framework-concurrency:5.8.1")
 }
 
