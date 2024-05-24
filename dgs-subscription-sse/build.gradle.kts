@@ -7,7 +7,7 @@ plugins {
 
     kotlin("jvm") version "1.9.24"
     kotlin("plugin.spring") version "1.9.24"
-    id("com.netflix.dgs.codegen") version "6.1.10" //https://plugins.gradle.org/plugin/com.netflix.dgs.codegen
+    id("com.netflix.dgs.codegen") version "6.2.1" //https://plugins.gradle.org/plugin/com.netflix.dgs.codegen
 }
 
 // extra["graphql-java.version"] = "19.2"
