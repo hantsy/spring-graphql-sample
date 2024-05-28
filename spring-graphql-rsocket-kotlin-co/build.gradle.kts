@@ -18,10 +18,10 @@ repositories {
     maven { url = uri("https://repo.spring.io/snapshot") }
 }
 
-extra["coroutinesVersion"]="1.7.1"
-extra["mockkVersion"]="1.13.5"
+extra["coroutinesVersion"]="1.8.1"
+extra["mockkVersion"]="1.13.11"
 extra["springmockkVersion"]="4.0.2"
-extra["kotestVersion"]="5.6.2"
+extra["kotestVersion"]="5.9.0"
 
 dependencies {
 	implementation("org.springframework.boot:spring-boot-starter-graphql")
