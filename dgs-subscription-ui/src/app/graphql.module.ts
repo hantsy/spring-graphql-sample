@@ -1,4 +1,7 @@
-import { HttpClientModule } from '@angular/common/http';
+import {
+  provideHttpClient,
+  withInterceptorsFromDi,
+} from '@angular/common/http';
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { ApolloClientOptions, InMemoryCache, split } from '@apollo/client/core';
@@ -8,7 +11,7 @@ import { ApolloModule, APOLLO_OPTIONS } from 'apollo-angular';
 import { HttpLink } from 'apollo-angular/http';
 
 @NgModule({
-  imports: [BrowserModule, ApolloModule, HttpClientModule],
+  imports: [BrowserModule, ApolloModule],
   providers: [
     {
       provide: APOLLO_OPTIONS,
@@ -17,7 +20,6 @@ import { HttpLink } from 'apollo-angular/http';
         const http = httpLink.create({
           uri: 'http://localhost:8080/graphql',
         });
-
         // Create a WebSocket link:
         const ws = new WebSocketLink({
           uri: 'ws://localhost:8080/subscriptions',
@@ -25,14 +27,12 @@ import { HttpLink } from 'apollo-angular/http';
             reconnect: true,
           },
         });
-
         // using the ability to split links, you can send data to each link
         // depending on what kind of operation is being sent
         const link = split(
           // split based on operation type
           ({ query }) => {
             const definition = getMainDefinition(query);
-
             return (
               definition.kind === 'OperationDefinition' &&
               definition.operation === 'subscription'
@@ -41,7 +41,6 @@ import { HttpLink } from 'apollo-angular/http';
           ws,
           http
         );
-
         return {
           link,
           cache: new InMemoryCache(),
@@ -49,6 +48,7 @@ import { HttpLink } from 'apollo-angular/http';
       },
       deps: [HttpLink],
     },
+    provideHttpClient(withInterceptorsFromDi()),
   ],
 })
 export class GraphQLModule {}
