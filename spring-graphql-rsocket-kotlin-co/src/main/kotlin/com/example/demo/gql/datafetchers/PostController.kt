@@ -4,9 +4,9 @@ import com.example.demo.AuthorService
 import com.example.demo.PostService
 import com.example.demo.gql.types.*
 import jakarta.validation.Valid
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.toList
-import kotlinx.coroutines.reactive.asPublisher
-import org.reactivestreams.Publisher
 import org.springframework.graphql.data.method.annotation.*
 import org.springframework.stereotype.Controller
 import org.springframework.validation.annotation.Validated
@@ -21,7 +21,7 @@ class PostController(
     // Flow is not supported as return type.
     // see: https://github.com/spring-projects/spring-graphql/issues/393
     @QueryMapping
-    suspend fun allPosts(): List<Post> = postService.allPosts().toList()
+    fun allPosts(): Flow<Post> = postService.allPosts()
 
     @QueryMapping
     suspend fun postById(@Argument postId: UUID) = postService.getPostById(postId)
@@ -39,10 +39,13 @@ class PostController(
     }
 
     @BatchMapping
-    suspend fun author(posts: List<Post>): List<Author?> {
-        val keys = posts.map { it.authorId!! }.toList()
-        val authorByIds = authorService.getAuthorByIdIn(keys).toList()
-        return keys.map { k -> authorByIds.firstOrNull { author: Author -> author.id == k } }
+    suspend fun author(posts: List<Post>): Flow<Author?> = flow {
+        posts.forEach { post ->
+            val author = runCatching {
+                post.authorId?.let { authorService.getAuthorById(it) }
+            }.getOrNull()
+            emit(author)
+        }
     }
 
     @MutationMapping
@@ -57,8 +60,10 @@ class PostController(
 
     // subscription return type does not support Kotlin Flow
     // see: https://github.com/spring-projects/spring-graphql/issues/393
+    // Flow type is supported since Spring for GraphQL 1.3
+    // and https://github.com/spring-projects/spring-graphql/issues/954
     @SubscriptionMapping
-    fun commentAdded(): Publisher<Comment> {
-        return postService.commentAdded().asPublisher()
+    fun commentAdded(): Flow<Comment> {
+        return postService.commentAdded()//.asPublisher()
     }
 }
