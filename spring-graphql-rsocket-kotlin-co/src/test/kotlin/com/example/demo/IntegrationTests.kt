@@ -3,7 +3,7 @@ package com.example.demo
 import com.example.demo.gql.types.Comment
 import com.example.demo.gql.types.Post
 import com.fasterxml.jackson.databind.ObjectMapper
-import io.kotest.assertions.timing.continually
+import io.kotest.assertions.nondeterministic.continually
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -25,7 +25,6 @@ import java.util.*
 import java.util.concurrent.CopyOnWriteArrayList
 import kotlin.time.Duration.Companion.seconds
 
-@OptIn(ExperimentalCoroutinesApi::class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 internal class IntegrationTests {
     companion object {

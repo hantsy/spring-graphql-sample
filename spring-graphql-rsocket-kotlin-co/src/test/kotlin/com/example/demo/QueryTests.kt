@@ -3,28 +3,23 @@ package com.example.demo
 import com.example.demo.gql.datafetchers.PostController
 import com.example.demo.gql.types.Post
 import com.ninjasquad.springmockk.MockkBean
-import io.kotest.matchers.collections.shouldContainAll
 import io.kotest.matchers.ints.shouldBeGreaterThan
 import io.kotest.matchers.shouldBe
 import io.mockk.coEvery
 import io.mockk.coVerify
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Test
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.graphql.GraphQlTest
-import org.springframework.context.annotation.Import
 import org.springframework.graphql.ResponseError
 import org.springframework.graphql.test.tester.GraphQlTester
 import java.time.LocalDateTime
 import java.util.*
 
-@OptIn(ExperimentalCoroutinesApi::class)
 @GraphQlTest(controllers = [PostController::class])
-@Import(ValidationConfig::class)
-internal class QueryTests {
+class QueryTests {
     companion object {
         private val log = LoggerFactory.getLogger(QueryTests::class.java)
     }
@@ -61,9 +56,9 @@ internal class QueryTests {
 //         graphQlTester.document(query).execute()
 //             .errors().satisfy { it.forEach { error -> log.debug("error message: ${error.message}") } }
         graphQlTester.document(query)
-           .execute()
-           .path("data.allPosts[*].title")
-           .entityList(String::class.java).hasSize(2).contains("POST 1", "POST 2")
+            .execute()
+            .path("data.allPosts[*].title")
+            .entityList(String::class.java).hasSize(2).contains("POST 1", "POST 2")
 
         coVerify(exactly = 1) { postService.allPosts() }
     }
