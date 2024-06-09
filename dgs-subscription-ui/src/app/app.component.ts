@@ -79,7 +79,7 @@ export class AppComponent implements OnInit, OnDestroy {
           return prev;
         }
         const newMsg = options.subscriptionData.data.messageSent;
-        if (prev && prev.messages) {
+        if (prev?.messages) {
           return { messages: [...prev.messages, newMsg] };
         } else {
           return {
