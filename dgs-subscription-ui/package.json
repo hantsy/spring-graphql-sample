@@ -25,7 +25,7 @@
     "graphql": "^16.8.1",
     "rxjs": "~6.6.0",
     "subscriptions-transport-ws": "^0.11.0",
-    "tslib": "^2.5.3",
+    "tslib": "^2.6.3",
     "zone.js": "~0.14.5"
   },
   "devDependencies": {
