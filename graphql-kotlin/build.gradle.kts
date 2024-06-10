@@ -17,13 +17,13 @@ repositories {
     maven { url = uri("https://repo.spring.io/snapshot") }
 }
 
-extra["testcontainersVersion"] = "1.19.1"
-extra["graphqlKotlinVersion"] = "7.0.2"
-extra["coroutinesVersion"] = "1.7.1"
-extra["mockkVersion"] = "1.13.5"
+extra["testcontainersVersion"] = "1.19.8"
+extra["graphqlKotlinVersion"] = "8.0.0-alpha.1"
+extra["coroutinesVersion"] = "1.8.1"
+extra["mockkVersion"] = "1.13.11"
 extra["springmockkVersion"] = "4.0.2"
-extra["ktestVersion"] = "5.6.2"
-extra["graphqlJavaVersion"] = "20.2"
+extra["kotestVersion"] = "5.9.1"
+extra["graphqlJavaVersion"] = "22.1"
 
 dependencies {
     // webflux
@@ -58,9 +58,9 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-test-jvm:${property("coroutinesVersion")}")
     testImplementation("io.mockk:mockk-jvm:${property("mockkVersion")}")
     testImplementation("com.ninja-squad:springmockk:${property("springmockkVersion")}")
-    testImplementation("io.kotest:kotest-runner-junit5-jvm:${property("ktestVersion")}")
-    testImplementation("io.kotest:kotest-assertions-core-jvm:${property("ktestVersion")}")
-    testImplementation("io.kotest:kotest-framework-concurrency:${property("ktestVersion")}")
+    testImplementation("io.kotest:kotest-runner-junit5-jvm:${property("kotestVersion")}")
+    testImplementation("io.kotest:kotest-assertions-core-jvm:${property("kotestVersion")}")
+    testImplementation("io.kotest:kotest-framework-concurrency:${property("kotestVersion")}")
 
     // testcontainters
     testImplementation("org.testcontainers:junit-jupiter")
