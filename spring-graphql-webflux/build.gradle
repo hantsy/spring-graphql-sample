@@ -37,7 +37,7 @@ dependencies {
     // Jakarta EE 10
     implementation 'jakarta.validation:jakarta.validation-api:3.1.0'
     implementation 'jakarta.inject:jakarta.inject-api:2.0.1'
-    implementation 'jakarta.annotation:jakarta.annotation-api:2.1.1'
+    implementation 'jakarta.annotation:jakarta.annotation-api:3.0.0'
 
 	//spring
     implementation 'org.springframework.boot:spring-boot-starter-webflux'
