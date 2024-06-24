@@ -36,7 +36,7 @@ dependencies {
     // Jakarta EE 10
     implementation 'jakarta.persistence:jakarta.persistence-api:3.1.0'
     implementation 'jakarta.inject:jakarta.inject-api:2.0.1'
-    implementation 'jakarta.annotation:jakarta.annotation-api:2.1.1'
+    implementation 'jakarta.annotation:jakarta.annotation-api:3.0.0'
 
     //Spring Boot
     implementation 'org.springframework.boot:spring-boot-starter-web'
@@ -57,7 +57,7 @@ dependencies {
 
     annotationProcessor 'com.querydsl:querydsl-apt:5.0.0:jakarta',
             'jakarta.persistence:jakarta.persistence-api:3.1.0',
-            'jakarta.annotation:jakarta.annotation-api:2.1.1'
+            'jakarta.annotation:jakarta.annotation-api:3.0.0'
 
     //test
     testImplementation 'org.springframework.graphql:spring-graphql-test'
