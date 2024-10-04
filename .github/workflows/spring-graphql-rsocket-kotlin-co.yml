@@ -31,7 +31,7 @@ jobs:
         cache: 'gradle'
     - name: Setup Postgres in Docker 
       run: |
-        docker-compose up -d postgres
+        docker compose up -d postgres
         docker ps -a
     - name: Build with Gradle
       run: |
