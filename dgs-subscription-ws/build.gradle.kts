@@ -2,7 +2,7 @@ import com.netflix.graphql.dgs.codegen.gradle.GenerateJavaTask
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    id("org.springframework.boot") version "3.3.3"
+    id("org.springframework.boot") version "3.3.4"
     id("io.spring.dependency-management") version "1.1.6"
 
     kotlin("jvm") version "2.0.20"
@@ -24,7 +24,7 @@ repositories {
 
 dependencyManagement {
     imports {
-        mavenBom("com.netflix.graphql.dgs:graphql-dgs-platform-dependencies:9.1.0")
+        mavenBom("com.netflix.graphql.dgs:graphql-dgs-platform-dependencies:9.1.2")
     }
 }
 
@@ -36,7 +36,7 @@ dependencies {
     implementation("com.netflix.graphql.dgs:graphql-dgs-subscriptions-websockets-autoconfigure") {
         exclude("org.yaml", "snakeyaml")
     }
-    implementation("org.yaml:snakeyaml:2.2")
+    implementation("org.yaml:snakeyaml:2.3")
 
     //Spring and kotlin
     implementation("org.springframework.boot:spring-boot-starter-web")

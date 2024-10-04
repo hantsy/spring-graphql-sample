@@ -30,7 +30,7 @@ dependencyManagement {
 dependencies {
     //implementation(platform("com.netflix.graphql.dgs:graphql-dgs-platform-dependencies:8.1.1"))
     implementation("com.netflix.graphql.dgs:graphql-dgs-webflux-starter")
-    implementation("io.projectreactor:reactor-core:3.6.9")
+    implementation("io.projectreactor:reactor-core:3.6.10")
 
     //Spring
     implementation("org.springframework.boot:spring-boot-starter-webflux")
@@ -45,15 +45,15 @@ dependencies {
     implementation("io.projectreactor.kotlin:reactor-kotlin-extensions")
 
     //kotlin coroutines extensions
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:1.8.1")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor:1.8.1")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:1.9.0")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor:1.9.0")
 
     // test
     testImplementation("org.springframework.boot:spring-boot-starter-test") {
         exclude(module = "mockito-core")
     }
     testImplementation("io.projectreactor:reactor-test")
-    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.8.1")
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.9.0")
     testImplementation("io.mockk:mockk-jvm:1.13.12")
     testImplementation("com.ninja-squad:springmockk:4.0.2"){
         exclude(module = "mockk")
