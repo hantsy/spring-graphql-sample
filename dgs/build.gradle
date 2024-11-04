@@ -18,18 +18,18 @@ java {
 repositories {
     mavenLocal()
     mavenCentral()
-    maven { url "https://repo.spring.io/milestone" }
-    maven { url "https://repo.spring.io/snapshot" }
+    maven { url 'https://repo.spring.io/milestone' }
+    maven { url 'https://repo.spring.io/snapshot' }
 }
 
 dependencyManagement {
     imports {
-        mavenBom("com.netflix.graphql.dgs:graphql-dgs-platform-dependencies:9.1.3")
+        mavenBom('com.netflix.graphql.dgs:graphql-dgs-platform-dependencies:9.1.3')
     }
 }
 
 dependencies {
-    implementation "com.netflix.graphql.dgs:graphql-dgs-spring-boot-starter"
+    implementation 'com.netflix.graphql.dgs:graphql-dgs-spring-boot-starter'
 
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-validation'
@@ -42,6 +42,7 @@ dependencies {
     testCompileOnly 'org.projectlombok:lombok:1.18.34'
     testAnnotationProcessor 'org.projectlombok:lombok:1.18.34'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'com.netflix.graphql.dgs:graphql-dgs-spring-graphql-starter-test'
 }
 
 test {

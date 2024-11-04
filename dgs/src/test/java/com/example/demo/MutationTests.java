@@ -56,7 +56,14 @@ class MutationTests {
         );
 
         String title = dgsQueryExecutor.executeAndExtractJsonPath(
-                "mutation createPost($input: CreatePostInput!){createPost(createPostInput:$input){id, title, content}}",
+                """
+                        mutation createPost($input: CreatePostInput!){
+                            createPost(createPostInput:$input){
+                                id
+                                title
+                                content
+                            }
+                        }""",
                 "data.createPost.title",
                 Map.of("input", Map.of(
                                 "title", "test title",
