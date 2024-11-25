@@ -1,5 +1,8 @@
 import com.netflix.graphql.dgs.codegen.gradle.GenerateJavaTask
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import org.jetbrains.kotlin.config.ApiVersion.Companion.KOTLIN_2_0
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
 
 plugins {
     id("org.springframework.boot") version "3.3.5"
@@ -83,7 +86,7 @@ kotlin {
     compilerOptions {
         apiVersion.set(KotlinVersion.KOTLIN_2_0)
         languageVersion.set(KotlinVersion.KOTLIN_2_0)
-        jvmTarget.set("21")
+        jvmTarget.set(JvmTarget.fromTarget("21"))
         freeCompilerArgs.addAll(
             "-Xjsr305=strict",
             "-opt-in=kotlin.RequiresOptIn",
