@@ -27,7 +27,7 @@ repositories {
 
 extra["testcontainersVersion"] = "1.19.8"
 extra["graphqlKotlinVersion"] = "8.0.0-alpha.1"
-extra["coroutinesVersion"] = "1.8.1"
+extra["coroutinesVersion"] = "1.9.0"
 extra["mockkVersion"] = "1.13.11"
 extra["springmockkVersion"] = "4.0.2"
 extra["kotestVersion"] = "5.9.1"
@@ -39,8 +39,8 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-validation")
 
     // Expediagroup GraphQL Kotlin
-    implementation("com.expediagroup:graphql-kotlin-spring-server:${property("graphqlKotlinVersion")}")
-    implementation("com.graphql-java:graphql-java:${property("graphqlJavaVersion")}")
+    implementation("com.expediagroup:graphql-kotlin-spring-server:8.2.1")
+    // implementation("com.graphql-java:graphql-java:22.1")
     // r2dbc
     implementation("org.springframework.boot:spring-boot-starter-data-r2dbc")
     runtimeOnly("org.postgresql:r2dbc-postgresql")
@@ -52,35 +52,29 @@ dependencies {
     implementation("org.jetbrains.kotlin:kotlin-stdlib")
 
     // kotlin coroutines
-    developmentOnly("org.jetbrains.kotlinx:kotlinx-coroutines-debug:${property("coroutinesVersion")}")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:${property("coroutinesVersion")}")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:${property("coroutinesVersion")}")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactive:${property("coroutinesVersion")}")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor:${property("coroutinesVersion")}")
+    developmentOnly("org.jetbrains.kotlinx:kotlinx-coroutines-debug:1.9.0")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.9.0")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:1.9.0")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactive:1.9.0")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor:1.9.0")
 
     // test
     testImplementation("org.springframework.boot:spring-boot-starter-test") {
         exclude(module = "mockito-core")
     }
     testImplementation("io.projectreactor:reactor-test")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-test-jvm:${property("coroutinesVersion")}")
-    testImplementation("io.mockk:mockk-jvm:${property("mockkVersion")}")
-    testImplementation("com.ninja-squad:springmockk:${property("springmockkVersion")}")
-    testImplementation("io.kotest:kotest-runner-junit5-jvm:${property("kotestVersion")}")
-    testImplementation("io.kotest:kotest-assertions-core-jvm:${property("kotestVersion")}")
-    testImplementation("io.kotest:kotest-framework-concurrency:${property("kotestVersion")}")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-test-jvm:1.9.0")
+    testImplementation("io.mockk:mockk-jvm:1.13.13")
+    testImplementation("com.ninja-squad:springmockk:4.0.2")
+    testImplementation("io.kotest:kotest-runner-junit5-jvm:5.9.1")
+    testImplementation("io.kotest:kotest-assertions-core-jvm:5.9.1")
+    testImplementation("io.kotest:kotest-framework-concurrency:5.9.1")
 
     // testcontainters
     testImplementation("org.testcontainers:junit-jupiter")
     testImplementation("org.testcontainers:postgresql")
     testImplementation("org.testcontainers:r2dbc")
     runtimeOnly("org.postgresql:postgresql")
-}
-
-dependencyManagement {
-    imports {
-        mavenBom("org.testcontainers:testcontainers-bom:${property("testcontainersVersion")}")
-    }
 }
 
 kotlin {

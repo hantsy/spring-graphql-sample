@@ -19,7 +19,7 @@ class ExceptionHandlers : DataFetcherExceptionHandler {
         return when (val exception = handlerParameters.exception) {
             is PostNotFoundException, is AuthorNotFoundException -> {
                 val graphqlError = TypedGraphQLError.newNotFoundBuilder()
-                    .message(exception.message)
+                    .message(exception.message?: "Not found")
                     .path(handlerParameters.path)
                     .build();
                 val result = DataFetcherExceptionHandlerResult.newResult()

@@ -20,7 +20,7 @@ class AuthDataFetcher(
 
     @DgsMutation
     fun signIn(@InputArgument credentials: Credentials, dfe: DgsDataFetchingEnvironment): Map<String, Any> {
-        var auth = authenticationManager.authenticate(
+        val auth = authenticationManager.authenticate(
             UsernamePasswordAuthenticationToken(
                 credentials.username,
                 credentials.password

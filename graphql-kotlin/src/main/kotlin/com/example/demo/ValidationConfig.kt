@@ -22,55 +22,58 @@ import kotlin.reflect.jvm.kotlinFunction
 // see: https://github.com/spring-projects/spring-framework/issues/23499#issuecomment-900369875
 // related issues see: https://github.com/spring-projects/spring-framework/issues/23499
 // and https://hibernate.atlassian.net/browse/HV-1638
-@Configuration
-class ValidationConfig {
-    @Primary
-    @Bean
-    @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-    fun defaultValidator(): LocalValidatorFactoryBean {
-        val factoryBean = KotlinCoroutinesLocalValidatorFactoryBean()
-        factoryBean.messageInterpolator = MessageInterpolatorFactory().getObject()
-        return factoryBean
-    }
-}
-
-class KotlinCoroutinesLocalValidatorFactoryBean : LocalValidatorFactoryBean() {
-    override fun getClockProvider(): ClockProvider = DefaultClockProvider.INSTANCE
-
-    override fun postProcessConfiguration(configuration: jakarta.validation.Configuration<*>) {
-        super.postProcessConfiguration(configuration)
-
-        val discoverer = PrioritizedParameterNameDiscoverer()
-        discoverer.addDiscoverer(SuspendAwareKotlinParameterNameDiscoverer())
-        discoverer.addDiscoverer(StandardReflectionParameterNameDiscoverer())
-
-        val defaultProvider = configuration.defaultParameterNameProvider
-        configuration.parameterNameProvider(object : ParameterNameProvider {
-            override fun getParameterNames(constructor: Constructor<*>): List<String> {
-                val paramNames: Array<String>? = discoverer.getParameterNames(constructor)
-                return paramNames?.toList() ?: defaultProvider.getParameterNames(constructor)
-            }
-
-            override fun getParameterNames(method: Method): List<String> {
-                val paramNames: Array<String>? = discoverer.getParameterNames(method)
-                return paramNames?.toList() ?: defaultProvider.getParameterNames(method)
-            }
-        })
-    }
-}
-
-class SuspendAwareKotlinParameterNameDiscoverer : ParameterNameDiscoverer {
-
-    private val defaultProvider = KotlinReflectionParameterNameDiscoverer()
-
-    override fun getParameterNames(constructor: Constructor<*>): Array<String>? =
-        defaultProvider.getParameterNames(constructor)
-
-    override fun getParameterNames(method: Method): Array<String>? {
-        val defaultNames = defaultProvider.getParameterNames(method) ?: return null
-        val function = method.kotlinFunction
-        return if (function != null && function.isSuspend) {
-            defaultNames + ""
-        } else defaultNames
-    }
-}
+// ===================================================
+// this is fixed in the latest spring boot
+// ===================================================
+//@Configuration
+//class ValidationConfig {
+//    @Primary
+//    @Bean
+//    @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
+//    fun defaultValidator(): LocalValidatorFactoryBean {
+//        val factoryBean = KotlinCoroutinesLocalValidatorFactoryBean()
+//        factoryBean.messageInterpolator = MessageInterpolatorFactory().getObject()
+//        return factoryBean
+//    }
+//}
+//
+//class KotlinCoroutinesLocalValidatorFactoryBean : LocalValidatorFactoryBean() {
+//    override fun getClockProvider(): ClockProvider = DefaultClockProvider.INSTANCE
+//
+//    override fun postProcessConfiguration(configuration: jakarta.validation.Configuration<*>) {
+//        super.postProcessConfiguration(configuration)
+//
+//        val discoverer = PrioritizedParameterNameDiscoverer()
+//        discoverer.addDiscoverer(SuspendAwareKotlinParameterNameDiscoverer())
+//        discoverer.addDiscoverer(StandardReflectionParameterNameDiscoverer())
+//
+//        val defaultProvider = configuration.defaultParameterNameProvider
+//        configuration.parameterNameProvider(object : ParameterNameProvider {
+//            override fun getParameterNames(constructor: Constructor<*>): List<String> {
+//                val paramNames: Array<String>? = discoverer.getParameterNames(constructor)
+//                return paramNames?.toList() ?: defaultProvider.getParameterNames(constructor)
+//            }
+//
+//            override fun getParameterNames(method: Method): List<String> {
+//                val paramNames: Array<String>? = discoverer.getParameterNames(method)
+//                return paramNames?.toList() ?: defaultProvider.getParameterNames(method)
+//            }
+//        })
+//    }
+//}
+//
+//class SuspendAwareKotlinParameterNameDiscoverer : ParameterNameDiscoverer {
+//
+//    private val defaultProvider = KotlinReflectionParameterNameDiscoverer()
+//
+//    override fun getParameterNames(constructor: Constructor<*>): Array<String>? =
+//        defaultProvider.getParameterNames(constructor)
+//
+//    override fun getParameterNames(method: Method): Array<String>? {
+//        val defaultNames = defaultProvider.getParameterNames(method) ?: return null
+//        val function = method.kotlinFunction
+//        return if (function != null && function.isSuspend) {
+//            defaultNames + ""
+//        } else defaultNames
+//    }
+//}
