@@ -8,7 +8,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.graphql.test.tester.WebSocketGraphQlTester;
-import org.springframework.test.context.ActiveProfiles;
 import org.springframework.web.reactive.socket.client.ReactorNettyWebSocketClient;
 import reactor.test.StepVerifier;
 
@@ -65,7 +64,7 @@ class SubscriptionTestsWithWebSocketGraphqlTester {
                      title
                      content
                    }
-                 }""";
+                 }""".stripIndent();
         graphQlTester.document(postById).variable("postId", id.toString())
                 .execute()
                 .path("postById.title")
@@ -80,12 +79,13 @@ class SubscriptionTestsWithWebSocketGraphqlTester {
                         content 
                     } 
                 }
-                """.trim();
+                """.stripIndent();
         var subscribedCommentsFlux = this.graphQlTester.document(subscriptionQuery)
                 .executeSubscription()
                 .toFlux("commentAdded.content", String.class);
 
         var verifier = StepVerifier.create(subscribedCommentsFlux)
+                .thenAwait(Duration.ofMillis(1000))
                 .consumeNextWith(c -> assertThat(c).startsWith("comment of my post at "))
                 .consumeNextWith(c -> assertThat(c).startsWith("comment of my post at "))
                 .consumeNextWith(c -> assertThat(c).startsWith("comment of my post at "))
@@ -96,9 +96,7 @@ class SubscriptionTestsWithWebSocketGraphqlTester {
         addCommentToPost(id);
         addCommentToPost(id);
 
-        Awaitility.await().atMost(Duration.ofMillis(500)).untilAsserted(
-                () -> verifier.verify()
-        );
+        Awaitility.await().atMost(Duration.ofMillis(500)).untilAsserted(verifier::verify);
     }
 
     private void addCommentToPost(String id) {

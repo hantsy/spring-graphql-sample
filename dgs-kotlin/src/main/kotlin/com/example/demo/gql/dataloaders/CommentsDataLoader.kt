@@ -19,7 +19,7 @@ class CommentsDataLoader(val postService: PostService) : MappedBatchLoader<Strin
             mappedComments[it] = comments.filter { (_, _, postId) -> postId == it }
         }
         log.info("mapped comments: {}", mappedComments)
-        return CompletableFuture.supplyAsync { mappedComments }
+        return CompletableFuture.completedFuture(mappedComments)
     }
 
     companion object {

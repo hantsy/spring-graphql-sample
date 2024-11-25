@@ -18,7 +18,7 @@ class ExceptionHandlers : DataFetcherExceptionHandler {
         when (val exception = handlerParameters.exception) {
             is PostNotFoundException, is AuthorNotFoundException -> {
                 val graphqlError = TypedGraphQLError.newNotFoundBuilder()
-                    .message(exception.message)
+                    .message(exception.message?: "Not Found")
                     .path(handlerParameters.path)
                     .build();
                 CompletableFuture.completedFuture(

@@ -19,6 +19,7 @@ import reactor.core.publisher.Flux;
 import reactor.test.StepVerifier;
 
 import java.net.URI;
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
@@ -78,6 +79,7 @@ public class IntegrationTests {
                 );
 
         var verifier = StepVerifier.create(result)
+                .thenAwait(Duration.ofMillis(1000))
                 .consumeNextWith(c -> assertThat(c.getContent()).startsWith("comment of my post at "))
                 .consumeNextWith(c -> assertThat(c.getContent()).startsWith("comment of my post at "))
                 .consumeNextWith(c -> assertThat(c.getContent()).startsWith("comment of my post at "))
@@ -88,21 +90,18 @@ public class IntegrationTests {
         addCommentToPost(id);
         addCommentToPost(id);
 
-        await().atMost(5000, MILLISECONDS)
-                .untilAsserted(
-                        () -> verifier.verify()
-                );
+        await().atMost(5000, MILLISECONDS).untilAsserted(verifier::verify);
     }
 
     private void getPostById(String id) {
         var postByIdQuery = """
                 query post($postId:String!){
                    postById(postId:$postId) {
-                     id
-                     title
-                     content
+                      id
+                      title
+                      content
                    }
-                 }""".trim();
+                }""".stripIndent();
 
         Map<String, Object> postByIdVariables = Map.of(
                 "postId", id
@@ -129,11 +128,11 @@ public class IntegrationTests {
         var creatPost = """
                 mutation createPost($createPostInput: CreatePostInput!){
                    createPost(createPostInput:$createPostInput){
-                   id
-                   title
-                   content
+                       id
+                       title
+                       content
                    }
-                }""".trim();
+                }""".stripIndent();
 
         var postIdHolder = new AtomicReference<String>();
         var countDownLatch = new CountDownLatch(1);
@@ -169,8 +168,10 @@ public class IntegrationTests {
     private void addCommentToPost(String id) {
         var addCommentQuery = """
                 mutation addComment($commentInput: CommentInput!){
-                   addComment(commentInput:$commentInput){id}
-                }""";
+                    addComment(commentInput:$commentInput){
+                        id
+                    }
+                }""".stripIndent();
         Map<String, Object> addCommentVariables = Map.of(
                 "commentInput",
                 Map.of(

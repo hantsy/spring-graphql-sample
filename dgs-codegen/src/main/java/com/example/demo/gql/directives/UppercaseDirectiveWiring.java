@@ -2,11 +2,11 @@ package com.example.demo.gql.directives;
 
 import com.netflix.graphql.dgs.DgsDirective;
 import graphql.schema.DataFetcherFactories;
+import graphql.schema.FieldCoordinates;
 import graphql.schema.GraphQLFieldDefinition;
 import graphql.schema.idl.SchemaDirectiveWiring;
 import graphql.schema.idl.SchemaDirectiveWiringEnvironment;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Component;
 
 @DgsDirective(name = "uppercase")
 @Slf4j
@@ -16,8 +16,8 @@ public class UppercaseDirectiveWiring implements SchemaDirectiveWiring {
 
         var field = env.getElement();
         var parentType = env.getFieldsContainer();
-
-        var originalDataFetcher = env.getCodeRegistry().getDataFetcher(parentType, field);
+        var fieldCoordinates = FieldCoordinates.coordinates(parentType, field.getName());
+        var originalDataFetcher = env.getCodeRegistry().getDataFetcher(fieldCoordinates, field);
         var dataFetcher = DataFetcherFactories.wrapDataFetcher(
                 originalDataFetcher,
                 (dataFetchingEnvironment, value) -> {
@@ -29,7 +29,7 @@ public class UppercaseDirectiveWiring implements SchemaDirectiveWiring {
                 }
         );
 
-        env.getCodeRegistry().dataFetcher(parentType, field, dataFetcher);
+        env.getCodeRegistry().dataFetcher(fieldCoordinates, dataFetcher);
         return field;
     }
 }

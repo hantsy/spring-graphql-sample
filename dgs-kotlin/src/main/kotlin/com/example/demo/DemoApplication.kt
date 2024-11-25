@@ -192,7 +192,7 @@ val beans = beans {
             if (!passwordEncoder.matches(password, user.password)) {
                 throw BadCredentialsException("username or password was not matched.")
             }
-            if (!user.isEnabled()) {
+            if (!user.isEnabled) {
                 throw DisabledException("user is not enabled.")
             }
             AuthenticationTokenWithId(user.id, username, user.authorities)

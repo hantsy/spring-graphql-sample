@@ -2,6 +2,7 @@ package com.example.demo.gql.datafetchers
 
 import com.example.demo.gql.DgsConstants
 import com.example.demo.gql.types.*
+import com.example.demo.service.AuthorNotFoundException
 import com.example.demo.service.AuthorService
 import com.example.demo.service.PostService
 import com.netflix.graphql.dgs.*
@@ -19,7 +20,7 @@ class AuthorsDataFetcher(
 
     @DgsData(parentType = DgsConstants.AUTHOR.TYPE_NAME, field = DgsConstants.AUTHOR.Posts)
     fun posts(dfe: DgsDataFetchingEnvironment): List<Post> {
-        val a: Author = dfe.getSource()
+        val a: Author = dfe.getSource()!!
         return postService.getPostsByAuthorId(a.id)
     }
 
@@ -30,7 +31,7 @@ class AuthorsDataFetcher(
 
     @DgsData(parentType = DgsConstants.AUTHOR.TYPE_NAME, field = DgsConstants.AUTHOR.Profile)
     fun profile(dfe: DgsDataFetchingEnvironment): Profile? {
-        val a: Author = dfe.getSource()
+        val a: Author = dfe.getSource()!!
         return authorService.getProfileByUserId(a.id)
     }
 }

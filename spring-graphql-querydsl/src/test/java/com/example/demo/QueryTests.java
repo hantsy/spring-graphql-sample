@@ -13,8 +13,8 @@ import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.graphql.tester.AutoConfigureHttpGraphQlTester;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.graphql.test.tester.HttpGraphQlTester;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -38,7 +38,7 @@ public class QueryTests {
     @Autowired
     ObjectMapper objectMapper;
 
-    @MockBean
+    @MockitoBean
     PostRepository postRepository;
 
     @BeforeEach
@@ -76,7 +76,7 @@ public class QueryTests {
                      title
                      content
                    }
-                }""";
+                }""".stripIndent();
         graphQlTester.document(allPosts)
                 .execute()
                 .path("posts[*].title")
@@ -101,7 +101,7 @@ public class QueryTests {
                      title
                      content
                    }
-                 }""".trim();
+                 }""".stripIndent();
         var id = UUID.randomUUID();
         graphQlTester.document(postById)
                 .variable("id", id)

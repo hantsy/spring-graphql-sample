@@ -25,10 +25,10 @@ import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
 import org.springframework.boot.autoconfigure.jackson.JacksonAutoConfiguration;
 import org.springframework.boot.autoconfigure.web.reactive.WebFluxAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
 import reactor.core.publisher.Mono;
 
 import java.util.Collections;
@@ -65,19 +65,19 @@ class SubscriptionTests {
     @Autowired
     ObjectMapper objectMapper;
 
-    @SpyBean
+    @MockitoSpyBean
     PostService postService;
 
-    @MockBean
+    @MockitoBean
     PostRepository postRepository;
 
-    @MockBean
+    @MockitoBean
     CommentRepository commentRepository;
 
-    @MockBean
+    @MockitoBean
     AuthorRepository authorRepository;
 
-    @MockBean
+    @MockitoBean
     AuthorService authorService;
 
     @SneakyThrows
@@ -98,7 +98,15 @@ class SubscriptionTests {
         // commentAdded producer
         var comments = new CopyOnWriteArrayList<Comment>();
 
-        @Language("GraphQL") var subscriptionQuery = "subscription onCommentAdded { commentAdded { id postId content } }";
+        @Language("GraphQL") var subscriptionQuery = """
+                subscription onCommentAdded {
+                    commentAdded {
+                        id
+                        postId
+                        content
+                    }
+                }
+                """.stripIndent();
 //        var executionResult = dgsReactiveQueryExecutor.execute(subscriptionQuery, Collections.emptyMap()).block();
 //        var publisher = executionResult.<Publisher<ExecutionResult>>getData();
 //        publisher.subscribe(new Subscriber<ExecutionResult>() {
@@ -130,7 +138,7 @@ class SubscriptionTests {
 //        });
 //
         var executionResultMono = dgsReactiveQueryExecutor.execute(subscriptionQuery, Collections.emptyMap());
-        var publisher = executionResultMono.flatMapMany(result -> result.<Publisher<ExecutionResult>>getData());
+        var publisher = executionResultMono.flatMapMany(ExecutionResult::<Publisher<ExecutionResult>>getData);
         publisher.subscribe(executionResult -> {
             log.debug("execution result in publisher: {}", executionResult);
             var commentAdded = objectMapper.convertValue(

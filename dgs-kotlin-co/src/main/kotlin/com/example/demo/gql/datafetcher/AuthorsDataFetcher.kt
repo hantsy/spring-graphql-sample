@@ -19,7 +19,7 @@ class AuthorsDataFetcher(
 
     @DgsData(parentType = DgsConstants.AUTHOR.TYPE_NAME, field = DgsConstants.AUTHOR.Posts)
     suspend fun posts(dfe: DgsDataFetchingEnvironment): List<Post> {
-        val a: Author = dfe.getSource()
+        val a: Author = dfe.getSource()!!
         return postService.getPostsByAuthorId(a.id).toList()
     }
 }

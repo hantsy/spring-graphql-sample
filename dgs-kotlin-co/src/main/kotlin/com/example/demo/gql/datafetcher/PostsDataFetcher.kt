@@ -23,13 +23,13 @@ class PostsDataFetcher(val postService: PostService) {
     fun author(dfe: DgsDataFetchingEnvironment): CompletableFuture<Author> {
         val dataLoader = dfe.getDataLoader<String, Author>("authorsLoader")
         val post = dfe.getSource<Post>()
-        return dataLoader.load(post.authorId)
+        return dataLoader!!.load(post!!.authorId)
     }
 
     @DgsData(parentType = DgsConstants.POST.TYPE_NAME, field = DgsConstants.POST.Comments)
     fun comments(dfe: DgsDataFetchingEnvironment): CompletableFuture<List<Comment>> {
         val dataLoader = dfe.getDataLoader<String, List<Comment>>(CommentsDataLoader::class.java)
-        val (id) = dfe.getSource<Post>()
+        val (id) = dfe.getSource<Post>()!!
         return dataLoader.load(id)
     }
 

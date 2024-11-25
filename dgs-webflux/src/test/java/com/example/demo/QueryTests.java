@@ -18,6 +18,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
@@ -35,10 +36,10 @@ class QueryTests {
     @Autowired
     DgsReactiveQueryExecutor dgsQueryExecutor;
 
-    @MockBean
+    @MockitoBean
     PostService postService;
 
-    @MockBean
+    @MockitoBean
     AuthorService authorService;
 
     @Configuration

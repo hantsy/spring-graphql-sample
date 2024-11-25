@@ -5,19 +5,17 @@ import com.example.demo.gql.types.CreatePostInput;
 import com.example.demo.gql.types.Post;
 import com.example.demo.service.AuthorService;
 import com.example.demo.service.PostService;
-import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.graphql.GraphQlTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.graphql.execution.ErrorType;
 import org.springframework.graphql.test.tester.GraphQlTester;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import java.util.Map;
 import java.util.UUID;
 
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
@@ -28,10 +26,10 @@ public class MutationTests {
     @Autowired
     GraphQlTester graphQlTester;
 
-    @MockBean
+    @MockitoBean
     PostService postService;
 
-    @MockBean
+    @MockitoBean
     AuthorService authorService;
 
     @Test

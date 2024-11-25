@@ -1,23 +1,22 @@
 package com.example.demo
 
 import com.jayway.jsonpath.TypeRef
-import com.netflix.graphql.dgs.DgsQueryExecutor
+import com.netflix.graphql.dgs.client.WebClientGraphQLClient
 import com.netflix.graphql.dgs.client.WebSocketGraphQLClient
 import org.assertj.core.api.Assertions.assertThat
+import org.intellij.lang.annotations.Language
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.web.server.LocalServerPort
+import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.reactive.socket.client.ReactorNettyWebSocketClient
 import reactor.test.StepVerifier
+import java.time.Duration
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class DemoApplicationTestsWithGraphQLClient {
-
-    @Autowired
-    lateinit var dgsQueryExecutor: DgsQueryExecutor
-
+    lateinit var webClientGraphQLClient: WebClientGraphQLClient
     lateinit var socketGraphQLClient: WebSocketGraphQLClient
 
     @LocalServerPort
@@ -25,52 +24,72 @@ class DemoApplicationTestsWithGraphQLClient {
 
     @BeforeEach
     fun setup() {
-        this.socketGraphQLClient = WebSocketGraphQLClient("ws://localhost:$port/subscriptions", ReactorNettyWebSocketClient())
+        this.webClientGraphQLClient = WebClientGraphQLClient(WebClient.create("http://localhost:$port/graphql"))
+        this.socketGraphQLClient =
+            WebSocketGraphQLClient("ws://localhost:$port/subscriptions", ReactorNettyWebSocketClient())
     }
 
     @Test
     fun testMessages() {
-        //Hooks.onOperatorDebug();
-        val query = "subscription { messageSent { body } }"
+        @Language("graphql") val messageSentSubscriptionQuery = """
+            subscription { 
+                messageSent { 
+                    body 
+                } 
+            }
+            """.trimIndent()
         val variables = emptyMap<String, Any>()
-        val executionResult = socketGraphQLClient.reactiveExecuteQuery(query, variables)
+        val executionResult = socketGraphQLClient.reactiveExecuteQuery(messageSentSubscriptionQuery, variables)
             .map {
                 it.extractValueAsObject(
                     "data.messageSent",
                     object : TypeRef<Map<String, Any>>() {}
                 )["body"] as String
             }
+
+        val message1 = "text1"
+        val message2 = "text2"
         val verifier = StepVerifier.create(executionResult)
-            .consumeNextWith { assertThat(it).isEqualTo("text1 message") }
- //           .consumeNextWith { assertThat(it).isEqualTo("text2 message") }
+            .thenAwait(Duration.ofMillis(1000)) // see: https://github.com/Netflix/dgs-framework/issues/657
+            .consumeNextWith { assertThat(it).isEqualTo(message1) }
+            .consumeNextWith { assertThat(it).isEqualTo(message2) }
             .thenCancel()
             .verifyLater()
 
-        val sendText1 = dgsQueryExecutor.executeAndExtractJsonPath<String>(
-            "mutation sendMessage(\$msg: TextMessageInput!) { send(message:\$msg) { body}}",
-            "data.send.body",
-            mapOf("msg" to (mapOf("body" to "text1 message")))
-        )
-        assertThat(sendText1).contains("text1");
+        @Language("graphql") val sendMessageQuery = """
+            mutation sendMessage(${'$'}msg: TextMessageInput!) {
+                 send(message:${'$'}msg) { 
+                    body
+                 }
+             }
+             """.trimIndent()
+        webClientGraphQLClient.reactiveExecuteQuery(sendMessageQuery, mapOf("msg" to (mapOf("body" to message1))))
+            .map { it.extractValueAsObject("data.send.body", String::class.java) }
+            .`as` { StepVerifier.create(it) }
+            .consumeNextWith { assertThat(it).isEqualTo(message1) }
+            .verifyComplete()
 
-//        val sendText2 = dgsQueryExecutor.executeAndExtractJsonPath<String>(
-//            "mutation sendMessage(\$msg: TextMessageInput!) { send(message:\$msg) { body}}",
-//            "data.send.body",
-//            mapOf("msg" to (mapOf("body" to "text2 message")))
-//        )
-//        assertThat(sendText2).contains("text2");
+        webClientGraphQLClient.reactiveExecuteQuery(sendMessageQuery, mapOf("msg" to (mapOf("body" to message2))))
+            .map { it.extractValueAsObject("data.send.body", String::class.java) }
+            .`as` { StepVerifier.create(it) }
+            .consumeNextWith { assertThat(it).isEqualTo(message2) }
+            .verifyComplete()
 
         //verify it now.
         verifier.verify()
 
-        val msgs = dgsQueryExecutor.executeAndExtractJsonPath<List<String>>(
-            " { messages { body }}",
-            "data.messages[*].body"
-        )
-        assertThat(msgs).allMatch { s: String ->
-            s.contains(
-                "message"
-            )
-        }
+        @Language("graphql") val allMessagesQuery = """
+            query allMessages { 
+                messages { 
+                    body
+                }
+            }
+            """.trimIndent()
+        webClientGraphQLClient.reactiveExecuteQuery(allMessagesQuery)
+            .map { it.extractValueAsObject("data.messages[*].body", object : TypeRef<List<String>>() {}) }
+            .`as` { StepVerifier.create(it) }
+            .consumeNextWith { assertThat(it).isEqualTo(message1) }
+            .consumeNextWith { assertThat(it).isEqualTo(message2) }
+            .verifyComplete()
     }
 }

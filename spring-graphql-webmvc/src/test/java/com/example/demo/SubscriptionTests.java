@@ -15,9 +15,9 @@ import org.awaitility.Awaitility;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.graphql.GraphQlTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.graphql.test.tester.GraphQlTester;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
 import reactor.test.StepVerifier;
 
 import java.time.Duration;
@@ -33,19 +33,19 @@ public class SubscriptionTests {
     @Autowired
     GraphQlTester graphQlTester;
 
-    @MockBean
+    @MockitoBean
     AuthorService authorService;
 
-    @SpyBean
+    @MockitoSpyBean
     PostService postService;
 
-    @MockBean
+    @MockitoBean
     AuthorRepository authorRepository;
 
-    @MockBean
+    @MockitoBean
     PostRepository postRepository;
 
-    @MockBean
+    @MockitoBean
     CommentRepository commentRepository;
 
     @SneakyThrows
