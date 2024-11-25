@@ -9,7 +9,7 @@ plugins {
     id("io.spring.dependency-management") version "1.1.6"
     kotlin("jvm") version "2.0.21"
     kotlin("plugin.spring") version "2.0.21"
-    id("com.netflix.dgs.codegen") version "6.3.0" //https://plugins.gradle.org/plugin/com.netflix.dgs.codegen
+    id("com.netflix.dgs.codegen") version "7.0.2" //https://plugins.gradle.org/plugin/com.netflix.dgs.codegen
 }
 
 // extra["graphql-java.version"] = "19.2"
