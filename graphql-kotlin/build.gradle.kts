@@ -25,14 +25,6 @@ repositories {
     maven { url = uri("https://repo.spring.io/snapshot") }
 }
 
-extra["testcontainersVersion"] = "1.19.8"
-extra["graphqlKotlinVersion"] = "8.0.0-alpha.1"
-extra["coroutinesVersion"] = "1.9.0"
-extra["mockkVersion"] = "1.13.11"
-extra["springmockkVersion"] = "4.0.2"
-extra["kotestVersion"] = "5.9.1"
-extra["graphqlJavaVersion"] = "22.1"
-
 dependencies {
     // webflux
     implementation("org.springframework.boot:spring-boot-starter-webflux")
