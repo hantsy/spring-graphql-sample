@@ -17,7 +17,7 @@
     "@angular/core": "^19.0.1",
     "@angular/forms": "^19.0.1",
     "@angular/material": "^19.0.1",
-    "@angular/platform-browser": "^19.0.1",
+    "@angular/platform-browser": "^19.0.3",
     "@angular/platform-browser-dynamic": "^19.0.1",
     "@angular/router": "^19.0.1",
     "@apollo/client": "^3.11.10",
