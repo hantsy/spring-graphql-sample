@@ -56,7 +56,7 @@ dependencies {
     }
     testImplementation("io.projectreactor:reactor-test")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-test-jvm:1.9.0")
-    testImplementation("io.mockk:mockk-jvm:1.13.13")
+    testImplementation("io.mockk:mockk-jvm:1.13.14")
     testImplementation("com.ninja-squad:springmockk:4.0.2")
     testImplementation("io.kotest:kotest-runner-junit5-jvm:5.9.1")
     testImplementation("io.kotest:kotest-assertions-core-jvm:5.9.1")
