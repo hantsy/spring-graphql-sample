@@ -47,7 +47,7 @@ dependencies {
     developmentOnly("org.jetbrains.kotlinx:kotlinx-coroutines-debug:1.9.0")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.9.0")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:1.9.0")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactive:1.9.0")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactive:1.10.1")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor:1.9.0")
 
     // test
