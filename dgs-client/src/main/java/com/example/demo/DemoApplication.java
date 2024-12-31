@@ -6,9 +6,13 @@ import com.example.demo.gql.client.AuthorProjection;
 import com.example.demo.gql.client.PostProjection;
 import com.example.demo.gql.types.Post;
 import com.jayway.jsonpath.TypeRef;
-import com.netflix.graphql.dgs.client.*;
+import com.netflix.graphql.dgs.client.CustomGraphQLClient;
+import com.netflix.graphql.dgs.client.GraphQLClient;
+import com.netflix.graphql.dgs.client.GraphQLResponse;
+import com.netflix.graphql.dgs.client.HttpResponse;
 import com.netflix.graphql.dgs.client.codegen.GraphQLQueryRequest;
 import lombok.extern.slf4j.Slf4j;
+import org.intellij.lang.annotations.Language;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
@@ -44,20 +48,20 @@ public class DemoApplication implements ApplicationRunner {
          * To use RestTemplate, the requestHeaders need to be transformed into Spring's HttpHeaders.
          */
         HttpHeaders requestHeaders = new HttpHeaders();
-        headers.forEach(requestHeaders::put);
+        requestHeaders.putAll(headers);
 
         /**
          * Use RestTemplate to call the GraphQL service.
          * The response type should simply be String, because the parsing will be done by the GraphQLClient.
          */
         var dgsRestTemplate = new RestTemplate();
-        ResponseEntity<String> exchange = dgsRestTemplate.exchange(url, HttpMethod.POST, new HttpEntity(body, requestHeaders), String.class);
+        ResponseEntity<String> exchange = dgsRestTemplate.exchange(url, HttpMethod.POST, new HttpEntity<>(body, requestHeaders), String.class);
 
         /**
          * Return a HttpResponse, which contains the HTTP status code and response body (as a String).
          * The way to get these depend on the HTTP client.
          */
-        return new HttpResponse(exchange.getStatusCodeValue(), exchange.getBody());
+        return new HttpResponse(exchange.getStatusCode().value(), exchange.getBody());
     }
 
 
@@ -87,7 +91,7 @@ public class DemoApplication implements ApplicationRunner {
         GraphQLQueryRequest graphQLQueryRequest =
                 new GraphQLQueryRequest(
                         new AllPostsGraphQLQuery(),
-                        new AllPostsProjectionRoot<AuthorProjection<?,?>,PostProjection<?,?>>()
+                        new AllPostsProjectionRoot<AuthorProjection<?, ?>, PostProjection<?, ?>>()
                                 .id()
                                 .title()
                                 .content()
@@ -98,11 +102,14 @@ public class DemoApplication implements ApplicationRunner {
                                 .createdAt()
                 );
 
-        String query = graphQLQueryRequest.serialize();
-        GraphQLClient client = new CustomGraphQLClient(url, DemoApplication::execute);
-        GraphQLResponse response = client.executeQuery(query, new HashMap<>() );
+        @Language("graphql") String query = graphQLQueryRequest.serialize();
+        log.info("query string: {}", query);
 
-        var data = response.extractValueAsObject("allPosts", new TypeRef<List<Post>>() {  });
+        GraphQLClient client = new CustomGraphQLClient(url, DemoApplication::execute);
+        GraphQLResponse response = client.executeQuery(query, new HashMap<>());
+
+        var data = response.extractValueAsObject("allPosts", new TypeRef<List<Post>>() {
+        });
         log.info("fetched all posts from client: {}", data);
     }
 }

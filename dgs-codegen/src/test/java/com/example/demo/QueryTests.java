@@ -11,17 +11,15 @@ import com.example.demo.service.AuthorService;
 import com.example.demo.service.PostNotFoundException;
 import com.example.demo.service.PostService;
 import com.netflix.graphql.dgs.DgsQueryExecutor;
-import com.netflix.graphql.dgs.autoconfig.DgsAutoConfiguration;
 import com.netflix.graphql.dgs.client.codegen.GraphQLQueryRequest;
+import com.netflix.graphql.dgs.test.EnableDgsTest;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
-import org.springframework.boot.autoconfigure.jackson.JacksonAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import java.util.List;
 import java.util.Map;
@@ -31,16 +29,17 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
 @SpringBootTest(classes = {QueryTests.QueryTestsConfig.class})
+@EnableDgsTest
 @Slf4j
 class QueryTests {
 
     @Autowired
     DgsQueryExecutor dgsQueryExecutor;
 
-    @MockBean
+    @MockitoBean
     PostService postService;
 
-    @MockBean
+    @MockitoBean
     AuthorService authorService;
 
     @Configuration
@@ -49,10 +48,6 @@ class QueryTests {
             UUIDScalar.class,
             LocalDateTimeScalar.class,
             UppercaseDirectiveWiring.class
-    })
-    @ImportAutoConfiguration(value = {
-            DgsAutoConfiguration.class,
-            JacksonAutoConfiguration.class
     })
     static class QueryTestsConfig {
 

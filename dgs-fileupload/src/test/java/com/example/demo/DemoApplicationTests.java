@@ -2,6 +2,8 @@ package com.example.demo;
 
 import com.example.demo.gql.FileUploadInput;
 import com.netflix.graphql.dgs.DgsQueryExecutor;
+import com.netflix.graphql.dgs.test.EnableDgsTest;
+import org.intellij.lang.annotations.Language;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +16,7 @@ import java.util.Map;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest()
+@EnableDgsTest
 class DemoApplicationTests {
 
     @Autowired
@@ -21,7 +24,7 @@ class DemoApplicationTests {
 
     @Test
     public void testUpload() {
-        var query = "mutation upload($file:Upload!){ upload(file:$file)	}";
+        @Language("GraphQL") var query = "mutation upload($file:Upload!){ upload(file:$file)	}";
         var result = dgsQueryExecutor.executeAndExtractJsonPathAsObject(
                 query,
                 "data.upload",
@@ -34,7 +37,7 @@ class DemoApplicationTests {
 
     @Test
     public void testUploadWithDesc() {
-        var query = "mutation uploadWithDesc($desc:String, $file:Upload!){ uploadWithDesc(desc:$desc, file:$file) }";
+        @Language("GraphQL") var query = "mutation uploadWithDesc($desc:String, $file:Upload!){ uploadWithDesc(desc:$desc, file:$file) }";
         var result = dgsQueryExecutor.executeAndExtractJsonPathAsObject(
                 query,
                 "data.uploadWithDesc",
@@ -48,7 +51,7 @@ class DemoApplicationTests {
 
     @Test
     public void testUploads() {
-        var query = "mutation uploads($files:[Upload!]!){ uploads(files:$files)	}";
+        @Language("GraphQL") var query = "mutation uploads($files:[Upload!]!){ uploads(files:$files)	}";
         var result = dgsQueryExecutor.executeAndExtractJsonPathAsObject(
                 query,
                 "data.uploads",
@@ -67,7 +70,7 @@ class DemoApplicationTests {
     @Test
     @Disabled("this dose not work")
     public void testFileUpload() {
-        var query = "mutation fileUpload($file:FileUploadInput!){ fileUpload(file:$file)	}";
+        @Language("GraphQL") var query = "mutation fileUpload($file:FileUploadInput!){ fileUpload(file:$file)	}";
         var result = dgsQueryExecutor.executeAndExtractJsonPathAsObject(
                 query,
                 "data.fileUpload",
@@ -86,8 +89,9 @@ class DemoApplicationTests {
     @Test
     @Disabled("this dose not work")
     public void testFileUploads() {
-        var query = "mutation fileUploads($files:[FileUploadInput!]!){ fileUploads(files:$files)}";
+        @Language("GraphQL") var query = "mutation fileUploads($files:[FileUploadInput!]!){ fileUploads(files:$files)}";
         var result = dgsQueryExecutor.executeAndExtractJsonPathAsObject(
+
                 query,
                 "data.fileUploads",
                 Map.of("files",

@@ -1,15 +1,15 @@
 type Post{
-    id: ID!
+    id: UUID!
     title: String!
     content: String
     comments: [Comment!]
     createdAt: LocalDateTime
     updatedAt: LocalDateTime
-    authorId:String
+    authorId:UUID
     author:Author
 }
 type Author{
-    id:ID!
+    id:UUID!
     name:String!
     email:String!
     createdAt: LocalDateTime
@@ -21,9 +21,9 @@ type Profile {
     coverImageUrl: String!
 }
 type Comment{
-    id: ID!
+    id: UUID!
     content: String!
-    postId: String!
+    postId: UUID!
     createdAt: LocalDateTime
 }
 
@@ -33,15 +33,14 @@ input CreatePostInput {
 }
 
 input CommentInput{
-    postId: String!
+    postId: UUID!
     content: String!
 }
 
 type Query{
     allPosts: [Post!]!
-    postById(postId: String!): Post
-    author(authorId: String!): Author
-
+    postById(postId: UUID!): Post
+    author(authorId: UUID!): Author
 }
 
 type AuthResult {
@@ -59,7 +58,7 @@ type Mutation {
     signIn(credentials: Credentials!): AuthResult
     logout:Boolean
     createPost(createPostInput: CreatePostInput!): Post!
-    updateProfile(bio:String, coverImage: Upload!): Profile! @skipcodegen
+    #updateProfile(bio:String, coverImage: Upload!): Profile! #@skipcodegen
     addComment(commentInput: CommentInput!): Comment!
 }
 
@@ -68,5 +67,5 @@ type Subscription {
 }
 
 scalar LocalDateTime
-scalar Upload
-directive @skipcodegen on FIELD_DEFINITION
+scalar UUID
+#directive @skipcodegen on FIELD_DEFINITION

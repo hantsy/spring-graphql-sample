@@ -26,11 +26,11 @@ class PostService(
 
     fun allPosts() = this.posts.findAll().map { it.asGqlType() }
 
-    fun getPostById(id: String): Post = this.posts.findById(UUID.fromString(id))
+    fun getPostById(id: UUID): Post = this.posts.findById(id)
         .map { it.asGqlType() }
         .orElseThrow { PostNotFoundException(id) }
 
-    fun getPostsByAuthorId(id: String) = this.posts.findByAuthorId(UUID.fromString(id)).map { it.asGqlType() }
+    fun getPostsByAuthorId(id: UUID) = this.posts.findByAuthorId(id).map { it.asGqlType() }
 
     fun createPost(postInput: CreatePostInput): Post {
         val data = PostEntity(title = postInput.title, content = postInput.content)
@@ -39,7 +39,7 @@ class PostService(
     }
 
     fun addComment(commentInput: CommentInput): Comment {
-        val postId = UUID.fromString(commentInput.postId)
+        val postId = commentInput.postId
         return this.posts.findById(postId)
             .map {
                 val data = CommentEntity(content = commentInput.content, postId = postId)
@@ -49,18 +49,17 @@ class PostService(
                 sink.emitNext(comment, Sinks.EmitFailureHandler.FAIL_FAST)
                 comment
             }
-            .orElseThrow { PostNotFoundException(postId.toString()) }
+            .orElseThrow { PostNotFoundException(postId) }
     }
 
     val sink = Sinks.many().replay().latest<Comment>()
     fun commentAdded(): Publisher<Comment> = sink.asFlux()
 
-    fun getCommentsByPostId(id: String): List<Comment> = this.comments.findByPostId(UUID.fromString(id))
+    fun getCommentsByPostId(id: UUID): List<Comment> = this.comments.findByPostId(id)
         .map { it.asGqlType() }
 
-    fun getCommentsByPostIdIn(ids: Set<String>): List<Comment> {
-        val uuids = ids.map { UUID.fromString(it) };
-        val authorEntities = comments.findByPostIdIn(uuids)
+    fun getCommentsByPostIdIn(ids: List<UUID>): List<Comment> {
+        val authorEntities = comments.findByPostIdIn(ids)
         return authorEntities.map { it.asGqlType() }
     }
 }

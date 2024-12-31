@@ -24,7 +24,7 @@ input CreatePostInput {
 }
 
 input CommentInput{
-    postId: String!
+    postId: ID!
     content: String!
 }
 

@@ -26,6 +26,7 @@ import org.springframework.web.socket.*
 import org.springframework.web.socket.client.standard.StandardWebSocketClient
 import org.springframework.web.socket.handler.TextWebSocketHandler
 import java.net.URI
+import java.util.UUID
 
 
 @SpringBootTest(
@@ -150,7 +151,7 @@ class SubscriptionTests {
         assertThat(commentsReplay).isEqualTo(arrayListOf("comment2"))
     }
 
-    private fun addComment(postId: String, comment: String, token: String) {
+    private fun addComment(postId: UUID, comment: String, token: String) {
         log.debug("add comment:[$comment] to post:[$postId]")
         val query = """
             mutation addComment(${'$'}input: CommentInput!) { 
@@ -182,7 +183,7 @@ class SubscriptionTests {
         assertThat(responseEntity.body!!["data"]!!["addComment"]!!.content).isEqualTo(comment)
     }
 
-    private fun createPost(token: String): String {
+    private fun createPost(token: String): UUID {
         val query = """
             mutation createPost(${'$'}input: CreatePostInput!){
                 createPost(createPostInput:${'$'}input) {

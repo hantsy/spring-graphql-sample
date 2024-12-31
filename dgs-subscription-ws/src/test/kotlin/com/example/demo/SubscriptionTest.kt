@@ -1,18 +1,18 @@
 package com.example.demo
 
 import com.netflix.graphql.dgs.DgsQueryExecutor
+import com.netflix.graphql.dgs.test.EnableDgsTest
 import graphql.ExecutionResult
-import org.assertj.core.api.Assertions
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.reactivestreams.Publisher
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
-import reactor.core.publisher.Hooks
 import reactor.test.StepVerifier
 
 @SpringBootTest
-class DemoApplicationTests {
+@EnableDgsTest
+class SubscriptionTest {
 
     @Autowired
     lateinit var dgsQueryExecutor: DgsQueryExecutor
@@ -25,12 +25,12 @@ class DemoApplicationTests {
 
         val verifier = StepVerifier.create(publisher)
             .consumeNextWith {
-                assertThat((it.getData<Map<String, Map<String, Any>>>()["messageSent"]
-                    ?.get("body") as String)).contains("text1")
+                assertThat(it.getData<Map<String, Map<String, Any>>>()["messageSent"]
+                    ?.get("body") as String).contains("text1")
             }
             .consumeNextWith {
-                assertThat((it.getData<Map<String, Map<String, Any>>>()["messageSent"]
-                    ?.get("body") as String)).contains("text2")
+                assertThat(it.getData<Map<String, Map<String, Any>>>()["messageSent"]
+                    ?.get("body") as String).contains("text2")
             }
             .thenCancel()
             .verifyLater()
@@ -56,10 +56,6 @@ class DemoApplicationTests {
             " { messages { body }}",
             "data.messages[*].body"
         )
-        assertThat(msgs).allMatch { s: String ->
-            s.contains(
-                "message"
-            )
-        }
+        assertThat(msgs).allMatch { s: String -> s.contains("message") }
     }
 }

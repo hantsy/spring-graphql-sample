@@ -1,6 +1,7 @@
 package com.example.demo.gql;
 
 import com.netflix.graphql.dgs.DgsComponent;
+import com.netflix.graphql.dgs.DgsDataFetchingEnvironment;
 import com.netflix.graphql.dgs.DgsMutation;
 import com.netflix.graphql.dgs.InputArgument;
 import lombok.RequiredArgsConstructor;
@@ -18,13 +19,16 @@ import java.util.List;
 public class FileUploadMutation {
 
     @DgsMutation
-    public Boolean upload(@InputArgument("file") MultipartFile file) {
+    public Boolean upload(/*@InputArgument("file") MultipartFile file*/ DgsDataFetchingEnvironment env) {
+        var file = (MultipartFile)env.getArgument("file");
         printFileInfo(file);
         return true;
     }
 
     @DgsMutation
-    public Boolean uploadWithDesc(@InputArgument("desc") String desc, @InputArgument("file") MultipartFile file) {
+    public Boolean uploadWithDesc(@InputArgument("desc") String desc, /*@InputArgument("file") MultipartFile file*/
+                                  DgsDataFetchingEnvironment env) {
+        var file = (MultipartFile)env.getArgument("file");
         log.info("description: {}", desc);
         printFileInfo(file);
         return true;
@@ -32,26 +36,28 @@ public class FileUploadMutation {
 
 
     @DgsMutation
-    public Boolean uploads(@InputArgument("files") List<MultipartFile> files) {
+    public Boolean uploads(/*@InputArgument("files") List<MultipartFile> files*/
+            DgsDataFetchingEnvironment env) {
+        var files = (List<MultipartFile>)env.getArgument("files");
         files.forEach(file -> printFileInfo(file));
         return true;
     }
-
-    @DgsMutation
-    public Boolean fileUpload(@InputArgument("file") FileUploadInput file) {
-        log.info("description: {}", file.getDescription());
-        printFileInfo(file.getFile());
-        return true;
-    }
-
-    @DgsMutation
-    public Boolean fileUploads(@InputArgument("files") List<FileUploadInput> files) {
-        files.forEach(file -> {
-            log.info("description: {}", file.getDescription());
-            printFileInfo(file.getFile());
-        });
-        return true;
-    }
+// does not work
+//    @DgsMutation
+//    public Boolean fileUpload(@InputArgument("file") FileUploadInput file) {
+//        log.info("description: {}", file.getDescription());
+//        printFileInfo(file.getFile());
+//        return true;
+//    }
+//
+//    @DgsMutation
+//    public Boolean fileUploads(@InputArgument("files") List<FileUploadInput> files) {
+//        files.forEach(file -> {
+//            log.info("description: {}", file.getDescription());
+//            printFileInfo(file.getFile());
+//        });
+//        return true;
+//    }
 
     @SneakyThrows
     private void printFileInfo(MultipartFile file) {

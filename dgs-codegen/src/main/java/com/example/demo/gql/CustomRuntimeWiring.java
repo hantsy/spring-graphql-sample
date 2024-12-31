@@ -1,12 +1,6 @@
 package com.example.demo.gql;
 
 import com.example.demo.gql.directives.UppercaseDirectiveWiring;
-import com.netflix.graphql.dgs.DgsComponent;
-import com.netflix.graphql.dgs.DgsRuntimeWiring;
-import graphql.schema.idl.RuntimeWiring;
-import graphql.validation.rules.OnValidationErrorStrategy;
-import graphql.validation.rules.ValidationRules;
-import graphql.validation.schemawiring.ValidationSchemaWiring;
 import lombok.RequiredArgsConstructor;
 
 //@DgsComponent

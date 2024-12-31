@@ -1,7 +1,4 @@
 import com.netflix.graphql.dgs.codegen.gradle.GenerateJavaTask
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-import org.jetbrains.kotlin.config.ApiVersion.Companion.KOTLIN_2_0
-import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
 
 plugins {
@@ -16,30 +13,37 @@ plugins {
 
 group = "com.example"
 version = "0.0.1-SNAPSHOT"
-java {
-  toolchain {
-    languageVersion = JavaLanguageVersion.of(21)
-  }
+
+kotlin {
+    jvmToolchain(21)
+    compilerOptions {
+        apiVersion.set(KotlinVersion.KOTLIN_2_0)
+        languageVersion.set(KotlinVersion.KOTLIN_2_0)
+        freeCompilerArgs.addAll(
+            "-Xjsr305=strict",
+            "-opt-in=kotlin.RequiresOptIn",
+            "-opt-in=kotlinx.coroutines.ExperimentalCoroutinesApi"
+        )
+    }
 }
 
 repositories {
     mavenLocal()
     mavenCentral()
-    maven { url = uri( "https://repo.spring.io/milestone") }
-    maven { url = uri( "https://repo.spring.io/snapshot") }
+    maven { url = uri("https://repo.spring.io/milestone") }
+    maven { url = uri("https://repo.spring.io/snapshot") }
 }
 
 dependencyManagement {
     imports {
-        mavenBom("com.netflix.graphql.dgs:graphql-dgs-platform-dependencies:9.2.2")
+        mavenBom("com.netflix.graphql.dgs:graphql-dgs-platform-dependencies:10.0.1")
     }
 }
 
 dependencies {
     // dgs
     //implementation(platform("com.netflix.graphql.dgs:graphql-dgs-platform-dependencies:8.1.1"))
-    implementation("com.netflix.graphql.dgs:graphql-dgs-spring-boot-starter")
-    implementation("com.netflix.graphql.dgs:graphql-dgs-subscriptions-websockets-autoconfigure")
+    implementation("com.netflix.graphql.dgs:dgs-starter")
     implementation("com.netflix.graphql.dgs:graphql-dgs-extended-scalars")
 
     //jdbc
@@ -49,6 +53,7 @@ dependencies {
     // spring boot
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.springframework.boot:spring-boot-starter-websocket")
+    implementation("name.nkonev.multipart-spring-graphql:multipart-spring-graphql:1.5.3")
 
     // spring security
     implementation("org.springframework.boot:spring-boot-starter-security")
@@ -70,6 +75,8 @@ dependencies {
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.springframework.security:spring-security-test")
     testImplementation("io.projectreactor:reactor-test")
+
+    testImplementation("com.netflix.graphql.dgs:dgs-starter-test")
 }
 
 tasks.withType<GenerateJavaTask> {
@@ -80,19 +87,10 @@ tasks.withType<GenerateJavaTask> {
     shortProjectionNames = false
     maxProjectionDepth = 2
     snakeCaseConstantNames = true
-}
-
-kotlin {
-    compilerOptions {
-        apiVersion.set(KotlinVersion.KOTLIN_2_0)
-        languageVersion.set(KotlinVersion.KOTLIN_2_0)
-        jvmTarget.set(JvmTarget.fromTarget("21"))
-        freeCompilerArgs.addAll(
-            "-Xjsr305=strict",
-            "-opt-in=kotlin.RequiresOptIn",
-            "-opt-in=kotlinx.coroutines.ExperimentalCoroutinesApi"
-        )
-    }
+    typeMapping = mutableMapOf(
+        "UUID" to "java.util.UUID",
+        "Upload" to "org.springframework.web.multipart.MultipartFile"
+    )
 }
 
 tasks.withType<Test> {

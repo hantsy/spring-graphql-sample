@@ -8,22 +8,22 @@ import com.example.demo.model.CommentEntity
 import com.example.demo.model.PostEntity
 
 fun PostEntity.asGqlType(): Post = Post(
-    id = this.id!!.toString(),
+    id = this.id!!,
     title = this.title,
     content = this.content,
     createdAt = this.createdAt,
-    authorId = this.authorId.toString()
+    authorId = this.authorId
 )
 
 fun CommentEntity.asGqlType(): Comment = Comment(
-    id = this.id!!.toString(),
+    id = this.id!!,
     content = this.content,
     createdAt = this.createdAt,
-    postId = this.postId!!.toString()
+    postId = this.postId!!
 )
 
 fun AuthorEntity.asGqlType(): Author = Author(
-    id = this.id!!.toString(),
+    id = this.id!!,
     name = this.name,
     email = this.email,
     createdAt = this.createdAt

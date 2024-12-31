@@ -5,9 +5,8 @@ import com.example.demo.gql.types.CreatePostInput;
 import com.example.demo.gql.types.Post;
 import com.example.demo.service.AuthorService;
 import com.example.demo.service.PostService;
-import com.netflix.graphql.dgs.autoconfig.DgsAutoConfiguration;
 import com.netflix.graphql.dgs.reactive.DgsReactiveQueryExecutor;
-import com.netflix.graphql.dgs.webflux.autoconfiguration.DgsWebFluxAutoConfiguration;
+import com.netflix.graphql.dgs.test.EnableDgsTest;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,15 +26,14 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
 @SpringBootTest(classes = MutationTests.MutationTestsConfig.class)
+@EnableDgsTest
 @Slf4j
 class MutationTests {
 
     @Configuration
     @Import(PostsDataFetcher.class)
     @ImportAutoConfiguration(classes = {
-            DgsWebFluxAutoConfiguration.class,
             WebFluxAutoConfiguration.class,
-            DgsAutoConfiguration.class,
             JacksonAutoConfiguration.class
     })
     static class MutationTestsConfig {

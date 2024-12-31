@@ -6,6 +6,7 @@ import com.example.demo.gql.types.*
 import com.example.demo.service.PostService
 import com.netflix.graphql.dgs.*
 import kotlinx.coroutines.flow.toList
+import java.util.UUID
 import java.util.concurrent.CompletableFuture
 
 @DgsComponent
@@ -17,18 +18,18 @@ class PostsDataFetcher(val postService: PostService) {
     suspend fun allPosts(): List<Post> = postService.allPosts().toList()
 
     @DgsQuery
-    suspend fun postById(@InputArgument postId: String) = postService.getPostById(postId)
+    suspend fun postById(@InputArgument postId: UUID) = postService.getPostById(postId)
 
     @DgsData(parentType = DgsConstants.POST.TYPE_NAME, field = DgsConstants.POST.Author)
     fun author(dfe: DgsDataFetchingEnvironment): CompletableFuture<Author> {
-        val dataLoader = dfe.getDataLoader<String, Author>("authorsLoader")
+        val dataLoader = dfe.getDataLoader<UUID, Author>("authorsLoader")
         val post = dfe.getSource<Post>()
         return dataLoader!!.load(post!!.authorId)
     }
 
     @DgsData(parentType = DgsConstants.POST.TYPE_NAME, field = DgsConstants.POST.Comments)
     fun comments(dfe: DgsDataFetchingEnvironment): CompletableFuture<List<Comment>> {
-        val dataLoader = dfe.getDataLoader<String, List<Comment>>(CommentsDataLoader::class.java)
+        val dataLoader = dfe.getDataLoader<UUID, List<Comment>>(CommentsDataLoader::class.java)
         val (id) = dfe.getSource<Post>()!!
         return dataLoader.load(id)
     }

@@ -39,7 +39,7 @@ class QueryTests {
     @Test
     fun `get an non-existing post should return errors NOT_FOUND`() {
         val query = """
-            query notExisted(${'$'}id: String!){
+            query notExisted(${'$'}id: UUID!){
                 postById(postId:${'$'}id){ 
                     id
                     title 
@@ -47,7 +47,7 @@ class QueryTests {
             }
             """.trimIndent()
 
-        val result = dgsQueryExecutor.execute(query, mapOf("id" to UUID.randomUUID().toString()))
+        val result = dgsQueryExecutor.execute(query, mapOf("id" to UUID.randomUUID()))
         assertThat(result.errors).isNotNull
         assertThat(result.errors[0].extensions["errorType"]).isEqualTo("NOT_FOUND")
     }

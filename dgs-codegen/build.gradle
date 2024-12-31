@@ -24,13 +24,13 @@ repositories {
 
 dependencyManagement {
     imports {
-        mavenBom("com.netflix.graphql.dgs:graphql-dgs-platform-dependencies:9.2.2")
+        mavenBom("com.netflix.graphql.dgs:graphql-dgs-platform-dependencies:10.0.1")
     }
 }
 
 dependencies {
     // implementation(platform("com.netflix.graphql.dgs:graphql-dgs-platform-dependencies:8.2.0"))
-    implementation "com.netflix.graphql.dgs:graphql-dgs-spring-boot-starter", {
+    implementation "com.netflix.graphql.dgs:dgs-starter", {
         exclude group: 'org.yaml', module: 'snakeyaml'
     }
 
@@ -55,6 +55,7 @@ dependencies {
     testCompileOnly 'org.projectlombok:lombok:1.18.36'
     testAnnotationProcessor 'org.projectlombok:lombok:1.18.36'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation "com.netflix.graphql.dgs:dgs-starter-test"
 }
 
 generateJava {

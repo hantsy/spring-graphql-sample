@@ -1,6 +1,4 @@
 import com.netflix.graphql.dgs.codegen.gradle.GenerateJavaTask
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-import org.jetbrains.kotlin.config.ApiVersion.Companion.KOTLIN_2_0
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
 
@@ -18,9 +16,9 @@ group = "com.example"
 version = "0.0.1-SNAPSHOT"
 
 java {
-  toolchain {
-    languageVersion = JavaLanguageVersion.of(21)
-  }
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
 }
 
 repositories {
@@ -31,14 +29,15 @@ repositories {
 
 dependencyManagement {
     imports {
-        mavenBom("com.netflix.graphql.dgs:graphql-dgs-platform-dependencies:9.2.2")
+        mavenBom("com.netflix.graphql.dgs:graphql-dgs-platform-dependencies:10.0.1")
+        mavenBom("org.jetbrains.kotlinx:kotlinx-coroutines-bom:1.10.1")
+        mavenBom("io.kotest:kotest-bom:5.9.1")
     }
 }
 
 dependencies {
     //implementation(platform("com.netflix.graphql.dgs:graphql-dgs-platform-dependencies:8.1.1"))
-    implementation("com.netflix.graphql.dgs:graphql-dgs-webflux-starter")
-    implementation("io.projectreactor:reactor-core:3.7.1")
+    implementation("com.netflix.graphql.dgs:dgs-starter")
 
     //Spring
     implementation("org.springframework.boot:spring-boot-starter-webflux")
@@ -53,22 +52,23 @@ dependencies {
     implementation("io.projectreactor.kotlin:reactor-kotlin-extensions")
 
     //kotlin coroutines extensions
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:1.10.1")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor:1.9.0")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-jdk8")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor")
 
     // test
     testImplementation("org.springframework.boot:spring-boot-starter-test") {
         exclude(module = "mockito-core")
     }
+    testImplementation("com.netflix.graphql.dgs:dgs-starter-test")
     testImplementation("io.projectreactor:reactor-test")
-    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.10.1")
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test")
     testImplementation("io.mockk:mockk-jvm:1.13.14")
-    testImplementation("com.ninja-squad:springmockk:4.0.2"){
+    testImplementation("com.ninja-squad:springmockk:4.0.2") {
         exclude(module = "mockk")
     }
-    testImplementation("io.kotest:kotest-runner-junit5-jvm:5.9.1")
-    testImplementation("io.kotest:kotest-assertions-core-jvm:5.9.1")
-    testImplementation("io.kotest:kotest-framework-concurrency:5.9.1")
+    testImplementation("io.kotest:kotest-runner-junit5-jvm")
+    testImplementation("io.kotest:kotest-assertions-core-jvm")
+    testImplementation("io.kotest:kotest-framework-concurrency")
 }
 
 tasks.withType<GenerateJavaTask> {
@@ -79,6 +79,7 @@ tasks.withType<GenerateJavaTask> {
     shortProjectionNames = false
     maxProjectionDepth = 2
     snakeCaseConstantNames = true
+    typeMapping = mutableMapOf("UUID" to "java.util.UUID")
 }
 
 

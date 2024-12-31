@@ -10,18 +10,17 @@ import com.example.demo.gql.types.CreatePostInput;
 import com.example.demo.service.AuthorService;
 import com.example.demo.service.PostService;
 import com.netflix.graphql.dgs.DgsQueryExecutor;
-import com.netflix.graphql.dgs.autoconfig.DgsAutoConfiguration;
 import com.netflix.graphql.dgs.autoconfig.DgsExtendedValidationAutoConfiguration;
 import com.netflix.graphql.dgs.client.codegen.GraphQLQueryRequest;
+import com.netflix.graphql.dgs.test.EnableDgsTest;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
-import org.springframework.boot.autoconfigure.jackson.JacksonAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import java.util.UUID;
 
@@ -30,6 +29,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @SpringBootTest(classes = MutationTests.MutationTestsConfig.class)
+@EnableDgsTest
 @Slf4j
 class MutationTests {
 
@@ -42,9 +42,7 @@ class MutationTests {
             CustomDataFetchingExceptionHandler.class
     })
     @ImportAutoConfiguration(classes = {
-            DgsAutoConfiguration.class,
             DgsExtendedValidationAutoConfiguration.class,
-            JacksonAutoConfiguration.class
     })
     static class MutationTestsConfig {
 
@@ -53,10 +51,10 @@ class MutationTests {
     @Autowired
     DgsQueryExecutor dgsQueryExecutor;
 
-    @MockBean
+    @MockitoBean
     PostService postService;
 
-    @MockBean
+    @MockitoBean
     AuthorService authorService;
 
     @Test

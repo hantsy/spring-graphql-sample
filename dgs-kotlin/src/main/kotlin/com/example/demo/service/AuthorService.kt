@@ -14,13 +14,12 @@ import java.util.*
 @Service
 class AuthorService(val authors: AuthorRepository, val profiles: ProfileRepository, val gridFsTemplate: GridFsTemplate) {
 
-    fun getAuthorById(id: String): Author = this.authors.findById(UUID.fromString(id))
+    fun getAuthorById(id: UUID): Author = this.authors.findById(id)
         .map { it.asGqlType() }
         .orElseThrow { AuthorNotFoundException(id) }
 
-    fun getAuthorByIdIn(ids: List<String>): List<Author> {
-        val uuids = ids.map { UUID.fromString(it) };
-        val authorEntities = authors.findAllById(uuids)
+    fun getAuthorByIdIn(ids: List<UUID>): List<Author> {
+        val authorEntities = authors.findAllById(ids)
         return authorEntities.map { it.asGqlType() }
     }
 
@@ -30,7 +29,7 @@ class AuthorService(val authors: AuthorRepository, val profiles: ProfileReposito
         return profiles.save(ProfileEntity(coverImgId = objectId, bio = bio)).asGqlType()
     }
 
-    fun getProfileByUserId(id: String): Profile? {
-        return profiles.findByUserId(UUID.fromString(id))?.asGqlType()
+    fun getProfileByUserId(id: UUID): Profile? {
+        return profiles.findByUserId(id)?.asGqlType()
     }
 }

@@ -23,23 +23,18 @@ repositories {
 
 dependencyManagement {
     imports {
-        mavenBom("com.netflix.graphql.dgs:graphql-dgs-platform-dependencies:9.2.2")
+        mavenBom("com.netflix.graphql.dgs:graphql-dgs-platform-dependencies:10.0.1")
     }
 }
 
 dependencies {
-    //implementation(platform("com.netflix.graphql.dgs:graphql-dgs-platform-dependencies:8.2.0"))
-    implementation "com.netflix.graphql.dgs:graphql-dgs-spring-boot-starter", {
-        exclude group: 'org.yaml', module: 'snakeyaml'
-    }
-    implementation 'com.netflix.graphql.dgs:graphql-dgs-extended-scalars', {
-        exclude group: 'org.yaml', module: 'snakeyaml'
-    }// auto-configure graphql extended scalars
-    implementation 'org.yaml:snakeyaml:2.3'
+    implementation "com.netflix.graphql.dgs:dgs-starter"
+    implementation 'com.netflix.graphql.dgs:graphql-dgs-extended-scalars'
     implementation 'org.apache.commons:commons-lang3:3.17.0'
 
     // spring web
     implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'name.nkonev.multipart-spring-graphql:multipart-spring-graphql:1.5.3'
 
     //configure Lombok for compile java/ compile tests
     compileOnly 'org.projectlombok:lombok:1.18.36'
@@ -47,6 +42,7 @@ dependencies {
     testCompileOnly 'org.projectlombok:lombok:1.18.36'
     testAnnotationProcessor 'org.projectlombok:lombok:1.18.36'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'com.netflix.graphql.dgs:dgs-starter-test'
 }
 
 test {

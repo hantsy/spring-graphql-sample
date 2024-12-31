@@ -11,9 +11,8 @@ import com.example.demo.repository.PostRepository;
 import com.example.demo.service.AuthorService;
 import com.example.demo.service.PostService;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.netflix.graphql.dgs.autoconfig.DgsAutoConfiguration;
 import com.netflix.graphql.dgs.reactive.DgsReactiveQueryExecutor;
-import com.netflix.graphql.dgs.webflux.autoconfiguration.DgsWebFluxAutoConfiguration;
+import com.netflix.graphql.dgs.test.EnableDgsTest;
 import graphql.ExecutionResult;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -43,6 +42,7 @@ import static org.mockito.Mockito.*;
 
 @SpringBootTest(classes = SubscriptionTests.SubscriptionTestsConfig.class)
 @Slf4j
+@EnableDgsTest
 //@Disabled
 // see: https://github.com/Netflix/dgs-framework/discussions/605
 class SubscriptionTests {
@@ -50,9 +50,7 @@ class SubscriptionTests {
     @Configuration
     @Import({PostsDataFetcher.class, PostService.class})
     @ImportAutoConfiguration(classes = {
-            DgsWebFluxAutoConfiguration.class,
             WebFluxAutoConfiguration.class,
-            DgsAutoConfiguration.class,
             JacksonAutoConfiguration.class
     })
     static class SubscriptionTestsConfig {

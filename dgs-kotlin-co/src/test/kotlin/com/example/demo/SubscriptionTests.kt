@@ -2,8 +2,9 @@ package com.example.demo
 
 import com.example.demo.SubscriptionTests.SubscriptionTestsConfig
 import com.example.demo.gql.datafetcher.AuthorsDataFetcher
-import com.example.demo.gql.scalar.LocalDateTimeScalar
 import com.example.demo.gql.datafetcher.PostsDataFetcher
+import com.example.demo.gql.scalar.LocalDateTimeScalar
+import com.example.demo.gql.scalars.UUIDScalar
 import com.example.demo.gql.types.Comment
 import com.example.demo.gql.types.CommentInput
 import com.example.demo.model.CommentEntity
@@ -13,12 +14,13 @@ import com.example.demo.service.AuthorService
 import com.example.demo.service.DefaultPostService
 import com.example.demo.service.PostService
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.netflix.graphql.dgs.autoconfig.DgsAutoConfiguration
 import com.netflix.graphql.dgs.reactive.DgsReactiveQueryExecutor
-import com.netflix.graphql.dgs.webflux.autoconfiguration.DgsWebFluxAutoConfiguration
+import com.netflix.graphql.dgs.test.EnableDgsTest
 import com.ninjasquad.springmockk.MockkBean
 import com.ninjasquad.springmockk.SpykBean
 import graphql.ExecutionResult
+import graphql.schema.GraphQLScalarType
+import graphql.schema.idl.RuntimeWiring
 import io.kotest.matchers.shouldBe
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -34,14 +36,17 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.autoconfigure.ImportAutoConfiguration
 import org.springframework.boot.autoconfigure.web.reactive.WebFluxAutoConfiguration
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Import
+import org.springframework.graphql.execution.RuntimeWiringConfigurer
 import java.time.LocalDateTime
 import java.util.*
 import java.util.concurrent.CopyOnWriteArrayList
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @SpringBootTest(classes = [SubscriptionTestsConfig::class])
+@EnableDgsTest
 class SubscriptionTests {
     companion object {
         private val log = LoggerFactory.getLogger(SubscriptionTests::class.java)
@@ -58,12 +63,25 @@ class SubscriptionTests {
     )
     @ImportAutoConfiguration(
         value = [
-            DgsWebFluxAutoConfiguration::class,
-            DgsAutoConfiguration::class,
             WebFluxAutoConfiguration::class
         ]
     )
-    class SubscriptionTestsConfig
+    class SubscriptionTestsConfig{
+        @Bean
+        fun customRuntimeWiring(): RuntimeWiringConfigurer{
+            return object: RuntimeWiringConfigurer {
+                override fun configure(builder: RuntimeWiring.Builder) {
+                    builder.scalar(
+                        GraphQLScalarType.newScalar()
+                            .name("UUID")
+                            .description("UUID type")
+                            .coercing(UUIDScalar())
+                            .build()
+                    )
+                }
+            }
+        }
+    }
 
     @Autowired
     lateinit var dgsQueryExecutor: DgsReactiveQueryExecutor
@@ -81,7 +99,7 @@ class SubscriptionTests {
     lateinit var postService: PostService
 
     @MockkBean
-    lateinit var  authorService: AuthorService
+    lateinit var authorService: AuthorService
 
     @Test
     fun `test subscriptions`() = runTest {
@@ -131,14 +149,14 @@ class SubscriptionTests {
 
         postService.addComment(
             CommentInput(
-                postId = UUID.randomUUID().toString(),
+                postId = UUID.randomUUID(),
                 content = "Comment 1"
             )
         )
 
         postService.addComment(
             CommentInput(
-                postId = UUID.randomUUID().toString(),
+                postId = UUID.randomUUID(),
                 content = "Comment 1"
             )
         )
@@ -148,6 +166,6 @@ class SubscriptionTests {
         // verify mock callings
         coVerify(exactly = 2) { postRepository.existsById(any()) }
         coVerify(exactly = 2) { commentRepository.save(any()) }
-        coVerify(atLeast = 2) { postService.addComment(any())}
+        coVerify(atLeast = 2) { postService.addComment(any()) }
     }
 }

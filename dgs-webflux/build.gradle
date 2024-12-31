@@ -18,21 +18,21 @@ java {
 repositories {
     mavenLocal()
     mavenCentral()
-    maven { url "https://repo.spring.io/milestone" }
-    maven { url "https://repo.spring.io/snapshot" }
+    maven { url 'https://repo.spring.io/milestone' }
+    maven { url 'https://repo.spring.io/snapshot' }
 }
 
 dependencyManagement {
     imports {
-        mavenBom("com.netflix.graphql.dgs:graphql-dgs-platform-dependencies:9.2.2")
+        mavenBom('com.netflix.graphql.dgs:graphql-dgs-platform-dependencies:10.0.1')
     }
 }
 
 dependencies {
     //dgs
-    // implementation(platform("com.netflix.graphql.dgs:graphql-dgs-platform-dependencies:8.2.0"))
-    implementation "com.netflix.graphql.dgs:graphql-dgs-webflux-starter"
-    implementation "io.projectreactor:reactor-core:3.7.1"
+    // implementation(platform('com.netflix.graphql.dgs:graphql-dgs-platform-dependencies:8.2.0'))
+    implementation 'com.netflix.graphql.dgs:dgs-starter'
+    implementation 'io.projectreactor:reactor-core'
 
     // spring boot
     implementation 'org.springframework.boot:spring-boot-starter-webflux'
@@ -50,6 +50,7 @@ dependencies {
 
     //test
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'com.netflix.graphql.dgs:dgs-starter-test'
     testImplementation 'io.projectreactor:reactor-test'
     testImplementation 'org.awaitility:awaitility:4.2.2'
 }

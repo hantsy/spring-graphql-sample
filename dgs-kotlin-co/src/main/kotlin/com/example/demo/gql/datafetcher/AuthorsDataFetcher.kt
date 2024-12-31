@@ -7,6 +7,7 @@ import com.example.demo.service.AuthorService
 import com.example.demo.service.PostService
 import com.netflix.graphql.dgs.*
 import kotlinx.coroutines.flow.toList
+import java.util.UUID
 
 @DgsComponent
 class AuthorsDataFetcher(
@@ -15,7 +16,7 @@ class AuthorsDataFetcher(
 ) {
 
     @DgsQuery
-    suspend fun author(@InputArgument authorId: String) = authorService.getAuthorById(authorId)
+    suspend fun author(@InputArgument authorId: UUID) = authorService.getAuthorById(authorId)
 
     @DgsData(parentType = DgsConstants.AUTHOR.TYPE_NAME, field = DgsConstants.AUTHOR.Posts)
     suspend fun posts(dfe: DgsDataFetchingEnvironment): List<Post> {

@@ -1,20 +1,20 @@
 package com.example.demo.service
 
-import com.example.demo.model.CommentEntity
-import com.example.demo.model.PostEntity
 import com.example.demo.asGqlType
 import com.example.demo.gql.types.Comment
 import com.example.demo.gql.types.CommentInput
 import com.example.demo.gql.types.CreatePostInput
 import com.example.demo.gql.types.Post
+import com.example.demo.model.CommentEntity
+import com.example.demo.model.PostEntity
 import com.example.demo.repository.CommentRepository
 import com.example.demo.repository.PostRepository
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.map
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
-import reactor.core.publisher.Flux
-import reactor.core.publisher.Sinks
 import java.util.*
 
 @Service
@@ -26,13 +26,13 @@ class DefaultPostService(
 
     override fun allPosts() = this.posts.findAll().map { it.asGqlType() }
 
-    override suspend fun getPostById(id: String): Post {
-        val post = this.posts.findById(UUID.fromString(id)) ?: throw PostNotFoundException(id)
+    override suspend fun getPostById(id: UUID): Post {
+        val post = this.posts.findById(id) ?: throw PostNotFoundException(id)
         return post.asGqlType()
     }
 
-    override fun getPostsByAuthorId(id: String): Flow<Post> {
-        return this.posts.findByAuthorId(UUID.fromString(id))
+    override fun getPostsByAuthorId(id: UUID): Flow<Post> {
+        return this.posts.findByAuthorId(id)
             .map { it.asGqlType() }
     }
 
@@ -43,30 +43,29 @@ class DefaultPostService(
     }
 
     override suspend fun addComment(commentInput: CommentInput): Comment {
-        val postId = UUID.fromString(commentInput.postId)
+        val postId = commentInput.postId
         if (!this.posts.existsById(postId)) {
-            throw PostNotFoundException(postId.toString())
+            throw PostNotFoundException(postId)
         }
         val data = CommentEntity(content = commentInput.content, postId = postId)
         val savedComment = this.comments.save(data)
         val comment = savedComment.asGqlType()
-        sink.emitNext(comment, Sinks.EmitFailureHandler.FAIL_FAST)
+        sink.emit(comment)
 
         return comment
     }
 
-    val sink = Sinks.many().replay().latest<Comment>()
+    val sink = MutableSharedFlow<Comment>(replay = 1)
 
     // subscription: commentAdded
-    override fun commentAdded(): Flux<Comment> = sink.asFlux()
+    override fun commentAdded(): Flow<Comment> = sink.asSharedFlow()
 
-    override fun getCommentsByPostId(id: String): Flow<Comment> {
-        return this.comments.findByPostId(UUID.fromString(id))
+    override fun getCommentsByPostId(id: UUID): Flow<Comment> {
+        return this.comments.findByPostId(id)
             .map { it.asGqlType() }
     }
 
-    override fun getCommentsByPostIdIn(ids: Set<String>): Flow<Comment> {
-        val uuids = ids.map { UUID.fromString(it) };
-        return comments.findByPostIdIn(uuids).map { it.asGqlType() }
+    override fun getCommentsByPostIdIn(ids: List<UUID>): Flow<Comment> {
+        return comments.findByPostIdIn(ids).map { it.asGqlType() }
     }
 }

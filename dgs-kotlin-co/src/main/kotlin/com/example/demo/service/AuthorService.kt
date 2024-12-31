@@ -11,14 +11,13 @@ import java.util.*
 @Service
 class AuthorService(val authors: AuthorRepository) {
 
-    suspend fun getAuthorById(id: String): Author {
-        val author = this.authors.findById(UUID.fromString(id)) ?: throw AuthorNotFoundException(id)
+    suspend fun getAuthorById(id: UUID): Author {
+        val author = this.authors.findById(id) ?: throw AuthorNotFoundException(id)
         return author.asGqlType()
     }
 
     // alternative to use kotlin co `Flow`
-    fun getAuthorByIdIn(ids: List<String>): Flow<Author> {
-        val uuids = ids.map { UUID.fromString(it) };
-        return authors.findAllById(uuids).map { it.asGqlType() }
+    fun getAuthorByIdIn(ids: List<UUID>): Flow<Author> {
+        return authors.findAllById(ids).map { it.asGqlType() }
     }
 }

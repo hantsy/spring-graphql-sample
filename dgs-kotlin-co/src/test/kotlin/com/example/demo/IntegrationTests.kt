@@ -3,7 +3,6 @@ package com.example.demo
 import com.example.demo.gql.types.Comment
 import com.example.demo.gql.types.Post
 import com.netflix.graphql.dgs.client.WebClientGraphQLClient
-import com.netflix.graphql.dgs.client.WebSocketGraphQLClient
 import io.kotest.common.ExperimentalKotest
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
@@ -11,20 +10,25 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.reactor.awaitSingle
 import kotlinx.coroutines.reactor.awaitSingleOrNull
 import kotlinx.coroutines.test.runTest
+import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.slf4j.LoggerFactory
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.web.server.LocalServerPort
+import org.springframework.graphql.client.WebSocketGraphQlClient
 import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.reactive.socket.client.ReactorNettyWebSocketClient
 import reactor.test.StepVerifier
+import java.net.URI
+import java.time.Duration
+import java.util.UUID
 
 @OptIn(ExperimentalCoroutinesApi::class, ExperimentalKotest::class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-class SubscriptionWithGraphQLClientTests {
+class IntegrationTests {
     companion object {
-        private val log = LoggerFactory.getLogger(SubscriptionWithGraphQLClientTests::class.java)
+        private val log = LoggerFactory.getLogger(IntegrationTests::class.java)
     }
 
     @LocalServerPort
@@ -32,7 +36,7 @@ class SubscriptionWithGraphQLClientTests {
 
     lateinit var client: WebClientGraphQLClient
 
-    lateinit var websocketClient: WebSocketGraphQLClient
+    lateinit var socketClient: WebSocketGraphQlClient
 
     @BeforeEach
     fun setup() {
@@ -42,7 +46,16 @@ class SubscriptionWithGraphQLClientTests {
             .build()
 
         client = WebClientGraphQLClient(webClient)
-        websocketClient = WebSocketGraphQLClient("ws://localhost:$port/subscriptions", ReactorNettyWebSocketClient())
+        socketClient = WebSocketGraphQlClient.create(
+            URI.create("ws://localhost:$port/graphql"),
+            ReactorNettyWebSocketClient()
+        )
+        this.socketClient.start().subscribe()
+    }
+
+    @AfterEach
+    fun teardown() {
+        this.socketClient.stop().subscribe()
     }
 
     @Test
@@ -67,14 +80,11 @@ class SubscriptionWithGraphQLClientTests {
                 }
             }
             """.trimIndent()
-        val verifier = websocketClient
-            .reactiveExecuteQuery(
-                commentAddedSubscriptionQuery,
-                emptyMap()
-            )
-            .map {
+        val verifier = socketClient
+            .document(commentAddedSubscriptionQuery).executeSubscription()
+            .mapNotNull {
                 log.debug("WebSocket client response: $it")
-                it.extractValueAsObject("commentAdded", Comment::class.java)
+                it.getData<Map<String, Map<String, Any>>>()!!["commentAdded"]
             }
             .doOnNext {
                 log.debug("doOnNext: $it")
@@ -82,22 +92,22 @@ class SubscriptionWithGraphQLClientTests {
             //.subscribe { it -> comments.add(it) }
 
             .`as` { StepVerifier.create(it) }
-            .consumeNextWith {
-                it.content shouldBe "comment1"
-            }
+            .thenAwait(Duration.ofMillis(1000))
+            .consumeNextWith {                it!!["content"]!! shouldBe "comment1"            }
+            .consumeNextWith {                it!!["content"]!! shouldBe "comment2"            }
             .thenCancel()
             .verifyLater() // delay to verify later
 
         // add comments to post
         addComment(postId, "comment1")
-        //addComment(postId, "comment2")
+        addComment(postId, "comment2")
         //addComment(postId, "comment3 ")
 
         // verify the result now.
         verifier.verify()
     }
 
-    private suspend fun addComment(postId: String, comment: String) {
+    private suspend fun addComment(postId: UUID, comment: String) {
         val commentQuery =
             """
                 mutation addComment(${'$'}input: CommentInput!) 
@@ -123,9 +133,9 @@ class SubscriptionWithGraphQLClientTests {
         addedComment.content shouldBe comment
     }
 
-    private suspend fun getPostById(postId: String) {
+    private suspend fun getPostById(postId: UUID) {
         val postByIdQuery = """
-            query postById(${'$'}id: String!)
+            query postById(${'$'}id: UUID!)
             {
                 postById(postId:${'$'}id)
                 { 
@@ -146,7 +156,7 @@ class SubscriptionWithGraphQLClientTests {
         postByIdResult?.title shouldBe "test title"
     }
 
-    private suspend fun createPost(): String {
+    private suspend fun createPost(): UUID {
         val createPostQuery =
             """
                 mutation createPost(${'$'}input: CreatePostInput!)

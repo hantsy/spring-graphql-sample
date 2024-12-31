@@ -7,6 +7,7 @@ import com.example.demo.service.PostService
 import com.netflix.graphql.dgs.*
 import org.springframework.security.access.annotation.Secured
 import org.springframework.security.access.prepost.PreAuthorize
+import java.util.UUID
 import java.util.concurrent.CompletableFuture
 
 @DgsComponent
@@ -16,18 +17,18 @@ class PostsDataFetcher(val postService: PostService) {
     fun allPosts() = postService.allPosts()
 
     @DgsQuery
-    fun postById(@InputArgument postId: String) = postService.getPostById(postId)
+    fun postById(@InputArgument postId: UUID) = postService.getPostById(postId)
 
     @DgsData(parentType = DgsConstants.POST.TYPE_NAME, field = DgsConstants.POST.Author)
     fun author(dfe: DgsDataFetchingEnvironment): CompletableFuture<Author> {
-        val dataLoader = dfe.getDataLoader<String, Author>("authorsLoader")
+        val dataLoader = dfe.getDataLoader<UUID, Author>("authorsLoader")
         val post = dfe.getSource<Post>()!!
         return dataLoader!!.load(post.authorId)
     }
 
     @DgsData(parentType = DgsConstants.POST.TYPE_NAME, field = DgsConstants.POST.Comments)
     fun comments(dfe: DgsDataFetchingEnvironment): CompletableFuture<List<Comment>> {
-        val dataLoader = dfe.getDataLoader<String, List<Comment>>(
+        val dataLoader = dfe.getDataLoader<UUID, List<Comment>>(
             CommentsDataLoader::class.java
         )
         val (id) = dfe.getSource<Post>()!!

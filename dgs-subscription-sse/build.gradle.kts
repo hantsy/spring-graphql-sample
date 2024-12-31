@@ -1,7 +1,4 @@
 import com.netflix.graphql.dgs.codegen.gradle.GenerateJavaTask
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-import org.jetbrains.kotlin.config.ApiVersion.Companion.KOTLIN_2_0
-import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
 
 plugins {
@@ -13,15 +10,20 @@ plugins {
     id("com.netflix.dgs.codegen") version "7.0.3" //https://plugins.gradle.org/plugin/com.netflix.dgs.codegen
 }
 
-// extra["graphql-java.version"] = "19.2"
-
 group = "com.example"
 version = "0.0.1-SNAPSHOT"
 
-java {
-  toolchain {
-    languageVersion = JavaLanguageVersion.of(21)
-  }
+kotlin {
+    jvmToolchain(21)
+    compilerOptions {
+        apiVersion.set(KotlinVersion.KOTLIN_2_0)
+        languageVersion.set(KotlinVersion.KOTLIN_2_0)
+        freeCompilerArgs.addAll(
+            "-Xjsr305=strict",
+            "-opt-in=kotlin.RequiresOptIn",
+            "-opt-in=kotlinx.coroutines.ExperimentalCoroutinesApi"
+        )
+    }
 }
 
 repositories {
@@ -32,30 +34,27 @@ repositories {
 
 dependencyManagement {
     imports {
-        mavenBom("com.netflix.graphql.dgs:graphql-dgs-platform-dependencies:9.2.2")
+        mavenBom("com.netflix.graphql.dgs:graphql-dgs-platform-dependencies:10.0.1")
     }
 }
 
 dependencies {
     // implementation(platform("com.netflix.graphql.dgs:graphql-dgs-platform-dependencies:8.1.1"))
-    implementation("com.netflix.graphql.dgs:graphql-dgs-spring-boot-starter") {
-        exclude("org.yaml", "snakeyaml")
-    }
-    implementation("com.netflix.graphql.dgs:graphql-dgs-subscriptions-sse-autoconfigure") {
-        exclude("org.yaml", "snakeyaml")
-    }
+    implementation("com.netflix.graphql.dgs:dgs-starter")
     implementation("org.yaml:snakeyaml:2.3")
 
     //Spring and kotlin
     implementation("org.springframework.boot:spring-boot-starter-web")
+    implementation("io.projectreactor:reactor-core")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     implementation("org.jetbrains.kotlin:kotlin-stdlib")
     // test
     testImplementation("com.netflix.graphql.dgs:graphql-dgs-client")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
-    testImplementation("org.springframework:spring-webflux")
+    testImplementation("org.springframework:spring-webflux") // provides WebClient
     testImplementation("io.projectreactor.netty:reactor-netty")
+    testImplementation("com.netflix.graphql.dgs:dgs-starter-test")
     testImplementation("io.projectreactor:reactor-test")
 }
 
@@ -67,19 +66,6 @@ tasks.withType<GenerateJavaTask> {
     shortProjectionNames = false
     maxProjectionDepth = 2
     snakeCaseConstantNames = true
-}
-
-kotlin {
-    compilerOptions {
-        apiVersion.set(KotlinVersion.KOTLIN_2_0)
-        languageVersion.set(KotlinVersion.KOTLIN_2_0)
-        jvmTarget.set(JvmTarget.fromTarget("21"))
-        freeCompilerArgs.addAll(
-            "-Xjsr305=strict",
-            "-opt-in=kotlin.RequiresOptIn",
-            "-opt-in=kotlinx.coroutines.ExperimentalCoroutinesApi"
-        )
-    }
 }
 
 tasks.withType<Test> {

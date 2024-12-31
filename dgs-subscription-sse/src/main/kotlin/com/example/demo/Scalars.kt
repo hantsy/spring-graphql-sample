@@ -18,16 +18,19 @@ class LocalDateTimeScalar : Coercing<LocalDateTime, String> {
 
     @Throws(CoercingSerializeException::class)
     override fun serialize(dataFetcherResult: Any, graphQLContext: GraphQLContext, locale: Locale): String? {
-        return when (dataFetcherResult) {
-            is LocalDateTime -> dataFetcherResult.format(DateTimeFormatter.ISO_DATE_TIME)
-            else -> throw CoercingSerializeException("Not a valid DateTime")
+        if (dataFetcherResult is LocalDateTime) {
+            return dataFetcherResult.format(DateTimeFormatter.ISO_DATE_TIME)
         }
+        throw CoercingSerializeException("Not a valid DateTime")
     }
 
     @Throws(CoercingParseValueException::class)
     override fun parseValue(input: Any, graphQLContext: GraphQLContext, locale: Locale): LocalDateTime? {
+        if (input is String) {
+            return LocalDateTime.parse(input, DateTimeFormatter.ISO_DATE_TIME)
+        }
 
-        return LocalDateTime.parse(input.toString(), DateTimeFormatter.ISO_DATE_TIME)
+        throw CoercingParseLiteralException("Can not parse DateTime")
     }
 
     @Throws(CoercingParseLiteralException::class)
@@ -36,14 +39,16 @@ class LocalDateTimeScalar : Coercing<LocalDateTime, String> {
         variables: CoercedVariables,
         graphQLContext: GraphQLContext,
         locale: Locale
-    ): LocalDateTime?  {
-        when (input) {
-            is StringValue -> return LocalDateTime.parse(input.value, DateTimeFormatter.ISO_DATE_TIME)
-            else -> throw CoercingParseLiteralException("Value is not a valid ISO date time")
+    ): LocalDateTime? {
+        if (input is StringValue) {
+            return LocalDateTime.parse(input.value, DateTimeFormatter.ISO_DATE_TIME)
         }
+
+        throw CoercingParseLiteralException("Value is not a valid ISO date time")
     }
 
     override fun valueToLiteral(input: Any, graphQLContext: GraphQLContext, locale: Locale): Value<*> {
-       return StringValue.of(input.toString())
+        val stringValue = serialize(input, graphQLContext, locale)
+        return StringValue.of(stringValue)
     }
 }
