@@ -69,17 +69,13 @@ export class AppComponent implements OnInit, OnDestroy {
     this.messagesQuery.subscribeToMore({
       document: MESSAGE_SUBSCRIPTION_QUERY,
       variables: {},
-      updateQuery:  (prev: {messages:[TextMessage]}, options: {
-        subscriptionData: {
-            data: {messageSent: TextMessage};
-        };
-    })  => {
+      updateQuery:  (prev, { subscriptionData})  => {
         console.log('prev: {}', prev);
-        console.log('subscription data: {}', options.subscriptionData);
-        if (!options.subscriptionData.data) {
+        console.log('subscription data: {}', subscriptionData);
+        if (!subscriptionData.data) {
           return prev;
         }
-        const newMsg = options.subscriptionData.data.messageSent;
+        const newMsg = (subscriptionData.data as {messageSent: TextMessage}).messageSent;
         if (prev?.messages) {
           return { messages: [...prev.messages, newMsg] };
         } else {
