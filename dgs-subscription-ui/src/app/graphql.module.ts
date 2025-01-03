@@ -22,7 +22,7 @@ import { HttpLink } from 'apollo-angular/http';
       });
       // Create a WebSocket link:
       const ws = new WebSocketLink({
-        uri: 'ws://localhost:8080/subscriptions',
+        uri: 'ws://localhost:8080/graphql',
         options: {
           reconnect: true,
         },
