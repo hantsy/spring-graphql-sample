@@ -52,7 +52,7 @@ dependencies {
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'com.netflix.graphql.dgs:dgs-starter-test'
     testImplementation 'io.projectreactor:reactor-test'
-    testImplementation 'org.awaitility:awaitility:4.2.2'
+    testImplementation 'org.awaitility:awaitility:4.3.0'
 }
 
 test {
