@@ -31,7 +31,7 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-validation")
 
     // Expediagroup GraphQL Kotlin
-    implementation("com.expediagroup:graphql-kotlin-spring-server:8.3.0")
+    implementation("com.expediagroup:graphql-kotlin-spring-server:8.4.0")
     // implementation("com.graphql-java:graphql-java:22.1")
     // r2dbc
     implementation("org.springframework.boot:spring-boot-starter-data-r2dbc")
