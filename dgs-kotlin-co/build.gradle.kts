@@ -29,7 +29,7 @@ repositories {
 
 dependencyManagement {
     imports {
-        mavenBom("com.netflix.graphql.dgs:graphql-dgs-platform-dependencies:10.0.3")
+        mavenBom("com.netflix.graphql.dgs:graphql-dgs-platform-dependencies:10.1.2")
         mavenBom("org.jetbrains.kotlinx:kotlinx-coroutines-bom:1.10.1")
         mavenBom("io.kotest:kotest-bom:5.9.1")
     }
