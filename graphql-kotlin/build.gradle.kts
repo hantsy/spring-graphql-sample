@@ -44,7 +44,7 @@ dependencies {
     implementation("org.jetbrains.kotlin:kotlin-stdlib")
 
     // kotlin coroutines
-    developmentOnly("org.jetbrains.kotlinx:kotlinx-coroutines-debug:1.10.1")
+    developmentOnly("org.jetbrains.kotlinx:kotlinx-coroutines-debug:1.10.2")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.10.1")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:1.10.1")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactive:1.10.1")
