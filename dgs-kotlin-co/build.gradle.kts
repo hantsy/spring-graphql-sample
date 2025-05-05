@@ -62,7 +62,7 @@ dependencies {
     testImplementation("com.netflix.graphql.dgs:dgs-starter-test")
     testImplementation("io.projectreactor:reactor-test")
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test")
-    testImplementation("io.mockk:mockk-jvm:1.14.0")
+    testImplementation("io.mockk:mockk-jvm:1.14.2")
     testImplementation("com.ninja-squad:springmockk:4.0.2") {
         exclude(module = "mockk")
     }
