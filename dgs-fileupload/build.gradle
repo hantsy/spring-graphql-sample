@@ -34,7 +34,7 @@ dependencies {
 
     // spring web
     implementation 'org.springframework.boot:spring-boot-starter-web'
-    implementation 'name.nkonev.multipart-spring-graphql:multipart-spring-graphql:1.5.3'
+    implementation 'name.nkonev.multipart-spring-graphql:multipart-spring-graphql:1.6.0'
 
     //configure Lombok for compile java/ compile tests
     compileOnly 'org.projectlombok:lombok:1.18.38'
