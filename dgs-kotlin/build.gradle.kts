@@ -53,7 +53,7 @@ dependencies {
     // spring boot
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.springframework.boot:spring-boot-starter-websocket")
-    implementation("name.nkonev.multipart-spring-graphql:multipart-spring-graphql:1.5.3")
+    implementation("name.nkonev.multipart-spring-graphql:multipart-spring-graphql:1.6.0")
 
     // spring security
     implementation("org.springframework.boot:spring-boot-starter-security")
