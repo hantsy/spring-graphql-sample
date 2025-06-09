@@ -5,7 +5,7 @@ import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
 plugins {
     id("org.springframework.boot") version "3.5.0"
     id("io.spring.dependency-management") version "1.1.7"
-    kotlin("jvm") version "2.1.20"
+    kotlin("jvm") version "2.1.21"
     kotlin("plugin.spring") version "2.1.21"
     id("com.netflix.dgs.codegen") version "7.0.3" //https://plugins.gradle.org/plugin/com.netflix.dgs.codegen
 }
