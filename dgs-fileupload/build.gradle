@@ -30,7 +30,7 @@ dependencyManagement {
 dependencies {
     implementation "com.netflix.graphql.dgs:dgs-starter"
     implementation 'com.netflix.graphql.dgs:graphql-dgs-extended-scalars'
-    implementation 'org.apache.commons:commons-lang3:3.17.0'
+    implementation 'org.apache.commons:commons-lang3:3.19.0'
 
     // spring web
     implementation 'org.springframework.boot:spring-boot-starter-web'
