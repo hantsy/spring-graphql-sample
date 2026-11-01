@@ -19,11 +19,9 @@ import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.WebApplicationType;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
-import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.client.RestTemplate;
+import org.springframework.web.client.RestClient;
 
 import java.util.HashMap;
 import java.util.List;
@@ -45,17 +43,22 @@ public class DemoApplication implements ApplicationRunner {
     private static HttpResponse execute(String url, Map<String, ? extends List<String>> headers, String body) {
         /**
          * The requestHeaders providers headers typically required to call a GraphQL endpoint, including the Accept and Content-Type headers.
-         * To use RestTemplate, the requestHeaders need to be transformed into Spring's HttpHeaders.
+         * To use RestClient, the requestHeaders need to be transformed into Spring's HttpHeaders.
          */
         HttpHeaders requestHeaders = new HttpHeaders();
         requestHeaders.putAll(headers);
 
         /**
-         * Use RestTemplate to call the GraphQL service.
+         * Use RestClient to call the GraphQL service.
          * The response type should simply be String, because the parsing will be done by the GraphQLClient.
          */
-        var dgsRestTemplate = new RestTemplate();
-        ResponseEntity<String> exchange = dgsRestTemplate.exchange(url, HttpMethod.POST, new HttpEntity<>(body, requestHeaders), String.class);
+        ResponseEntity<String> exchange = RestClient.create()
+                .post()
+                .uri(url)
+                .headers(hs -> hs.putAll(requestHeaders))
+                .body(body)
+                .retrieve()
+                .toEntity(String.class);
 
         /**
          * Return a HttpResponse, which contains the HTTP status code and response body (as a String).

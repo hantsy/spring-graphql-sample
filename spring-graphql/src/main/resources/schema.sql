@@ -31,11 +31,21 @@ CREATE TABLE IF NOT EXISTS comments
 
 -- drop foreign key constraint
 ALTER TABLE comments DROP CONSTRAINT IF EXISTS fk_comments_post_id;
+ALTER TABLE comments
+    DROP CONSTRAINT IF EXISTS comments_post_id_fkey;
 ALTER TABLE posts DROP CONSTRAINT IF EXISTS fk_posts_author_id;
+ALTER TABLE posts
+    DROP CONSTRAINT IF EXISTS posts_author_id_fkey;
 -- drop primary key constraint
 ALTER TABLE users DROP CONSTRAINT IF EXISTS pk_users;
+ALTER TABLE users
+    DROP CONSTRAINT IF EXISTS users_pkey;
 ALTER TABLE posts DROP CONSTRAINT IF EXISTS pk_posts;
+ALTER TABLE posts
+    DROP CONSTRAINT IF EXISTS posts_pkey;
 ALTER TABLE comments DROP CONSTRAINT IF EXISTS pk_comments;
+ALTER TABLE comments
+    DROP CONSTRAINT IF EXISTS comments_pkey;
 
 
 -- add primary key constraint

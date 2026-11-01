@@ -2,7 +2,7 @@ package com.example.demo;
 
 import com.example.demo.gql.types.Comment;
 import com.example.demo.gql.types.Post;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.ObjectMapper;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.AfterEach;
@@ -86,6 +86,10 @@ public class IntegrationTests {
                 .thenCancel()
                 .verifyLater();
 
+        // give the websocket subscription time to register on the server before emitting comments,
+        // the server sink is a replay().latest() so a late subscriber only sees the last comment
+        Thread.sleep(1000);
+
         addCommentToPost(id);
         addCommentToPost(id);
         addCommentToPost(id);
@@ -156,7 +160,7 @@ public class IntegrationTests {
                     countDownLatch.countDown();
                 });
 
-        countDownLatch.await(1000, TimeUnit.MILLISECONDS);
+        countDownLatch.await(5000, TimeUnit.MILLISECONDS);
 
         String id = postIdHolder.get();
         log.info("created post id: {}", id);

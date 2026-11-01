@@ -4,15 +4,16 @@ import com.example.demo.model.Comment;
 import com.example.demo.model.Post;
 import com.example.demo.model.QPost;
 import com.example.demo.repository.PostRepository;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.ObjectMapper;
 import com.querydsl.core.types.Predicate;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.graphql.tester.AutoConfigureHttpGraphQlTester;
+import org.springframework.boot.graphql.test.autoconfigure.tester.AutoConfigureHttpGraphQlTester;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.graphql.test.tester.HttpGraphQlTester;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
@@ -28,6 +29,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @SpringBootTest()
+@Import(TestcontainersConfiguration.class)
 @AutoConfigureHttpGraphQlTester
 @Slf4j
 public class QueryTests {

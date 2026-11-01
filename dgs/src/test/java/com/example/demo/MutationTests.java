@@ -11,6 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
@@ -22,6 +23,7 @@ import static org.mockito.Mockito.*;
 
 @EnableDgsTest
 @SpringBootTest(classes = {MutationTests.MutationTestsConfig.class})
+@Import(TestcontainersConfiguration.class)
 @Slf4j
 class MutationTests {
 

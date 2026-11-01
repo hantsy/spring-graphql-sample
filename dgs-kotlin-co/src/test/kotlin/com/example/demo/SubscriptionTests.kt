@@ -13,11 +13,11 @@ import com.example.demo.repository.PostRepository
 import com.example.demo.service.AuthorService
 import com.example.demo.service.DefaultPostService
 import com.example.demo.service.PostService
-import com.fasterxml.jackson.databind.ObjectMapper
+import tools.jackson.databind.ObjectMapper
 import com.netflix.graphql.dgs.reactive.DgsReactiveQueryExecutor
 import com.netflix.graphql.dgs.test.EnableDgsTest
 import com.ninjasquad.springmockk.MockkBean
-import com.ninjasquad.springmockk.SpykBean
+import org.springframework.test.context.bean.override.mockito.MockitoSpyBean
 import graphql.ExecutionResult
 import graphql.schema.GraphQLScalarType
 import graphql.schema.idl.RuntimeWiring
@@ -34,11 +34,11 @@ import org.reactivestreams.Subscription
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.autoconfigure.ImportAutoConfiguration
-import org.springframework.boot.autoconfigure.web.reactive.WebFluxAutoConfiguration
+import org.springframework.boot.webflux.autoconfigure.WebFluxAutoConfiguration
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.context.annotation.Import
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
-import org.springframework.context.annotation.Import
 import org.springframework.graphql.execution.RuntimeWiringConfigurer
 import java.time.LocalDateTime
 import java.util.*
@@ -55,6 +55,7 @@ class SubscriptionTests {
     @Configuration
     @Import(
         value = [
+            TestcontainersConfiguration::class,
             AuthorsDataFetcher::class,
             PostsDataFetcher::class,
             LocalDateTimeScalar::class,
@@ -95,7 +96,7 @@ class SubscriptionTests {
     @MockkBean
     lateinit var commentRepository: CommentRepository
 
-    @SpykBean
+    @MockitoSpyBean
     lateinit var postService: PostService
 
     @MockkBean

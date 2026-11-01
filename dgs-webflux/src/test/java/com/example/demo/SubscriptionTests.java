@@ -10,7 +10,7 @@ import com.example.demo.repository.CommentRepository;
 import com.example.demo.repository.PostRepository;
 import com.example.demo.service.AuthorService;
 import com.example.demo.service.PostService;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.ObjectMapper;
 import com.netflix.graphql.dgs.reactive.DgsReactiveQueryExecutor;
 import com.netflix.graphql.dgs.test.EnableDgsTest;
 import graphql.ExecutionResult;
@@ -21,9 +21,10 @@ import org.junit.jupiter.api.Test;
 import org.reactivestreams.Publisher;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
-import org.springframework.boot.autoconfigure.jackson.JacksonAutoConfiguration;
-import org.springframework.boot.autoconfigure.web.reactive.WebFluxAutoConfiguration;
+import org.springframework.boot.jackson.autoconfigure.JacksonAutoConfiguration;
+import org.springframework.boot.webflux.autoconfigure.WebFluxAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
@@ -41,6 +42,7 @@ import static org.awaitility.Awaitility.await;
 import static org.mockito.Mockito.*;
 
 @SpringBootTest(classes = SubscriptionTests.SubscriptionTestsConfig.class)
+@Import(TestcontainersConfiguration.class)
 @Slf4j
 @EnableDgsTest
 //@Disabled

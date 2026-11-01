@@ -2,7 +2,7 @@ package com.example.demo
 
 import com.example.demo.gql.types.Comment
 import com.example.demo.gql.types.Post
-import com.fasterxml.jackson.databind.ObjectMapper
+import tools.jackson.databind.ObjectMapper
 import io.kotest.assertions.nondeterministic.continually
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
@@ -16,6 +16,7 @@ import org.junit.jupiter.api.Test
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.context.annotation.Import
 import org.springframework.boot.test.rsocket.server.LocalRSocketServerPort
 import org.springframework.graphql.client.ClientGraphQlResponse
 import org.springframework.graphql.client.RSocketGraphQlClient
@@ -26,6 +27,7 @@ import java.util.concurrent.CopyOnWriteArrayList
 import kotlin.time.Duration.Companion.seconds
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@Import(TestcontainersConfiguration::class)
 internal class IntegrationTests {
     companion object {
         private val log = LoggerFactory.getLogger(IntegrationTests::class.java)

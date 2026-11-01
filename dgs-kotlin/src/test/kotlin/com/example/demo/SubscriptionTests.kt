@@ -4,18 +4,19 @@ import com.example.demo.gql.types.AuthResult
 import com.example.demo.gql.types.Comment
 import com.example.demo.gql.types.Post
 import com.jayway.jsonpath.JsonPath
-import com.netflix.graphql.dgs.internal.BaseDgsQueryExecutor.objectMapper
+import com.netflix.graphql.dgs.internal.Jackson3DgsJsonMapper
+import com.netflix.graphql.dgs.json.DgsJsonMapper
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.slf4j.LoggerFactory
 import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.boot.test.context.TestConfiguration
-import org.springframework.boot.test.web.client.TestRestTemplate
-import org.springframework.boot.test.web.server.LocalServerPort
-import org.springframework.boot.web.client.RestTemplateBuilder
-import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Import
+import org.springframework.boot.test.context.TestConfiguration
+import org.springframework.boot.resttestclient.TestRestTemplate
+import org.springframework.boot.test.web.server.LocalServerPort
+import org.springframework.boot.restclient.RestTemplateBuilder
+import org.springframework.context.annotation.Bean
 import org.springframework.core.ParameterizedTypeReference
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
@@ -28,13 +29,12 @@ import org.springframework.web.socket.handler.TextWebSocketHandler
 import java.net.URI
 import java.util.UUID
 
-
 @SpringBootTest(
     classes = [DemoApplication::class],
     webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT
 )
 @ContextConfiguration(initializers = [TestConfigInitializer::class])
-@Import(SubscriptionTests.TestConfig::class)
+@Import(TestcontainersConfiguration::class, SubscriptionTests.TestConfig::class)
 class SubscriptionTests {
 
     private val log = LoggerFactory.getLogger(SubscriptionTests::class.java)
@@ -109,7 +109,7 @@ class SubscriptionTests {
                 message: TextMessage
             ) {
                 log.debug("handling message: {}", message)
-                val comment = objectMapper.convertValue(
+                val comment = dgsJsonMapper.convertValue(
                     JsonPath.read(message.payload, "$.payload.data.commentAdded"),
                     Comment::class.java
                 )
@@ -268,4 +268,6 @@ class SubscriptionTests {
 
 }
 
-private fun <K, V> Map<K, V>.toJson(): String = objectMapper.writeValueAsString(this)
+private val dgsJsonMapper: DgsJsonMapper = Jackson3DgsJsonMapper()
+
+private fun <K, V> Map<K, V>.toJson(): String = dgsJsonMapper.writeValueAsString(this)

@@ -2,8 +2,8 @@ package com.example.demo
 
 import com.expediagroup.graphql.server.spring.subscriptions.ApolloSubscriptionOperationMessage
 import com.expediagroup.graphql.server.types.GraphQLRequest
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.module.kotlin.readValue
+import tools.jackson.databind.ObjectMapper
+import tools.jackson.module.kotlin.readValue
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import io.kotest.matchers.string.shouldContain
@@ -14,6 +14,7 @@ import org.junit.jupiter.api.Test
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.context.annotation.Import
 import org.springframework.boot.test.web.server.LocalServerPort
 import org.springframework.http.HttpStatus
 import org.springframework.web.reactive.function.client.WebClient
@@ -31,6 +32,7 @@ import kotlin.random.Random
 
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@Import(TestcontainersConfiguration::class)
 class DemoApplicationTests {
 
     companion object {

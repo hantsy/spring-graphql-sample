@@ -56,6 +56,8 @@ class SubscriptionTest {
             " { messages { body }}",
             "data.messages[*].body"
         )
-        assertThat(msgs).allMatch { s: String -> s.contains("message") }
+        // the in-memory store is shared with other tests in this context (JUnit 6 may run them first),
+        // so only assert that the messages sent by this test are persisted
+        assertThat(msgs).contains("text1 message", "text2 message")
     }
 }

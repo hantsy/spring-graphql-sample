@@ -1,5 +1,5 @@
 plugins {
-    id 'org.springframework.boot' version '3.5.0'
+    id 'org.springframework.boot' version '4.1.2'
     id 'io.spring.dependency-management' version '1.1.7'
     id 'java'
 }
@@ -10,7 +10,7 @@ group = 'com.example'
 version = '0.0.1-SNAPSHOT'
 java {
     toolchain {
-        languageVersion = JavaLanguageVersion.of(21)
+        languageVersion = JavaLanguageVersion.of(25)
     }
 }
 
@@ -23,28 +23,36 @@ repositories {
 
 dependencyManagement {
     imports {
-        mavenBom("com.netflix.graphql.dgs:graphql-dgs-platform-dependencies:10.2.1")
+        mavenBom("com.netflix.graphql.dgs:graphql-dgs-platform-dependencies:12.1.0")
     }
 }
 
 dependencies {
     implementation "com.netflix.graphql.dgs:dgs-starter"
     implementation 'com.netflix.graphql.dgs:graphql-dgs-extended-scalars'
-    implementation 'org.apache.commons:commons-lang3:3.17.0'
+    implementation 'org.apache.commons:commons-lang3:3.21.0'
 
     // spring web
-    implementation 'org.springframework.boot:spring-boot-starter-web'
-    implementation 'name.nkonev.multipart-spring-graphql:multipart-spring-graphql:1.6.0'
+    implementation 'org.springframework.boot:spring-boot-starter-webmvc'
+    implementation 'name.nkonev.multipart-spring-graphql:multipart-spring-graphql:2.1.0'
 
     //configure Lombok for compile java/ compile tests
-    compileOnly 'org.projectlombok:lombok:1.18.38'
-    annotationProcessor 'org.projectlombok:lombok:1.18.38'
-    testCompileOnly 'org.projectlombok:lombok:1.18.38'
-    testAnnotationProcessor 'org.projectlombok:lombok:1.18.38'
+    compileOnly 'org.projectlombok:lombok:1.18.48'
+    annotationProcessor 'org.projectlombok:lombok:1.18.48'
+    testCompileOnly 'org.projectlombok:lombok:1.18.48'
+    testAnnotationProcessor 'org.projectlombok:lombok:1.18.48'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'com.netflix.graphql.dgs:dgs-starter-test'
 }
 
 test {
     useJUnitPlatform()
+}
+
+dependencies {
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+
+tasks.named('test') {
+    jvmArgs '-Djdk.attach.allowAttachSelf=true'
 }

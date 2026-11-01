@@ -2,11 +2,11 @@ import com.netflix.graphql.dgs.codegen.gradle.GenerateJavaTask
 import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
 
 plugins {
-    id("org.springframework.boot") version "3.5.0"
+    id("org.springframework.boot") version "4.1.2"
     id("io.spring.dependency-management") version "1.1.7"
-    kotlin("jvm") version "2.1.21"
-    kotlin("plugin.spring") version "2.1.21"
-    id("com.netflix.dgs.codegen") version "8.1.0" //https://plugins.gradle.org/plugin/com.netflix.dgs.codegen
+    kotlin("jvm") version "2.3.21"
+    kotlin("plugin.spring") version "2.3.21"
+    id("com.netflix.dgs.codegen") version "8.7.0" //https://plugins.gradle.org/plugin/com.netflix.dgs.codegen
 }
 
 // extra["graphql-java.version"] = "19.2"
@@ -15,10 +15,10 @@ group = "com.example"
 version = "0.0.1-SNAPSHOT"
 
 kotlin {
-    jvmToolchain(21)
+    jvmToolchain(25)
     compilerOptions {
-        apiVersion.set(KotlinVersion.KOTLIN_2_0)
-        languageVersion.set(KotlinVersion.KOTLIN_2_0)
+        apiVersion.set(KotlinVersion.KOTLIN_2_1)
+        languageVersion.set(KotlinVersion.KOTLIN_2_1)
         freeCompilerArgs.addAll(
             "-Xjsr305=strict",
             "-opt-in=kotlin.RequiresOptIn",
@@ -36,7 +36,7 @@ repositories {
 
 dependencyManagement {
     imports {
-        mavenBom("com.netflix.graphql.dgs:graphql-dgs-platform-dependencies:10.1.2")
+        mavenBom("com.netflix.graphql.dgs:graphql-dgs-platform-dependencies:12.1.0")
     }
 }
 
@@ -51,9 +51,9 @@ dependencies {
     implementation("org.postgresql:postgresql")
 
     // spring boot
-    implementation("org.springframework.boot:spring-boot-starter-web")
+    implementation("org.springframework.boot:spring-boot-starter-webmvc")
     implementation("org.springframework.boot:spring-boot-starter-websocket")
-    implementation("name.nkonev.multipart-spring-graphql:multipart-spring-graphql:1.6.0")
+    implementation("name.nkonev.multipart-spring-graphql:multipart-spring-graphql:2.1.0")
 
     // spring security
     implementation("org.springframework.boot:spring-boot-starter-security")
@@ -63,17 +63,22 @@ dependencies {
 
     // data redis
     implementation("org.springframework.boot:spring-boot-starter-data-redis")
-    implementation("org.springframework.session:spring-session-data-redis")
+    // Boot 4 moved session auto-configuration into dedicated modules
+    implementation("org.springframework.boot:spring-boot-starter-session-data-redis")
 
     //kotlin
-    implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
+    implementation("tools.jackson.module:jackson-module-kotlin")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     implementation("org.jetbrains.kotlin:kotlin-stdlib")
 
     //test
     testImplementation("org.springframework:spring-websocket")
+    testImplementation("org.springframework.boot:spring-boot-resttestclient")
+    testImplementation("org.springframework.boot:spring-boot-restclient")
+    testImplementation("org.springframework.boot:spring-boot-testcontainers")
+    testImplementation("org.testcontainers:testcontainers-postgresql:2.0.5")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
-    testImplementation("org.springframework.security:spring-security-test")
+    testImplementation("org.springframework.boot:spring-boot-starter-security-test")
     testImplementation("io.projectreactor:reactor-test")
 
     testImplementation("com.netflix.graphql.dgs:dgs-starter-test")
@@ -85,7 +90,6 @@ tasks.withType<GenerateJavaTask> {
     packageName = "com.example.demo.gql" // The package name to use to generate sources
     generateClient = true // Enable generating the type safe query API
     shortProjectionNames = false
-    maxProjectionDepth = 2
     snakeCaseConstantNames = true
     typeMapping = mutableMapOf(
         "UUID" to "java.util.UUID",
@@ -95,4 +99,12 @@ tasks.withType<GenerateJavaTask> {
 
 tasks.withType<Test> {
     useJUnitPlatform()
+}
+
+dependencies {
+    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+}
+
+tasks.withType<Test> {
+    jvmArgs("-Djdk.attach.allowAttachSelf=true")
 }

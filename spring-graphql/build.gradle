@@ -1,5 +1,5 @@
 plugins {
-    id 'org.springframework.boot' version '3.5.0'
+    id 'org.springframework.boot' version '4.1.2'
     id 'io.spring.dependency-management' version '1.1.7'
     id 'java'
 }
@@ -8,7 +8,7 @@ group = 'com.example'
 version = '0.0.1-SNAPSHOT'
 java {
     toolchain {
-        languageVersion = JavaLanguageVersion.of(21)
+        languageVersion = JavaLanguageVersion.of(25)
     }
 }
 
@@ -34,21 +34,23 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-graphql'
 
     //Spring Boot
-    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-starter-webmvc'
     //implementation 'org.springframework.boot:spring-boot-starter-websocket'
     implementation 'org.springframework.boot:spring-boot-starter-data-jdbc'
     runtimeOnly 'org.postgresql:postgresql'
-    implementation 'org.apache.commons:commons-lang3:3.17.0'
+    implementation 'org.apache.commons:commons-lang3:3.21.0'
 
     //configure Lombok for compile java/ compile tests
-    compileOnly 'org.projectlombok:lombok:1.18.38'
-    annotationProcessor 'org.projectlombok:lombok:1.18.38'
-    testCompileOnly 'org.projectlombok:lombok:1.18.38'
-    testAnnotationProcessor 'org.projectlombok:lombok:1.18.38'
+    compileOnly 'org.projectlombok:lombok:1.18.48'
+    annotationProcessor 'org.projectlombok:lombok:1.18.48'
+    testCompileOnly 'org.projectlombok:lombok:1.18.48'
+    testAnnotationProcessor 'org.projectlombok:lombok:1.18.48'
 
     //test
-    testImplementation 'org.springframework.graphql:spring-graphql-test'
+    testImplementation 'org.springframework.boot:spring-boot-starter-graphql-test'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'org.springframework.boot:spring-boot-testcontainers'
+    testImplementation 'org.testcontainers:testcontainers-postgresql:2.0.5'
     testImplementation 'org.springframework:spring-webflux'
     testImplementation 'io.projectreactor:reactor-test'
 }
@@ -58,4 +60,12 @@ tasks.named('test') {
     testLogging {
         showStandardStreams = true
     }
+}
+
+dependencies {
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+
+tasks.named('test') {
+    jvmArgs '-Djdk.attach.allowAttachSelf=true'
 }

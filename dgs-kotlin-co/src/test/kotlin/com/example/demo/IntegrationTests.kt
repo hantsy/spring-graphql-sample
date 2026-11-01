@@ -15,6 +15,7 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.slf4j.LoggerFactory
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.context.annotation.Import
 import org.springframework.boot.test.web.server.LocalServerPort
 import org.springframework.graphql.client.WebSocketGraphQlClient
 import org.springframework.web.reactive.function.client.WebClient
@@ -26,6 +27,7 @@ import java.util.UUID
 
 @OptIn(ExperimentalCoroutinesApi::class, ExperimentalKotest::class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@Import(TestcontainersConfiguration::class)
 class IntegrationTests {
     companion object {
         private val log = LoggerFactory.getLogger(IntegrationTests::class.java)

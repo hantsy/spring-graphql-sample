@@ -2,7 +2,7 @@ package com.example.demo.gql;
 
 import com.example.demo.gql.types.*;
 import com.example.demo.service.PostService;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.ObjectMapper;
 import graphql.schema.DataFetcher;
 import graphql.schema.DataFetchingEnvironment;
 import lombok.RequiredArgsConstructor;

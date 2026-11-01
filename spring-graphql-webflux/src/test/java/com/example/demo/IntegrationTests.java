@@ -2,7 +2,7 @@ package com.example.demo;
 
 import com.example.demo.gql.types.Comment;
 import com.example.demo.gql.types.Post;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.ObjectMapper;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.AfterEach;
@@ -10,6 +10,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.graphql.client.WebSocketGraphQlClient;
 import org.springframework.web.reactive.socket.client.ReactorNettyWebSocketClient;
@@ -25,6 +26,7 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@Import(TestcontainersConfiguration.class)
 @Slf4j
 class IntegrationTests {
 

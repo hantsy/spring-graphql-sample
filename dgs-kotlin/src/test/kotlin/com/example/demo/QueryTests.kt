@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.context.annotation.Import
 import org.springframework.test.context.ContextConfiguration
 import java.util.*
 
@@ -13,6 +14,7 @@ import java.util.*
 @SpringBootTest(
     classes = [DemoApplication::class]
 )
+@Import(TestcontainersConfiguration::class)
 @ContextConfiguration(initializers = [TestConfigInitializer::class])
 class QueryTests {
 
