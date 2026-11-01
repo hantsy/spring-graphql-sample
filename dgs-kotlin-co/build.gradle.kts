@@ -58,10 +58,9 @@ dependencies {
     // test
     testImplementation("org.springframework.boot:spring-boot-testcontainers")
     testRuntimeOnly("org.postgresql:postgresql") // JDBC driver for Testcontainers init script
-    testImplementation("org.testcontainers:testcontainers-postgresql:2.0.5"
+    testImplementation("org.testcontainers:testcontainers-postgresql:2.0.5")
     testImplementation("org.testcontainers:testcontainers-r2dbc:2.0.5")
-    testImplementation("org.springframework.boot:spring-boot-starter-test") {
-    }
+    testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("com.netflix.graphql.dgs:dgs-starter-test")
     testImplementation("io.projectreactor:reactor-test")
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test")
