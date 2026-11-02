@@ -17,28 +17,30 @@ describe('AppComponent', () => {
   });
 
   afterEach(() => {
-    // subscribeToMore opens a subscription that TestOperation.flush never
-    // auto-completes, so drain it before asserting no operations are outstanding
+    // The subscription Observable opened by toSignal stays active; drain any
+    // outstanding operations before asserting none are left.
     controller.match(() => true).forEach(op => op.complete());
     controller.verify();
   });
 
-  it('renders messages returned by the query', () => {
+  it('renders messages returned by the query', async () => {
     const fixture = TestBed.createComponent(AppComponent);
     fixture.detectChanges();
 
     controller.expectOne('allMessages').flushData({
       messages: [{ id: '1', body: 'hello world', sentAt: null }],
     });
+    await fixture.whenStable();
     fixture.detectChanges();
 
     expect(fixture.nativeElement.textContent).toContain('hello world');
   });
 
-  it('sends the mutation with the typed body', () => {
+  it('sends the mutation with the typed body', async () => {
     const fixture = TestBed.createComponent(AppComponent);
     fixture.detectChanges();
     controller.expectOne('allMessages').flushData({ messages: [] });
+    await fixture.whenStable();
 
     const component = fixture.componentInstance;
     component.form.controls.body.setValue('hi there');
@@ -49,11 +51,12 @@ describe('AppComponent', () => {
     mutation.flushData({ send: null });
   });
 
-  it('shows an error banner when the query fails', () => {
+  it('shows an error banner when the query fails', async () => {
     const fixture = TestBed.createComponent(AppComponent);
     fixture.detectChanges();
 
     controller.expectOne('allMessages').networkError(new Error('boom'));
+    await fixture.whenStable();
     fixture.detectChanges();
 
     expect(fixture.nativeElement.textContent).toContain('boom');

@@ -1,4 +1,4 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, computed, inject, resource, signal, type Signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
@@ -6,27 +6,20 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { Apollo } from 'apollo-angular';
-import { catchError, map, of } from 'rxjs';
+import { catchError, filter, firstValueFrom, map, of } from 'rxjs';
 import {
   MESSAGES_QUERY,
   MESSAGE_SENT_SUBSCRIPTION,
   SEND_MESSAGE_MUTATION,
   describeError,
-  mergeNewMessage,
   type MessageSentData,
   type MessagesData,
   type SendMessageData,
-  type TextMessage,
 } from './graphql/messages';
 import { connectionState } from './transport/ws-link';
 
-interface UiState {
-  loading: boolean;
-  messages: TextMessage[];
-  error: string | null;
-}
-
-const LOADING: UiState = { loading: true, messages: [], error: null };
+/** Shape emitted by the streaming subscription resource. */
+type SubStreamItem = { value: MessageSentData | null } | { error: Error };
 
 @Component({
   selector: 'app-root',
@@ -47,31 +40,47 @@ export class AppComponent {
 
   readonly form = this.fb.nonNullable.group({ body: ['', Validators.required] });
 
-  private readonly queryRef = this.apollo.watchQuery<MessagesData>({
-    query: MESSAGES_QUERY,
+  // ── Query as a one-time resource ──────────────────────────────────────
+  readonly messagesResource = resource({
+    loader: () =>
+      firstValueFrom(
+        this.apollo.query<MessagesData>({ query: MESSAGES_QUERY }).pipe(
+          map(r => r.data?.messages ?? []),
+        ),
+      ),
   });
 
-  // The subscription folds into the cache, so valueChanges is the only stream the
-  // component reads. subscribeToMore must be created for the subscription to start.
-  private readonly moreSubscription = this.queryRef.subscribeToMore<MessageSentData>({
-    document: MESSAGE_SENT_SUBSCRIPTION,
-    updateQuery: mergeNewMessage as any,
+  // ── Subscription as a streaming resource ──────────────────────────────
+  // apollo.subscribe() emits SubscribeResult<T> (with optional .data).
+  // The stream loader must return Signal<ResourceStreamItem<U>>, so we wrap
+  // each emission in { value: … } and map errors to { error: … }.
+  private readonly subscriptionSignal: Signal<SubStreamItem> = toSignal(
+    this.apollo.subscribe<MessageSentData>({ query: MESSAGE_SENT_SUBSCRIPTION }).pipe(
+      filter(result => !!result.data),
+      map(result => ({ value: result.data as MessageSentData | null })),
+      catchError(err => of({ error: err instanceof Error ? err : new Error(String(err)) })),
+    ),
+    { initialValue: { value: null as MessageSentData | null } },
+  )!;
+
+  readonly subscriptionResource = resource<MessageSentData | null, null>({
+    stream: () => this.subscriptionSignal,
   });
 
-  private readonly state$ = this.queryRef.valueChanges.pipe(
-    map(r => ({
-      loading: r.loading,
-      messages: (r.data as MessagesData | undefined)?.messages ?? [],
-      error: r.error ? describeError(r.error) : null,
-    })),
-    catchError(err => of({ loading: false as boolean, messages: [] as TextMessage[], error: describeError(err) as string | null })),
-  );
+  // ── Computed signals ──────────────────────────────────────────────────
+  readonly messages = computed(() => {
+    const initial = this.messagesResource.hasValue() ? this.messagesResource.value()! : [];
+    const newMessage = this.subscriptionResource.value();
+    if (!newMessage) return initial;
+    return [...initial, newMessage.messageSent];
+  });
 
-  private readonly state = toSignal(this.state$, { initialValue: LOADING });
+  readonly loading = computed(() => this.messagesResource.isLoading());
+  readonly error = computed(() => {
+    const err = this.messagesResource.error();
+    return err ? describeError(err) : null;
+  });
 
-  readonly messages = computed(() => this.state().messages);
-  readonly loading = computed(() => this.state().loading);
-  readonly error = computed(() => this.state().error);
   readonly connection = connectionState;
 
   readonly sending = signal(false);
