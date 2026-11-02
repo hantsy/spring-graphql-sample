@@ -214,3 +214,22 @@ updates:
         update-types: ["version-update:semver-major"]
       - dependency-name: "*"
         update-types: ["version-update:semver-major", "version-update:semver-minor"]
+
+  # Angular client for dgs-subscription-sse. Same ignore policy as
+  # dgs-subscription-ui: Angular majors need a coordinated toolchain migration.
+  - package-ecosystem: "npm"
+    directory: "/dgs-subscription-ui-sse"
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 10
+    reviewers:
+      - "hantsy"
+    assignees:
+      - "hantsy"
+    labels:
+      - "dependencies"
+    ignore:
+      - dependency-name: "@angular/*"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major", "version-update:semver-minor"]

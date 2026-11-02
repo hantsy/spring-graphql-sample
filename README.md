@@ -25,6 +25,7 @@ TBD
 |[dgs-webflux](./dgs-webflux)| Simple Netflix DGS example with Spring WebFlux|
 |[dgs-subscription-ws](./dgs-subscription-ws) | Simple Netflix DGS Subscription example using WebSocket protocol|
 |[dgs-subscription-ui](./dgs-subscription-ui)  | Angular Client app for dgs-subscription-ws|
+|[dgs-subscription-ui-sse](./dgs-subscription-ui-sse)  | Angular Client app for dgs-subscription-sse, consuming subscriptions over Server-Sent Events|
 |[dgs-subscription-sse](./dgs-subscription-sse)  | Simple Netflix DGS Subscription example using Http/SSE protocol|
 |[dgs-codegen](./dgs-codegen) | Netflix DGS example with Spring Jdbc and Gradle codegen plugin|
 |[dgs-fileupload](./dgs-fileupload) | Netflix DGS file upload example|
@@ -38,6 +39,7 @@ TBD
 |[spring-graphql-webflux](./spring-graphql-webflux) | Spring GraphQL/WebFlux example with WebSocket transport protocol |
 |[spring-graphql-rsocket-kotlin-co](./spring-graphql-rsocket-kotlin-co) | Spring GraphQL/WebFlux/Kotlin Coroutines example with RSocket transport protocol |
 
+Both Angular clients default to `http://localhost:8080/graphql`. `dgs-subscription-ui` pairs with the `dgs-subscription-ws` backend and `dgs-subscription-ui-sse` pairs with `dgs-subscription-sse`; running the wrong backend, or both at once, means the UI silently talks to the wrong transport.
 
 ### Legacy Codes
 
