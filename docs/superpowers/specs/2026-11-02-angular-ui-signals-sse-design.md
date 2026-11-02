@@ -88,6 +88,13 @@ them:
   `valueChanges`, `refetch`, `updateQuery`, `fetchMore`, `startPolling`, `stopPolling`,
   `setVariables`, `reobserve` and `getCurrentResult`. The existing cache-merge logic
   therefore ports unchanged.
+- `@apollo/client@4.3.5`'s `ObservableQuery.Result<TData>` carries `error?: ErrorLike`,
+  `loading: boolean` and `data`, so the state envelope below reads real fields rather than
+  assumed ones.
+- `ng new` in Angular CLI 22.2.5 defaults to `--standalone` and `--test-runner vitest`,
+  and accepts `--zoneless`. Its `--file-name-style-guide` defaults to `"2025"`, which names
+  the root component `app.ts`; this design passes `"2016"` to keep the `app.component.ts`
+  naming the rest of the repo uses.
 
 ## Architecture and project layout
 
@@ -250,8 +257,15 @@ inherent to long-lived SSE connections and is not caused by the CORS bean.
 Vitest via Angular's `@angular/build:unit-test` target with a jsdom environment, which
 needs no Chrome binary in CI — unlike Karma.
 
-1. **`app.component.spec.ts`** (both apps) using `provideApolloTesting()` and
-   `ApolloTestingController` from `apollo-angular/testing`:
+1. **`app.component.spec.ts`** (both apps). `apollo-angular/testing` exports
+   `ApolloTestingModule`, `ApolloTestingController`, `TestOperation`,
+   `APOLLO_TESTING_CACHE` and `APOLLO_TESTING_NAMED_CACHE`. There is **no**
+   `provideApolloTesting()` function, so the testing backend is wired by importing
+   `ApolloTestingModule` into `TestBed.configureTestingModule` and injecting
+   `ApolloTestingController`. This is the only NgModule the design retains, and it is the
+   library's rather than ours. Mocked results are delivered through
+   `TestOperation.flushData()`, `.graphqlErrors()` and `.networkError()`, and every test
+   ends with `controller.verify()`. Cases:
    - messages returned by the query render through `@for`
    - `send()` issues the mutation with the expected variables
    - a failed query surfaces the error banner
