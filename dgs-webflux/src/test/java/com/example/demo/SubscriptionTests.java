@@ -10,7 +10,7 @@ import com.example.demo.repository.CommentRepository;
 import com.example.demo.repository.PostRepository;
 import com.example.demo.service.AuthorService;
 import com.example.demo.service.PostService;
-import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 import com.netflix.graphql.dgs.reactive.DgsReactiveQueryExecutor;
 import com.netflix.graphql.dgs.test.EnableDgsTest;
 import graphql.ExecutionResult;
@@ -63,7 +63,7 @@ class SubscriptionTests {
     DgsReactiveQueryExecutor dgsReactiveQueryExecutor;
 
     @Autowired
-    ObjectMapper objectMapper;
+    JsonMapper jsonMapper;
 
     @MockitoSpyBean
     PostService postService;
@@ -118,7 +118,7 @@ class SubscriptionTests {
 //            @Override
 //            public void onNext(ExecutionResult executionResult) {
 //                log.debug("execution result in publisher: {}", executionResult);
-//                var commentAdded = objectMapper.convertValue(
+//                var commentAdded = jsonMapper.convertValue(
 //                        executionResult.<Map<String, Object>>getData().get("commentAdded"),
 //                        Comment.class
 //                );
@@ -141,7 +141,7 @@ class SubscriptionTests {
         var publisher = executionResultMono.flatMapMany(ExecutionResult::<Publisher<ExecutionResult>>getData);
         publisher.subscribe(executionResult -> {
             log.debug("execution result in publisher: {}", executionResult);
-            var commentAdded = objectMapper.convertValue(
+            var commentAdded = jsonMapper.convertValue(
                     executionResult.<Map<String, Object>>getData().get("commentAdded"),
                     Comment.class
             );

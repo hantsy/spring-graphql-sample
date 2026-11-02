@@ -2,7 +2,7 @@ package com.example.demo
 
 import com.example.demo.gql.types.Comment
 import com.example.demo.gql.types.Post
-import tools.jackson.databind.ObjectMapper
+import tools.jackson.databind.json.JsonMapper
 import io.kotest.assertions.nondeterministic.continually
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
@@ -39,7 +39,7 @@ internal class IntegrationTests {
     var port: Int = 0
 
     @Autowired
-    lateinit var objectMapper: ObjectMapper
+    lateinit var jsonMapper: JsonMapper
 
     @BeforeEach
     fun setUp() = runTest {
@@ -78,7 +78,7 @@ internal class IntegrationTests {
 
         val postId = client.document(createPostQuery).variables(createPostVariables).execute()
             .map { response: ClientGraphQlResponse ->
-                objectMapper.convertValue(
+                jsonMapper.convertValue(
                     response.getData<Map<String, Any>>()!!["createPost"],
                     Post::class.java
                 )
@@ -99,7 +99,7 @@ internal class IntegrationTests {
         val post = client.document(postById).variable("postId", postId)
             .execute()
             .map { response: ClientGraphQlResponse ->
-                objectMapper.convertValue(
+                jsonMapper.convertValue(
                     response.getData<Map<String, Any>>()!!["postById"],
                     Post::class.java
                 )
@@ -117,7 +117,7 @@ internal class IntegrationTests {
         client.document(subscriptionQuery)
             .executeSubscription()
             .map { response: ClientGraphQlResponse ->
-                objectMapper.convertValue(
+                jsonMapper.convertValue(
                     response.getData<Map<String, Any>>()!!["commentAdded"],
                     Comment::class.java
                 )
@@ -154,7 +154,7 @@ internal class IntegrationTests {
             .variables(addCommentVariables)
             .execute()
             .map { response: ClientGraphQlResponse ->
-                objectMapper.convertValue(
+                jsonMapper.convertValue(
                     response.getData<Map<String, Any>>()!!["addComment"],
                     Comment::class.java
                 )

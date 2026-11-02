@@ -2,7 +2,7 @@ package com.example.demo.gql;
 
 import com.example.demo.gql.types.*;
 import com.example.demo.service.PostService;
-import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 import graphql.schema.DataFetcher;
 import graphql.schema.DataFetchingEnvironment;
 import lombok.RequiredArgsConstructor;
@@ -25,7 +25,7 @@ import java.util.concurrent.CompletionStage;
 @Slf4j
 public class DataFetchers {
     private final PostService postService;
-    private final ObjectMapper objectMapper;
+    private final JsonMapper jsonMapper;
 
     public DataFetcher<Post> postById() {
         return (DataFetchingEnvironment dfe) -> {
@@ -41,7 +41,7 @@ public class DataFetchers {
     public DataFetcher<UUID> createPost() {
         return (DataFetchingEnvironment dfe) -> {
             var input = dfe.getArgument("createPostInput");
-            var createPostInput = objectMapper.convertValue(input, CreatePostInput.class);
+            var createPostInput = jsonMapper.convertValue(input, CreatePostInput.class);
             return postService.createPost(createPostInput);
         };
     }
@@ -65,7 +65,7 @@ public class DataFetchers {
     public DataFetcher<UUID> addComment() {
         return (DataFetchingEnvironment dfe) -> {
             var commentInputArg = dfe.getArgument("commentInput");
-            var input = objectMapper.convertValue(commentInputArg, CommentInput.class);
+            var input = jsonMapper.convertValue(commentInputArg, CommentInput.class);
             return this.postService.addComment(input);
         };
     }

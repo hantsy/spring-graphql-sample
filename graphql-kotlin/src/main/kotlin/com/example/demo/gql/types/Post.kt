@@ -22,7 +22,9 @@ data class Post(
         return environment.getValueFromDataLoader(CommentsDataLoader.NAME, id!!)
     }
 
-    fun author(environment: DataFetchingEnvironment): CompletableFuture<Author> {
-        return environment.getValueFromDataLoader(AuthorsDataLoader.NAME, authorId!!)
+    fun author(environment: DataFetchingEnvironment): CompletableFuture<Author?> {
+        // createPost never assigns an author, so a null authorId must not fail the whole query
+        val id = authorId ?: return CompletableFuture.completedFuture(null)
+        return environment.getValueFromDataLoader(AuthorsDataLoader.NAME, id)
     }
 }

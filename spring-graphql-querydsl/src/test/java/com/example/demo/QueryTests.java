@@ -4,7 +4,7 @@ import com.example.demo.model.Comment;
 import com.example.demo.model.Post;
 import com.example.demo.model.QPost;
 import com.example.demo.repository.PostRepository;
-import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 import com.querydsl.core.types.Predicate;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
@@ -38,7 +38,7 @@ public class QueryTests {
     HttpGraphQlTester graphQlTester;
 
     @Autowired
-    ObjectMapper objectMapper;
+    JsonMapper jsonMapper;
 
     @MockitoBean
     PostRepository postRepository;

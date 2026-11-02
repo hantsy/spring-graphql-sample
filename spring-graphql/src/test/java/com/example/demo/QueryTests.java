@@ -3,7 +3,7 @@ package com.example.demo;
 import com.example.demo.gql.types.Post;
 import com.example.demo.service.AuthorService;
 import com.example.demo.service.PostService;
-import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,7 +33,7 @@ public class QueryTests {
     AuthorService authorService;
 
     @Autowired
-    ObjectMapper objectMapper;
+    JsonMapper jsonMapper;
 
     @BeforeEach
     void setup() {

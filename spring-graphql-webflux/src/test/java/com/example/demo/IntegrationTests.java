@@ -2,7 +2,7 @@ package com.example.demo;
 
 import com.example.demo.gql.types.Comment;
 import com.example.demo.gql.types.Post;
-import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.AfterEach;
@@ -36,7 +36,7 @@ class IntegrationTests {
     int port;
 
     @Autowired
-    ObjectMapper objectMapper;
+    JsonMapper jsonMapper;
 
     @BeforeEach
     void setUp() {
@@ -74,7 +74,7 @@ class IntegrationTests {
         var countDownLatch = new CountDownLatch(1);
         var postIdReference = new AtomicReference<String>();
         this.client.document(createPostQuery).variables(createPostVariables).execute()
-                .map(response -> objectMapper.convertValue(
+                .map(response -> jsonMapper.convertValue(
                         response.<Map<String, Object>>getData().get("createPost"),
                         Post.class)
                 )
@@ -102,7 +102,7 @@ class IntegrationTests {
                 .execute()
                 .as(StepVerifier::create)
                 .consumeNextWith(response -> {
-                    var post = objectMapper.convertValue(
+                    var post = jsonMapper.convertValue(
                             response.<Map<String, Object>>getData().get("postById"),
                             Post.class);
                     assertThat(post).isNotNull();
@@ -116,7 +116,7 @@ class IntegrationTests {
         var subscriptionQuery = "subscription onCommentAdded { commentAdded { id content } }";
         Flux<Comment> result = this.client.document(subscriptionQuery)
                 .executeSubscription()
-                .map(response -> objectMapper.convertValue(
+                .map(response -> jsonMapper.convertValue(
                         response.<Map<String, Object>>getData().get("commentAdded"),
                         Comment.class)
                 );
@@ -150,7 +150,7 @@ class IntegrationTests {
                 .execute()
                 .as(StepVerifier::create)
                 .consumeNextWith(response -> {
-                    var comment = objectMapper.convertValue(
+                    var comment = jsonMapper.convertValue(
                             response.<Map<String, Object>>getData().get("addComment"),
                             Comment.class
                     );

@@ -51,6 +51,7 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor")
 
     // test
+    testImplementation("org.springframework.boot:spring-boot-starter-webclient") // WebClient.Builder auto-configuration moved to its own module in Boot 4
     testImplementation("org.springframework.boot:spring-boot-testcontainers")
     testImplementation("org.springframework.boot:spring-boot-starter-test") {
     }

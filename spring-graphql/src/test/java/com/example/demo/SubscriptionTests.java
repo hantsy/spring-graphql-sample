@@ -1,7 +1,7 @@
 package com.example.demo;
 
 import com.example.demo.gql.types.Comment;
-import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
@@ -29,7 +29,7 @@ public class SubscriptionTests {
     GraphQlTester graphQlTester;
 
     @Autowired
-    ObjectMapper objectMapper;
+    JsonMapper jsonMapper;
 
     @BeforeEach
     void setUp() {

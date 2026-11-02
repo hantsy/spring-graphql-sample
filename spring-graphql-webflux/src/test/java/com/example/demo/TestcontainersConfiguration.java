@@ -11,7 +11,7 @@ public class TestcontainersConfiguration {
 
     @Bean
     @ServiceConnection
-    PostgreSQLR2DBCDatabaseContainer postgreSQLContainer() {
-        return new PostgreSQLR2DBCDatabaseContainer(new PostgreSQLContainer("postgres:16").withInitScript("init.sql"));
+    PostgreSQLContainer postgreSQLContainer() {
+        return new PostgreSQLContainer("postgres:16").withInitScript("init.sql");
     }
 }

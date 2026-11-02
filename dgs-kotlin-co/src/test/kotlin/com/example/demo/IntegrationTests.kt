@@ -2,7 +2,7 @@ package com.example.demo
 
 import com.example.demo.gql.types.Comment
 import com.example.demo.gql.types.Post
-import com.netflix.graphql.dgs.client.WebClientGraphQLClient
+import com.netflix.graphql.dgs.client.DgsWebClientGraphQLClient
 import io.kotest.common.ExperimentalKotest
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
@@ -36,7 +36,7 @@ class IntegrationTests {
     @LocalServerPort
     var port: Int = 8080
 
-    lateinit var client: WebClientGraphQLClient
+    lateinit var client: DgsWebClientGraphQLClient
 
     lateinit var socketClient: WebSocketGraphQlClient
 
@@ -47,7 +47,7 @@ class IntegrationTests {
             .baseUrl("http://localhost:$port/graphql")
             .build()
 
-        client = WebClientGraphQLClient(webClient)
+        client = DgsWebClientGraphQLClient(webClient)
         socketClient = WebSocketGraphQlClient.create(
             URI.create("ws://localhost:$port/graphql"),
             ReactorNettyWebSocketClient()

@@ -19,6 +19,7 @@ import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.autoconfigure.ImportAutoConfiguration
+import org.springframework.boot.jackson.autoconfigure.JacksonAutoConfiguration
 import org.springframework.boot.webflux.autoconfigure.WebFluxAutoConfiguration
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.context.annotation.Import
@@ -37,17 +38,15 @@ class MutationTests {
         value = [
             TestcontainersConfiguration::class,
             PostsDataFetcher::class,
-            LocalDateTimeScalar::class,
-            UUIDScalar::class
         ]
     )
     @ImportAutoConfiguration(
         value = [
-            WebFluxAutoConfiguration::class
+            WebFluxAutoConfiguration::class,
+            JacksonAutoConfiguration::class
         ]
     )
     class TestConfig{
-
         @Bean
         fun customRuntimeWiring(): RuntimeWiringConfigurer{
             return object: RuntimeWiringConfigurer {
@@ -57,6 +56,12 @@ class MutationTests {
                             .name("UUID")
                             .description("UUID type")
                             .coercing(UUIDScalar())
+                            .build()
+                    ).scalar(
+                        GraphQLScalarType.newScalar()
+                            .name("LocalDateTime")
+                            .description("LocalDateTime type")
+                            .coercing(LocalDateTimeScalar())
                             .build()
                     )
                 }
