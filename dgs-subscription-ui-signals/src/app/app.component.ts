@@ -70,7 +70,9 @@ export class AppComponent {
   // ── Computed signals ──────────────────────────────────────────────────
   readonly messages = computed(() => {
     const initial = this.messagesResource.hasValue() ? this.messagesResource.value()! : [];
-    const newMessage = this.subscriptionResource.value();
+    const newMessage = this.subscriptionResource.hasValue()
+      ? this.subscriptionResource.value()
+      : null;
     if (!newMessage) return initial;
     return [...initial, newMessage.messageSent];
   });

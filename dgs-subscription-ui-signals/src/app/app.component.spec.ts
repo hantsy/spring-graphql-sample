@@ -61,4 +61,56 @@ describe('AppComponent', () => {
 
     expect(fixture.nativeElement.textContent).toContain('boom');
   });
+
+  it('exposes messagesResource as a resource with hasValue/value guards', async () => {
+    const fixture = TestBed.createComponent(AppComponent);
+    const component = fixture.componentInstance;
+
+    // Before detectElement, the resource has no value yet
+    expect(component.messagesResource.hasValue()).toBe(false);
+
+    fixture.detectChanges();
+    controller.expectOne('allMessages').flushData({
+      messages: [{ id: '1', body: 'resource test', sentAt: null }],
+    });
+    await fixture.whenStable();
+
+    // After loading, the resource should have a value
+    expect(component.messagesResource.hasValue()).toBe(true);
+    expect(component.messagesResource.value()).toEqual([
+      { id: '1', body: 'resource test', sentAt: null },
+    ]);
+  });
+
+  it('does not break messages computed when subscription errors', async () => {
+    const fixture = TestBed.createComponent(AppComponent);
+    fixture.detectChanges();
+
+    // Load initial messages first
+    controller.expectOne('allMessages').flushData({
+      messages: [{ id: '1', body: 'before error', sentAt: null }],
+    });
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    const component = fixture.componentInstance;
+
+    // Verify messages computed works after query loads
+    expect(component.messages()).toEqual([
+      { id: '1', body: 'before error', sentAt: null },
+    ]);
+
+    // Flush a network error on the subscription operation
+    const subOp = controller.match('messageSent');
+    if (subOp.length > 0) {
+      subOp[0].networkError(new Error('subscription disconnected'));
+    }
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    // The messages computed should still return the initial messages
+    // without throwing, even if the subscription resource is in error state
+    expect(() => component.messages()).not.toThrow();
+    expect(component.messages().length).toBeGreaterThanOrEqual(1);
+  });
 });
