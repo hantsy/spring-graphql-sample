@@ -199,7 +199,7 @@ updates:
   # Angular client. Major and minor updates are ignored because they require a
   # coordinated migration of the whole Angular toolchain.
   - package-ecosystem: "npm"
-    directory: "/dgs-subscription-ui"
+    directory: "/dgs-subscription-ui-signals"
     schedule:
       interval: weekly
     open-pull-requests-limit: 10
@@ -218,7 +218,7 @@ updates:
   # Angular client for dgs-subscription-sse. Same ignore policy as
   # dgs-subscription-ui: Angular majors need a coordinated toolchain migration.
   - package-ecosystem: "npm"
-    directory: "/dgs-subscription-ui-sse"
+    directory: "/dgs-subscription-ui-sse-signals"
     schedule:
       interval: weekly
     open-pull-requests-limit: 10
