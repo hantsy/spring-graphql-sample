@@ -5,8 +5,8 @@ import { InMemoryCache, split } from '@apollo/client';
 import { getMainDefinition } from '@apollo/client/utilities';
 import { provideApollo } from 'apollo-angular';
 import { HttpLink } from 'apollo-angular/http';
-import { GRAPHQL_HTTP_URL, GRAPHQL_WS_URL } from './config';
-import { createWsLink } from './transport/ws-link';
+import { GRAPHQL_HTTP_URL } from './config';
+import { GraphQLSSELink, createSseClient } from './transport/sse-link';
 
 export function appProviders(): (Provider | EnvironmentProviders)[] {
   return [
@@ -15,7 +15,7 @@ export function appProviders(): (Provider | EnvironmentProviders)[] {
     provideHttpClient(),
     provideApollo(() => {
       const httpLink = inject(HttpLink).create({ uri: GRAPHQL_HTTP_URL });
-      const wsLink = createWsLink(GRAPHQL_WS_URL);
+      const sseLink = new GraphQLSSELink(createSseClient(GRAPHQL_HTTP_URL));
 
       return {
         link: split(
@@ -26,7 +26,7 @@ export function appProviders(): (Provider | EnvironmentProviders)[] {
               definition.operation === 'subscription'
             );
           },
-          wsLink,
+          sseLink,
           httpLink,
         ),
         cache: new InMemoryCache(),

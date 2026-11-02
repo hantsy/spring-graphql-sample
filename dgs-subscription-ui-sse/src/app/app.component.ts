@@ -18,7 +18,7 @@ import {
   type SendMessageData,
   type TextMessage,
 } from './graphql/messages';
-import { connectionState } from './transport/ws-link';
+import { connectionState } from './transport/sse-link';
 
 interface UiState {
   loading: boolean;
