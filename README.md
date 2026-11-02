@@ -43,23 +43,26 @@ TBD
 
 Some example codes are moved to legacy folder, because the upstream project is discontinued or under an inactive development status.
 
+These examples stay on the Spring Boot, Java and Gradle versions they were last verified with (Spring Boot 2.7.x - 3.2.x, Java 17/21), and are deliberately excluded from Dependabot updates.
+
 |  Example name       | Description     |
 | ---- | ---- |
 |[graphql-java](./legacy/graphql-java) | GraphQL Java vanilla Spring Boot example, upstream project is discontinuned, replaced by Spring GraphQL|
 |[graphql-spqr](./legacy/graphql-spqr)| GraphQL SPQR Spring example, inactive|
-|[graphql-java-kickstart](./graphql-java-kickstart)  | GraphQL Java Kickstart Spring Boot example|
-|[graphql-java-kickstart-webclient](./graphql-java-kickstart-webclient) | GraphQL Java Kickstart Spring WebClient example|
-|[graphql-java-kickstart-annotations](./graphql-java-kickstart-annotations) | GraphQL Java Kickstart Spring Boot example(Code first)|
+|[graphql-java-kickstart](./legacy/graphql-java-kickstart)  | GraphQL Java Kickstart Spring Boot example|
+|[graphql-java-kickstart-webclient](./legacy/graphql-java-kickstart-webclient) | GraphQL Java Kickstart Spring WebClient example|
+|[graphql-java-kickstart-annotations](./legacy/graphql-java-kickstart-annotations) | GraphQL Java Kickstart Spring Boot example(Code first)|
 
 ## Prerequisites
 
 Make sure you have installed the following software.
 
-* Java 21
-* Apache Maven 3.8.x / Gradle 7.x
-* Docker
+* Java 25
+* Docker - required by the shared Postgres container and by the Testcontainers based tests
 
-Some sample codes are written in Kotlin. If you are new to Kotlin, start to learn it from the [the Kotlin homepage](https://kotlinlang.org/).
+Every example is a standalone Gradle project and ships its own Gradle wrapper (Gradle 9.8.2), so installing Gradle separately is optional. The [dgs-subscription-ui](./dgs-subscription-ui) Angular client is the only exception - it is built with npm.
+
+All active examples target Spring Boot 4.1.2 / Spring Framework 7 on Java 25. Some sample codes are written in Kotlin (Kotlin 2.3.x). If you are new to Kotlin, start to learn it from the [the Kotlin homepage](https://kotlinlang.org/).
 
 ## Build 
 
@@ -69,24 +72,33 @@ Clone the source codes from Github.
 git clone https://github.com/hantsy/spring-graphql-sample/
 ```
 
-Open a terminal, and switch to the root folder of the project, and run the following command to build the whole project.
+Open a terminal, and switch to the root folder of the project. Start the shared Postgres instance first, as some examples connect to it instead of provisioning their own container.
 
 ```bash
-docker-compose up postgres // start up a postgres it is required
+docker compose up -d postgres
+```
+
+Then switch to the example folder you want to build, and run the Gradle wrapper.
+
+```bash
 cd examplename // change to the example folder
-mvn clean install // build the project
-//or
 ./gradlew build
 ```
 
 Run the application.
 
 ```bash
-mvn spring-boot:run 
-//or 
 ./gradlew bootRun
 // or from command line after building
-java -jar target/xxx.jar
+java -jar build/libs/xxx.jar
+```
+
+The [dgs-subscription-ui](./dgs-subscription-ui) Angular client is built with npm instead.
+
+```bash
+cd dgs-subscription-ui
+npm install
+npm start
 ```
 
 
