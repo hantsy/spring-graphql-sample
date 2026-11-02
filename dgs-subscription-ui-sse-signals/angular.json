@@ -6,7 +6,7 @@
   },
   "newProjectRoot": "projects",
   "projects": {
-    "dgs-subscription-ui-sse": {
+    "dgs-subscription-ui-sse-signals": {
       "projectType": "application",
       "schematics": {
         "@schematics/angular:component": {
@@ -82,10 +82,10 @@
           "builder": "@angular/build:dev-server",
           "configurations": {
             "production": {
-              "buildTarget": "dgs-subscription-ui-sse:build:production"
+              "buildTarget": "dgs-subscription-ui-sse-signals:build:production"
             },
             "development": {
-              "buildTarget": "dgs-subscription-ui-sse:build:development"
+              "buildTarget": "dgs-subscription-ui-sse-signals:build:development"
             }
           },
           "defaultConfiguration": "development"
