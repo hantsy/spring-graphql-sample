@@ -109,7 +109,9 @@ describe('AppComponent', () => {
     controller.expectOne('allMessages').flushData({ messages: [] });
     await fixture.whenStable();
 
-    const button: HTMLButtonElement = fixture.nativeElement.querySelector('button[type="submit"]');
+    const button: HTMLButtonElement = fixture.nativeElement.querySelector(
+      'button[type="submit"]',
+    );
     fixture.componentInstance.form.controls.body.setValue('in flight');
     fixture.detectChanges();
     expect(button.disabled).toBe(false);
