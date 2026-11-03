@@ -233,3 +233,41 @@ updates:
         update-types: ["version-update:semver-major"]
       - dependency-name: "*"
         update-types: ["version-update:semver-major", "version-update:semver-minor"]
+
+  # Traditional Angular client (RxJS + async pipe) for dgs-subscription-ws.
+  # Same ignore policy: Angular majors need a coordinated toolchain migration.
+  - package-ecosystem: "npm"
+    directory: "/dgs-subscription-ui"
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 10
+    reviewers:
+      - "hantsy"
+    assignees:
+      - "hantsy"
+    labels:
+      - "dependencies"
+    ignore:
+      - dependency-name: "@angular/*"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major", "version-update:semver-minor"]
+
+  # Traditional Angular client (RxJS + async pipe) for dgs-subscription-sse.
+  # Same ignore policy: Angular majors need a coordinated toolchain migration.
+  - package-ecosystem: "npm"
+    directory: "/dgs-subscription-ui-sse"
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 10
+    reviewers:
+      - "hantsy"
+    assignees:
+      - "hantsy"
+    labels:
+      - "dependencies"
+    ignore:
+      - dependency-name: "@angular/*"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major", "version-update:semver-minor"]
