@@ -73,8 +73,9 @@ dependencies {
 
     //test
     testImplementation("org.springframework:spring-websocket")
+    // RestTestClient auto-configuration and TestRestTemplate replacement (Boot 4 modular starter)
+    testImplementation("org.springframework.boot:spring-boot-starter-restclient-test")
     testImplementation("org.springframework.boot:spring-boot-resttestclient")
-    testImplementation("org.springframework.boot:spring-boot-restclient")
     testImplementation("org.springframework.boot:spring-boot-testcontainers")
     testImplementation("org.testcontainers:testcontainers-postgresql:2.0.5")
     testImplementation("org.springframework.boot:spring-boot-starter-test")

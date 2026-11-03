@@ -11,18 +11,12 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.slf4j.LoggerFactory
 import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.context.annotation.Import
-import org.springframework.boot.test.context.TestConfiguration
-import org.springframework.boot.resttestclient.TestRestTemplate
 import org.springframework.boot.test.web.server.LocalServerPort
-import org.springframework.boot.restclient.RestTemplateBuilder
-import org.springframework.context.annotation.Bean
+import org.springframework.context.annotation.Import
 import org.springframework.core.ParameterizedTypeReference
-import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
-import org.springframework.http.RequestEntity
 import org.springframework.test.context.ContextConfiguration
-import org.springframework.web.client.RestTemplate
+import org.springframework.test.web.servlet.client.RestTestClient
 import org.springframework.web.socket.*
 import org.springframework.web.socket.client.standard.StandardWebSocketClient
 import org.springframework.web.socket.handler.TextWebSocketHandler
@@ -34,7 +28,7 @@ import java.util.UUID
     webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT
 )
 @ContextConfiguration(initializers = [TestConfigInitializer::class])
-@Import(TestcontainersConfiguration::class, SubscriptionTests.TestConfig::class)
+@Import(TestcontainersConfiguration::class)
 class SubscriptionTests {
 
     private val log = LoggerFactory.getLogger(SubscriptionTests::class.java)
@@ -42,15 +36,13 @@ class SubscriptionTests {
     @LocalServerPort
     var port: Int = 8080
 
-    var restTemplate: TestRestTemplate? = null
+    lateinit var restTestClient: RestTestClient
 
     @BeforeEach
     fun setup() {
-        restTemplate = TestRestTemplate(
-            RestTemplateBuilder()
-                .defaultMessageConverters()
-                .rootUri("http://localhost:$port")
-        )
+        restTestClient = RestTestClient.bindToServer()
+            .baseUrl("http://localhost:$port")
+            .build()
     }
 
     @Test
@@ -172,15 +164,15 @@ class SubscriptionTests {
             )
         )
 
-        val requestEntity = RequestEntity.post("graphql")
+        val body = restTestClient.post().uri("graphql")
             .accept(MediaType.APPLICATION_JSON)
-            .headers { it.add("X-Auth-Token", token) }
+            .header("X-Auth-Token", token)
             .body(requestData)
+            .exchange()
+            .expectBody(object : ParameterizedTypeReference<HashMap<String, HashMap<String, Comment>>>() {})
+            .returnResult().getResponseBody()!!
 
-        val responseEntity = restTemplate!!.exchange(
-            requestEntity,
-            object : ParameterizedTypeReference<HashMap<String, HashMap<String, Comment>>>() {})
-        assertThat(responseEntity.body!!["data"]!!["addComment"]!!.content).isEqualTo(comment)
+        assertThat(body["data"]!!["addComment"]!!.content).isEqualTo(comment)
     }
 
     private fun createPost(token: String): UUID {
@@ -202,17 +194,16 @@ class SubscriptionTests {
             )
         )
 
-        val requestEntity = RequestEntity.post("graphql")
+        val body = restTestClient.post().uri("graphql")
             .accept(MediaType.APPLICATION_JSON)
-            .headers { it.add("X-Auth-Token", token) }
+            .header("X-Auth-Token", token)
             .body(requestData)
+            .exchange()
+            .expectStatus().isOk()
+            .expectBody(object : ParameterizedTypeReference<HashMap<String, HashMap<String, Post>>>() {})
+            .returnResult().getResponseBody()!!
 
-        val responseEntity = restTemplate!!.exchange(
-            requestEntity,
-            object : ParameterizedTypeReference<HashMap<String, HashMap<String, Post>>>() {})
-
-        assertThat(responseEntity.statusCode).isEqualTo(HttpStatus.OK)
-        val post = responseEntity.body!!["data"]!!["createPost"]
+        val post = body["data"]!!["createPost"]
         assertThat(post).isNotNull
         val postId = post!!.id
         assertThat(postId).isNotNull
@@ -240,30 +231,21 @@ class SubscriptionTests {
             )
         )
 
-        val signinEntity = RequestEntity.post("graphql")
+        val signinBody = restTestClient.post().uri("graphql")
             .accept(MediaType.APPLICATION_JSON)
             .body(signinData)
+            .exchange()
+            .expectStatus().isOk()
+            .expectBody(object : ParameterizedTypeReference<HashMap<String, HashMap<String, AuthResult>>>() {})
+            .returnResult().getResponseBody()!!
 
-        val signinResponseEntity = restTemplate!!.exchange(
-            signinEntity,
-            object : ParameterizedTypeReference<HashMap<String, HashMap<String, AuthResult>>>() {}
-        )
+        assertThat(signinBody["data"]!!["signIn"]!!.name).isEqualTo("user")
+        assertThat(signinBody["data"]!!["signIn"]!!.roles).contains("ROLE_USER")
 
-        assertThat(signinResponseEntity.statusCode).isEqualTo(HttpStatus.OK)
-        assertThat(signinResponseEntity.body!!["data"]!!["signIn"]!!.name).isEqualTo("user")
-        assertThat(signinResponseEntity.body!!["data"]!!["signIn"]!!.roles).contains("ROLE_USER")
-
-        val token = signinResponseEntity.body!!["data"]!!["signIn"]!!.token
+        val token = signinBody["data"]!!["signIn"]!!.token
 
         assertThat(token).isNotNull
         return token
-    }
-
-    @TestConfiguration
-    class TestConfig {
-
-        @Bean
-        fun restTemplate() = RestTemplate()
     }
 
 }
