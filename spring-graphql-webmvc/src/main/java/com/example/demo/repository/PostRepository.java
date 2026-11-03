@@ -3,6 +3,7 @@ package com.example.demo.repository;
 import com.example.demo.model.PostEntity;
 import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.simple.JdbcClient;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.stereotype.Component;
 
 import java.sql.ResultSet;
@@ -17,22 +18,29 @@ public class PostRepository {
     private final JdbcClient jdbcClient;
 
     public List<PostEntity> findAll() {
-        return this.jdbcClient.sql("SELECT * FROM posts")
+        String sql = "SELECT * FROM posts";
+        return this.jdbcClient.sql(sql)
                 .query(PostRepository::mapPost)
                 .list();
     }
 
     public List<PostEntity> findByAuthorId(UUID authorId) {
-        return this.jdbcClient.sql("""
-                SELECT * FROM posts WHERE author_id = :author_id
-                """)
+        String sql = """
+                SELECT * FROM posts
+                WHERE author_id = :author_id
+                """;
+        return this.jdbcClient.sql(sql)
                 .param("author_id", authorId)
                 .query(PostRepository::mapPost)
                 .list();
     }
 
     public PostEntity findById(UUID id) {
-        return this.jdbcClient.sql("SELECT * FROM posts WHERE id = :id")
+        String sql = """
+                SELECT * FROM posts
+                WHERE id = :id
+                """;
+        return this.jdbcClient.sql(sql)
                 .param("id", id)
                 .query(PostRepository::mapPost)
                 .optional()
@@ -40,23 +48,24 @@ public class PostRepository {
     }
 
     public UUID create(String title, String content, String status, UUID authorId) {
-        return this.jdbcClient.sql("""
+        String sql = """
                 INSERT INTO posts (title, content, status, author_id, created_at)
                 VALUES (:title, :content, :status, :author_id, :created_at)
-                returning id
-                """)
+                """;
+        GeneratedKeyHolder keyHolder = new GeneratedKeyHolder();
+        this.jdbcClient.sql(sql)
                 .param("title", title)
                 .param("content", content)
                 .param("status", status)
                 .param("author_id", authorId)
                 .param("created_at", LocalDateTime.now())
-                .query(UUID.class)
-                .optional()
-                .orElseThrow(() -> new IllegalStateException("Failed to create post"));
+                .update(keyHolder, "id");
+        return keyHolder.getKeyAs(UUID.class);
     }
 
     public int deleteAll() {
-        return this.jdbcClient.sql("DELETE FROM posts").update();
+        String sql = "DELETE FROM posts";
+        return this.jdbcClient.sql(sql).update();
     }
 
     private static PostEntity mapPost(ResultSet rs, int rowNum) throws SQLException {

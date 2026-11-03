@@ -3,6 +3,7 @@ package com.example.demo.repository;
 import com.example.demo.model.AuthorEntity;
 import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.simple.JdbcClient;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.stereotype.Component;
 
 import java.sql.ResultSet;
@@ -17,13 +18,18 @@ public class AuthorRepository {
     private final JdbcClient jdbcClient;
 
     public List<AuthorEntity> findAll() {
-        return this.jdbcClient.sql("SELECT * FROM users")
+        String sql = "SELECT * FROM users";
+        return this.jdbcClient.sql(sql)
                 .query(AuthorRepository::mapAuthor)
                 .list();
     }
 
     public AuthorEntity findById(UUID id) {
-        return this.jdbcClient.sql("SELECT * FROM users WHERE id = :id")
+        String sql = """
+                SELECT * FROM users
+                WHERE id = :id
+                """;
+        return this.jdbcClient.sql(sql)
                 .param("id", id)
                 .query(AuthorRepository::mapAuthor)
                 .optional()
@@ -31,28 +37,33 @@ public class AuthorRepository {
     }
 
     public List<AuthorEntity> findByIdIn(List<UUID> id) {
-        return this.jdbcClient.sql("SELECT * FROM users WHERE id IN (:id)")
+        String sql = """
+                SELECT * FROM users
+                WHERE id IN (:id)
+                """;
+        return this.jdbcClient.sql(sql)
                 .param("id", id)
                 .query(AuthorRepository::mapAuthor)
                 .list();
     }
 
     public UUID create(String name, String email) {
-        return this.jdbcClient.sql("""
+        String sql = """
                 INSERT INTO users (name, email, created_at)
                 VALUES (:name, :email, :created_at)
-                returning id
-                """)
+                """;
+        GeneratedKeyHolder keyHolder = new GeneratedKeyHolder();
+        this.jdbcClient.sql(sql)
                 .param("name", name)
                 .param("email", email)
                 .param("created_at", LocalDateTime.now())
-                .query(UUID.class)
-                .optional()
-                .orElseThrow(() -> new IllegalStateException("Failed to create author"));
+                .update(keyHolder, "id");
+        return keyHolder.getKeyAs(UUID.class);
     }
 
     public int deleteAll() {
-        return this.jdbcClient.sql("DELETE FROM users").update();
+        String sql = "DELETE FROM users";
+        return this.jdbcClient.sql(sql).update();
     }
 
     private static AuthorEntity mapAuthor(ResultSet rs, int rowNum) throws SQLException {

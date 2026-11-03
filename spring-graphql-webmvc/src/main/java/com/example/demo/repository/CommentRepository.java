@@ -3,6 +3,7 @@ package com.example.demo.repository;
 import com.example.demo.model.CommentEntity;
 import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.simple.JdbcClient;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.stereotype.Component;
 
 import java.sql.ResultSet;
@@ -17,13 +18,18 @@ public class CommentRepository {
     private final JdbcClient jdbcClient;
 
     public List<CommentEntity> findAll() {
-        return this.jdbcClient.sql("SELECT * FROM comments")
+        String sql = "SELECT * FROM comments";
+        return this.jdbcClient.sql(sql)
                 .query(CommentRepository::mapComment)
                 .list();
     }
 
     public CommentEntity findById(UUID id) {
-        return this.jdbcClient.sql("SELECT * FROM comments WHERE id = :id")
+        String sql = """
+                SELECT * FROM comments
+                WHERE id = :id
+                """;
+        return this.jdbcClient.sql(sql)
                 .param("id", id)
                 .query(CommentRepository::mapComment)
                 .optional()
@@ -31,35 +37,44 @@ public class CommentRepository {
     }
 
     public List<CommentEntity> findByPostId(UUID postId) {
-        return this.jdbcClient.sql("SELECT * FROM comments WHERE post_id = :post_id")
+        String sql = """
+                SELECT * FROM comments
+                WHERE post_id = :post_id
+                """;
+        return this.jdbcClient.sql(sql)
                 .param("post_id", postId)
                 .query(CommentRepository::mapComment)
                 .list();
     }
 
     public List<CommentEntity> findByPostIdIn(List<UUID> postId) {
-        return this.jdbcClient.sql("SELECT * FROM comments WHERE post_id IN (:post_id)")
+        String sql = """
+                SELECT * FROM comments
+                WHERE post_id IN (:post_id)
+                """;
+        return this.jdbcClient.sql(sql)
                 .param("post_id", postId)
                 .query(CommentRepository::mapComment)
                 .list();
     }
 
     public UUID create(String content, UUID postId) {
-        return this.jdbcClient.sql("""
+        String sql = """
                 INSERT INTO comments (content, post_id, created_at)
                 VALUES (:content, :post_id, :created_at)
-                returning id
-                """)
+                """;
+        GeneratedKeyHolder keyHolder = new GeneratedKeyHolder();
+        this.jdbcClient.sql(sql)
                 .param("content", content)
                 .param("post_id", postId)
                 .param("created_at", LocalDateTime.now())
-                .query(UUID.class)
-                .optional()
-                .orElseThrow(() -> new IllegalStateException("Failed to create comment"));
+                .update(keyHolder, "id");
+        return keyHolder.getKeyAs(UUID.class);
     }
 
     public int deleteAll() {
-        return this.jdbcClient.sql("DELETE FROM comments").update();
+        String sql = "DELETE FROM comments";
+        return this.jdbcClient.sql(sql).update();
     }
 
     private static CommentEntity mapComment(ResultSet rs, int rowNum) throws SQLException {

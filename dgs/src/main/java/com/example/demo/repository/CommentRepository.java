@@ -3,6 +3,7 @@ package com.example.demo.repository;
 import com.example.demo.model.CommentEntity;
 import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.simple.JdbcClient;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.stereotype.Component;
 
 import java.sql.ResultSet;
@@ -15,40 +16,50 @@ public class CommentRepository {
     private final JdbcClient jdbcClient;
 
     public List<CommentEntity> findAll() {
-        return this.jdbcClient.sql("SELECT * FROM comments")
+        String sql = "SELECT * FROM comments";
+        return this.jdbcClient.sql(sql)
                 .query(CommentRepository::mapComment)
                 .list();
     }
 
     public List<CommentEntity> findByPostId(Long postId) {
-        return this.jdbcClient.sql("SELECT * FROM comments WHERE post_id = :post_id")
+        String sql = """
+                SELECT * FROM comments
+                WHERE post_id = :post_id
+                """;
+        return this.jdbcClient.sql(sql)
                 .param("post_id", postId)
                 .query(CommentRepository::mapComment)
                 .list();
     }
 
     public List<CommentEntity> findByPostIdIn(List<Long> postId) {
-        return this.jdbcClient.sql("SELECT * FROM comments WHERE post_id IN (:post_id)")
+        String sql = """
+                SELECT * FROM comments
+                WHERE post_id IN (:post_id)
+                """;
+        return this.jdbcClient.sql(sql)
                 .param("post_id", postId)
                 .query(CommentRepository::mapComment)
                 .list();
     }
 
     public Long create(String content, Long postId) {
-        return this.jdbcClient.sql("""
+        String sql = """
                 INSERT INTO comments (content, post_id)
                 VALUES (:content, :post_id)
-                returning id
-                """)
+                """;
+        GeneratedKeyHolder keyHolder = new GeneratedKeyHolder();
+        this.jdbcClient.sql(sql)
                 .param("content", content)
                 .param("post_id", postId)
-                .query(Long.class)
-                .optional()
-                .orElseThrow(() -> new IllegalStateException("Failed to create comment"));
+                .update(keyHolder, "id");
+        return keyHolder.getKeyAs(Long.class);
     }
 
     public int deleteAll() {
-        return this.jdbcClient.sql("DELETE FROM comments").update();
+        String sql = "DELETE FROM comments";
+        return this.jdbcClient.sql(sql).update();
     }
 
     private static CommentEntity mapComment(ResultSet rs, int rowNum) throws SQLException {

@@ -3,6 +3,7 @@ package com.example.demo.repository;
 import com.example.demo.model.AuthorEntity;
 import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.simple.JdbcClient;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.stereotype.Component;
 
 import java.sql.ResultSet;
@@ -15,13 +16,18 @@ public class AuthorRepository {
     private final JdbcClient jdbcClient;
 
     public List<AuthorEntity> findAll() {
-        return this.jdbcClient.sql("SELECT * FROM users")
+        String sql = "SELECT * FROM users";
+        return this.jdbcClient.sql(sql)
                 .query(AuthorRepository::mapAuthor)
                 .list();
     }
 
     public AuthorEntity findById(Long id) {
-        return this.jdbcClient.sql("SELECT * FROM users WHERE id = :id")
+        String sql = """
+                SELECT * FROM users
+                WHERE id = :id
+                """;
+        return this.jdbcClient.sql(sql)
                 .param("id", id)
                 .query(AuthorRepository::mapAuthor)
                 .optional()
@@ -29,27 +35,32 @@ public class AuthorRepository {
     }
 
     public List<AuthorEntity> findByIdIn(List<Long> id) {
-        return this.jdbcClient.sql("SELECT * FROM users WHERE id IN (:id)")
+        String sql = """
+                SELECT * FROM users
+                WHERE id IN (:id)
+                """;
+        return this.jdbcClient.sql(sql)
                 .param("id", id)
                 .query(AuthorRepository::mapAuthor)
                 .list();
     }
 
     public Long create(String name, String email) {
-        return this.jdbcClient.sql("""
+        String sql = """
                 INSERT INTO users (name, email)
                 VALUES (:name, :email)
-                returning id
-                """)
+                """;
+        GeneratedKeyHolder keyHolder = new GeneratedKeyHolder();
+        this.jdbcClient.sql(sql)
                 .param("name", name)
                 .param("email", email)
-                .query(Long.class)
-                .optional()
-                .orElseThrow(() -> new IllegalStateException("Failed to create author"));
+                .update(keyHolder, "id");
+        return keyHolder.getKeyAs(Long.class);
     }
 
     public int deleteAll() {
-        return this.jdbcClient.sql("DELETE FROM users").update();
+        String sql = "DELETE FROM users";
+        return this.jdbcClient.sql(sql).update();
     }
 
     private static AuthorEntity mapAuthor(ResultSet rs, int rowNum) throws SQLException {
