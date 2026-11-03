@@ -24,8 +24,10 @@ TBD
 |[dgs](./dgs)  | Simple Netflix DGS example|
 |[dgs-webflux](./dgs-webflux)| Simple Netflix DGS example with Spring WebFlux|
 |[dgs-subscription-ws](./dgs-subscription-ws) | Simple Netflix DGS Subscription example using WebSocket protocol|
-|[dgs-subscription-ui](./dgs-subscription-ui)  | Angular Client app for dgs-subscription-ws|
-|[dgs-subscription-ui-sse](./dgs-subscription-ui-sse)  | Angular Client app for dgs-subscription-sse, consuming subscriptions over Server-Sent Events|
+|[dgs-subscription-ui](./dgs-subscription-ui)  | Angular client (traditional RxJS) for dgs-subscription-ws|
+|[dgs-subscription-ui-signals](./dgs-subscription-ui-signals)  | Angular client (signals + rxResource API) for dgs-subscription-ws|
+|[dgs-subscription-ui-sse](./dgs-subscription-ui-sse)  | Angular client (traditional RxJS) for dgs-subscription-sse, consuming subscriptions over Server-Sent Events|
+|[dgs-subscription-ui-sse-signals](./dgs-subscription-ui-sse-signals)  | Angular client (signals + rxResource API) for dgs-subscription-sse, consuming subscriptions over Server-Sent Events|
 |[dgs-subscription-sse](./dgs-subscription-sse)  | Simple Netflix DGS Subscription example using Http/SSE protocol|
 |[dgs-codegen](./dgs-codegen) | Netflix DGS example with Spring Jdbc and Gradle codegen plugin|
 |[dgs-fileupload](./dgs-fileupload) | Netflix DGS file upload example|
@@ -39,7 +41,12 @@ TBD
 |[spring-graphql-webflux](./spring-graphql-webflux) | Spring GraphQL/WebFlux example with WebSocket transport protocol |
 |[spring-graphql-rsocket-kotlin-co](./spring-graphql-rsocket-kotlin-co) | Spring GraphQL/WebFlux/Kotlin Coroutines example with RSocket transport protocol |
 
-Both Angular clients default to `http://localhost:8080/graphql`. `dgs-subscription-ui` pairs with the `dgs-subscription-ws` backend and `dgs-subscription-ui-sse` pairs with `dgs-subscription-sse`; running the wrong backend, or both at once, means the UI silently talks to the wrong transport.
+The Angular clients demonstrate two state management approaches:
+
+- **Traditional** (`dgs-subscription-ui`, `dgs-subscription-ui-sse`): RxJS Observables with `async` pipe and Apollo's `subscribeToMore` for real-time updates.
+- **Signals** (`dgs-subscription-ui-signals`, `dgs-subscription-ui-sse-signals`): `rxResource()` from `@angular/core/rxjs-interop` for queries and streaming subscriptions, with computed signals for derived state.
+
+All clients default to `http://localhost:8080/graphql`. Pair the WebSocket clients with the `dgs-subscription-ws` backend and the SSE clients with `dgs-subscription-sse`; running the wrong backend, or both at once, means the UI silently talks to the wrong transport.
 
 ### Legacy Codes
 
@@ -62,7 +69,7 @@ Make sure you have installed the following software.
 * Java 25
 * Docker - required by the shared Postgres container and by the Testcontainers based tests
 
-Every example is a standalone Gradle project and ships its own Gradle wrapper (Gradle 9.8.2), so installing Gradle separately is optional. The [dgs-subscription-ui](./dgs-subscription-ui) Angular client is the only exception - it is built with npm.
+Every example is a standalone Gradle project and ships its own Gradle wrapper (Gradle 9.8.2), so installing Gradle separately is optional. The `dgs-subscription-ui*` Angular clients are the exception - they are built with npm.
 
 All active examples target Spring Boot 4.1.2 / Spring Framework 7 on Java 25. Some sample codes are written in Kotlin (Kotlin 2.3.x). If you are new to Kotlin, start to learn it from the [the Kotlin homepage](https://kotlinlang.org/).
 
@@ -95,7 +102,7 @@ Run the application.
 java -jar build/libs/xxx.jar
 ```
 
-The [dgs-subscription-ui](./dgs-subscription-ui) Angular client is built with npm instead.
+The `dgs-subscription-ui*` Angular clients are built with npm instead.
 
 ```bash
 cd dgs-subscription-ui
