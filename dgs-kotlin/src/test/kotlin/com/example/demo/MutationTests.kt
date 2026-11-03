@@ -7,9 +7,10 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.slf4j.LoggerFactory
 import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.boot.test.web.client.TestRestTemplate
+import org.springframework.context.annotation.Import
+import org.springframework.boot.resttestclient.TestRestTemplate
 import org.springframework.boot.test.web.server.LocalServerPort
-import org.springframework.boot.web.client.RestTemplateBuilder
+import org.springframework.boot.restclient.RestTemplateBuilder
 import org.springframework.core.ParameterizedTypeReference
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
@@ -20,6 +21,7 @@ import org.springframework.test.context.ContextConfiguration
     classes = [DemoApplication::class],
     webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT
 )
+@Import(TestcontainersConfiguration::class)
 @ContextConfiguration(initializers = [TestConfigInitializer::class])
 class MutationTests {
     private val log = LoggerFactory.getLogger(MutationTests::class.java)

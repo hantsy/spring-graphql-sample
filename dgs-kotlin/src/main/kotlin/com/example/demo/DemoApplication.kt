@@ -85,7 +85,7 @@ val beans = beans {
 
             val author = AuthorEntity(
                 name = "user",
-                password = passwordEncoder.encode("password"),
+                password = passwordEncoder.encode("password")!!,
                 email = "user@example.com"
             )
             val savedAuthor = authors.save(author)
@@ -143,7 +143,7 @@ val beans = beans {
         AuditorAware<UUID> {
             Optional.ofNullable(SecurityContextHolder.getContext())
                 .map { it.authentication }
-                .filter { it !is AnonymousAuthenticationToken && it.isAuthenticated }
+                .filter { it != null && it !is AnonymousAuthenticationToken && it.isAuthenticated }
                 .map { it as AuthenticationTokenWithId }
                 .map { it.id }
         }

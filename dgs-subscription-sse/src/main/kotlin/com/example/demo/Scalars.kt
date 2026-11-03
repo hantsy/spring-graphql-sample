@@ -49,6 +49,6 @@ class LocalDateTimeScalar : Coercing<LocalDateTime, String> {
 
     override fun valueToLiteral(input: Any, graphQLContext: GraphQLContext, locale: Locale): Value<*> {
         val stringValue = serialize(input, graphQLContext, locale)
-        return StringValue.of(stringValue)
+        return StringValue.of(stringValue!!)
     }
 }

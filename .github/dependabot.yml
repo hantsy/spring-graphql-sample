@@ -1,9 +1,20 @@
+# Dependabot covers the active example projects plus the shared GitHub Actions
+# workflows. The projects under /legacy are intentionally excluded: their upstream
+# libraries are discontinued or inactive, and they stay pinned to the Spring Boot,
+# Java and Gradle versions they were last verified with.
 version: 2
 updates:
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
-      interval: "weekly"
+      interval: weekly
+    open-pull-requests-limit: 10
+    reviewers:
+      - "hantsy"
+    assignees:
+      - "hantsy"
+    labels:
+      - "dependencies"
 
   - package-ecosystem: "gradle"
     directory: "/dgs"
@@ -21,74 +32,242 @@ updates:
     directory: "/dgs-webflux"
     schedule:
       interval: weekly
+    open-pull-requests-limit: 10
+    reviewers:
+      - "hantsy"
+    assignees:
+      - "hantsy"
+    labels:
+      - "dependencies"
 
   - package-ecosystem: "gradle"
     directory: "/dgs-client"
     schedule:
       interval: weekly
+    open-pull-requests-limit: 10
+    reviewers:
+      - "hantsy"
+    assignees:
+      - "hantsy"
+    labels:
+      - "dependencies"
 
   - package-ecosystem: "gradle"
     directory: "/dgs-codegen"
     schedule:
       interval: weekly
+    open-pull-requests-limit: 10
+    reviewers:
+      - "hantsy"
+    assignees:
+      - "hantsy"
+    labels:
+      - "dependencies"
 
   - package-ecosystem: "gradle"
     directory: "/dgs-fileupload"
     schedule:
       interval: weekly
+    open-pull-requests-limit: 10
+    reviewers:
+      - "hantsy"
+    assignees:
+      - "hantsy"
+    labels:
+      - "dependencies"
 
   - package-ecosystem: "gradle"
     directory: "/dgs-kotlin"
     schedule:
       interval: weekly
-      
+    open-pull-requests-limit: 10
+    reviewers:
+      - "hantsy"
+    assignees:
+      - "hantsy"
+    labels:
+      - "dependencies"
+
   - package-ecosystem: "gradle"
     directory: "/dgs-kotlin-co"
     schedule:
       interval: weekly
-      
+    open-pull-requests-limit: 10
+    reviewers:
+      - "hantsy"
+    assignees:
+      - "hantsy"
+    labels:
+      - "dependencies"
+
   - package-ecosystem: "gradle"
     directory: "/dgs-subscription-ws"
     schedule:
       interval: weekly
+    open-pull-requests-limit: 10
+    reviewers:
+      - "hantsy"
+    assignees:
+      - "hantsy"
+    labels:
+      - "dependencies"
 
   - package-ecosystem: "gradle"
     directory: "/dgs-subscription-sse"
     schedule:
       interval: weekly
-
-  - package-ecosystem: "npm"
-    directory: "/dgs-subscription-ui"
-    schedule:
-      interval: weekly
-    ignore: 
-      - dependency-name: "@angular/*"
-        update-types: ["version-update:semver-major"]
-      - dependency-name: "*"
-        update-types: ["version-update:semver-major", "version-update:semver-minor"]    
+    open-pull-requests-limit: 10
+    reviewers:
+      - "hantsy"
+    assignees:
+      - "hantsy"
+    labels:
+      - "dependencies"
 
   - package-ecosystem: "gradle"
     directory: "/graphql-kotlin"
     schedule:
-      interval: weekly      
+      interval: weekly
+    open-pull-requests-limit: 10
+    reviewers:
+      - "hantsy"
+    assignees:
+      - "hantsy"
+    labels:
+      - "dependencies"
 
   - package-ecosystem: "gradle"
     directory: "/spring-graphql"
     schedule:
       interval: weekly
+    open-pull-requests-limit: 10
+    reviewers:
+      - "hantsy"
+    assignees:
+      - "hantsy"
+    labels:
+      - "dependencies"
+
   - package-ecosystem: "gradle"
     directory: "/spring-graphql-querydsl"
     schedule:
       interval: weekly
+    open-pull-requests-limit: 10
+    reviewers:
+      - "hantsy"
+    assignees:
+      - "hantsy"
+    labels:
+      - "dependencies"
+
   - package-ecosystem: "gradle"
     directory: "/spring-graphql-webmvc"
     schedule:
-      interval: weekly    
+      interval: weekly
+    open-pull-requests-limit: 10
+    reviewers:
+      - "hantsy"
+    assignees:
+      - "hantsy"
+    labels:
+      - "dependencies"
+
   - package-ecosystem: "gradle"
     directory: "/spring-graphql-webflux"
     schedule:
-      interval: weekly    
+      interval: weekly
+    open-pull-requests-limit: 10
+    reviewers:
+      - "hantsy"
+    assignees:
+      - "hantsy"
+    labels:
+      - "dependencies"
+
   - package-ecosystem: "gradle"
     directory: "/spring-graphql-rsocket-kotlin-co"
     schedule:
-      interval: weekly    
+      interval: weekly
+    open-pull-requests-limit: 10
+    reviewers:
+      - "hantsy"
+    assignees:
+      - "hantsy"
+    labels:
+      - "dependencies"
+
+  # Angular client. Major and minor updates are ignored because they require a
+  # coordinated migration of the whole Angular toolchain.
+  - package-ecosystem: "npm"
+    directory: "/dgs-subscription-ui-signals"
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 10
+    reviewers:
+      - "hantsy"
+    assignees:
+      - "hantsy"
+    labels:
+      - "dependencies"
+    ignore:
+      - dependency-name: "@angular/*"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major", "version-update:semver-minor"]
+
+  # Angular client for dgs-subscription-sse. Same ignore policy as
+  # dgs-subscription-ui: Angular majors need a coordinated toolchain migration.
+  - package-ecosystem: "npm"
+    directory: "/dgs-subscription-ui-sse-signals"
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 10
+    reviewers:
+      - "hantsy"
+    assignees:
+      - "hantsy"
+    labels:
+      - "dependencies"
+    ignore:
+      - dependency-name: "@angular/*"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major", "version-update:semver-minor"]
+
+  # Traditional Angular client (RxJS + async pipe) for dgs-subscription-ws.
+  # Same ignore policy: Angular majors need a coordinated toolchain migration.
+  - package-ecosystem: "npm"
+    directory: "/dgs-subscription-ui"
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 10
+    reviewers:
+      - "hantsy"
+    assignees:
+      - "hantsy"
+    labels:
+      - "dependencies"
+    ignore:
+      - dependency-name: "@angular/*"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major", "version-update:semver-minor"]
+
+  # Traditional Angular client (RxJS + async pipe) for dgs-subscription-sse.
+  # Same ignore policy: Angular majors need a coordinated toolchain migration.
+  - package-ecosystem: "npm"
+    directory: "/dgs-subscription-ui-sse"
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 10
+    reviewers:
+      - "hantsy"
+    assignees:
+      - "hantsy"
+    labels:
+      - "dependencies"
+    ignore:
+      - dependency-name: "@angular/*"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major", "version-update:semver-minor"]

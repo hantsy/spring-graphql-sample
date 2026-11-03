@@ -2,7 +2,7 @@ package com.example.demo
 
 import com.example.demo.gql.types.Comment
 import com.example.demo.gql.types.Post
-import com.fasterxml.jackson.databind.ObjectMapper
+import tools.jackson.databind.json.JsonMapper
 import io.kotest.assertions.nondeterministic.continually
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
@@ -16,6 +16,7 @@ import org.junit.jupiter.api.Test
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.context.annotation.Import
 import org.springframework.boot.test.rsocket.server.LocalRSocketServerPort
 import org.springframework.graphql.client.ClientGraphQlResponse
 import org.springframework.graphql.client.RSocketGraphQlClient
@@ -26,6 +27,7 @@ import java.util.concurrent.CopyOnWriteArrayList
 import kotlin.time.Duration.Companion.seconds
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@Import(TestcontainersConfiguration::class)
 internal class IntegrationTests {
     companion object {
         private val log = LoggerFactory.getLogger(IntegrationTests::class.java)
@@ -37,7 +39,7 @@ internal class IntegrationTests {
     var port: Int = 0
 
     @Autowired
-    lateinit var objectMapper: ObjectMapper
+    lateinit var jsonMapper: JsonMapper
 
     @BeforeEach
     fun setUp() = runTest {
@@ -76,7 +78,7 @@ internal class IntegrationTests {
 
         val postId = client.document(createPostQuery).variables(createPostVariables).execute()
             .map { response: ClientGraphQlResponse ->
-                objectMapper.convertValue(
+                jsonMapper.convertValue(
                     response.getData<Map<String, Any>>()!!["createPost"],
                     Post::class.java
                 )
@@ -97,7 +99,7 @@ internal class IntegrationTests {
         val post = client.document(postById).variable("postId", postId)
             .execute()
             .map { response: ClientGraphQlResponse ->
-                objectMapper.convertValue(
+                jsonMapper.convertValue(
                     response.getData<Map<String, Any>>()!!["postById"],
                     Post::class.java
                 )
@@ -115,7 +117,7 @@ internal class IntegrationTests {
         client.document(subscriptionQuery)
             .executeSubscription()
             .map { response: ClientGraphQlResponse ->
-                objectMapper.convertValue(
+                jsonMapper.convertValue(
                     response.getData<Map<String, Any>>()!!["commentAdded"],
                     Comment::class.java
                 )
@@ -152,7 +154,7 @@ internal class IntegrationTests {
             .variables(addCommentVariables)
             .execute()
             .map { response: ClientGraphQlResponse ->
-                objectMapper.convertValue(
+                jsonMapper.convertValue(
                     response.getData<Map<String, Any>>()!!["addComment"],
                     Comment::class.java
                 )

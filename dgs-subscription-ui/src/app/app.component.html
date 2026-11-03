@@ -1,31 +1,53 @@
-<div class="container">
-  <div class="messages">
-    <p *ngFor="let m of messages">
-      {{ m | json }}
-    </p>
-  </div>
+<main class="container">
+  <h1>DGS Subscription — WebSocket</h1>
 
-  <form class="messageBox" #messageForm="ngForm" (ngSubmit)="sendMessage()">
-    <mat-form-field class="messageField">
-      <input
-        name="message"
-        matInput
-        #messageCtrl="ngModel"
-        [(ngModel)]="message"
-        required
-      />
-      <mat-error *ngIf="messageCtrl.hasError('required')">
-        Message body can not be empty.
-      </mat-error>
+  @if (connectionState$ | async; as state) {
+    @if (state !== 'open' && state !== 'idle') {
+      <p class="banner" role="status">Subscription {{ state }}</p>
+    }
+  }
+
+  @if (error$ | async; as err) {
+    <p class="banner banner-error" role="alert">{{ err }}</p>
+  }
+
+  @if (messages$ | async; as messages) {
+    <ul class="messages">
+      @for (m of messages; track m.id) {
+        <li>
+          <span class="body">{{ m.body }}</span>
+          <time class="sent-at">{{ m.sentAt }}</time>
+        </li>
+      } @empty {
+        <li class="empty">No messages yet.</li>
+      }
+    </ul>
+  } @else {
+    <ul class="messages">
+      <li class="empty">Loading messages…</li>
+    </ul>
+  }
+
+  <form class="message-box" [formGroup]="form" (ngSubmit)="send()">
+    <mat-form-field class="message-field">
+      <mat-label>Message</mat-label>
+      <input matInput formControlName="body" name="body" autocomplete="off" />
+      @if (form.controls.body.hasError('required')) {
+        <mat-error>Message body can not be empty.</mat-error>
+      }
     </mat-form-field>
-    <div>
-      <button
-        mat-icon-button
-        type="submit"
-        [disabled]="messageForm.invalid || messageForm.pending"
-      >
-        <mat-icon>send</mat-icon>
-      </button>
-    </div>
+
+    <button
+      mat-icon-button
+      type="submit"
+      [disabled]="form.invalid || (sending$ | async)"
+      aria-label="Send message"
+    >
+      <mat-icon>send</mat-icon>
+    </button>
   </form>
-</div>
+
+  @if (sendError$ | async; as err) {
+    <p class="banner banner-error" role="alert">{{ err }}</p>
+  }
+</main>

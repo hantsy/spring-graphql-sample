@@ -1,0 +1,39 @@
+name: dgs-subscription-ui-sse-signals
+
+on:
+  push:
+    paths:
+      - "dgs-subscription-ui-sse-signals/**"
+    branches: [ master ]
+  pull_request:
+    paths:
+      - "dgs-subscription-ui-sse-signals/**"
+    types:
+      - opened
+      - synchronize
+      - reopened
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup NodeJS
+        uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+
+      - uses: actions/cache@v4
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('dgs-subscription-ui-sse-signals/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+
+      - name: Install, build and test
+        run: |
+          cd ./dgs-subscription-ui-sse-signals
+          npm ci
+          npm run build
+          npm test -- --watch=false

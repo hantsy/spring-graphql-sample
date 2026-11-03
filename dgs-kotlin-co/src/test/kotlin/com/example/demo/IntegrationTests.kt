@@ -2,7 +2,7 @@ package com.example.demo
 
 import com.example.demo.gql.types.Comment
 import com.example.demo.gql.types.Post
-import com.netflix.graphql.dgs.client.WebClientGraphQLClient
+import com.netflix.graphql.dgs.client.DgsWebClientGraphQLClient
 import io.kotest.common.ExperimentalKotest
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
@@ -15,6 +15,7 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.slf4j.LoggerFactory
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.context.annotation.Import
 import org.springframework.boot.test.web.server.LocalServerPort
 import org.springframework.graphql.client.WebSocketGraphQlClient
 import org.springframework.web.reactive.function.client.WebClient
@@ -26,6 +27,7 @@ import java.util.UUID
 
 @OptIn(ExperimentalCoroutinesApi::class, ExperimentalKotest::class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@Import(TestcontainersConfiguration::class)
 class IntegrationTests {
     companion object {
         private val log = LoggerFactory.getLogger(IntegrationTests::class.java)
@@ -34,7 +36,7 @@ class IntegrationTests {
     @LocalServerPort
     var port: Int = 8080
 
-    lateinit var client: WebClientGraphQLClient
+    lateinit var client: DgsWebClientGraphQLClient
 
     lateinit var socketClient: WebSocketGraphQlClient
 
@@ -45,7 +47,7 @@ class IntegrationTests {
             .baseUrl("http://localhost:$port/graphql")
             .build()
 
-        client = WebClientGraphQLClient(webClient)
+        client = DgsWebClientGraphQLClient(webClient)
         socketClient = WebSocketGraphQlClient.create(
             URI.create("ws://localhost:$port/graphql"),
             ReactorNettyWebSocketClient()

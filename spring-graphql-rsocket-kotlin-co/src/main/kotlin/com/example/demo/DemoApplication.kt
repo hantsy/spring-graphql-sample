@@ -29,7 +29,7 @@ class DataInitializer(val posts: PostRepository, val comments: CommentRepository
         private val log = LoggerFactory.getLogger(DataInitializer::class.java)
     }
 
-    override fun run(args: ApplicationArguments?) {
+    override fun run(args: ApplicationArguments) {
         val data = listOf(
             PostEntity(title = "Learn Spring", content = "content of Learn Spring"),
             PostEntity(title = "Learn Dgs framework", content = "content of Learn Dgs framework")

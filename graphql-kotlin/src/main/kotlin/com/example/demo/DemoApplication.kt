@@ -45,7 +45,7 @@ class DataInitializer(
         private val log = LoggerFactory.getLogger(DataInitializer::class.java)
     }
 
-    override fun run(args: ApplicationArguments?) {
+    override fun run(args: ApplicationArguments) {
         runBlocking {
             comments.deleteAll()
             posts.deleteAll()

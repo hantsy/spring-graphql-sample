@@ -1,27 +1,60 @@
 .container {
-  font-size: 14px;
   display: flex;
-  flex-flow: column nowrap;
-  justify-content: space-around;
-  height: 100%;
-
+  flex-direction: column;
+  gap: 1rem;
+  max-width: 40rem;
+  margin: 2rem auto;
+  padding: 0 1rem;
 }
 
-.messages{
+.messages {
+  list-style: none;
+  margin: 0;
+  padding: 0;
   display: flex;
-  flex-basis: auto;
-  flex-grow: 4;
-  margin: 5rem 2rem;
+  flex-direction: column;
+  gap: 0.5rem;
+  min-height: 8rem;
 }
 
-.messageBox{
+.messages li {
   display: flex;
-  flex-flow: row nowrap;
   justify-content: space-between;
-  margin: 5rem 2rem;
+  gap: 1rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: 4px;
+  background: rgba(0, 0, 0, 0.04);
 }
 
-.messageField{
-  flex-grow: 4;
-  flex-flow: column nowrap;
+.messages .empty {
+  justify-content: center;
+  background: none;
+  color: rgba(0, 0, 0, 0.5);
+}
+
+.sent-at {
+  color: rgba(0, 0, 0, 0.5);
+  font-size: 0.8rem;
+}
+
+.message-box {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.message-field {
+  flex: 1;
+}
+
+.banner {
+  margin: 0;
+  padding: 0.5rem 0.75rem;
+  border-radius: 4px;
+  background: rgba(0, 0, 0, 0.06);
+}
+
+.banner-error {
+  background: rgba(244, 67, 54, 0.12);
+  color: #b00020;
 }

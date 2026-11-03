@@ -11,9 +11,10 @@ import com.example.demo.service.AuthorService;
 import com.example.demo.service.PostService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.graphql.GraphQlTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.boot.test.mock.mockito.SpyBean;
+import org.springframework.boot.graphql.test.autoconfigure.GraphQlTest;
+import org.springframework.context.annotation.Import;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
 import org.springframework.graphql.test.tester.GraphQlTester;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -25,25 +26,27 @@ import java.util.UUID;
 
 import static org.mockito.Mockito.*;
 
+// provide the real PostService in the slice, @MockitoSpyBean only wraps an existing bean
 @GraphQlTest(controllers = {PostsDataFetcherController.class})
+@Import(PostService.class)
 class SubscriptionTests {
 
     @Autowired
     GraphQlTester graphQlTester;
 
-    @MockBean
+    @MockitoBean
     AuthorService authorService;
 
-    @SpyBean
+    @MockitoSpyBean
     PostService postService;
 
-    @MockBean
+    @MockitoBean
     AuthorRepository authorRepository;
 
-    @MockBean
+    @MockitoBean
     PostRepository postRepository;
 
-    @MockBean
+    @MockitoBean
     CommentRepository commentRepository;
 
     @Test

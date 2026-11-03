@@ -76,6 +76,10 @@ class IntegrationTests {
             .thenCancel()
             .verifyLater()
 
+        // give the websocket subscription time to register on the server before sending,
+        // otherwise the first message may be emitted before the subscription is active
+        Thread.sleep(1000)
+
         @Language("graphql") val sendMessageQuery = """
             mutation sendMessage(${'$'}msg: TextMessageInput!) {
                  send(message:${'$'}msg) { 

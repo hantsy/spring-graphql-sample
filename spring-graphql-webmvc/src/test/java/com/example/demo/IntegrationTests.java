@@ -2,7 +2,7 @@ package com.example.demo;
 
 import com.example.demo.gql.types.Comment;
 import com.example.demo.gql.types.Post;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.AfterEach;
@@ -38,7 +38,7 @@ public class IntegrationTests {
     int port;
 
     @Autowired
-    ObjectMapper objectMapper;
+    JsonMapper jsonMapper;
 
     HttpGraphQlClient client;
     WebSocketGraphQlClient socketClient;
@@ -70,7 +70,7 @@ public class IntegrationTests {
         Flux<Comment> result = this.socketClient.document(subscriptionQuery)
                 .executeSubscription()
                 .map(response -> {
-                            Comment comment = objectMapper.convertValue(
+                            Comment comment = jsonMapper.convertValue(
                                     response.<Map<String, Object>>getData().get("commentAdded"),
                                     Comment.class);
                             log.debug("received comment: {}", comment);
@@ -85,6 +85,10 @@ public class IntegrationTests {
                 .consumeNextWith(c -> assertThat(c.getContent()).startsWith("comment of my post at "))
                 .thenCancel()
                 .verifyLater();
+
+        // give the websocket subscription time to register on the server before emitting comments,
+        // the server sink is a replay().latest() so a late subscriber only sees the last comment
+        Thread.sleep(1000);
 
         addCommentToPost(id);
         addCommentToPost(id);
@@ -109,7 +113,7 @@ public class IntegrationTests {
         client.document(postByIdQuery)
                 .variables(postByIdVariables)
                 .execute()
-                .map(response -> objectMapper
+                .map(response -> jsonMapper
                         .convertValue(
                                 response.<Map<String, Object>>getData().get("postById"),
                                 Post.class
@@ -144,7 +148,7 @@ public class IntegrationTests {
                                 "content", "content of my post"
                         ))
                 .execute()
-                .map(response -> objectMapper.convertValue(
+                .map(response -> jsonMapper.convertValue(
                         response.<Map<String, Object>>getData().get("createPost"),
                         Post.class)
 
@@ -156,7 +160,7 @@ public class IntegrationTests {
                     countDownLatch.countDown();
                 });
 
-        countDownLatch.await(1000, TimeUnit.MILLISECONDS);
+        countDownLatch.await(5000, TimeUnit.MILLISECONDS);
 
         String id = postIdHolder.get();
         log.info("created post id: {}", id);
@@ -185,7 +189,7 @@ public class IntegrationTests {
                 .execute()
                 .as(StepVerifier::create)
                 .consumeNextWith(response -> {
-                    var addedComment = objectMapper.convertValue(
+                    var addedComment = jsonMapper.convertValue(
                             response.<Map<String, Object>>getData().get("addComment"),
                             Comment.class
                     );
