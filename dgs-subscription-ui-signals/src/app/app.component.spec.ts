@@ -17,15 +17,22 @@ describe('AppComponent', () => {
   });
 
   afterEach(() => {
-    // The subscription Observable opened by toSignal stays active; drain any
+    // The subscription Observable opened by rxResource stays active; drain any
     // outstanding operations before asserting none are left.
     controller.match(() => true).forEach(op => op.complete());
     controller.verify();
   });
 
+  // rxResource keeps the app unstable until its stream produces a first
+  // emission, so the open subscription must emit before `whenStable()` resolves.
+  function primeSubscription(): void {
+    controller.expectOne('onMessageSent').flushData({ messageSent: null });
+  }
+
   it('renders messages returned by the query', async () => {
     const fixture = TestBed.createComponent(AppComponent);
     fixture.detectChanges();
+    primeSubscription();
 
     controller.expectOne('allMessages').flushData({
       messages: [{ id: '1', body: 'hello world', sentAt: null }],
@@ -39,6 +46,7 @@ describe('AppComponent', () => {
   it('sends the mutation with the typed body', async () => {
     const fixture = TestBed.createComponent(AppComponent);
     fixture.detectChanges();
+    primeSubscription();
     controller.expectOne('allMessages').flushData({ messages: [] });
     await fixture.whenStable();
 
@@ -54,6 +62,7 @@ describe('AppComponent', () => {
   it('shows an error banner when the query fails', async () => {
     const fixture = TestBed.createComponent(AppComponent);
     fixture.detectChanges();
+    primeSubscription();
 
     controller.expectOne('allMessages').networkError(new Error('boom'));
     await fixture.whenStable();
@@ -70,6 +79,7 @@ describe('AppComponent', () => {
     expect(component.messagesResource.hasValue()).toBe(false);
 
     fixture.detectChanges();
+    primeSubscription();
     controller.expectOne('allMessages').flushData({
       messages: [{ id: '1', body: 'resource test', sentAt: null }],
     });
@@ -85,6 +95,7 @@ describe('AppComponent', () => {
   it('does not break messages computed when subscription errors', async () => {
     const fixture = TestBed.createComponent(AppComponent);
     fixture.detectChanges();
+    primeSubscription();
 
     // Load initial messages first
     controller.expectOne('allMessages').flushData({
@@ -101,7 +112,7 @@ describe('AppComponent', () => {
     ]);
 
     // Flush a network error on the subscription operation
-    const subOp = controller.match('messageSent');
+    const subOp = controller.match('onMessageSent');
     if (subOp.length > 0) {
       subOp[0].networkError(new Error('subscription disconnected'));
     }

@@ -1,12 +1,12 @@
-import { Component, computed, inject, resource, signal, type Signal } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
+import { Component, computed, inject, signal } from '@angular/core';
+import { rxResource } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { Apollo } from 'apollo-angular';
-import { catchError, filter, firstValueFrom, map, of } from 'rxjs';
+import { catchError, filter, map, of } from 'rxjs';
 import {
   MESSAGES_QUERY,
   MESSAGE_SENT_SUBSCRIPTION,
@@ -17,9 +17,6 @@ import {
   type SendMessageData,
 } from './graphql/messages';
 import { connectionState } from './transport/ws-link';
-
-/** Shape emitted by the streaming subscription resource. */
-type SubStreamItem = { value: MessageSentData | null } | { error: Error };
 
 @Component({
   selector: 'app-root',
@@ -41,30 +38,25 @@ export class AppComponent {
   readonly form = this.fb.nonNullable.group({ body: ['', Validators.required] });
 
   // ── Query as a one-time resource ──────────────────────────────────────
-  readonly messagesResource = resource({
-    loader: () =>
-      firstValueFrom(
-        this.apollo.query<MessagesData>({ query: MESSAGES_QUERY }).pipe(
-          map(r => r.data?.messages ?? []),
-        ),
+  // rxResource accepts Observables via `stream` (there is no `loader` option);
+  // the Apollo query Observable emits once and completes, which is valid here.
+  readonly messagesResource = rxResource({
+    stream: () =>
+      this.apollo.query<MessagesData>({ query: MESSAGES_QUERY }).pipe(
+        map(r => r.data?.messages ?? []),
       ),
   });
 
   // ── Subscription as a streaming resource ──────────────────────────────
-  // apollo.subscribe() emits SubscribeResult<T> (with optional .data).
-  // The stream loader must return Signal<ResourceStreamItem<U>>, so we wrap
-  // each emission in { value: … } and map errors to { error: … }.
-  private readonly subscriptionSignal: Signal<SubStreamItem> = toSignal(
-    this.apollo.subscribe<MessageSentData>({ query: MESSAGE_SENT_SUBSCRIPTION }).pipe(
-      filter(result => !!result.data),
-      map(result => ({ value: result.data as MessageSentData | null })),
-      catchError(err => of({ error: err instanceof Error ? err : new Error(String(err)) })),
-    ),
-    { initialValue: { value: null as MessageSentData | null } },
-  )!;
-
-  readonly subscriptionResource = resource<MessageSentData | null, null>({
-    stream: () => this.subscriptionSignal,
+  // rxResource accepts Observables natively in `stream`, so no toSignal() bridge
+  // is needed. Each emission from the Apollo subscription updates the resource value.
+  readonly subscriptionResource = rxResource({
+    stream: () =>
+      this.apollo.subscribe<MessageSentData>({ query: MESSAGE_SENT_SUBSCRIPTION }).pipe(
+        filter(result => !!result.data),
+        map(result => (result.data as MessageSentData).messageSent ?? null),
+        catchError(() => of(null)),
+      ),
   });
 
   // ── Computed signals ──────────────────────────────────────────────────
@@ -74,7 +66,7 @@ export class AppComponent {
       ? this.subscriptionResource.value()
       : null;
     if (!newMessage) return initial;
-    return [...initial, newMessage.messageSent];
+    return [...initial, newMessage];
   });
 
   readonly loading = computed(() => this.messagesResource.isLoading());
