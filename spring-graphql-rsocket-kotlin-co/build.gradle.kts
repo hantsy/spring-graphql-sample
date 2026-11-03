@@ -70,6 +70,7 @@ testImplementation("org.testcontainers:testcontainers-postgresql:2.0.5")
 
 	testImplementation("io.kotest:kotest-runner-junit5-jvm:${property("kotestVersion")}")
 	testImplementation("io.kotest:kotest-assertions-core-jvm:${property("kotestVersion")}")
+	testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 
 kotlin {
@@ -87,12 +88,5 @@ kotlin {
 
 tasks.withType<Test> {
 	useJUnitPlatform()
-}
-
-dependencies {
-    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
-}
-
-tasks.withType<Test> {
-    jvmArgs("-Djdk.attach.allowAttachSelf=true")
+	jvmArgs("-Djdk.attach.allowAttachSelf=true")
 }

@@ -62,16 +62,10 @@ dependencies {
     testImplementation 'org.springframework.boot:spring-boot-starter-webclient-test'
     testImplementation 'io.projectreactor:reactor-test'
     testImplementation 'org.awaitility:awaitility:4.3.0'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
 
 test {
     useJUnitPlatform()
-}
-
-dependencies {
-    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
-}
-
-tasks.named('test') {
     jvmArgs '-Djdk.attach.allowAttachSelf=true'
 }

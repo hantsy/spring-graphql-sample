@@ -9,6 +9,15 @@ import org.springframework.graphql.server.WebGraphQlInterceptor;
 @Configuration
 public class DataLoadersConfig {
     @Bean
+    public DataLoaderRegistrar dataLoaderRegistrar(DataLoaders loader) {
+        return (registry, context) -> {
+            registry.register("authorsLoader", loader.authorsLoader());
+            registry.register("commentsLoader", loader.commentsLoader());
+        };
+    }
+
+    // Alternative: registering DataLoaders via WebGraphQlInterceptor
+    /*@Bean
     public WebGraphQlInterceptor interceptor(DataLoaders loader) {
         return (input, chain) -> {
             input.configureExecutionInput((executionInput, builder) -> {
@@ -18,14 +27,6 @@ public class DataLoadersConfig {
                 return builder.dataLoaderRegistry(registry).build();
             });
             return chain.next(input);
-        };
-    }
-
-    /*@Bean
-    public DataLoaderRegistrar dataLoaderRegistrar(DataLoaders loader) {
-        return (registry, context) -> {
-            registry.register("authorsLoader", loader.authorsLoader());
-            registry.register("commentsLoader", loader.commentsLoader());
         };
     }*/
 }

@@ -43,16 +43,10 @@ dependencies {
     testAnnotationProcessor 'org.projectlombok:lombok:1.18.48'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'com.netflix.graphql.dgs:dgs-starter-test'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
 
 test {
     useJUnitPlatform()
-}
-
-dependencies {
-    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
-}
-
-tasks.named('test') {
     jvmArgs '-Djdk.attach.allowAttachSelf=true'
 }

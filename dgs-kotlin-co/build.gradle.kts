@@ -71,6 +71,7 @@ dependencies {
     }
     testImplementation("io.kotest:kotest-runner-junit5-jvm")
     testImplementation("io.kotest:kotest-assertions-core-jvm")
+    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 
 tasks.withType<GenerateJavaTask> {
@@ -99,12 +100,5 @@ kotlin {
 
 tasks.withType<Test> {
     useJUnitPlatform()
-}
-
-dependencies {
-    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
-}
-
-tasks.withType<Test> {
     jvmArgs("-Djdk.attach.allowAttachSelf=true")
 }

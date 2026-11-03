@@ -49,6 +49,7 @@ dependencies {
 
     //test
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
 
 generateJava {
@@ -62,12 +63,5 @@ generateJava {
 
 test {
     useJUnitPlatform()
-}
-
-dependencies {
-    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
-}
-
-tasks.named('test') {
     jvmArgs '-Djdk.attach.allowAttachSelf=true'
 }

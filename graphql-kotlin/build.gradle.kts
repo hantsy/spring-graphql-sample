@@ -67,6 +67,7 @@ dependencies {
     testImplementation("org.testcontainers:testcontainers-postgresql:2.0.5")
     testImplementation("org.testcontainers:testcontainers-r2dbc:2.0.5")
     runtimeOnly("org.postgresql:postgresql")
+    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 
 kotlin {
@@ -84,12 +85,5 @@ kotlin {
 
 tasks.withType<Test> {
     useJUnitPlatform()
-}
-
-dependencies {
-    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
-}
-
-tasks.withType<Test> {
     jvmArgs("-Djdk.attach.allowAttachSelf=true")
 }

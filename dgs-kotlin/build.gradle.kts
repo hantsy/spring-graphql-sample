@@ -84,6 +84,7 @@ dependencies {
     testImplementation("io.projectreactor:reactor-test")
 
     testImplementation("com.netflix.graphql.dgs:dgs-starter-test")
+    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 
 tasks.withType<GenerateJavaTask> {
@@ -101,12 +102,5 @@ tasks.withType<GenerateJavaTask> {
 
 tasks.withType<Test> {
     useJUnitPlatform()
-}
-
-dependencies {
-    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
-}
-
-tasks.withType<Test> {
     jvmArgs("-Djdk.attach.allowAttachSelf=true")
 }
