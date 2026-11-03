@@ -8,7 +8,7 @@ plugins {
 	id("io.spring.dependency-management") version "1.1.7"
 
 	kotlin("jvm") version "2.3.21"
-	kotlin("plugin.spring") version "2.3.21"
+	kotlin("plugin.spring") version "2.4.21"
 }
 
 group = "com.example"
