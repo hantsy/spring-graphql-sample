@@ -24,7 +24,7 @@ jobs:
         with:
           node-version: "24"
 
-      - uses: actions/cache@v4
+      - uses: actions/cache@v6
         with:
           path: ~/.npm
           key: ${{ runner.os }}-node-${{ hashFiles('dgs-subscription-ui-signals/package-lock.json') }}
