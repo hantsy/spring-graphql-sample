@@ -58,3 +58,7 @@ out/
 
 ### VS Code ###
 .vscode/
+
+# superpowers session artifacts (specs, plans, ledgers) stay out of the repository
+.superpowers/
+docs/superpowers/
