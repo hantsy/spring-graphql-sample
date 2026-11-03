@@ -2,75 +2,71 @@ package com.example.demo.repository;
 
 import com.example.demo.model.PostEntity;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.jdbc.core.RowMapper;
-import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
-import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
-import org.springframework.jdbc.support.GeneratedKeyHolder;
+import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.stereotype.Component;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
 @Component
 @RequiredArgsConstructor
-@Slf4j
 public class PostRepository {
-    final NamedParameterJdbcTemplate jdbcTemplate;
-    private static final RowMapper<PostEntity> ROW_MAPPER = (rs, rowNum) -> new PostEntity(
-            rs.getObject("id", UUID.class),
-            rs.getString("title"),
-            rs.getString("content"),
-            rs.getString("status"),
-            rs.getObject("created_at", LocalDateTime.class),
-            rs.getObject("author_id", UUID.class)
-    );
+    private final JdbcClient jdbcClient;
 
     public List<PostEntity> findAll() {
-        return this.jdbcTemplate.query(
-                "SELECT * FROM posts",
-                ROW_MAPPER
-        );
+        return this.jdbcClient.sql("SELECT * FROM posts")
+                .query(PostRepository::mapPost)
+                .list();
     }
 
     public List<PostEntity> findByAuthorId(UUID authorId) {
-        return this.jdbcTemplate.query(
-                "SELECT * FROM posts WHERE author_id  = :author_id",
-                Map.of("author_id", authorId),
-                ROW_MAPPER
-        );
+        return this.jdbcClient.sql("""
+                SELECT * FROM posts WHERE author_id = :author_id
+                """)
+                .param("author_id", authorId)
+                .query(PostRepository::mapPost)
+                .list();
     }
 
     public PostEntity findById(UUID id) {
-        return this.jdbcTemplate.queryForObject(
-                "SELECT * FROM posts WHERE id = :id",
-                Map.of("id", id),
-                ROW_MAPPER
-        );
+        return this.jdbcClient.sql("SELECT * FROM posts WHERE id = :id")
+                .param("id", id)
+                .query(PostRepository::mapPost)
+                .optional()
+                .orElse(null);
     }
 
     public UUID create(String title, String content, String status, UUID authorId) {
-        String insert = """
-                INSERT INTO  posts (title, content, status, author_id, created_at) 
-                VALUES (:title, :content, :status, :author_id, :created_at) 
+        return this.jdbcClient.sql("""
+                INSERT INTO posts (title, content, status, author_id, created_at)
+                VALUES (:title, :content, :status, :author_id, :created_at)
                 returning id
-                """;
-        GeneratedKeyHolder generatedKeyHolder = new GeneratedKeyHolder();
-        int inserted = this.jdbcTemplate.update(
-                insert,
-                new MapSqlParameterSource(Map.of("title", title, "content", content, "status", status, "author_id", authorId, "created_at", LocalDateTime.now())),
-                generatedKeyHolder
-        );
-        log.info("inserted rows: {}", inserted);
-        return generatedKeyHolder.getKeyAs(UUID.class);
+                """)
+                .param("title", title)
+                .param("content", content)
+                .param("status", status)
+                .param("author_id", authorId)
+                .param("created_at", LocalDateTime.now())
+                .query(UUID.class)
+                .optional()
+                .orElseThrow(() -> new IllegalStateException("Failed to create post"));
     }
 
     public int deleteAll() {
-        return this.jdbcTemplate.update(
-                "DELETE FROM posts",
-                Map.of()
+        return this.jdbcClient.sql("DELETE FROM posts").update();
+    }
+
+    private static PostEntity mapPost(ResultSet rs, int rowNum) throws SQLException {
+        return new PostEntity(
+                rs.getObject("id", UUID.class),
+                rs.getString("title"),
+                rs.getString("content"),
+                rs.getString("status"),
+                rs.getObject("created_at", LocalDateTime.class),
+                rs.getObject("author_id", UUID.class)
         );
     }
 }
