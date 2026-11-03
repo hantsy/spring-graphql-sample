@@ -17,7 +17,7 @@ import java.util.*
 @DgsScalar(name = "LocalDateTime")
 class LocalDateTimeScalar : Coercing<LocalDateTime, String> {
     @Throws(CoercingSerializeException::class)
-    override fun serialize(dataFetcherResult: Any): String? {
+    override fun serialize(dataFetcherResult: Any, graphQLContext: GraphQLContext, locale: Locale): String? {
         return when (dataFetcherResult) {
             is LocalDateTime -> dataFetcherResult.format(DateTimeFormatter.ISO_DATE_TIME)
             else -> throw CoercingSerializeException("Not a valid DateTime")

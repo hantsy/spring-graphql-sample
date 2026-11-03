@@ -51,6 +51,7 @@ dependencies {
     testImplementation 'org.springframework.boot:spring-boot-testcontainers'
     testImplementation 'org.testcontainers:testcontainers-postgresql:2.0.5'
     testImplementation 'io.projectreactor:reactor-test'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
 
 tasks.named('test') {
@@ -58,12 +59,5 @@ tasks.named('test') {
     testLogging {
         showStandardStreams = true
     }
-}
-
-dependencies {
-    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
-}
-
-tasks.named('test') {
     jvmArgs '-Djdk.attach.allowAttachSelf=true'
 }

@@ -60,6 +60,7 @@ dependencies {
     testImplementation("org.springframework.boot:spring-boot-starter-webclient-test") // provides WebClient for DGS client tests
     testImplementation("com.netflix.graphql.dgs:dgs-starter-test")
     testImplementation("io.projectreactor:reactor-test")
+    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 
 tasks.withType<GenerateJavaTask> {
@@ -73,12 +74,5 @@ tasks.withType<GenerateJavaTask> {
 
 tasks.withType<Test> {
     useJUnitPlatform()
-}
-
-dependencies {
-    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
-}
-
-tasks.withType<Test> {
     jvmArgs("-Djdk.attach.allowAttachSelf=true")
 }

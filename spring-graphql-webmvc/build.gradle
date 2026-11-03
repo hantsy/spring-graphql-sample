@@ -67,6 +67,7 @@ dependencies {
     testImplementation 'org.testcontainers:testcontainers-junit-jupiter:2.0.5'
     testImplementation 'org.awaitility:awaitility:4.3.0'
     testImplementation 'org.springframework.boot:spring-boot-testcontainers'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
 
 tasks.named('test') {
@@ -76,12 +77,5 @@ tasks.named('test') {
         exceptionFormat "full"
         showStandardStreams true
     }
-}
-
-dependencies {
-    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
-}
-
-tasks.named('test') {
     jvmArgs '-Djdk.attach.allowAttachSelf=true'
 }
