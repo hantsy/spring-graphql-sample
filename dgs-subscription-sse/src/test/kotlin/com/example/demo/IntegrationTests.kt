@@ -1,8 +1,8 @@
 package com.example.demo
 
 import com.jayway.jsonpath.TypeRef
-import com.netflix.graphql.dgs.client.GraphqlSSESubscriptionGraphQLClient
-import com.netflix.graphql.dgs.client.WebClientGraphQLClient
+import com.netflix.graphql.dgs.client.DgsGraphqlSSESubscriptionGraphQLClient
+import com.netflix.graphql.dgs.client.DgsWebClientGraphQLClient
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -17,17 +17,19 @@ class IntegrationTests {
     @LocalServerPort
     var port = 0;
 
-    lateinit var sseClient: GraphqlSSESubscriptionGraphQLClient
-    lateinit var webClient: WebClientGraphQLClient
+    // The Dgs-prefixed clients are the Jackson 3 variants; GraphqlSSESubscriptionGraphQLClient and
+    // WebClientGraphQLClient are their Jackson 2 predecessors.
+    lateinit var sseClient: DgsGraphqlSSESubscriptionGraphQLClient
+    lateinit var webClient: DgsWebClientGraphQLClient
 
     @BeforeEach
     fun setup() {
         val baseUrl = "http://localhost:$port/graphql"
-        sseClient = GraphqlSSESubscriptionGraphQLClient(
+        sseClient = DgsGraphqlSSESubscriptionGraphQLClient(
             baseUrl,
             WebClient.create(baseUrl)
         )
-        webClient = WebClientGraphQLClient(WebClient.create(baseUrl))
+        webClient = DgsWebClientGraphQLClient(WebClient.create(baseUrl))
     }
 
     @Test

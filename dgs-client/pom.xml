@@ -1,0 +1,190 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>org.springframework.boot</groupId>
+		<artifactId>spring-boot-starter-parent</artifactId>
+		<version>4.1.2</version>
+		<relativePath/> <!-- lookup parent from repository -->
+	</parent>
+	<groupId>com.example</groupId>
+	<artifactId>dgs-client</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
+	<name>dgs-client</name>
+	<description>dgs-client</description>
+	<properties>
+		<java.version>25</java.version>
+		<dgs-platform.version>12.1.0</dgs-platform.version>
+		<dgs-codegen-plugin.version>3.10.2</dgs-codegen-plugin.version>
+		<dgs-codegen-core.version>8.7.0</dgs-codegen-core.version>
+		<!-- DGS 12 needs the Jackson 3 JsonProvider added in json-path 3.0 -->
+		<json-path.version>3.0.0</json-path.version>
+		<wiremock.version>3.13.2</wiremock.version>
+		<wiremock-graphql-extension.version>0.9.0</wiremock-graphql-extension.version>
+	</properties>
+	<repositories>
+		<repository>
+			<id>spring-milestones</id>
+			<name>Spring Milestones</name>
+			<url>https://repo.spring.io/milestone</url>
+			<snapshots>
+				<enabled>false</enabled>
+			</snapshots>
+		</repository>
+		<repository>
+			<id>spring-snapshots</id>
+			<name>Spring Snapshots</name>
+			<url>https://repo.spring.io/snapshot</url>
+			<releases>
+				<enabled>false</enabled>
+			</releases>
+		</repository>
+	</repositories>
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>com.netflix.graphql.dgs</groupId>
+				<artifactId>graphql-dgs-platform-dependencies</artifactId>
+				<version>${dgs-platform.version}</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
+	<dependencies>
+		<!-- base classes (BaseSubProjectionNode, GraphQLQuery…) for the generated client API;
+		     the Gradle codegen plugin adds this dependency automatically, the Maven one does not -->
+		<dependency>
+			<groupId>com.netflix.graphql.dgs.codegen</groupId>
+			<artifactId>graphql-dgs-codegen-shared-core</artifactId>
+			<version>${dgs-codegen-core.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.netflix.graphql.dgs</groupId>
+			<artifactId>graphql-dgs-client</artifactId>
+		</dependency>
+		<!-- DGS' Jackson 3 mapper registers the Kotlin module even from Java callers -->
+		<dependency>
+			<groupId>tools.jackson.module</groupId>
+			<artifactId>jackson-module-kotlin</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-webmvc</artifactId>
+		</dependency>
+		<!-- the example calls the GraphQL-over-HTTP endpoint with RestClient -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-restclient</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.projectlombok</groupId>
+			<artifactId>lombok</artifactId>
+			<scope>provided</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-test</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<!-- mocks the GraphQL endpoint; wiremock-graphql-extension matches requests semantically on the
+		     GraphQL query. The standalone build is used because Boot manages Jetty 12, which clashes
+		     with the Jetty 11 the plain wiremock artifact expects -->
+		<dependency>
+			<groupId>org.wiremock</groupId>
+			<artifactId>wiremock-standalone</artifactId>
+			<version>${wiremock.version}</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>io.github.nilwurtz</groupId>
+			<artifactId>wiremock-graphql-extension</artifactId>
+			<version>${wiremock-graphql-extension.version}</version>
+			<scope>test</scope>
+		</dependency>
+	</dependencies>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>io.github.deweyjose</groupId>
+				<artifactId>graphqlcodegen-maven-plugin</artifactId>
+				<version>${dgs-codegen-plugin.version}</version>
+				<executions>
+					<execution>
+						<id>dgs-codegen</id>
+						<goals>
+							<goal>generate</goal>
+						</goals>
+						<configuration>
+							<schemaPaths>
+								<param>${project.basedir}/src/main/resources/schema</param>
+							</schemaPaths>
+							<packageName>com.example.demo.gql</packageName>
+							<generateClientApi>true</generateClientApi>
+							<shortProjectionNames>false</shortProjectionNames>
+							<snakeCaseConstantNames>true</snakeCaseConstantNames>
+							<addGeneratedAnnotation>true</addGeneratedAnnotation>
+							<disableDatesInGeneratedAnnotation>true</disableDatesInGeneratedAnnotation>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<configuration>
+					<annotationProcessorPaths>
+						<path>
+							<groupId>org.projectlombok</groupId>
+							<artifactId>lombok</artifactId>
+							<version>${lombok.version}</version>
+						</path>
+					</annotationProcessorPaths>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<configuration>
+					<argLine>-Djdk.attach.allowAttachSelf=true</argLine>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>build-helper-maven-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>add-dgs-source</id>
+						<phase>generate-sources</phase>
+						<goals>
+							<goal>add-source</goal>
+						</goals>
+						<configuration>
+							<sources>
+								<source>${project.build.directory}/generated-sources</source>
+							</sources>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-maven-plugin</artifactId>
+				<configuration>
+					<excludes>
+						<exclude>
+							<groupId>org.projectlombok</groupId>
+							<artifactId>lombok</artifactId>
+						</exclude>
+					</excludes>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+
+</project>

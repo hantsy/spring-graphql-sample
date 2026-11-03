@@ -6,10 +6,9 @@ import com.example.demo.gql.client.AuthorProjection;
 import com.example.demo.gql.client.PostProjection;
 import com.example.demo.gql.types.Post;
 import com.jayway.jsonpath.TypeRef;
-import com.netflix.graphql.dgs.client.CustomGraphQLClient;
-import com.netflix.graphql.dgs.client.GraphQLClient;
-import com.netflix.graphql.dgs.client.GraphQLResponse;
-import com.netflix.graphql.dgs.client.HttpResponse;
+import com.netflix.graphql.dgs.client.DgsGraphQLClient;
+import com.netflix.graphql.dgs.client.DgsGraphQLResponse;
+import com.netflix.graphql.dgs.client.DgsRestClientGraphQLClient;
 import com.netflix.graphql.dgs.client.codegen.GraphQLQueryRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.intellij.lang.annotations.Language;
@@ -19,11 +18,8 @@ import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.WebApplicationType;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestClient;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -39,34 +35,6 @@ public class DemoApplication implements ApplicationRunner {
 
     @Value("${graphql.client.url}")
     private String url;
-
-    private static HttpResponse execute(String url, Map<String, ? extends List<String>> headers, String body) {
-        /**
-         * The requestHeaders providers headers typically required to call a GraphQL endpoint, including the Accept and Content-Type headers.
-         * To use RestClient, the requestHeaders need to be transformed into Spring's HttpHeaders.
-         */
-        HttpHeaders requestHeaders = new HttpHeaders();
-        requestHeaders.putAll(headers);
-
-        /**
-         * Use RestClient to call the GraphQL service.
-         * The response type should simply be String, because the parsing will be done by the GraphQLClient.
-         */
-        ResponseEntity<String> exchange = RestClient.create()
-                .post()
-                .uri(url)
-                .headers(hs -> hs.putAll(requestHeaders))
-                .body(body)
-                .retrieve()
-                .toEntity(String.class);
-
-        /**
-         * Return a HttpResponse, which contains the HTTP status code and response body (as a String).
-         * The way to get these depend on the HTTP client.
-         */
-        return new HttpResponse(exchange.getStatusCode().value(), exchange.getBody());
-    }
-
 
     @Override
     public void run(ApplicationArguments args) throws Exception {
@@ -108,8 +76,11 @@ public class DemoApplication implements ApplicationRunner {
         @Language("graphql") String query = graphQLQueryRequest.serialize();
         log.info("query string: {}", query);
 
-        GraphQLClient client = new CustomGraphQLClient(url, DemoApplication::execute);
-        GraphQLResponse response = client.executeQuery(query, new HashMap<>());
+        // DgsRestClientGraphQLClient is the Jackson 3 based client added in DGS 12; the older
+        // CustomGraphQLClient(url, executor) still works but pulls Jackson 2 (jackson-module-kotlin)
+        // onto the classpath because it builds its own ObjectMapper.
+        DgsGraphQLClient client = new DgsRestClientGraphQLClient(RestClient.builder().baseUrl(url).build());
+        DgsGraphQLResponse response = client.executeQuery(query, Map.of());
 
         var data = response.extractValueAsObject("allPosts", new TypeRef<List<Post>>() {
         });

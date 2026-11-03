@@ -29,7 +29,7 @@ TBD
 |[dgs-subscription-ui-sse](./dgs-subscription-ui-sse)  | Angular client (traditional RxJS) for dgs-subscription-sse, consuming subscriptions over Server-Sent Events|
 |[dgs-subscription-ui-sse-signals](./dgs-subscription-ui-sse-signals)  | Angular client (signals + rxResource API) for dgs-subscription-sse, consuming subscriptions over Server-Sent Events|
 |[dgs-subscription-sse](./dgs-subscription-sse)  | Simple Netflix DGS Subscription example using Http/SSE protocol|
-|[dgs-codegen](./dgs-codegen) | Netflix DGS example with Spring Jdbc and Gradle codegen plugin|
+|[dgs-codegen](./dgs-codegen) | Netflix DGS example with Spring Jdbc and the DGS codegen plugin|
 |[dgs-fileupload](./dgs-fileupload) | Netflix DGS file upload example|
 |[dgs-client](./dgs-client) | Netflix DGS Typesafe Client example|
 |[dgs-kotlin-co](./dgs-kotlin-co) | **A complete Netflix DGS example** with WebFlux, Kotlin Coroutines, Spring Data R2dbc and Spring Security|
@@ -69,9 +69,9 @@ Make sure you have installed the following software.
 * Java 25
 * Docker - required by the shared Postgres container and by the Testcontainers based tests
 
-Every example is a standalone Gradle project and ships its own Gradle wrapper (Gradle 9.8.2), so installing Gradle separately is optional. The `dgs-subscription-ui*` Angular clients are the exception - they are built with npm.
+Every example is a standalone Maven project and ships its own Maven Wrapper (`mvnw`), so installing Maven separately is optional. The `dgs-subscription-ui*` Angular clients are the exception - they are built with npm.
 
-All active examples target Spring Boot 4.1.2 / Spring Framework 7 on Java 25. Some sample codes are written in Kotlin (Kotlin 2.3.x). If you are new to Kotlin, start to learn it from the [the Kotlin homepage](https://kotlinlang.org/).
+All active examples target Spring Boot 4.1.2 / Spring Framework 7 on Java 25. Some sample codes are written in Kotlin (Kotlin 2.4.x). If you are new to Kotlin, start to learn it from the [the Kotlin homepage](https://kotlinlang.org/).
 
 ## Build 
 
@@ -87,19 +87,19 @@ Open a terminal, and switch to the root folder of the project. Start the shared 
 docker compose up -d postgres
 ```
 
-Then switch to the example folder you want to build, and run the Gradle wrapper.
+Then switch to the example folder you want to build, and run the Maven Wrapper.
 
 ```bash
 cd examplename // change to the example folder
-./gradlew build
+./mvnw -B -ntp verify
 ```
 
 Run the application.
 
 ```bash
-./gradlew bootRun
+./mvnw spring-boot:run
 // or from command line after building
-java -jar build/libs/xxx.jar
+java -jar target/xxx.jar
 ```
 
 The `dgs-subscription-ui*` Angular clients are built with npm instead.

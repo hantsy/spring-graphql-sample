@@ -16,7 +16,7 @@ updates:
     labels:
       - "dependencies"
 
-  - package-ecosystem: "gradle"
+  - package-ecosystem: "maven"
     directory: "/dgs"
     schedule:
       interval: weekly
@@ -28,7 +28,7 @@ updates:
     labels:
       - "dependencies"
 
-  - package-ecosystem: "gradle"
+  - package-ecosystem: "maven"
     directory: "/dgs-webflux"
     schedule:
       interval: weekly
@@ -40,7 +40,7 @@ updates:
     labels:
       - "dependencies"
 
-  - package-ecosystem: "gradle"
+  - package-ecosystem: "maven"
     directory: "/dgs-client"
     schedule:
       interval: weekly
@@ -52,7 +52,7 @@ updates:
     labels:
       - "dependencies"
 
-  - package-ecosystem: "gradle"
+  - package-ecosystem: "maven"
     directory: "/dgs-codegen"
     schedule:
       interval: weekly
@@ -64,7 +64,7 @@ updates:
     labels:
       - "dependencies"
 
-  - package-ecosystem: "gradle"
+  - package-ecosystem: "maven"
     directory: "/dgs-fileupload"
     schedule:
       interval: weekly
@@ -76,7 +76,7 @@ updates:
     labels:
       - "dependencies"
 
-  - package-ecosystem: "gradle"
+  - package-ecosystem: "maven"
     directory: "/dgs-kotlin"
     schedule:
       interval: weekly
@@ -88,7 +88,7 @@ updates:
     labels:
       - "dependencies"
 
-  - package-ecosystem: "gradle"
+  - package-ecosystem: "maven"
     directory: "/dgs-kotlin-co"
     schedule:
       interval: weekly
@@ -100,7 +100,7 @@ updates:
     labels:
       - "dependencies"
 
-  - package-ecosystem: "gradle"
+  - package-ecosystem: "maven"
     directory: "/dgs-subscription-ws"
     schedule:
       interval: weekly
@@ -112,7 +112,7 @@ updates:
     labels:
       - "dependencies"
 
-  - package-ecosystem: "gradle"
+  - package-ecosystem: "maven"
     directory: "/dgs-subscription-sse"
     schedule:
       interval: weekly
@@ -124,7 +124,7 @@ updates:
     labels:
       - "dependencies"
 
-  - package-ecosystem: "gradle"
+  - package-ecosystem: "maven"
     directory: "/graphql-kotlin"
     schedule:
       interval: weekly
@@ -136,7 +136,7 @@ updates:
     labels:
       - "dependencies"
 
-  - package-ecosystem: "gradle"
+  - package-ecosystem: "maven"
     directory: "/spring-graphql"
     schedule:
       interval: weekly
@@ -148,7 +148,7 @@ updates:
     labels:
       - "dependencies"
 
-  - package-ecosystem: "gradle"
+  - package-ecosystem: "maven"
     directory: "/spring-graphql-querydsl"
     schedule:
       interval: weekly
@@ -160,7 +160,7 @@ updates:
     labels:
       - "dependencies"
 
-  - package-ecosystem: "gradle"
+  - package-ecosystem: "maven"
     directory: "/spring-graphql-webmvc"
     schedule:
       interval: weekly
@@ -172,7 +172,7 @@ updates:
     labels:
       - "dependencies"
 
-  - package-ecosystem: "gradle"
+  - package-ecosystem: "maven"
     directory: "/spring-graphql-webflux"
     schedule:
       interval: weekly
@@ -184,7 +184,7 @@ updates:
     labels:
       - "dependencies"
 
-  - package-ecosystem: "gradle"
+  - package-ecosystem: "maven"
     directory: "/spring-graphql-rsocket-kotlin-co"
     schedule:
       interval: weekly

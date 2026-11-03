@@ -2,7 +2,7 @@ package com.example.demo;
 
 import com.example.demo.gql.types.Comment;
 import com.example.demo.gql.types.Post;
-import com.netflix.graphql.dgs.client.WebClientGraphQLClient;
+import com.netflix.graphql.dgs.client.DgsWebClientGraphQLClient;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.intellij.lang.annotations.Language;
@@ -37,14 +37,15 @@ class IntegrationTests {
     @LocalServerPort
     int port;
 
-    private WebClientGraphQLClient client;
+    // DgsWebClientGraphQLClient is the Jackson 3 variant of the Jackson 2 based WebClientGraphQLClient
+    private DgsWebClientGraphQLClient client;
 
     private WebSocketGraphQlClient socketClient;
 
     @BeforeEach
     public void setup() {
         var webClient = WebClient.create("http://localhost:" + port + "/graphql");
-        this.client = new WebClientGraphQLClient(webClient);
+        this.client = new DgsWebClientGraphQLClient(webClient);
         this.socketClient = WebSocketGraphQlClient.create(URI.create("ws://localhost:" + port + "/graphql"), new ReactorNettyWebSocketClient());
         this.socketClient.start().subscribe();
     }

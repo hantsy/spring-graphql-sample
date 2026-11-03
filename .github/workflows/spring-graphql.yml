@@ -1,5 +1,5 @@
-# This workflow will build a Java project with Gradle
-# For more information see: https://help.github.com/actions/language-and-framework-guides/building-and-testing-java-with-gradle
+# This workflow will build a Java project with Maven
+# For more information see: https://help.github.com/actions/language-and-framework-guides/building-and-testing-java-with-maven
 
 name: spring-graphql
 
@@ -28,10 +28,10 @@ jobs:
       with:
         java-version: '25'
         distribution: 'temurin'
-    - name: Build with Gradle
+    - name: Build with Maven
       run: |
         cd spring-graphql
-        chmod +x gradlew
-        ./gradlew build
+        chmod +x mvnw
+        ./mvnw -B -ntp verify
 
   

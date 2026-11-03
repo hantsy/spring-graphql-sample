@@ -1,7 +1,7 @@
 package com.example.demo
 
 import com.jayway.jsonpath.TypeRef
-import com.netflix.graphql.dgs.client.WebClientGraphQLClient
+import com.netflix.graphql.dgs.client.DgsWebClientGraphQLClient
 import org.assertj.core.api.Assertions.assertThat
 import org.intellij.lang.annotations.Language
 import org.junit.jupiter.api.AfterEach
@@ -24,7 +24,8 @@ class IntegrationTests {
     companion object {
         private val log = LoggerFactory.getLogger(IntegrationTests::class.java)
     }
-    lateinit var webClient: WebClientGraphQLClient
+    // DgsWebClientGraphQLClient is the Jackson 3 variant of the Jackson 2 based WebClientGraphQLClient
+    lateinit var webClient: DgsWebClientGraphQLClient
     lateinit var socketClient: WebSocketGraphQlClient
 
     @LocalServerPort
@@ -33,7 +34,7 @@ class IntegrationTests {
     @BeforeEach
     fun setup() {
         val baseUrl = "http://localhost:$port/graphql"
-        this.webClient = WebClientGraphQLClient(WebClient.create(baseUrl))
+        this.webClient = DgsWebClientGraphQLClient(WebClient.create(baseUrl))
 
         val subscriptionUrl = "ws://localhost:$port/graphql"
         this.socketClient = WebSocketGraphQlClient.create(URI.create(subscriptionUrl), ReactorNettyWebSocketClient())
