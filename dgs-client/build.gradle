@@ -38,6 +38,8 @@ dependencies {
 
     //spring boot starter
     implementation 'org.springframework.boot:spring-boot-starter-webmvc'
+    // the example calls the GraphQL-over-HTTP endpoint with RestClient
+    implementation 'org.springframework.boot:spring-boot-starter-restclient'
 
     //configure Lombok for compile java/ compile tests
     compileOnly 'org.projectlombok:lombok:1.18.48'
