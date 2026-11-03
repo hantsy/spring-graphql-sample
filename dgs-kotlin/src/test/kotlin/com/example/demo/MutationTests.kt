@@ -7,15 +7,12 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.slf4j.LoggerFactory
 import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.context.annotation.Import
-import org.springframework.boot.resttestclient.TestRestTemplate
 import org.springframework.boot.test.web.server.LocalServerPort
-import org.springframework.boot.restclient.RestTemplateBuilder
+import org.springframework.context.annotation.Import
 import org.springframework.core.ParameterizedTypeReference
-import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
-import org.springframework.http.RequestEntity
 import org.springframework.test.context.ContextConfiguration
+import org.springframework.test.web.servlet.client.RestTestClient
 
 @SpringBootTest(
     classes = [DemoApplication::class],
@@ -29,15 +26,13 @@ class MutationTests {
     @LocalServerPort
     var port: Int = 8080
 
-    var restTemplate: TestRestTemplate? = null
+    lateinit var restTestClient: RestTestClient
 
     @BeforeEach
     fun setup() {
-        restTemplate = TestRestTemplate(
-            RestTemplateBuilder()
-                .defaultMessageConverters()
-                .rootUri("http://localhost:$port")
-        )
+        restTestClient = RestTestClient.bindToServer()
+            .baseUrl("http://localhost:$port")
+            .build()
     }
 
     @Test
@@ -61,19 +56,16 @@ class MutationTests {
             )
         )
 
-        val requestEntity = RequestEntity.post("graphql")
+        val body = restTestClient.post().uri("graphql")
             .accept(MediaType.APPLICATION_JSON)
-            // .headers { it.add("X-Auth-Token", token) }
+            // .header("X-Auth-Token", token)
             .body(requestData)
+            .exchange()
+            .expectStatus().isOk()
+            .expectBody(object : ParameterizedTypeReference<HashMap<String, List<Any>>>() {})
+            .returnResult().getResponseBody()!!
 
-        val responseEntity = restTemplate!!.exchange(
-            requestEntity,
-            object : ParameterizedTypeReference<HashMap<String, List<Any>>>() {}
-            // object : ParameterizedTypeReference<HashMap<String, List<TypedGraphQLError>>>() {}
-        )
-
-        assertThat(responseEntity.statusCode).isEqualTo(HttpStatus.OK)
-        val errors = responseEntity.body!!["errors"]
+        val errors = body["errors"]
         log.debug("errors: {}", errors)
         // it prints out:
         // errors: [{message=org.springframework.security.access.AccessDeniedException: Access is denied,
@@ -107,20 +99,18 @@ class MutationTests {
             )
         )
 
-        val signinEntity = RequestEntity.post("graphql")
+        val signinBody = restTestClient.post().uri("graphql")
             .accept(MediaType.APPLICATION_JSON)
             .body(signinData)
+            .exchange()
+            .expectStatus().isOk()
+            .expectBody(object : ParameterizedTypeReference<HashMap<String, HashMap<String, AuthResult>>>() {})
+            .returnResult().getResponseBody()!!
 
-        val signinResponseEntity = restTemplate!!.exchange(
-            signinEntity,
-            object : ParameterizedTypeReference<HashMap<String, HashMap<String, AuthResult>>>() {}
-        )
+        assertThat(signinBody["data"]!!["signIn"]!!.name).isEqualTo("user")
+        assertThat(signinBody["data"]!!["signIn"]!!.roles).contains("ROLE_USER")
 
-        assertThat(signinResponseEntity.statusCode).isEqualTo(HttpStatus.OK)
-        assertThat(signinResponseEntity.body!!["data"]!!["signIn"]!!.name).isEqualTo("user")
-        assertThat(signinResponseEntity.body!!["data"]!!["signIn"]!!.roles).contains("ROLE_USER")
-
-        val token = signinResponseEntity.body!!["data"]!!["signIn"]!!.token
+        val token = signinBody["data"]!!["signIn"]!!.token
 
         assertThat(token).isNotNull
 
@@ -142,17 +132,16 @@ class MutationTests {
             )
         )
 
-        val requestEntity = RequestEntity.post("graphql")
+        val body = restTestClient.post().uri("graphql")
             .accept(MediaType.APPLICATION_JSON)
-            .headers { it.add("X-Auth-Token", token) }
+            .header("X-Auth-Token", token)
             .body(requestData)
+            .exchange()
+            .expectStatus().isOk()
+            .expectBody(object : ParameterizedTypeReference<HashMap<String, HashMap<String, Post>>>() {})
+            .returnResult().getResponseBody()!!
 
-        val responseEntity = restTemplate!!.exchange(
-            requestEntity,
-            object : ParameterizedTypeReference<HashMap<String, HashMap<String, Post>>>() {})
-
-        assertThat(responseEntity.statusCode).isEqualTo(HttpStatus.OK)
-        val post = responseEntity.body!!["data"]!!["createPost"]
+        val post = body["data"]!!["createPost"]
         assertThat(post).isNotNull
         assertThat(post!!.id).isNotNull
         assertThat(post.title).isEqualTo("test title")

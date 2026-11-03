@@ -60,7 +60,8 @@ dependencies {
     //test
     testImplementation 'org.springframework.boot:spring-boot-starter-graphql-test'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
-    testImplementation 'org.springframework.boot:spring-boot-starter-webflux'
+    // Tests only need the reactive WebClient; keep it off the server starter's transitive Netty stack
+    testImplementation 'org.springframework.boot:spring-boot-starter-webclient-test'
     testImplementation 'io.projectreactor:reactor-test'
     testImplementation 'org.testcontainers:testcontainers-postgresql:2.0.5'
     testImplementation 'org.testcontainers:testcontainers-junit-jupiter:2.0.5'

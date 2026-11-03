@@ -1,9 +1,7 @@
 package com.example.demo.service;
 
 import com.example.demo.gql.types.Author;
-import com.example.demo.gql.types.Post;
 import com.example.demo.model.AuthorEntity;
-import com.example.demo.model.PostEntity;
 import com.example.demo.repository.AuthorRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

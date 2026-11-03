@@ -57,8 +57,7 @@ dependencies {
     testImplementation("com.fasterxml.jackson.module:jackson-module-parameter-names:2.22.4")
     testImplementation("com.fasterxml.jackson.datatype:jackson-datatype-jdk8:2.22.4")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
-    testImplementation("org.springframework:spring-webflux") // provides WebClient
-    testImplementation("io.projectreactor.netty:reactor-netty")
+    testImplementation("org.springframework.boot:spring-boot-starter-webclient-test") // provides WebClient for DGS client tests
     testImplementation("com.netflix.graphql.dgs:dgs-starter-test")
     testImplementation("io.projectreactor:reactor-test")
 }

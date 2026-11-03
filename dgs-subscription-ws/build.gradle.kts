@@ -52,8 +52,7 @@ dependencies {
     implementation("org.jetbrains.kotlin:kotlin-stdlib")
     // test
     testImplementation("org.springframework.boot:spring-boot-starter-test")
-    testImplementation("org.springframework:spring-webflux") // provides WebClient
-    testImplementation("io.projectreactor.netty:reactor-netty")
+    testImplementation("org.springframework.boot:spring-boot-starter-webclient-test") // provides WebClient for DGS client tests
     testImplementation("com.netflix.graphql.dgs:graphql-dgs-client")
     testImplementation("com.fasterxml.jackson.core:jackson-databind:2.22.4") // DGS client still uses Jackson 2 internally
     testImplementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.22.4")

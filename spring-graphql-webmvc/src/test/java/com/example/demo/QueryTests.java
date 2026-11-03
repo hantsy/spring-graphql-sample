@@ -13,7 +13,6 @@ import org.springframework.boot.graphql.test.autoconfigure.GraphQlTest;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.graphql.execution.ErrorType;
 import org.springframework.graphql.test.tester.GraphQlTester;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import java.time.LocalDateTime;
 import java.util.List;

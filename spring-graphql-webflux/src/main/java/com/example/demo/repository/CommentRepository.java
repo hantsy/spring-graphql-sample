@@ -1,6 +1,5 @@
 package com.example.demo.repository;
 
-import com.example.demo.model.AuthorEntity;
 import com.example.demo.model.CommentEntity;
 import io.r2dbc.spi.Row;
 import io.r2dbc.spi.RowMetadata;
