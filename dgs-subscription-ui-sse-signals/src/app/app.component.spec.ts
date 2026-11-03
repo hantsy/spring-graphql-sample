@@ -17,28 +17,38 @@ describe('AppComponent', () => {
   });
 
   afterEach(() => {
-    // subscribeToMore opens a subscription that TestOperation.flush never
-    // auto-completes, so drain it before asserting no operations are outstanding
+    // The subscription Observable opened by rxResource stays active; drain any
+    // outstanding operations before asserting none are left.
     controller.match(() => true).forEach(op => op.complete());
     controller.verify();
   });
 
-  it('renders messages returned by the query', () => {
+  // rxResource keeps the app unstable until its stream produces a first
+  // emission, so the open subscription must emit before `whenStable()` resolves.
+  function primeSubscription(): void {
+    controller.expectOne('onMessageSent').flushData({ messageSent: null });
+  }
+
+  it('renders messages returned by the query', async () => {
     const fixture = TestBed.createComponent(AppComponent);
     fixture.detectChanges();
+    primeSubscription();
 
     controller.expectOne('allMessages').flushData({
       messages: [{ id: '1', body: 'hello world', sentAt: null }],
     });
+    await fixture.whenStable();
     fixture.detectChanges();
 
     expect(fixture.nativeElement.textContent).toContain('hello world');
   });
 
-  it('sends the mutation with the typed body', () => {
+  it('sends the mutation with the typed body', async () => {
     const fixture = TestBed.createComponent(AppComponent);
     fixture.detectChanges();
+    primeSubscription();
     controller.expectOne('allMessages').flushData({ messages: [] });
+    await fixture.whenStable();
 
     const component = fixture.componentInstance;
     component.form.controls.body.setValue('hi there');
@@ -49,13 +59,69 @@ describe('AppComponent', () => {
     mutation.flushData({ send: null });
   });
 
-  it('shows an error banner when the query fails', () => {
+  it('shows an error banner when the query fails', async () => {
     const fixture = TestBed.createComponent(AppComponent);
     fixture.detectChanges();
+    primeSubscription();
 
     controller.expectOne('allMessages').networkError(new Error('boom'));
+    await fixture.whenStable();
     fixture.detectChanges();
 
     expect(fixture.nativeElement.textContent).toContain('boom');
+  });
+
+  it('exposes messagesResource as a resource with hasValue/value guards', async () => {
+    const fixture = TestBed.createComponent(AppComponent);
+    const component = fixture.componentInstance;
+
+    // Before detectElement, the resource has no value yet
+    expect(component.messagesResource.hasValue()).toBe(false);
+
+    fixture.detectChanges();
+    primeSubscription();
+    controller.expectOne('allMessages').flushData({
+      messages: [{ id: '1', body: 'resource test', sentAt: null }],
+    });
+    await fixture.whenStable();
+
+    // After loading, the resource should have a value
+    expect(component.messagesResource.hasValue()).toBe(true);
+    expect(component.messagesResource.value()).toEqual([
+      { id: '1', body: 'resource test', sentAt: null },
+    ]);
+  });
+
+  it('does not break messages computed when subscription errors', async () => {
+    const fixture = TestBed.createComponent(AppComponent);
+    fixture.detectChanges();
+    primeSubscription();
+
+    // Load initial messages first
+    controller.expectOne('allMessages').flushData({
+      messages: [{ id: '1', body: 'before error', sentAt: null }],
+    });
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    const component = fixture.componentInstance;
+
+    // Verify messages computed works after query loads
+    expect(component.messages()).toEqual([
+      { id: '1', body: 'before error', sentAt: null },
+    ]);
+
+    // Flush a network error on the subscription operation
+    const subOp = controller.match('onMessageSent');
+    if (subOp.length > 0) {
+      subOp[0].networkError(new Error('subscription disconnected'));
+    }
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    // The messages computed should still return the initial messages
+    // without throwing, even if the subscription resource is in error state
+    expect(() => component.messages()).not.toThrow();
+    expect(component.messages().length).toBeGreaterThanOrEqual(1);
   });
 });

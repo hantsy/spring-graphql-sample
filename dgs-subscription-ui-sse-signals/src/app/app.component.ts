@@ -1,32 +1,22 @@
 import { Component, computed, inject, signal } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
+import { rxResource } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { Apollo } from 'apollo-angular';
-import { catchError, map, of } from 'rxjs';
+import { catchError, filter, map, of } from 'rxjs';
 import {
   MESSAGES_QUERY,
   MESSAGE_SENT_SUBSCRIPTION,
   SEND_MESSAGE_MUTATION,
   describeError,
-  mergeNewMessage,
   type MessageSentData,
   type MessagesData,
   type SendMessageData,
-  type TextMessage,
 } from './graphql/messages';
 import { connectionState } from './transport/sse-link';
-
-interface UiState {
-  loading: boolean;
-  messages: TextMessage[];
-  error: string | null;
-}
-
-const LOADING: UiState = { loading: true, messages: [], error: null };
 
 @Component({
   selector: 'app-root',
@@ -47,31 +37,44 @@ export class AppComponent {
 
   readonly form = this.fb.nonNullable.group({ body: ['', Validators.required] });
 
-  private readonly queryRef = this.apollo.watchQuery<MessagesData>({
-    query: MESSAGES_QUERY,
+  // ── Query as a one-time resource ──────────────────────────────────────
+  // rxResource accepts Observables via `stream` (there is no `loader` option);
+  // the Apollo query Observable emits once and completes, which is valid here.
+  readonly messagesResource = rxResource({
+    stream: () =>
+      this.apollo.query<MessagesData>({ query: MESSAGES_QUERY }).pipe(
+        map(r => r.data?.messages ?? []),
+      ),
   });
 
-  // The subscription folds into the cache, so valueChanges is the only stream the
-  // component reads. subscribeToMore must be created for the subscription to start.
-  private readonly moreSubscription = this.queryRef.subscribeToMore<MessageSentData>({
-    document: MESSAGE_SENT_SUBSCRIPTION,
-    updateQuery: mergeNewMessage as any,
+  // ── Subscription as a streaming resource ──────────────────────────────
+  // rxResource accepts Observables natively in `stream`, so no toSignal() bridge
+  // is needed. Each emission from the Apollo subscription updates the resource value.
+  readonly subscriptionResource = rxResource({
+    stream: () =>
+      this.apollo.subscribe<MessageSentData>({ query: MESSAGE_SENT_SUBSCRIPTION }).pipe(
+        filter(result => !!result.data),
+        map(result => (result.data as MessageSentData).messageSent ?? null),
+        catchError(() => of(null)),
+      ),
   });
 
-  private readonly state$ = this.queryRef.valueChanges.pipe(
-    map(r => ({
-      loading: r.loading,
-      messages: (r.data as MessagesData | undefined)?.messages ?? [],
-      error: r.error ? describeError(r.error) : null,
-    })),
-    catchError(err => of({ loading: false as boolean, messages: [] as TextMessage[], error: describeError(err) as string | null })),
-  );
+  // ── Computed signals ──────────────────────────────────────────────────
+  readonly messages = computed(() => {
+    const initial = this.messagesResource.hasValue() ? this.messagesResource.value()! : [];
+    const newMessage = this.subscriptionResource.hasValue()
+      ? this.subscriptionResource.value()
+      : null;
+    if (!newMessage) return initial;
+    return [...initial, newMessage];
+  });
 
-  private readonly state = toSignal(this.state$, { initialValue: LOADING });
+  readonly loading = computed(() => this.messagesResource.isLoading());
+  readonly error = computed(() => {
+    const err = this.messagesResource.error();
+    return err ? describeError(err) : null;
+  });
 
-  readonly messages = computed(() => this.state().messages);
-  readonly loading = computed(() => this.state().loading);
-  readonly error = computed(() => this.state().error);
   readonly connection = connectionState;
 
   readonly sending = signal(false);
