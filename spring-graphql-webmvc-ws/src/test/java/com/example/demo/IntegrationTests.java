@@ -2,7 +2,6 @@ package com.example.demo;
 
 import com.example.demo.gql.types.Comment;
 import com.example.demo.gql.types.Post;
-import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.awaitility.Awaitility;
 import org.junit.jupiter.api.AfterEach;
@@ -46,7 +45,6 @@ class IntegrationTests {
             this.graphQlTester = WebSocketGraphQlTester.create(URI.create("ws://localhost:" + port + "/subscriptions"), new ReactorNettyWebSocketClient());
         }
 
-        @SneakyThrows
         @Test
         public void createPostAndAddComment() {
             var creatPost = """
