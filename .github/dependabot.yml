@@ -161,7 +161,7 @@ updates:
       - "dependencies"
 
   - package-ecosystem: "maven"
-    directory: "/spring-graphql-webmvc"
+    directory: "/spring-graphql-webmvc-http"
     schedule:
       interval: weekly
     open-pull-requests-limit: 10
@@ -173,7 +173,55 @@ updates:
       - "dependencies"
 
   - package-ecosystem: "maven"
-    directory: "/spring-graphql-webflux"
+    directory: "/spring-graphql-webmvc-http-ws"
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 10
+    reviewers:
+      - "hantsy"
+    assignees:
+      - "hantsy"
+    labels:
+      - "dependencies"
+
+  - package-ecosystem: "maven"
+    directory: "/spring-graphql-webmvc-ws"
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 10
+    reviewers:
+      - "hantsy"
+    assignees:
+      - "hantsy"
+    labels:
+      - "dependencies"
+
+  - package-ecosystem: "maven"
+    directory: "/spring-graphql-webflux-http"
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 10
+    reviewers:
+      - "hantsy"
+    assignees:
+      - "hantsy"
+    labels:
+      - "dependencies"
+
+  - package-ecosystem: "maven"
+    directory: "/spring-graphql-webflux-http-ws"
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 10
+    reviewers:
+      - "hantsy"
+    assignees:
+      - "hantsy"
+    labels:
+      - "dependencies"
+
+  - package-ecosystem: "maven"
+    directory: "/spring-graphql-webflux-ws"
     schedule:
       interval: weekly
     open-pull-requests-limit: 10

@@ -36,10 +36,20 @@ TBD
 |[dgs-kotlin](./dgs-kotlin) | **A complete Netflix DGS example** with WebMvc/Kotlin, Spring Data Jdbc, Spring Security and Spring Session/Spring Data Redis|
 |[graphql-kotlin](./graphql-kotlin) |  ExpediaGroup Graphql Kotlin Spring Boot example|
 |[spring-graphql](./spring-graphql) | Spring GraphQL example|
-|[spring-graphql-webmvc](./spring-graphql-webmvc) | Spring GraphQL with WebMvc Controller annotation example|
+|[spring-graphql-webmvc-http](./spring-graphql-webmvc-http) | Spring GraphQL/WebMvc over HTTP: queries and mutations on `/graphql`, subscriptions on the same endpoint via SSE|
+|[spring-graphql-webmvc-http-ws](./spring-graphql-webmvc-http-ws) | Spring GraphQL/WebMvc: queries and mutations over HTTP, subscriptions over WebSocket (`graphql-transport-ws`)|
+|[spring-graphql-webmvc-ws](./spring-graphql-webmvc-ws) | Spring GraphQL/WebMvc: queries, mutations and subscriptions all over WebSocket|
+|[spring-graphql-webflux-http](./spring-graphql-webflux-http) | Spring GraphQL/WebFlux over HTTP with SSE subscriptions|
+|[spring-graphql-webflux-http-ws](./spring-graphql-webflux-http-ws) | Spring GraphQL/WebFlux: queries and mutations over HTTP, subscriptions over WebSocket|
+|[spring-graphql-webflux-ws](./spring-graphql-webflux-ws) | Spring GraphQL/WebFlux: every operation type over WebSocket|
 |[spring-graphql-querydsl](./spring-graphql-querydsl)| Spring GraphQL/JPA/QueryDSl Data Fetchers example|
-|[spring-graphql-webflux](./spring-graphql-webflux) | Spring GraphQL/WebFlux example with WebSocket transport protocol |
 |[spring-graphql-rsocket-kotlin-co](./spring-graphql-rsocket-kotlin-co) | Spring GraphQL/WebFlux/Kotlin Coroutines example with RSocket transport protocol |
+
+Each `spring-graphql-web*` module carries the same three test tiers, and the tier is what tells you how close to the wire the assertion is:
+
+- `QueryTests`, `MutationTests`, `SubscriptionTests` - `@GraphQlTest` slices on a protocol-neutral `GraphQlTester` bound to the in-JVM execution service, with the repositories mocked. They are identical in all six modules and prove nothing about transport.
+- `IntegrationTests.WithGraphQlTesters` - the `GraphQlTester` transport API (`HttpGraphQlTester`, `WebSocketGraphQlTester`) against a running application and a Testcontainers Postgres. In the `-http` modules this tier covers queries and mutations only: `HttpGraphQlTester` rides `WebTestClient`, whose transport throws `Subscriptions not supported over HTTP`, so no tester can assert SSE.
+- `IntegrationTests.WithGraphQlClients` - the runtime `GraphQlClient` API (`HttpSyncGraphQlClient`/`RestClient` in the servlet modules, `HttpGraphQlClient`/`WebClient` in the reactive ones, `WebSocketGraphQlClient` for WebSocket). This is the tier that proves SSE subscriptions, and it is the code a real client would write.
 
 The Angular clients demonstrate two state management approaches:
 
@@ -81,17 +91,27 @@ Clone the source codes from Github.
 git clone https://github.com/hantsy/spring-graphql-sample/
 ```
 
-Open a terminal, and switch to the root folder of the project. Start the shared Postgres instance first, as some examples connect to it instead of provisioning their own container.
+Open a terminal, and switch to the root folder of the project. Start the shared Postgres instance first, because some examples connect to it instead of provisioning their own container.
 
 ```bash
 docker compose up -d postgres
 ```
+
+The six `spring-graphql-web*` modules are the exception - their tests provision Postgres with Testcontainers, so building them needs a running Docker daemon but not this shared instance; the other examples still connect to it.
 
 Then switch to the example folder you want to build, and run the Maven Wrapper.
 
 ```bash
 cd examplename // change to the example folder
 ./mvnw -B -ntp verify
+```
+
+To drive a single tier of a `spring-graphql-web*` module by hand, name the `IntegrationTests` nested class with `$`. In the `-http` modules the SSE subscription is only proven by the runtime-client tier, because `WebTestClient` cannot carry a subscription:
+
+```bash
+cd spring-graphql-webmvc-http
+./mvnw -B -ntp test -Dtest='IntegrationTests$WithGraphQlClients' // the tier that proves SSE
+./mvnw -B -ntp test -Dtest='IntegrationTests$WithGraphQlTesters' // queries and mutations over HTTP
 ```
 
 Run the application.
@@ -101,6 +121,8 @@ Run the application.
 // or from command line after building
 java -jar target/xxx.jar
 ```
+
+GraphiQL is enabled by property only in the two `-http` modules; in the other four `spring.graphql.graphiql.enabled` is set to `false`.
 
 The `dgs-subscription-ui*` Angular clients are built with npm instead.
 
