@@ -1,16 +1,16 @@
 # This workflow will build a Java project with Maven
 # For more information see: https://help.github.com/actions/language-and-framework-guides/building-and-testing-java-with-maven
 
-name: spring-graphql-webmvc
+name: spring-graphql-webflux-ws
 
 on:
   push:
     paths:
-      - "spring-graphql-webmvc/**"
+      - "spring-graphql-webflux-ws/**"
     branches: [ master ]
   pull_request:
     paths:
-      - "spring-graphql-webmvc/**"
+      - "spring-graphql-webflux-ws/**"
     types:
       - opened
       - synchronize
@@ -28,13 +28,8 @@ jobs:
       with:
         java-version: '25'
         distribution: 'temurin'
-    - name: Setup Postgres in Docker 
-      run: |
-        docker compose up -d postgres
-        docker ps -a
     - name: Build with Maven
       run: |
-        cd spring-graphql-webmvc
+        cd spring-graphql-webflux-ws
         chmod +x mvnw
         ./mvnw -B -ntp verify
-           

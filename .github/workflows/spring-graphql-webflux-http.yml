@@ -1,16 +1,16 @@
 # This workflow will build a Java project with Maven
 # For more information see: https://help.github.com/actions/language-and-framework-guides/building-and-testing-java-with-maven
 
-name: spring-graphql-webflux
+name: spring-graphql-webflux-http
 
 on:
   push:
     paths:
-      - "spring-graphql-webflux/**"
+      - "spring-graphql-webflux-http/**"
     branches: [ master ]
   pull_request:
     paths:
-      - "spring-graphql-webflux/**"
+      - "spring-graphql-webflux-http/**"
     types:
       - opened
       - synchronize
@@ -30,7 +30,6 @@ jobs:
         distribution: 'temurin'
     - name: Build with Maven
       run: |
-        cd spring-graphql-webflux
+        cd spring-graphql-webflux-http
         chmod +x mvnw
         ./mvnw -B -ntp verify
-           
