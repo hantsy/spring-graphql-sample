@@ -4,12 +4,15 @@ import com.example.demo.gql.types.Comment;
 import com.example.demo.gql.types.Post;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.context.annotation.Import;
 import org.springframework.graphql.client.HttpGraphQlClient;
 import org.springframework.graphql.client.HttpSyncGraphQlClient;
+import org.springframework.graphql.test.tester.HttpGraphQlTester;
+import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Flux;
@@ -26,110 +29,204 @@ import static org.awaitility.Awaitility.await;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @Import(TestcontainersConfiguration.class)
 @Slf4j
-public class IntegrationTests {
+class IntegrationTests {
 
-    @LocalServerPort
-    int port;
+    @Nested
+    class WithGraphQlTesters {
 
-    HttpSyncGraphQlClient client;
-    HttpGraphQlClient sseClient;
+        @LocalServerPort
+        int port;
 
-    @BeforeEach
-    void setup() {
-        var url = "http://localhost:" + port + "/graphql";
-        this.client = HttpSyncGraphQlClient.create(RestClient.create(url));
-        // SSE needs the reactive client: HttpSyncGraphQlClient.executeSubscription() always fails
-        this.sseClient = HttpGraphQlClient.create(WebClient.create(url));
+        HttpGraphQlTester graphQlTester;
+
+        @BeforeEach
+        void setUp() {
+            this.graphQlTester = HttpGraphQlTester.create(WebTestClient.bindToServer()
+                    .baseUrl("http://localhost:" + port + "/graphql")
+                    .build());
+        }
+
+        // HttpGraphQlTester rides on WebTestClient, whose transport throws
+        // "Subscriptions not supported over HTTP"; the SSE leg lives in WithGraphQlClients.
+        @Test
+        void createPostAddCommentAndReadBack() {
+            var id = createPost();
+            getPostById(id);
+            addCommentToPost(id);
+        }
+
+        private String createPost() {
+            var createPostMutation = """
+                    mutation createPost($createPostInput: CreatePostInput!){
+                       createPost(createPostInput:$createPostInput){
+                           id
+                           title
+                           content
+                       }
+                    }""".stripIndent();
+
+            var post = graphQlTester.document(createPostMutation)
+                    .variable("createPostInput", Map.of(
+                            "title", "SpringGraphQL",
+                            "content", "content of my post"
+                    ))
+                    .execute()
+                    .path("createPost")
+                    .entity(Post.class)
+                    .get();
+
+            log.info("created post: {}", post);
+            assertThat(post.getId()).isNotNull();
+            return post.getId();
+        }
+
+        private void getPostById(String id) {
+            var postByIdQuery = """
+                    query post($postId:String!){
+                       postById(postId:$postId) {
+                          id
+                          title
+                          content
+                       }
+                    }""".stripIndent();
+
+            graphQlTester.document(postByIdQuery)
+                    .variable("postId", id)
+                    .execute()
+                    .path("postById.title")
+                    .entity(String.class)
+                    .satisfies(title -> assertThat(title).isEqualTo("SpringGraphQL"));
+        }
+
+        private void addCommentToPost(String id) {
+            var addCommentMutation = """
+                    mutation addComment($commentInput: CommentInput!){
+                        addComment(commentInput:$commentInput){
+                            id
+                        }
+                    }""".stripIndent();
+
+            var commentId = graphQlTester.document(addCommentMutation)
+                    .variable("commentInput", Map.of(
+                            "postId", id,
+                            "content", "comment of my post at " + LocalDateTime.now()
+                    ))
+                    .execute()
+                    .path("addComment.id")
+                    .entity(String.class)
+                    .get();
+
+            log.info("added comment of post: {}", commentId);
+            assertThat(commentId).isNotNull();
+        }
     }
 
-    @Test
-    public void createPostAndAddCommentOverSse() throws InterruptedException {
-        var id = createPost();
-        getPostById(id);
+    @Nested
+    class WithGraphQlClients {
 
-        var subscriptionQuery = "subscription onCommentAdded { commentAdded { id content } }";
-        Flux<Comment> result = sseClient.document(subscriptionQuery)
-                .retrieveSubscription("commentAdded")
-                .toEntity(Comment.class);
+        @LocalServerPort
+        int port;
 
-        var verifier = StepVerifier.create(result)
-                .thenAwait(Duration.ofMillis(1000))
-                .consumeNextWith(c -> assertThat(c.getContent()).startsWith("comment of my post at "))
-                .consumeNextWith(c -> assertThat(c.getContent()).startsWith("comment of my post at "))
-                .consumeNextWith(c -> assertThat(c.getContent()).startsWith("comment of my post at "))
-                .thenCancel()
-                .verifyLater();
+        HttpSyncGraphQlClient client;
+        HttpGraphQlClient sseClient;
 
-        // the SSE subscription must be registered before the mutations emit, otherwise the
-        // replay().latest() sink only keeps the last comment
-        Thread.sleep(1000);
+        @BeforeEach
+        void setup() {
+            var url = "http://localhost:" + port + "/graphql";
+            this.client = HttpSyncGraphQlClient.create(RestClient.create(url));
+            // SSE needs the reactive client: HttpSyncGraphQlClient.executeSubscription() always fails
+            this.sseClient = HttpGraphQlClient.create(WebClient.create(url));
+        }
 
-        addCommentToPost(id);
-        addCommentToPost(id);
-        addCommentToPost(id);
+        @Test
+        public void createPostAndAddCommentOverSse() throws InterruptedException {
+            var id = createPost();
+            getPostById(id);
 
-        await().atMost(5000, MILLISECONDS).untilAsserted(verifier::verify);
-    }
+            var subscriptionQuery = "subscription onCommentAdded { commentAdded { id content } }";
+            Flux<Comment> result = sseClient.document(subscriptionQuery)
+                    .retrieveSubscription("commentAdded")
+                    .toEntity(Comment.class);
 
-    private String createPost() {
-        var createPostMutation = """
-                mutation createPost($createPostInput: CreatePostInput!){
-                   createPost(createPostInput:$createPostInput){
-                       id
-                       title
-                       content
-                   }
-                }""".stripIndent();
+            var verifier = StepVerifier.create(result)
+                    .thenAwait(Duration.ofMillis(1000))
+                    .consumeNextWith(c -> assertThat(c.getContent()).startsWith("comment of my post at "))
+                    .consumeNextWith(c -> assertThat(c.getContent()).startsWith("comment of my post at "))
+                    .consumeNextWith(c -> assertThat(c.getContent()).startsWith("comment of my post at "))
+                    .thenCancel()
+                    .verifyLater();
 
-        var post = client.document(createPostMutation)
-                .variable("createPostInput", Map.of(
-                        "title", "SpringGraphQL",
-                        "content", "content of my post"
-                ))
-                .retrieveSync("createPost")
-                .toEntity(Post.class);
+            // the SSE subscription must be registered before the mutations emit, otherwise the
+            // replay().latest() sink only keeps the last comment
+            Thread.sleep(1000);
 
-        log.info("created post: {}", post);
-        assertThat(post.getId()).isNotNull();
-        return post.getId();
-    }
+            addCommentToPost(id);
+            addCommentToPost(id);
+            addCommentToPost(id);
 
-    private void getPostById(String id) {
-        var postByIdQuery = """
-                query post($postId:String!){
-                   postById(postId:$postId) {
-                      id
-                      title
-                      content
-                   }
-                }""".stripIndent();
+            await().atMost(5000, MILLISECONDS).untilAsserted(verifier::verify);
+        }
 
-        var post = client.document(postByIdQuery)
-                .variable("postId", id)
-                .retrieveSync("postById")
-                .toEntity(Post.class);
+        private String createPost() {
+            var createPostMutation = """
+                    mutation createPost($createPostInput: CreatePostInput!){
+                       createPost(createPostInput:$createPostInput){
+                           id
+                           title
+                           content
+                       }
+                    }""".stripIndent();
 
-        log.debug("postById: {}", post);
-        assertThat(post.getTitle()).isEqualTo("SpringGraphQL");
-    }
+            var post = client.document(createPostMutation)
+                    .variable("createPostInput", Map.of(
+                            "title", "SpringGraphQL",
+                            "content", "content of my post"
+                    ))
+                    .retrieveSync("createPost")
+                    .toEntity(Post.class);
 
-    private void addCommentToPost(String id) {
-        var addCommentMutation = """
-                mutation addComment($commentInput: CommentInput!){
-                    addComment(commentInput:$commentInput){
-                        id
-                    }
-                }""".stripIndent();
+            log.info("created post: {}", post);
+            assertThat(post.getId()).isNotNull();
+            return post.getId();
+        }
 
-        var comment = client.document(addCommentMutation)
-                .variable("commentInput", Map.of(
-                        "postId", id,
-                        "content", "comment of my post at " + LocalDateTime.now()
-                ))
-                .retrieveSync("addComment")
-                .toEntity(Comment.class);
+        private void getPostById(String id) {
+            var postByIdQuery = """
+                    query post($postId:String!){
+                       postById(postId:$postId) {
+                          id
+                          title
+                          content
+                       }
+                    }""".stripIndent();
 
-        log.debug("added comment: {}", comment);
-        assertThat(comment.getId()).isNotNull();
+            var post = client.document(postByIdQuery)
+                    .variable("postId", id)
+                    .retrieveSync("postById")
+                    .toEntity(Post.class);
+
+            log.debug("postById: {}", post);
+            assertThat(post.getTitle()).isEqualTo("SpringGraphQL");
+        }
+
+        private void addCommentToPost(String id) {
+            var addCommentMutation = """
+                    mutation addComment($commentInput: CommentInput!){
+                        addComment(commentInput:$commentInput){
+                            id
+                        }
+                    }""".stripIndent();
+
+            var comment = client.document(addCommentMutation)
+                    .variable("commentInput", Map.of(
+                            "postId", id,
+                            "content", "comment of my post at " + LocalDateTime.now()
+                    ))
+                    .retrieveSync("addComment")
+                    .toEntity(Comment.class);
+
+            log.debug("added comment: {}", comment);
+            assertThat(comment.getId()).isNotNull();
+        }
     }
 }
