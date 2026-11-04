@@ -67,3 +67,6 @@ out/
 # superpowers session artifacts (specs, plans, ledgers) stay out of the repository
 .superpowers/
 docs/superpowers/
+
+# scratch scripts written to drive a local build or poll CI are never committed
+.mgen/
