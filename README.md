@@ -47,9 +47,9 @@ TBD
 
 Each `spring-graphql-web*` module carries the same three test tiers, and the tier is what tells you how close to the wire the assertion is:
 
-- `QueryTests`, `MutationTests`, `SubscriptionTests` - `@GraphQlTest` slices on a protocol-neutral `GraphQlTester` bound to the in-JVM execution service, with the repositories mocked. They are identical in all six modules and prove nothing about transport.
+- `QueryTests`, `MutationTests`, `SubscriptionTests` - `@GraphQlTest` slices on a protocol-neutral `GraphQlTester` bound to the in-JVM execution service, with the service layer (`PostService`, `AuthorService`) mocked. They are identical within each stack - the three WebMvc modules share one version, the three WebFlux modules another - and prove nothing about transport.
 - `IntegrationTests.WithGraphQlTesters` - the `GraphQlTester` transport API (`HttpGraphQlTester`, `WebSocketGraphQlTester`) against a running application and a Testcontainers Postgres. In the `-http` modules this tier covers queries and mutations only: `HttpGraphQlTester` rides `WebTestClient`, whose transport throws `Subscriptions not supported over HTTP`, so no tester can assert SSE.
-- `IntegrationTests.WithGraphQlClients` - the runtime `GraphQlClient` API (`HttpSyncGraphQlClient`/`RestClient` in the servlet modules, `HttpGraphQlClient`/`WebClient` in the reactive ones, `WebSocketGraphQlClient` for WebSocket). This is the tier that proves SSE subscriptions, and it is the code a real client would write.
+- `IntegrationTests.WithGraphQlClients` - the runtime `GraphQlClient` API (`HttpSyncGraphQlClient`/`RestClient` in the servlet modules, `HttpGraphQlClient`/`WebClient` in the reactive ones, `WebSocketGraphQlClient` for WebSocket). In the `-http` modules this is the tier that proves SSE subscriptions, and everywhere it is the code a real client would write.
 
 The Angular clients demonstrate two state management approaches:
 
@@ -110,8 +110,8 @@ To drive a single tier of a `spring-graphql-web*` module by hand, name the `Inte
 
 ```bash
 cd spring-graphql-webmvc-http
-./mvnw -B -ntp test -Dtest='IntegrationTests$WithGraphQlClients' // the tier that proves SSE
-./mvnw -B -ntp test -Dtest='IntegrationTests$WithGraphQlTesters' // queries and mutations over HTTP
+./mvnw -B -ntp test -Dtest='IntegrationTests$WithGraphQlClients'  # the tier that proves SSE
+./mvnw -B -ntp test -Dtest='IntegrationTests$WithGraphQlTesters'  # queries and mutations over HTTP
 ```
 
 Run the application.
