@@ -7,6 +7,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
+import org.springframework.context.annotation.Import;
 import org.springframework.graphql.test.tester.WebSocketGraphQlTester;
 import org.springframework.web.reactive.socket.client.ReactorNettyWebSocketClient;
 import reactor.test.StepVerifier;
@@ -19,6 +20,7 @@ import java.util.Map;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@Import(TestcontainersConfiguration.class)
 @Slf4j
 class SubscriptionTestsWithWebSocketGraphqlTester {
 
