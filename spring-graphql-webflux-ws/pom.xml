@@ -9,10 +9,10 @@
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.example</groupId>
-	<artifactId>spring-graphql-webflux</artifactId>
+	<artifactId>spring-graphql-webflux-ws</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>spring-graphql-webflux</name>
-	<description>spring-graphql-webflux</description>
+	<name>spring-graphql-webflux-ws</name>
+	<description>Spring GraphQL WebFlux: GraphQL-over-WebSocket for queries, mutations and subscriptions</description>
 	<properties>
 		<java.version>25</java.version>
 	</properties>

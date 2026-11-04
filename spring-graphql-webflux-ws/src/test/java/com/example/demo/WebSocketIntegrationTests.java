@@ -22,7 +22,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @Import(TestcontainersConfiguration.class)
 @Slf4j
-class SubscriptionTestsWithWebSocketGraphqlTester {
+class WebSocketIntegrationTests {
 
     WebSocketGraphQlTester graphQlTester;
 
@@ -31,7 +31,7 @@ class SubscriptionTestsWithWebSocketGraphqlTester {
 
     @BeforeEach
     void setUp() {
-        this.graphQlTester = WebSocketGraphQlTester.create(URI.create("ws://localhost:" + port + "/ws/graphql"), new ReactorNettyWebSocketClient());
+        this.graphQlTester = WebSocketGraphQlTester.create(URI.create("ws://localhost:" + port + "/subscriptions"), new ReactorNettyWebSocketClient());
     }
 
     @SneakyThrows
