@@ -143,15 +143,6 @@
 				<artifactId>maven-surefire-plugin</artifactId>
 				<configuration>
 					<argLine>-Djdk.attach.allowAttachSelf=true</argLine>
-					<!-- re-list the default patterns and add *Tester so
-					     SubscriptionTestsWithWebSocketGraphqlTester is executed -->
-					<includes>
-						<include>**/Test*.java</include>
-						<include>**/*Test.java</include>
-						<include>**/*Tests.java</include>
-						<include>**/*TestCase.java</include>
-						<include>**/*Tester.java</include>
-					</includes>
 				</configuration>
 			</plugin>
 			<plugin>

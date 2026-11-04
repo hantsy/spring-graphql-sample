@@ -2,8 +2,6 @@ package com.example.demo;
 
 import com.example.demo.gql.types.Comment;
 import com.example.demo.gql.types.Post;
-import tools.jackson.databind.json.JsonMapper;
-import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -12,20 +10,18 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.context.annotation.Import;
-import org.springframework.graphql.client.HttpGraphQlClient;
+import org.springframework.graphql.client.HttpSyncGraphQlClient;
 import org.springframework.graphql.client.WebSocketGraphQlClient;
-import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.client.RestClient;
 import org.springframework.web.reactive.socket.client.ReactorNettyWebSocketClient;
 import reactor.core.publisher.Flux;
 import reactor.test.StepVerifier;
+import tools.jackson.databind.json.JsonMapper;
 
 import java.net.URI;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.Map;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicReference;
 
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -42,13 +38,15 @@ public class IntegrationTests {
     @Autowired
     JsonMapper jsonMapper;
 
-    HttpGraphQlClient client;
+    HttpSyncGraphQlClient client;
     WebSocketGraphQlClient socketClient;
 
     @BeforeEach
     void setup() {
-        this.client = HttpGraphQlClient.create(WebClient.create("http://localhost:" + port + "/graphql"));
-        this.socketClient = WebSocketGraphQlClient.create(URI.create("ws://localhost:" + port + "/subscriptions"), new ReactorNettyWebSocketClient());
+        // RestClient is the servlet-stack flavour; HttpGraphQlClient.create(WebClient.create(url)) is the reactive one
+        this.client = HttpSyncGraphQlClient.create(RestClient.create("http://localhost:" + port + "/graphql"));
+        this.socketClient = WebSocketGraphQlClient.create(
+                URI.create("ws://localhost:" + port + "/subscriptions"), new ReactorNettyWebSocketClient());
         this.socketClient.start();
     }
 
@@ -57,28 +55,20 @@ public class IntegrationTests {
         this.socketClient.stop();
     }
 
-    @SneakyThrows
     @Test
-    public void createPostAndAddComment() {
-
-        // create a post
+    public void createPostAndAddComment() throws InterruptedException {
         var id = createPost();
-
-        // get post by id
         getPostById(id);
-
 
         var subscriptionQuery = "subscription onCommentAdded { commentAdded { id content } }";
         Flux<Comment> result = this.socketClient.document(subscriptionQuery)
                 .executeSubscription()
                 .map(response -> {
-                            Comment comment = jsonMapper.convertValue(
-                                    response.<Map<String, Object>>getData().get("commentAdded"),
-                                    Comment.class);
-                            log.debug("received comment: {}", comment);
-                            return comment;
-                        }
-                );
+                    Comment comment = jsonMapper.convertValue(
+                            response.<Map<String, Object>>getData().get("commentAdded"), Comment.class);
+                    log.debug("received comment: {}", comment);
+                    return comment;
+                });
 
         var verifier = StepVerifier.create(result)
                 .thenAwait(Duration.ofMillis(1000))
@@ -88,8 +78,8 @@ public class IntegrationTests {
                 .thenCancel()
                 .verifyLater();
 
-        // give the websocket subscription time to register on the server before emitting comments,
-        // the server sink is a replay().latest() so a late subscriber only sees the last comment
+        // give the subscription time to register: the server sink is replay().latest(), so a late
+        // subscriber would only see the last comment
         Thread.sleep(1000);
 
         addCommentToPost(id);
@@ -97,6 +87,29 @@ public class IntegrationTests {
         addCommentToPost(id);
 
         await().atMost(5000, MILLISECONDS).untilAsserted(verifier::verify);
+    }
+
+    private String createPost() {
+        var createPostMutation = """
+                mutation createPost($createPostInput: CreatePostInput!){
+                   createPost(createPostInput:$createPostInput){
+                       id
+                       title
+                       content
+                   }
+                }""".stripIndent();
+
+        var post = client.document(createPostMutation)
+                .variable("createPostInput", Map.of(
+                        "title", "SpringGraphQL",
+                        "content", "content of my post"
+                ))
+                .retrieveSync("createPost")
+                .toEntity(Post.class);
+
+        log.info("created post: {}", post);
+        assertThat(post.getId()).isNotNull();
+        return post.getId();
     }
 
     private void getPostById(String id) {
@@ -109,97 +122,32 @@ public class IntegrationTests {
                    }
                 }""".stripIndent();
 
-        Map<String, Object> postByIdVariables = Map.of(
-                "postId", id
-        );
-        client.document(postByIdQuery)
-                .variables(postByIdVariables)
-                .execute()
-                .map(response -> jsonMapper
-                        .convertValue(
-                                response.<Map<String, Object>>getData().get("postById"),
-                                Post.class
-                        )
-                )
-                .as(StepVerifier::create)
-                .consumeNextWith(post -> {
-                    log.debug("postById: {}", post);
-                    assertThat(post.getTitle()).isEqualTo("SpringGraphQL");
-                })
-                .verifyComplete();
-    }
+        var post = client.document(postByIdQuery)
+                .variable("postId", id)
+                .retrieveSync("postById")
+                .toEntity(Post.class);
 
-    @SneakyThrows
-    private String createPost() {
-        var creatPost = """
-                mutation createPost($createPostInput: CreatePostInput!){
-                   createPost(createPostInput:$createPostInput){
-                       id
-                       title
-                       content
-                   }
-                }""".stripIndent();
-
-        var postIdHolder = new AtomicReference<String>();
-        var countDownLatch = new CountDownLatch(1);
-
-        client.document(creatPost)
-                .variable("createPostInput",
-                        Map.of(
-                                "title", "SpringGraphQL",
-                                "content", "content of my post"
-                        ))
-                .execute()
-                .map(response -> jsonMapper.convertValue(
-                        response.<Map<String, Object>>getData().get("createPost"),
-                        Post.class)
-
-                )
-                //.doOnTerminate(countDownLatch::countDown)
-                .subscribe(post -> {
-                    log.debug("created post: {}", post);
-                    postIdHolder.set(post.getId());
-                    countDownLatch.countDown();
-                });
-
-        countDownLatch.await(5000, TimeUnit.MILLISECONDS);
-
-        String id = postIdHolder.get();
-        log.info("created post id: {}", id);
-        assertThat(id).isNotNull();
-
-        return id;
+        log.debug("postById: {}", post);
+        assertThat(post.getTitle()).isEqualTo("SpringGraphQL");
     }
 
     private void addCommentToPost(String id) {
-        var addCommentQuery = """
+        var addCommentMutation = """
                 mutation addComment($commentInput: CommentInput!){
                     addComment(commentInput:$commentInput){
                         id
                     }
                 }""".stripIndent();
-        Map<String, Object> addCommentVariables = Map.of(
-                "commentInput",
-                Map.of(
-                        "content", "comment of my post at " + LocalDateTime.now(),
-                        "postId", id
-                )
-        );
 
-        client.document(addCommentQuery)
-                .variables(addCommentVariables)
-                .execute()
-                .as(StepVerifier::create)
-                .consumeNextWith(response -> {
-                    var addedComment = jsonMapper.convertValue(
-                            response.<Map<String, Object>>getData().get("addComment"),
-                            Comment.class
-                    );
-                    log.debug("added comment: {}", addedComment);
-                    assertThat(addedComment).isNotNull();
-                    assertThat(addedComment.getId()).isNotNull();
-                })
-                .verifyComplete();
+        var comment = client.document(addCommentMutation)
+                .variable("commentInput", Map.of(
+                        "postId", id,
+                        "content", "comment of my post at " + LocalDateTime.now()
+                ))
+                .retrieveSync("addComment")
+                .toEntity(Comment.class);
+
+        log.debug("added comment: {}", comment);
+        assertThat(comment.getId()).isNotNull();
     }
-
 }
