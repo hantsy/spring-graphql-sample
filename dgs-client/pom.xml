@@ -17,7 +17,7 @@
 		<java.version>25</java.version>
 		<dgs-platform.version>12.1.0</dgs-platform.version>
 		<dgs-codegen-plugin.version>3.10.2</dgs-codegen-plugin.version>
-		<dgs-codegen-core.version>8.7.0</dgs-codegen-core.version>
+		<dgs-codegen-core.version>8.8.0</dgs-codegen-core.version>
 		<!-- DGS 12 needs the Jackson 3 JsonProvider added in json-path 3.0 -->
 		<json-path.version>3.0.0</json-path.version>
 		<wiremock.version>3.13.2</wiremock.version>
