@@ -2,20 +2,23 @@
 # workflows. The projects under /legacy are intentionally excluded: their upstream
 # libraries are discontinued or inactive, and they stay pinned to the Spring Boot,
 # Java and Gradle versions they were last verified with.
+#
+# The file is organised in three sections:
+#   1. Maven (all Java/Kotlin example projects) - updates grouped by ecosystem:
+#      dgs, spring, kotlin, testing.
+#   2. npm (the Angular subscription clients) - updates grouped by angular,
+#      apollo-graphql, tooling.
+#   3. GitHub Actions workflows.
+#
+# Note: the DGS platform BOM (graphql-dgs-platform-dependencies) does NOT manage
+# the dgs-codegen shared-core or the dgs-codegen Maven plugin versions, so those
+# stay explicitly declared in each pom and are updated here like any other
+# dependency (they land in the "dgs" group).
 version: 2
 updates:
-  - package-ecosystem: "github-actions"
-    directory: "/"
-    schedule:
-      interval: weekly
-    open-pull-requests-limit: 10
-    reviewers:
-      - "hantsy"
-    assignees:
-      - "hantsy"
-    labels:
-      - "dependencies"
-
+  # ---------------------------------------------------------------------------
+  # 1. Maven projects (Java / Kotlin)
+  # ---------------------------------------------------------------------------
   - package-ecosystem: "maven"
     directory: "/dgs"
     schedule:
@@ -27,6 +30,24 @@ updates:
       - "hantsy"
     labels:
       - "dependencies"
+    groups:
+      dgs:
+        patterns:
+          - "com.netflix.graphql.dgs*:*"
+      spring:
+        patterns:
+          - "org.springframework*:*"
+          - "io.micrometer:*"
+      kotlin:
+        patterns:
+          - "org.jetbrains.kotlin*:*"
+          - "com.expediagroup:*"
+      testing:
+        patterns:
+          - "org.testcontainers:*"
+          - "org.junit*:*"
+          - "io.kotest*:*"
+          - "io.mockk:*"
 
   - package-ecosystem: "maven"
     directory: "/dgs-webflux"
@@ -39,6 +60,24 @@ updates:
       - "hantsy"
     labels:
       - "dependencies"
+    groups:
+      dgs:
+        patterns:
+          - "com.netflix.graphql.dgs*:*"
+      spring:
+        patterns:
+          - "org.springframework*:*"
+          - "io.micrometer:*"
+      kotlin:
+        patterns:
+          - "org.jetbrains.kotlin*:*"
+          - "com.expediagroup:*"
+      testing:
+        patterns:
+          - "org.testcontainers:*"
+          - "org.junit*:*"
+          - "io.kotest*:*"
+          - "io.mockk:*"
 
   - package-ecosystem: "maven"
     directory: "/dgs-client"
@@ -51,6 +90,24 @@ updates:
       - "hantsy"
     labels:
       - "dependencies"
+    groups:
+      dgs:
+        patterns:
+          - "com.netflix.graphql.dgs*:*"
+      spring:
+        patterns:
+          - "org.springframework*:*"
+          - "io.micrometer:*"
+      kotlin:
+        patterns:
+          - "org.jetbrains.kotlin*:*"
+          - "com.expediagroup:*"
+      testing:
+        patterns:
+          - "org.testcontainers:*"
+          - "org.junit*:*"
+          - "io.kotest*:*"
+          - "io.mockk:*"
 
   - package-ecosystem: "maven"
     directory: "/dgs-codegen"
@@ -63,6 +120,24 @@ updates:
       - "hantsy"
     labels:
       - "dependencies"
+    groups:
+      dgs:
+        patterns:
+          - "com.netflix.graphql.dgs*:*"
+      spring:
+        patterns:
+          - "org.springframework*:*"
+          - "io.micrometer:*"
+      kotlin:
+        patterns:
+          - "org.jetbrains.kotlin*:*"
+          - "com.expediagroup:*"
+      testing:
+        patterns:
+          - "org.testcontainers:*"
+          - "org.junit*:*"
+          - "io.kotest*:*"
+          - "io.mockk:*"
 
   - package-ecosystem: "maven"
     directory: "/dgs-fileupload"
@@ -75,6 +150,24 @@ updates:
       - "hantsy"
     labels:
       - "dependencies"
+    groups:
+      dgs:
+        patterns:
+          - "com.netflix.graphql.dgs*:*"
+      spring:
+        patterns:
+          - "org.springframework*:*"
+          - "io.micrometer:*"
+      kotlin:
+        patterns:
+          - "org.jetbrains.kotlin*:*"
+          - "com.expediagroup:*"
+      testing:
+        patterns:
+          - "org.testcontainers:*"
+          - "org.junit*:*"
+          - "io.kotest*:*"
+          - "io.mockk:*"
 
   - package-ecosystem: "maven"
     directory: "/dgs-kotlin"
@@ -87,6 +180,24 @@ updates:
       - "hantsy"
     labels:
       - "dependencies"
+    groups:
+      dgs:
+        patterns:
+          - "com.netflix.graphql.dgs*:*"
+      spring:
+        patterns:
+          - "org.springframework*:*"
+          - "io.micrometer:*"
+      kotlin:
+        patterns:
+          - "org.jetbrains.kotlin*:*"
+          - "com.expediagroup:*"
+      testing:
+        patterns:
+          - "org.testcontainers:*"
+          - "org.junit*:*"
+          - "io.kotest*:*"
+          - "io.mockk:*"
 
   - package-ecosystem: "maven"
     directory: "/dgs-kotlin-co"
@@ -99,6 +210,24 @@ updates:
       - "hantsy"
     labels:
       - "dependencies"
+    groups:
+      dgs:
+        patterns:
+          - "com.netflix.graphql.dgs*:*"
+      spring:
+        patterns:
+          - "org.springframework*:*"
+          - "io.micrometer:*"
+      kotlin:
+        patterns:
+          - "org.jetbrains.kotlin*:*"
+          - "com.expediagroup:*"
+      testing:
+        patterns:
+          - "org.testcontainers:*"
+          - "org.junit*:*"
+          - "io.kotest*:*"
+          - "io.mockk:*"
 
   - package-ecosystem: "maven"
     directory: "/dgs-subscription-ws"
@@ -111,6 +240,24 @@ updates:
       - "hantsy"
     labels:
       - "dependencies"
+    groups:
+      dgs:
+        patterns:
+          - "com.netflix.graphql.dgs*:*"
+      spring:
+        patterns:
+          - "org.springframework*:*"
+          - "io.micrometer:*"
+      kotlin:
+        patterns:
+          - "org.jetbrains.kotlin*:*"
+          - "com.expediagroup:*"
+      testing:
+        patterns:
+          - "org.testcontainers:*"
+          - "org.junit*:*"
+          - "io.kotest*:*"
+          - "io.mockk:*"
 
   - package-ecosystem: "maven"
     directory: "/dgs-subscription-sse"
@@ -123,6 +270,24 @@ updates:
       - "hantsy"
     labels:
       - "dependencies"
+    groups:
+      dgs:
+        patterns:
+          - "com.netflix.graphql.dgs*:*"
+      spring:
+        patterns:
+          - "org.springframework*:*"
+          - "io.micrometer:*"
+      kotlin:
+        patterns:
+          - "org.jetbrains.kotlin*:*"
+          - "com.expediagroup:*"
+      testing:
+        patterns:
+          - "org.testcontainers:*"
+          - "org.junit*:*"
+          - "io.kotest*:*"
+          - "io.mockk:*"
 
   - package-ecosystem: "maven"
     directory: "/graphql-kotlin"
@@ -135,6 +300,24 @@ updates:
       - "hantsy"
     labels:
       - "dependencies"
+    groups:
+      dgs:
+        patterns:
+          - "com.netflix.graphql.dgs*:*"
+      spring:
+        patterns:
+          - "org.springframework*:*"
+          - "io.micrometer:*"
+      kotlin:
+        patterns:
+          - "org.jetbrains.kotlin*:*"
+          - "com.expediagroup:*"
+      testing:
+        patterns:
+          - "org.testcontainers:*"
+          - "org.junit*:*"
+          - "io.kotest*:*"
+          - "io.mockk:*"
 
   - package-ecosystem: "maven"
     directory: "/spring-graphql"
@@ -147,6 +330,24 @@ updates:
       - "hantsy"
     labels:
       - "dependencies"
+    groups:
+      dgs:
+        patterns:
+          - "com.netflix.graphql.dgs*:*"
+      spring:
+        patterns:
+          - "org.springframework*:*"
+          - "io.micrometer:*"
+      kotlin:
+        patterns:
+          - "org.jetbrains.kotlin*:*"
+          - "com.expediagroup:*"
+      testing:
+        patterns:
+          - "org.testcontainers:*"
+          - "org.junit*:*"
+          - "io.kotest*:*"
+          - "io.mockk:*"
 
   - package-ecosystem: "maven"
     directory: "/spring-graphql-querydsl"
@@ -159,6 +360,24 @@ updates:
       - "hantsy"
     labels:
       - "dependencies"
+    groups:
+      dgs:
+        patterns:
+          - "com.netflix.graphql.dgs*:*"
+      spring:
+        patterns:
+          - "org.springframework*:*"
+          - "io.micrometer:*"
+      kotlin:
+        patterns:
+          - "org.jetbrains.kotlin*:*"
+          - "com.expediagroup:*"
+      testing:
+        patterns:
+          - "org.testcontainers:*"
+          - "org.junit*:*"
+          - "io.kotest*:*"
+          - "io.mockk:*"
 
   - package-ecosystem: "maven"
     directory: "/spring-graphql-webmvc-http"
@@ -171,6 +390,24 @@ updates:
       - "hantsy"
     labels:
       - "dependencies"
+    groups:
+      dgs:
+        patterns:
+          - "com.netflix.graphql.dgs*:*"
+      spring:
+        patterns:
+          - "org.springframework*:*"
+          - "io.micrometer:*"
+      kotlin:
+        patterns:
+          - "org.jetbrains.kotlin*:*"
+          - "com.expediagroup:*"
+      testing:
+        patterns:
+          - "org.testcontainers:*"
+          - "org.junit*:*"
+          - "io.kotest*:*"
+          - "io.mockk:*"
 
   - package-ecosystem: "maven"
     directory: "/spring-graphql-webmvc-http-ws"
@@ -183,6 +420,24 @@ updates:
       - "hantsy"
     labels:
       - "dependencies"
+    groups:
+      dgs:
+        patterns:
+          - "com.netflix.graphql.dgs*:*"
+      spring:
+        patterns:
+          - "org.springframework*:*"
+          - "io.micrometer:*"
+      kotlin:
+        patterns:
+          - "org.jetbrains.kotlin*:*"
+          - "com.expediagroup:*"
+      testing:
+        patterns:
+          - "org.testcontainers:*"
+          - "org.junit*:*"
+          - "io.kotest*:*"
+          - "io.mockk:*"
 
   - package-ecosystem: "maven"
     directory: "/spring-graphql-webmvc-ws"
@@ -195,6 +450,24 @@ updates:
       - "hantsy"
     labels:
       - "dependencies"
+    groups:
+      dgs:
+        patterns:
+          - "com.netflix.graphql.dgs*:*"
+      spring:
+        patterns:
+          - "org.springframework*:*"
+          - "io.micrometer:*"
+      kotlin:
+        patterns:
+          - "org.jetbrains.kotlin*:*"
+          - "com.expediagroup:*"
+      testing:
+        patterns:
+          - "org.testcontainers:*"
+          - "org.junit*:*"
+          - "io.kotest*:*"
+          - "io.mockk:*"
 
   - package-ecosystem: "maven"
     directory: "/spring-graphql-webflux-http"
@@ -207,6 +480,24 @@ updates:
       - "hantsy"
     labels:
       - "dependencies"
+    groups:
+      dgs:
+        patterns:
+          - "com.netflix.graphql.dgs*:*"
+      spring:
+        patterns:
+          - "org.springframework*:*"
+          - "io.micrometer:*"
+      kotlin:
+        patterns:
+          - "org.jetbrains.kotlin*:*"
+          - "com.expediagroup:*"
+      testing:
+        patterns:
+          - "org.testcontainers:*"
+          - "org.junit*:*"
+          - "io.kotest*:*"
+          - "io.mockk:*"
 
   - package-ecosystem: "maven"
     directory: "/spring-graphql-webflux-http-ws"
@@ -219,6 +510,24 @@ updates:
       - "hantsy"
     labels:
       - "dependencies"
+    groups:
+      dgs:
+        patterns:
+          - "com.netflix.graphql.dgs*:*"
+      spring:
+        patterns:
+          - "org.springframework*:*"
+          - "io.micrometer:*"
+      kotlin:
+        patterns:
+          - "org.jetbrains.kotlin*:*"
+          - "com.expediagroup:*"
+      testing:
+        patterns:
+          - "org.testcontainers:*"
+          - "org.junit*:*"
+          - "io.kotest*:*"
+          - "io.mockk:*"
 
   - package-ecosystem: "maven"
     directory: "/spring-graphql-webflux-ws"
@@ -231,6 +540,24 @@ updates:
       - "hantsy"
     labels:
       - "dependencies"
+    groups:
+      dgs:
+        patterns:
+          - "com.netflix.graphql.dgs*:*"
+      spring:
+        patterns:
+          - "org.springframework*:*"
+          - "io.micrometer:*"
+      kotlin:
+        patterns:
+          - "org.jetbrains.kotlin*:*"
+          - "com.expediagroup:*"
+      testing:
+        patterns:
+          - "org.testcontainers:*"
+          - "org.junit*:*"
+          - "io.kotest*:*"
+          - "io.mockk:*"
 
   - package-ecosystem: "maven"
     directory: "/spring-graphql-rsocket-kotlin-co"
@@ -243,47 +570,30 @@ updates:
       - "hantsy"
     labels:
       - "dependencies"
+    groups:
+      dgs:
+        patterns:
+          - "com.netflix.graphql.dgs*:*"
+      spring:
+        patterns:
+          - "org.springframework*:*"
+          - "io.micrometer:*"
+      kotlin:
+        patterns:
+          - "org.jetbrains.kotlin*:*"
+          - "com.expediagroup:*"
+      testing:
+        patterns:
+          - "org.testcontainers:*"
+          - "org.junit*:*"
+          - "io.kotest*:*"
+          - "io.mockk:*"
 
-  # Angular client. Major and minor updates are ignored because they require a
-  # coordinated migration of the whole Angular toolchain.
-  - package-ecosystem: "npm"
-    directory: "/dgs-subscription-ui-signals"
-    schedule:
-      interval: weekly
-    open-pull-requests-limit: 10
-    reviewers:
-      - "hantsy"
-    assignees:
-      - "hantsy"
-    labels:
-      - "dependencies"
-    ignore:
-      - dependency-name: "@angular/*"
-        update-types: ["version-update:semver-major"]
-      - dependency-name: "*"
-        update-types: ["version-update:semver-major", "version-update:semver-minor"]
-
-  # Angular client for dgs-subscription-sse. Same ignore policy as
-  # dgs-subscription-ui: Angular majors need a coordinated toolchain migration.
-  - package-ecosystem: "npm"
-    directory: "/dgs-subscription-ui-sse-signals"
-    schedule:
-      interval: weekly
-    open-pull-requests-limit: 10
-    reviewers:
-      - "hantsy"
-    assignees:
-      - "hantsy"
-    labels:
-      - "dependencies"
-    ignore:
-      - dependency-name: "@angular/*"
-        update-types: ["version-update:semver-major"]
-      - dependency-name: "*"
-        update-types: ["version-update:semver-major", "version-update:semver-minor"]
-
-  # Traditional Angular client (RxJS + async pipe) for dgs-subscription-ws.
-  # Same ignore policy: Angular majors need a coordinated toolchain migration.
+  # ---------------------------------------------------------------------------
+  # 2. npm projects (Angular clients)
+  # Major and minor updates are ignored because they require a coordinated
+  # migration of the whole Angular toolchain.
+  # ---------------------------------------------------------------------------
   - package-ecosystem: "npm"
     directory: "/dgs-subscription-ui"
     schedule:
@@ -296,13 +606,62 @@ updates:
     labels:
       - "dependencies"
     ignore:
-      - dependency-name: "@angular/*"
-        update-types: ["version-update:semver-major"]
       - dependency-name: "*"
         update-types: ["version-update:semver-major", "version-update:semver-minor"]
+    groups:
+      angular:
+        patterns:
+          - "@angular/*"
+          - "rxjs"
+          - "tslib"
+      apollo-graphql:
+        patterns:
+          - "@apollo/*"
+          - "apollo-angular"
+          - "graphql"
+          - "graphql-ws"
+          - "graphql-sse"
+      tooling:
+        patterns:
+          - "typescript"
+          - "vitest"
+          - "jsdom"
+          - "prettier"
 
-  # Traditional Angular client (RxJS + async pipe) for dgs-subscription-sse.
-  # Same ignore policy: Angular majors need a coordinated toolchain migration.
+  - package-ecosystem: "npm"
+    directory: "/dgs-subscription-ui-signals"
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 10
+    reviewers:
+      - "hantsy"
+    assignees:
+      - "hantsy"
+    labels:
+      - "dependencies"
+    ignore:
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major", "version-update:semver-minor"]
+    groups:
+      angular:
+        patterns:
+          - "@angular/*"
+          - "rxjs"
+          - "tslib"
+      apollo-graphql:
+        patterns:
+          - "@apollo/*"
+          - "apollo-angular"
+          - "graphql"
+          - "graphql-ws"
+          - "graphql-sse"
+      tooling:
+        patterns:
+          - "typescript"
+          - "vitest"
+          - "jsdom"
+          - "prettier"
+
   - package-ecosystem: "npm"
     directory: "/dgs-subscription-ui-sse"
     schedule:
@@ -315,7 +674,77 @@ updates:
     labels:
       - "dependencies"
     ignore:
-      - dependency-name: "@angular/*"
-        update-types: ["version-update:semver-major"]
       - dependency-name: "*"
         update-types: ["version-update:semver-major", "version-update:semver-minor"]
+    groups:
+      angular:
+        patterns:
+          - "@angular/*"
+          - "rxjs"
+          - "tslib"
+      apollo-graphql:
+        patterns:
+          - "@apollo/*"
+          - "apollo-angular"
+          - "graphql"
+          - "graphql-ws"
+          - "graphql-sse"
+      tooling:
+        patterns:
+          - "typescript"
+          - "vitest"
+          - "jsdom"
+          - "prettier"
+
+  - package-ecosystem: "npm"
+    directory: "/dgs-subscription-ui-sse-signals"
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 10
+    reviewers:
+      - "hantsy"
+    assignees:
+      - "hantsy"
+    labels:
+      - "dependencies"
+    ignore:
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major", "version-update:semver-minor"]
+    groups:
+      angular:
+        patterns:
+          - "@angular/*"
+          - "rxjs"
+          - "tslib"
+      apollo-graphql:
+        patterns:
+          - "@apollo/*"
+          - "apollo-angular"
+          - "graphql"
+          - "graphql-ws"
+          - "graphql-sse"
+      tooling:
+        patterns:
+          - "typescript"
+          - "vitest"
+          - "jsdom"
+          - "prettier"
+
+  # ---------------------------------------------------------------------------
+  # 3. GitHub Actions
+  # ---------------------------------------------------------------------------
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 10
+    reviewers:
+      - "hantsy"
+    assignees:
+      - "hantsy"
+    labels:
+      - "dependencies"
+    groups:
+      actions:
+        patterns:
+          - "*"
