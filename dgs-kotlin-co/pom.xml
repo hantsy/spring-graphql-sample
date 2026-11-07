@@ -18,7 +18,7 @@
 		<kotlin.version>2.4.21</kotlin.version>
 		<dgs-platform.version>12.1.0</dgs-platform.version>
 		<dgs-codegen-plugin.version>3.10.2</dgs-codegen-plugin.version>
-		<dgs-codegen-core.version>8.7.0</dgs-codegen-core.version>
+		<dgs-codegen-core.version>8.8.0</dgs-codegen-core.version>
 		<kotlinx-coroutines.version>1.11.0</kotlinx-coroutines.version>
 		<kotest.version>6.2.6</kotest.version>
 		<!-- DGS 12.x needs the Jackson3 provider that json-path 3.0.0 adds -->
