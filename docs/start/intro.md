@@ -261,7 +261,10 @@ Events) for subscriptions.
 
 ### HTTP
 
-A server must support GraphQL requests via POST with a UTF-8 JSON body and the
+The
+[GraphQL over HTTP specification](https://github.com/graphql/graphql-over-http)
+formalizes how GraphQL runs over HTTP. A server must support GraphQL requests
+via POST with a UTF-8 JSON body and the
 `Content-Type: application/json` header. Every example in this repository
 accepts POST on `/graphql`. A server may also support GET for read-only
 queries, with the request members moved into the URL query string; GET must
@@ -285,7 +288,8 @@ does not mean every field succeeded.
 Subscriptions need a channel that stays open. Over plain HTTP, the client
 POSTs the subscription document with `Accept: text/event-stream`, and the
 server keeps the response open and writes one `data:` event per result. The
-`-http` modules — for example
+[GraphQL over Server-Sent Events protocol](https://github.com/enisdenjo/graphql-sse/blob/master/PROTOCOL.md)
+defines these events. The `-http` modules — for example
 [spring-graphql-webmvc-http](https://github.com/hantsy/spring-graphql-sample/tree/master/spring-graphql-webmvc-http)
 — serve queries, mutations, and SSE subscriptions on the same `/graphql`
 endpoint.
