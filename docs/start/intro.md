@@ -1,16 +1,16 @@
 # An introduction to GraphQL and Spring
 
-This chapter is for Java developers who know Spring and want to understand
-GraphQL and the frameworks that run it on the JVM. It starts with what GraphQL
-is and why you would choose it over REST, then covers the schema language and
-the request/response protocol, the HTTP and WebSocket transports, and the
-GraphQL Java execution engine. It ends with the two Spring Boot frameworks —
-Netflix DGS and Spring GraphQL — how they merged, and how to choose between
-them.
+GraphQL is more and more popular in developer communities. What began as an
+internal Facebook tool for mobile apps is now a cross-ecosystem standard, with
+servers and tooling for nearly every language and platform. On the JVM, that
+means one shared engine — GraphQL Java — and two Spring Boot frameworks built
+on top of it.
 
-The examples use Java 25 and Spring Boot 4.1.2 / Spring Framework 7, with some
-written in Kotlin (Kotlin 2.4.x). This chapter is not a Spring tutorial; it
-assumes you can already build a Spring Boot application.
+This chapter is for Java developers who know Spring and want to understand
+GraphQL and the frameworks that run it on the JVM. The examples use Java 25 and
+Spring Boot 4.1.2 / Spring Framework 7, with some written in Kotlin (Kotlin
+2.4.x). This chapter is not a Spring tutorial; it assumes you can already build
+a Spring Boot application.
 
 ## What is GraphQL
 
@@ -440,10 +440,12 @@ return dataLoader.load(post.getAuthorId());
 Loaders are registered in a `DataLoaderRegistry` keyed by name. Spring GraphQL
 and DGS both build on this same mechanism.
 
-## GraphQL in the Java ecosystem
+### GraphQL in the Java ecosystem
 
 GraphQL on the JVM has gone through several generations of integration
-libraries. The framework links come from the
+libraries. GraphQL Java is the low-level engine; Netflix DGS and Spring
+GraphQL are the two actively maintained Spring Boot frameworks built on top
+of it. The framework links come from the
 [README](https://github.com/hantsy/spring-graphql-sample#readme).
 
 - **2015: GraphQL Java.** Facebook open-sourced the specification, and GraphQL
@@ -464,7 +466,11 @@ libraries. The framework links come from the
 - **The code-first alternative: SPQR.**
   [GraphQL SPQR](https://github.com/leangen/graphql-spqr) annotated plain Java
   methods and generated the schema from the code. Development is no longer
-  active.
+  active, but the code-first approach lives on in
+  [MicroProfile GraphQL](https://github.com/eclipse/microprofile-graphql),
+  implemented by
+  [SmallRye GraphQL](https://github.com/smallrye/smallrye-graphql) and
+  supported in Quarkus.
 - **2021: Netflix DGS.** Netflix open-sourced the
   [DGS (Domain Graph Service) framework](https://netflix.github.io/dgs/) in
   February 2021 after years of internal use — an annotation-based Spring Boot
@@ -689,3 +695,15 @@ The `dgs*` modules demonstrate the DGS programming model and the
 `spring-graphql*` modules demonstrate Spring GraphQL across every transport;
 both run the same blog domain (posts, authors, comments) against the same
 Postgres schema, so you can compare equivalent implementations directly.
+
+## Summary
+
+You have seen what GraphQL is and why you would choose it over REST, the schema
+language (SDL) and the request/response envelope, the HTTP and WebSocket
+transports, and the GraphQL Java execution engine. You have also met the two
+Spring Boot frameworks — Netflix DGS and Spring GraphQL — how DGS adopted
+Spring GraphQL as its foundation, and how to choose between them.
+
+To go further, clone the
+[spring-graphql-sample](https://github.com/hantsy/spring-graphql-sample)
+repository and run one of the `dgs*` or `spring-graphql*` modules.
