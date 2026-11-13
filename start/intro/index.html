@@ -1,0 +1,1879 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+      
+        <link rel="prev" href="../..">
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.1">
+    
+    
+      
+        <title>An introduction to GraphQL and Spring - Spring GraphQL by Example</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.57a0d79d.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.fb2fffe2.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="pink" data-md-color-accent="pink">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#an-introduction-to-graphql-and-spring" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="Spring GraphQL by Example" class="md-header__button md-logo" aria-label="Spring GraphQL by Example" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Spring GraphQL by Example
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              An introduction to GraphQL and Spring
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="pink" data-md-color-accent="pink"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17 6H7c-3.31 0-6 2.69-6 6s2.69 6 6 6h10c3.31 0 6-2.69 6-6s-2.69-6-6-6m0 10H7c-2.21 0-4-1.79-4-4s1.79-4 4-4h10c2.21 0 4 1.79 4 4s-1.79 4-4 4M7 9c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="pink" data-md-color-accent="pink"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17 7H7a5 5 0 0 0-5 5 5 5 0 0 0 5 5h10a5 5 0 0 0 5-5 5 5 0 0 0-5-5m0 8a3 3 0 0 1-3-3 3 3 0 0 1 3-3 3 3 0 0 1 3 3 3 3 0 0 1-3 3"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/hantsy/spring-graphql-sample" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    hantsy/spring-graphql-sample
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Spring GraphQL by Example" class="md-nav__button md-logo" aria-label="Spring GraphQL by Example" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Spring GraphQL by Example
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/hantsy/spring-graphql-sample" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    hantsy/spring-graphql-sample
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_1" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../.." class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Preface
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_1">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Preface
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+      
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Start
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Start
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    An introduction to GraphQL and Spring
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    An introduction to GraphQL and Spring
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#what-is-graphql" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What is GraphQL
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#why-graphql-instead-of-rest" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Why GraphQL instead of REST
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#schema-and-sdl" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Schema and SDL
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-request-and-response-envelope" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The request and response envelope
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="The request and response envelope">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#the-request" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The request
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#the-response" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The response
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#runtime-protocols" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Runtime protocols
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Runtime protocols">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#http" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        HTTP
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#subscriptions-over-sse" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Subscriptions over SSE
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#subscriptions-over-websocket" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Subscriptions over WebSocket
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#file-upload" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        File upload
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#graphql-java" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GraphQL Java
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="GraphQL Java">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#build-the-schema" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Build the schema
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fetch-data" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Fetch data
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#execute-operations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Execute operations
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#batch-with-dataloader" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Batch with DataLoader
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#graphql-in-the-java-ecosystem" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GraphQL in the Java ecosystem
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#netflix-dgs-and-spring-graphql" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Netflix DGS and Spring GraphQL
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Netflix DGS and Spring GraphQL">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#netflix-dgs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Netflix DGS
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#spring-graphql" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Spring GraphQL
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#the-integration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The integration
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#the-difference" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The difference
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#choosing-a-framework" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Choosing a framework
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#what-is-graphql" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What is GraphQL
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#why-graphql-instead-of-rest" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Why GraphQL instead of REST
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#schema-and-sdl" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Schema and SDL
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-request-and-response-envelope" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The request and response envelope
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="The request and response envelope">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#the-request" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The request
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#the-response" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The response
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#runtime-protocols" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Runtime protocols
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Runtime protocols">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#http" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        HTTP
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#subscriptions-over-sse" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Subscriptions over SSE
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#subscriptions-over-websocket" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Subscriptions over WebSocket
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#file-upload" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        File upload
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#graphql-java" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GraphQL Java
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="GraphQL Java">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#build-the-schema" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Build the schema
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fetch-data" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Fetch data
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#execute-operations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Execute operations
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#batch-with-dataloader" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Batch with DataLoader
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#graphql-in-the-java-ecosystem" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GraphQL in the Java ecosystem
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#netflix-dgs-and-spring-graphql" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Netflix DGS and Spring GraphQL
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Netflix DGS and Spring GraphQL">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#netflix-dgs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Netflix DGS
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#spring-graphql" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Spring GraphQL
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#the-integration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The integration
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#the-difference" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The difference
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#choosing-a-framework" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Choosing a framework
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="an-introduction-to-graphql-and-spring">An introduction to GraphQL and Spring<a class="headerlink" href="#an-introduction-to-graphql-and-spring" title="Permanent link">&para;</a></h1>
+<p>This chapter is for Java developers who know Spring and want to understand
+GraphQL and the frameworks that run it on the JVM. It starts with what GraphQL
+is and why you would choose it over REST, then covers the schema language and
+the request/response protocol, the HTTP and WebSocket transports, and the
+GraphQL Java execution engine. It ends with the two Spring Boot frameworks —
+Netflix DGS and Spring GraphQL — how they merged, and how to choose between
+them.</p>
+<p>The examples use Java 25 and Spring Boot 4.1.2 / Spring Framework 7, with some
+written in Kotlin (Kotlin 2.4.x). This chapter is not a Spring tutorial; it
+assumes you can already build a Spring Boot application.</p>
+<h2 id="what-is-graphql">What is GraphQL<a class="headerlink" href="#what-is-graphql" title="Permanent link">&para;</a></h2>
+<p>GraphQL is a query language for APIs and a runtime for executing those queries
+against your data. Facebook's mobile apps have been powered by GraphQL since
+2012. The specification was open-sourced in 2015 and is now maintained by the
+<a href="https://graphql.org/foundation/">GraphQL Foundation</a>, hosted by the Linux
+Foundation since 2018.</p>
+<p>A GraphQL server exposes a single endpoint and a strongly typed schema. The
+client sends a document that describes exactly the data it needs, and the
+server responds with JSON in the same shape. Compared with a REST API, this
+moves the choice of response shape from the server to the client.</p>
+<p>The specification defines three kinds of operations:</p>
+<ul>
+<li><strong>Query</strong> — read data.</li>
+<li><strong>Mutation</strong> — write data, executed serially in the order the document lists
+  them.</li>
+<li><strong>Subscription</strong> — a long-lived operation that pushes a stream of results to
+  the client as events happen.</li>
+</ul>
+<p>The specification deliberately says nothing about the transport. HTTP and
+WebSocket are the common choices, and separate specifications cover them.</p>
+<h2 id="why-graphql-instead-of-rest">Why GraphQL instead of REST<a class="headerlink" href="#why-graphql-instead-of-rest" title="Permanent link">&para;</a></h2>
+<p>GraphQL is not a wholesale replacement for REST. It is a different trade-off
+that fits the case where clients are many, diverse, and evolve independently
+of the server.</p>
+<ul>
+<li><strong>No over-fetching.</strong> A REST endpoint returns a fixed payload: a client that
+  needs only a post's title still receives the whole post, its author, and its
+  comments. A GraphQL query asks for exactly the fields it needs.</li>
+<li><strong>No under-fetching.</strong> A screen that needs a post <em>and</em> its author calls two
+  REST endpoints, or a bespoke composite endpoint, and assembles the result
+  with several round trips. A GraphQL query nests the author under the post
+  and resolves both in one request.</li>
+<li><strong>A typed, introspectable contract.</strong> The schema is machine-readable, so
+  tools generate clients, validate queries, and offer autocomplete (GraphiQL,
+  Apollo Client) without a separate API-description layer such as OpenAPI.</li>
+<li><strong>One endpoint.</strong> GraphQL has no per-resource URLs and no version in the
+  URL. Adding a field is additive and does not break existing clients.</li>
+</ul>
+<p>The costs sit on the server: GraphQL makes HTTP caching harder, moves query
+cost and validation onto the server, and has no built-in file upload — that
+needs a separate multipart specification. REST remains the simpler fit for
+small, resource-oriented, cacheable APIs.</p>
+<h2 id="schema-and-sdl">Schema and SDL<a class="headerlink" href="#schema-and-sdl" title="Permanent link">&para;</a></h2>
+<p>A GraphQL schema is a contract written in the Schema Definition Language
+(SDL). It declares the types a server exposes and the operations clients can
+run. The following schema is the one used by the
+<a href="https://github.com/hantsy/spring-graphql-sample/tree/master/dgs">dgs</a> example
+(comments and formatting trimmed):</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="k">type</span><span class="w"> </span><span class="err">Post</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="w">    </span><span class="nl">id</span><span class="p">:</span><span class="w"> </span><span class="n">ID</span><span class="err">!</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="w">    </span><span class="nl">title</span><span class="p">:</span><span class="w"> </span><span class="n">String</span><span class="err">!</span>
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="w">    </span><span class="nl">content</span><span class="p">:</span><span class="w"> </span><span class="n">String</span>
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="w">    </span><span class="nl">comments</span><span class="p">:</span><span class="w"> </span><span class="err">[</span><span class="n">Comment</span><span class="err">]</span>
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="w">    </span><span class="nl">authorId</span><span class="p">:</span><span class="w"> </span><span class="n">String</span>
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="w">    </span><span class="nl">author</span><span class="p">:</span><span class="w"> </span><span class="n">Author</span>
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="p">}</span>
+<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>
+<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a><span class="k">type</span><span class="w"> </span><span class="err">Author</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a><span class="w">    </span><span class="nl">id</span><span class="p">:</span><span class="w"> </span><span class="n">ID</span><span class="err">!</span>
+<a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a><span class="w">    </span><span class="nl">name</span><span class="p">:</span><span class="w"> </span><span class="n">String</span><span class="err">!</span>
+<a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a><span class="w">    </span><span class="nl">email</span><span class="p">:</span><span class="w"> </span><span class="n">String</span><span class="err">!</span>
+<a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a><span class="w">    </span><span class="nl">posts</span><span class="p">:</span><span class="w"> </span><span class="err">[</span><span class="n">Post</span><span class="err">]</span>
+<a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a><span class="p">}</span>
+<a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a>
+<a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a><span class="k">type</span><span class="w"> </span><span class="err">Comment</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a><span class="w">    </span><span class="nl">id</span><span class="p">:</span><span class="w"> </span><span class="n">ID</span><span class="err">!</span>
+<a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a><span class="w">    </span><span class="nl">content</span><span class="p">:</span><span class="w"> </span><span class="n">String</span><span class="err">!</span>
+<a id="__codelineno-0-20" name="__codelineno-0-20" href="#__codelineno-0-20"></a><span class="w">    </span><span class="nl">postId</span><span class="p">:</span><span class="w"> </span><span class="n">String</span><span class="err">!</span>
+<a id="__codelineno-0-21" name="__codelineno-0-21" href="#__codelineno-0-21"></a><span class="p">}</span>
+<a id="__codelineno-0-22" name="__codelineno-0-22" href="#__codelineno-0-22"></a>
+<a id="__codelineno-0-23" name="__codelineno-0-23" href="#__codelineno-0-23"></a><span class="k">input</span><span class="w"> </span><span class="err">CreatePostInput</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-0-24" name="__codelineno-0-24" href="#__codelineno-0-24"></a><span class="w">    </span><span class="nl">title</span><span class="p">:</span><span class="w"> </span><span class="n">String</span><span class="err">!</span>
+<a id="__codelineno-0-25" name="__codelineno-0-25" href="#__codelineno-0-25"></a><span class="w">    </span><span class="nl">content</span><span class="p">:</span><span class="w"> </span><span class="n">String</span><span class="err">!</span>
+<a id="__codelineno-0-26" name="__codelineno-0-26" href="#__codelineno-0-26"></a><span class="p">}</span>
+<a id="__codelineno-0-27" name="__codelineno-0-27" href="#__codelineno-0-27"></a>
+<a id="__codelineno-0-28" name="__codelineno-0-28" href="#__codelineno-0-28"></a><span class="k">type</span><span class="w"> </span><span class="err">Query</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-0-29" name="__codelineno-0-29" href="#__codelineno-0-29"></a><span class="w">    </span><span class="nl">allPosts</span><span class="p">:</span><span class="w"> </span><span class="err">[</span><span class="n">Post</span><span class="err">!]!</span>
+<a id="__codelineno-0-30" name="__codelineno-0-30" href="#__codelineno-0-30"></a><span class="w">    </span><span class="n">postById</span><span class="p">(</span><span class="n">postId</span><span class="p">:</span><span class="w"> </span><span class="no">ID</span><span class="err">!</span><span class="p">)</span><span class="err">:</span><span class="w"> </span><span class="n">Post</span>
+<a id="__codelineno-0-31" name="__codelineno-0-31" href="#__codelineno-0-31"></a><span class="p">}</span>
+<a id="__codelineno-0-32" name="__codelineno-0-32" href="#__codelineno-0-32"></a>
+<a id="__codelineno-0-33" name="__codelineno-0-33" href="#__codelineno-0-33"></a><span class="k">type</span><span class="w"> </span><span class="err">Mutation</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-0-34" name="__codelineno-0-34" href="#__codelineno-0-34"></a><span class="w">    </span><span class="n">createPost</span><span class="p">(</span><span class="n">createPostInput</span><span class="p">:</span><span class="w"> </span><span class="no">CreatePostInput</span><span class="err">!</span><span class="p">)</span><span class="err">:</span><span class="w"> </span><span class="n">Post</span><span class="err">!</span>
+<a id="__codelineno-0-35" name="__codelineno-0-35" href="#__codelineno-0-35"></a><span class="p">}</span>
+</code></pre></div>
+<p>The building blocks are:</p>
+<ul>
+<li><strong>Object types</strong> (<code>type Post</code>) — named collections of fields. Each field has
+  a type and can take arguments, such as <code>postById(postId: ID!)</code>.</li>
+<li><strong>Scalar types</strong> — the leaf values. The built-in scalars are <code>Int</code>, <code>Float</code>,
+  <code>String</code>, <code>Boolean</code>, and <code>ID</code>. Servers can add custom scalars such as <code>Date</code>
+  or <code>Upload</code>.</li>
+<li><strong>Input types</strong> (<code>input CreatePostInput</code>) — structured arguments for
+  mutations. Only input types, scalars, and enums can be used as input.</li>
+<li><strong>Enums</strong> — a fixed set of named values, for example
+  <code>enum PostStatus { DRAFT PUBLISHED }</code>.</li>
+<li><strong>Interfaces and unions</strong> — abstract types that let a field return one of
+  several object types. A type resolver picks the concrete type at runtime.</li>
+<li><strong>Non-null (<code>!</code>) and lists (<code>[]</code>)</strong> — modifiers. <code>Post!</code> never returns null,
+  <code>[Post!]!</code> is a non-null list of non-null posts, and <code>[Post]</code> can be null and
+  can contain nulls.</li>
+<li><strong>Directives</strong> — annotations such as <code>@deprecated(reason: "...")</code> that change
+  how the schema or a document executes. Servers can define custom directives.</li>
+</ul>
+<p>Three root types anchor every schema:</p>
+<ul>
+<li><code>Query</code> — the entry point for reads.</li>
+<li><code>Mutation</code> — the entry point for writes. Top-level mutation fields execute
+  serially, in document order; query fields can execute in parallel.</li>
+<li><code>Subscription</code> — the entry point for event streams. A subscription field
+  returns a stream of results rather than a single value.</li>
+</ul>
+<p>The names are conventions; a <code>schema</code> declaration can rename them, but most
+servers — and every example in this repository — use the defaults.</p>
+<p>A schema is also queryable. Clients ask the server for its own types through
+the meta-fields <code>__schema</code> and <code>__type</code>, which is how tools such as GraphiQL
+provide completion and documentation:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="p">{</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="w">  </span><span class="n">__schema</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="w">    </span><span class="n">types</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="w">      </span><span class="n">name</span>
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="w">  </span><span class="p">}</span>
+<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="p">}</span>
+</code></pre></div>
+<p>Introspection is part of the specification, so it works against any compliant
+server. The specification is published in dated editions (June 2018, October
+2021, September 2025), with a draft of the next edition always available.</p>
+<h2 id="the-request-and-response-envelope">The request and response envelope<a class="headerlink" href="#the-request-and-response-envelope" title="Permanent link">&para;</a></h2>
+<h3 id="the-request">The request<a class="headerlink" href="#the-request" title="Permanent link">&para;</a></h3>
+<p>A GraphQL request carries three members:</p>
+<ul>
+<li><code>query</code> — the document: one or more operations, each a <code>query</code>, <code>mutation</code>,
+  or <code>subscription</code>.</li>
+<li><code>variables</code> — a JSON object of values for the variables the document
+  declares. Optional.</li>
+<li><code>operationName</code> — which operation to run when the document contains more
+  than one. Optional.</li>
+</ul>
+<p>Over HTTP, the client POSTs this as a JSON body. The following request reads
+every post with its title and author name:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>curl<span class="w"> </span>http://localhost:8080/graphql<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="w">  </span>-H<span class="w"> </span><span class="s2">"Content-Type: application/json"</span><span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="w">  </span>-d<span class="w"> </span><span class="s1">'{"query": "{ allPosts { id title author { name } } }"}'</span>
+</code></pre></div>
+<p>Never build a document by concatenating user input into the query string.
+Declare variables instead, and let the server coerce and validate them:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>curl<span class="w"> </span>http://localhost:8080/graphql<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="w">  </span>-H<span class="w"> </span><span class="s2">"Content-Type: application/json"</span><span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="w">  </span>-d<span class="w"> </span><span class="s1">'{</span>
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="s1">    "query": "query PostById($postId: ID!) { postById(postId: $postId) { title content } }",</span>
+<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="s1">    "variables": { "postId": "1" },</span>
+<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a><span class="s1">    "operationName": "PostById"</span>
+<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a><span class="s1">  }'</span>
+</code></pre></div>
+<p>The document declares <code>$postId: ID!</code>; the <code>variables</code> object supplies the
+value. The server validates the document against the schema before any data
+fetcher runs. A mutation uses the same envelope:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>curl<span class="w"> </span>http://localhost:8080/graphql<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="w">  </span>-H<span class="w"> </span><span class="s2">"Content-Type: application/json"</span><span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="w">  </span>-d<span class="w"> </span><span class="s1">'{</span>
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="s1">    "query": "mutation CreatePost($input: CreatePostInput!) { createPost(createPostInput: $input) { id title } }",</span>
+<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="s1">    "variables": { "input": { "title": "Hello GraphQL", "content": "First post" } }</span>
+<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a><span class="s1">  }'</span>
+</code></pre></div>
+<h3 id="the-response">The response<a class="headerlink" href="#the-response" title="Permanent link">&para;</a></h3>
+<p>A GraphQL response is a JSON object with up to three members:</p>
+<ul>
+<li><code>data</code> — the result, in the same shape as the operation's selection set.</li>
+<li><code>errors</code> — a list of errors raised while validating or executing the
+  operation. Present only when something went wrong.</li>
+<li><code>extensions</code> — an optional map for server-specific additions, such as
+  tracing data.</li>
+</ul>
+<p>A successful response to the <code>allPosts</code> query looks like this:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="p">{</span>
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="w">  </span><span class="nt">"data"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="w">    </span><span class="nt">"allPosts"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="w">      </span><span class="p">{</span><span class="w"> </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"1"</span><span class="p">,</span><span class="w"> </span><span class="nt">"title"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Hello GraphQL"</span><span class="p">,</span><span class="w"> </span><span class="nt">"author"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Hantsy"</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="p">}</span>
+<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a><span class="w">    </span><span class="p">]</span>
+<a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a><span class="w">  </span><span class="p">}</span>
+<a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a><span class="p">}</span>
+</code></pre></div>
+<p>GraphQL distinguishes request errors from field errors. A request error — a
+syntax error, a validation failure, an unknown operation — rejects the whole
+operation, and the response has <code>errors</code> and no <code>data</code>. A field error — a data
+fetcher that throws — nulls out only that field, and the rest of the response
+still returns:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="p">{</span>
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="w">  </span><span class="nt">"data"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="w">    </span><span class="nt">"postById"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="w">      </span><span class="nt">"title"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Hello GraphQL"</span><span class="p">,</span>
+<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a><span class="w">      </span><span class="nt">"author"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span>
+<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a><span class="w">  </span><span class="p">},</span>
+<a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a><span class="w">  </span><span class="nt">"errors"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<a id="__codelineno-6-9" name="__codelineno-6-9" href="#__codelineno-6-9"></a><span class="w">    </span><span class="p">{</span>
+<a id="__codelineno-6-10" name="__codelineno-6-10" href="#__codelineno-6-10"></a><span class="w">      </span><span class="nt">"message"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Failed to load author"</span><span class="p">,</span>
+<a id="__codelineno-6-11" name="__codelineno-6-11" href="#__codelineno-6-11"></a><span class="w">      </span><span class="nt">"locations"</span><span class="p">:</span><span class="w"> </span><span class="p">[{</span><span class="w"> </span><span class="nt">"line"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="nt">"column"</span><span class="p">:</span><span class="w"> </span><span class="mi">40</span><span class="w"> </span><span class="p">}],</span>
+<a id="__codelineno-6-12" name="__codelineno-6-12" href="#__codelineno-6-12"></a><span class="w">      </span><span class="nt">"path"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"postById"</span><span class="p">,</span><span class="w"> </span><span class="s2">"author"</span><span class="p">]</span>
+<a id="__codelineno-6-13" name="__codelineno-6-13" href="#__codelineno-6-13"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-6-14" name="__codelineno-6-14" href="#__codelineno-6-14"></a><span class="w">  </span><span class="p">]</span>
+<a id="__codelineno-6-15" name="__codelineno-6-15" href="#__codelineno-6-15"></a><span class="p">}</span>
+</code></pre></div>
+<p>Each error carries a <code>message</code>, the <code>locations</code> in the document that caused
+it, and the <code>path</code> to the field that failed. If a non-null field (<code>Author!</code>)
+errors, the null propagates up to the nearest nullable parent — the schema's
+nullability rules decide how much of the response survives.</p>
+<h2 id="runtime-protocols">Runtime protocols<a class="headerlink" href="#runtime-protocols" title="Permanent link">&para;</a></h2>
+<p>The GraphQL specification does not define a transport. Two conventions cover
+the real world: HTTP for queries and mutations, and WebSocket (or Server-Sent
+Events) for subscriptions.</p>
+<h3 id="http">HTTP<a class="headerlink" href="#http" title="Permanent link">&para;</a></h3>
+<p>A server must support GraphQL requests via POST with a UTF-8 JSON body and the
+<code>Content-Type: application/json</code> header. Every example in this repository
+accepts POST on <code>/graphql</code>. A server may also support GET for read-only
+queries, with the request members moved into the URL query string; GET must
+not execute mutations (the recommended response is <code>405 Method Not Allowed</code>).
+GET is useful for caching but optional — do not rely on it being enabled.</p>
+<p>Two media types matter. <code>application/json</code> is the legacy request and response
+type. <code>application/graphql-response+json</code> is the newer response type, sent in
+the <code>Accept</code> header, typically as
+<code>application/graphql-response+json, application/json;q=0.9</code> so older servers
+can fall back. The media type decides how errors map to HTTP status codes:
+with <code>application/graphql-response+json</code>, a request-level error produces a
+<code>4xx</code> or <code>5xx</code>, while a well-formed operation that executes — even with field
+errors — produces <code>2xx</code>. With legacy <code>application/json</code>, most servers return
+<code>200 OK</code> for any well-formed response and signal problems only in the <code>errors</code>
+member. A GraphQL client must always inspect the response body: a <code>200</code> status
+does not mean every field succeeded.</p>
+<h3 id="subscriptions-over-sse">Subscriptions over SSE<a class="headerlink" href="#subscriptions-over-sse" title="Permanent link">&para;</a></h3>
+<p>Subscriptions need a channel that stays open. Over plain HTTP, the client
+POSTs the subscription document with <code>Accept: text/event-stream</code>, and the
+server keeps the response open and writes one <code>data:</code> event per result. The
+<code>-http</code> modules — for example
+<a href="https://github.com/hantsy/spring-graphql-sample/tree/master/spring-graphql-webmvc-http">spring-graphql-webmvc-http</a>
+— serve queries, mutations, and SSE subscriptions on the same <code>/graphql</code>
+endpoint.</p>
+<h3 id="subscriptions-over-websocket">Subscriptions over WebSocket<a class="headerlink" href="#subscriptions-over-websocket" title="Permanent link">&para;</a></h3>
+<p>A subscription over WebSocket uses a subprotocol, and two exist that are
+<strong>not</strong> compatible with each other. The first,
+<a href="https://github.com/apollographql/subscriptions-transport-ws">subscriptions-transport-ws</a>
+(Apollo, 2016), is no longer maintained. The actively maintained replacement
+is <a href="https://github.com/enisdenjo/graphql-ws">graphql-ws</a>, whose
+<a href="https://github.com/enisdenjo/graphql-ws/blob/master/PROTOCOL.md">GraphQL over WebSocket Protocol</a>
+uses the subprotocol <code>graphql-transport-ws</code> and lets any operation — query,
+mutation, or subscription — run over the socket:</p>
+<table>
+<thead>
+<tr>
+<th>Message</th>
+<th>Direction</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ConnectionInit</code> / <code>ConnectionAck</code></td>
+<td>client ↔ server</td>
+<td>Open the connection; operations are allowed only after the ack.</td>
+</tr>
+<tr>
+<td><code>Subscribe</code></td>
+<td>client → server</td>
+<td>Start an operation under a unique id.</td>
+</tr>
+<tr>
+<td><code>Next</code></td>
+<td>server → client</td>
+<td>One execution result from the operation's stream.</td>
+</tr>
+<tr>
+<td><code>Error</code></td>
+<td>server → client</td>
+<td>Execution errors for the operation; the stream finishes.</td>
+</tr>
+<tr>
+<td><code>Complete</code></td>
+<td>either</td>
+<td>The stream finishes; the client can also send it to unsubscribe.</td>
+</tr>
+<tr>
+<td><code>Ping</code> / <code>Pong</code></td>
+<td>either</td>
+<td>Bidirectional heartbeat.</td>
+</tr>
+</tbody>
+</table>
+<p>Because the protocols are distinct, migrating means upgrading the client and
+the server together — a <code>graphql-ws</code> client cannot talk to a
+<code>subscriptions-transport-ws</code> server. The WebSocket examples in this repository
+all speak <code>graphql-transport-ws</code>.</p>
+<h3 id="file-upload">File upload<a class="headerlink" href="#file-upload" title="Permanent link">&para;</a></h3>
+<p>The specification does not define file uploads. The interoperable standard is
+the
+<a href="https://github.com/jaydenseric/graphql-multipart-request-spec">GraphQL multipart request specification</a>,
+which wraps the usual <code>operations</code> JSON in a multipart form and maps file
+fields to object paths. Both DGS and Spring GraphQL resolve the uploaded file
+to a Spring <code>MultipartFile</code> argument; the
+<a href="https://github.com/hantsy/spring-graphql-sample/tree/master/dgs-fileupload">dgs-fileupload</a>
+example demonstrates it.</p>
+<h2 id="graphql-java">GraphQL Java<a class="headerlink" href="#graphql-java" title="Permanent link">&para;</a></h2>
+<p><a href="https://www.graphql-java.com/">GraphQL Java</a> is the JVM implementation of the
+GraphQL specification, started in 2015. It is an execution engine, not a
+server framework: it parses schemas, validates documents, and executes
+operations, but it knows nothing about HTTP, WebSocket, or Spring. Every
+framework in this repository — Spring GraphQL, Netflix DGS, and the legacy
+Kickstart and SPQR examples — embeds it and delegates execution to it.</p>
+<h3 id="build-the-schema">Build the schema<a class="headerlink" href="#build-the-schema" title="Permanent link">&para;</a></h3>
+<p>Execution starts with a <code>GraphQLSchema</code>. The schema-first path parses SDL into
+a <code>TypeDefinitionRegistry</code>, then combines it with a <code>RuntimeWiring</code> to produce
+an executable schema:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="n">TypeDefinitionRegistry</span><span class="w"> </span><span class="n">typeRegistry</span><span class="w"> </span><span class="o">=</span>
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="w">        </span><span class="k">new</span><span class="w"> </span><span class="n">SchemaParser</span><span class="p">().</span><span class="na">parse</span><span class="p">(</span><span class="k">new</span><span class="w"> </span><span class="n">ClassPathResource</span><span class="p">(</span><span class="s">"/schema/schema.graphql"</span><span class="p">).</span><span class="na">getFile</span><span class="p">());</span>
+<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>
+<a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a><span class="n">GraphQLSchema</span><span class="w"> </span><span class="n">graphQLSchema</span><span class="w"> </span><span class="o">=</span>
+<a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a><span class="w">        </span><span class="k">new</span><span class="w"> </span><span class="n">SchemaGenerator</span><span class="p">().</span><span class="na">makeExecutableSchema</span><span class="p">(</span><span class="n">typeRegistry</span><span class="p">,</span><span class="w"> </span><span class="n">runtimeWiring</span><span class="p">);</span>
+</code></pre></div>
+<p><code>RuntimeWiring</code> is where behavior attaches to the type system: data fetchers,
+custom scalars, directives, and type resolvers for interfaces and unions:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="n">RuntimeWiring</span><span class="p">.</span><span class="na">newRuntimeWiring</span><span class="p">()</span>
+<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span class="w">        </span><span class="p">.</span><span class="na">codeRegistry</span><span class="p">(</span><span class="n">codeRegistry</span><span class="p">)</span>
+<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a><span class="w">        </span><span class="p">.</span><span class="na">scalar</span><span class="p">(</span><span class="n">Scalars</span><span class="p">.</span><span class="na">localDateTimeType</span><span class="p">())</span>
+<a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a><span class="w">        </span><span class="p">.</span><span class="na">scalar</span><span class="p">(</span><span class="n">Scalars</span><span class="p">.</span><span class="na">uuidType</span><span class="p">())</span>
+<a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a><span class="w">        </span><span class="p">.</span><span class="na">directive</span><span class="p">(</span><span class="s">"uppercase"</span><span class="p">,</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">UpperCaseDirectiveWiring</span><span class="p">())</span>
+<a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a><span class="w">        </span><span class="p">.</span><span class="na">build</span><span class="p">();</span>
+</code></pre></div>
+<p>A code-first path also exists — building <code>GraphQLSchema</code> programmatically with
+builders instead of SDL — but every example in this repository is schema-first.</p>
+<h3 id="fetch-data">Fetch data<a class="headerlink" href="#fetch-data" title="Permanent link">&para;</a></h3>
+<p>A <code>DataFetcher&lt;T&gt;</code> resolves one field. It receives a <code>DataFetchingEnvironment</code>
+with the field arguments, the parent object, the execution context, and the
+data loader registry:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="kd">public</span><span class="w"> </span><span class="n">DataFetcher</span><span class="o">&lt;</span><span class="n">Post</span><span class="o">&gt;</span><span class="w"> </span><span class="nf">postById</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="p">(</span><span class="n">DataFetchingEnvironment</span><span class="w"> </span><span class="n">dfe</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a><span class="w">        </span><span class="n">String</span><span class="w"> </span><span class="n">postId</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">dfe</span><span class="p">.</span><span class="na">getArgument</span><span class="p">(</span><span class="s">"postId"</span><span class="p">);</span>
+<a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">postService</span><span class="p">.</span><span class="na">getPostById</span><span class="p">(</span><span class="n">postId</span><span class="p">);</span>
+<a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a><span class="w">    </span><span class="p">};</span>
+<a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a><span class="p">}</span>
+</code></pre></div>
+<p>Fields without an explicit fetcher fall back to <code>PropertyDataFetcher</code>, which
+reads a matching property from the parent object — this is why a <code>Post</code> record
+with a <code>title</code> accessor needs no wiring for its <code>title</code> field. A fetcher can
+return a plain value, a <code>CompletionStage</code> for asynchronous work, or a reactive
+<code>Publisher</code> for subscription fields.</p>
+<h3 id="execute-operations">Execute operations<a class="headerlink" href="#execute-operations" title="Permanent link">&para;</a></h3>
+<p>The <code>GraphQL</code> object is the engine entry point. Build it once from the schema,
+then execute an <code>ExecutionInput</code> per request:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="n">GraphQL</span><span class="w"> </span><span class="n">graphQL</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">GraphQL</span><span class="p">.</span><span class="na">newGraphQL</span><span class="p">(</span><span class="n">graphQLSchema</span><span class="p">).</span><span class="na">build</span><span class="p">();</span>
+<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>
+<a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a><span class="n">ExecutionInput</span><span class="w"> </span><span class="n">input</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ExecutionInput</span><span class="p">.</span><span class="na">newExecutionInput</span><span class="p">()</span>
+<a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a><span class="w">        </span><span class="p">.</span><span class="na">query</span><span class="p">(</span><span class="s">"{ allPosts { id title } }"</span><span class="p">)</span>
+<a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a><span class="w">        </span><span class="p">.</span><span class="na">build</span><span class="p">();</span>
+<a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a>
+<a id="__codelineno-10-7" name="__codelineno-10-7" href="#__codelineno-10-7"></a><span class="n">ExecutionResult</span><span class="w"> </span><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">graphQL</span><span class="p">.</span><span class="na">execute</span><span class="p">(</span><span class="n">input</span><span class="p">);</span>
+<a id="__codelineno-10-8" name="__codelineno-10-8" href="#__codelineno-10-8"></a><span class="n">Map</span><span class="o">&lt;</span><span class="n">String</span><span class="p">,</span><span class="w"> </span><span class="n">Object</span><span class="o">&gt;</span><span class="w"> </span><span class="n">data</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">result</span><span class="p">.</span><span class="na">getData</span><span class="p">();</span>
+<a id="__codelineno-10-9" name="__codelineno-10-9" href="#__codelineno-10-9"></a><span class="n">List</span><span class="o">&lt;</span><span class="n">GraphQLError</span><span class="o">&gt;</span><span class="w"> </span><span class="n">errors</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">result</span><span class="p">.</span><span class="na">getErrors</span><span class="p">();</span>
+</code></pre></div>
+<p><code>executeAsync</code> returns a <code>CompletableFuture&lt;ExecutionResult&gt;</code> instead. The
+<code>ExecutionResult</code> maps directly to the response envelope. The engine picks an
+execution strategy per operation type: query fields resolve in parallel,
+mutation fields resolve serially in document order, and subscription fields
+resolve to a stream that the transport layer forwards to the client.</p>
+<h3 id="batch-with-dataloader">Batch with DataLoader<a class="headerlink" href="#batch-with-dataloader" title="Permanent link">&para;</a></h3>
+<p>Naive field resolution produces the N+1 problem: loading ten posts and then
+each post's comments runs eleven queries. The
+<a href="https://github.com/graphql-java/java-dataloader">java-dataloader</a> library — a
+separate project under the GraphQL Java organization — batches and caches
+loads per request. Before, one query per post:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="k">SELECT</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">comments</span><span class="w"> </span><span class="k">WHERE</span><span class="w"> </span><span class="n">post_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">?</span>
+<a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a><span class="k">SELECT</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">comments</span><span class="w"> </span><span class="k">WHERE</span><span class="w"> </span><span class="n">post_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">?</span>
+<a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a><span class="k">SELECT</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">comments</span><span class="w"> </span><span class="k">WHERE</span><span class="w"> </span><span class="n">post_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">?</span>
+</code></pre></div>
+<p>After, one batched query:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="k">SELECT</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">comments</span><span class="w"> </span><span class="k">WHERE</span><span class="w"> </span><span class="n">post_id</span><span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="p">(</span><span class="o">?</span><span class="p">,</span><span class="w"> </span><span class="o">?</span><span class="p">,</span><span class="w"> </span><span class="o">?</span><span class="p">,</span><span class="w"> </span><span class="o">?</span><span class="p">)</span>
+</code></pre></div>
+<p>A fetcher asks the environment for a registered loader and loads a key; the
+loader collects keys during the execution tick and dispatches them as one
+batch:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a><span class="n">DataLoader</span><span class="o">&lt;</span><span class="n">String</span><span class="p">,</span><span class="w"> </span><span class="n">Author</span><span class="o">&gt;</span><span class="w"> </span><span class="n">dataLoader</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">dfe</span><span class="p">.</span><span class="na">getDataLoader</span><span class="p">(</span><span class="s">"authorsLoader"</span><span class="p">);</span>
+<a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a><span class="k">return</span><span class="w"> </span><span class="n">dataLoader</span><span class="p">.</span><span class="na">load</span><span class="p">(</span><span class="n">post</span><span class="p">.</span><span class="na">getAuthorId</span><span class="p">());</span>
+</code></pre></div>
+<p>Loaders are registered in a <code>DataLoaderRegistry</code> keyed by name. Spring GraphQL
+and DGS both build on this same mechanism.</p>
+<h2 id="graphql-in-the-java-ecosystem">GraphQL in the Java ecosystem<a class="headerlink" href="#graphql-in-the-java-ecosystem" title="Permanent link">&para;</a></h2>
+<p>GraphQL on the JVM has gone through several generations of integration
+libraries. The framework links come from the
+<a href="https://github.com/hantsy/spring-graphql-sample#readme">README</a>.</p>
+<ul>
+<li><strong>2015: GraphQL Java.</strong> Facebook open-sourced the specification, and GraphQL
+  Java started the same year as the JVM implementation — schema parsing,
+  validation, and execution, but no way to serve requests.</li>
+<li><strong>2016: graphql-java-servlet.</strong> A servlet endpoint that accepted GraphQL
+  requests over HTTP and handed them to a <code>GraphQL</code> instance, with an early
+  WebSocket subscription implementation.</li>
+<li><strong>The Kickstart era.</strong>
+  <a href="https://www.graphql-java-kickstart.com/">GraphQL Java Kickstart</a> built the
+  most popular Spring Boot integration of that period on
+  <a href="https://github.com/graphql-java-kickstart/graphql-java-tools">GraphQL Java Tools</a>
+  (schema-first resolver wiring) and the
+  <a href="https://github.com/graphql-java-kickstart/graphql-spring-boot">GraphQL Spring Boot Starters</a>
+  (auto-configuration for the servlet, GraphiQL, and subscriptions). The
+  starters are now archived: "Since Spring now officially supports GraphQL we
+  have decided to archive this project."</li>
+<li><strong>The code-first alternative: SPQR.</strong>
+  <a href="https://github.com/leangen/graphql-spqr">GraphQL SPQR</a> annotated plain Java
+  methods and generated the schema from the code. Development is no longer
+  active.</li>
+<li><strong>2021: Netflix DGS.</strong> Netflix open-sourced the
+  <a href="https://netflix.github.io/dgs/">DGS (Domain Graph Service) framework</a> in
+  February 2021 after years of internal use — an annotation-based Spring Boot
+  programming model, schema code generation, federation support, and a
+  query-test framework.</li>
+<li><strong>2021–2022: Spring GraphQL.</strong> The Spring team built
+  <a href="https://github.com/spring-projects/spring-graphql">Spring GraphQL</a> directly
+  on GraphQL Java. Version 1.0 arrived in May 2022, and Spring Boot 2.7
+  shipped <code>spring-boot-starter-graphql</code> — GraphQL became an official part of
+  the Spring portfolio.</li>
+</ul>
+<p>The ecosystem today:</p>
+<table>
+<thead>
+<tr>
+<th>Project</th>
+<th>Approach</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="https://www.graphql-java.com/">GraphQL Java</a></td>
+<td>Execution engine</td>
+<td>Active; the foundation of everything below.</td>
+</tr>
+<tr>
+<td><a href="https://github.com/spring-projects/spring-graphql">Spring GraphQL</a></td>
+<td>Official Spring integration, schema-first controllers</td>
+<td>Active; the Spring baseline.</td>
+</tr>
+<tr>
+<td><a href="https://netflix.github.io/dgs/">Netflix DGS</a></td>
+<td>Annotation model, codegen, federation, on Spring GraphQL</td>
+<td>Active.</td>
+</tr>
+<tr>
+<td><a href="https://opensource.expediagroup.com/graphql-kotlin/docs">GraphQL Kotlin</a></td>
+<td>Code-first Kotlin, coroutines (ExpediaGroup)</td>
+<td>Active.</td>
+</tr>
+<tr>
+<td><a href="https://www.graphql-java-kickstart.com/">GraphQL Java Kickstart</a></td>
+<td>Schema-first tools + Spring Boot starters</td>
+<td>Starters archived; use Spring GraphQL.</td>
+</tr>
+<tr>
+<td><a href="https://github.com/leangen/graphql-spqr">GraphQL SPQR</a></td>
+<td>Code-first schema generation</td>
+<td>Inactive.</td>
+</tr>
+</tbody>
+</table>
+<p>GraphQL Java is also integrated outside Spring — see
+<a href="https://github.com/hantsy/quarkus-sandbox">GraphQL with Quarkus</a> and
+<a href="https://github.com/hantsy/vertx-sandbox">GraphQL with Vert.x</a>. The <code>legacy/</code>
+folder in this repository preserves the discontinued stacks (Kickstart, SPQR,
+vanilla GraphQL Java) on the Spring Boot and Java versions they were last
+verified with; the active modules track current Spring Boot and either Spring
+GraphQL or DGS.</p>
+<h2 id="netflix-dgs-and-spring-graphql">Netflix DGS and Spring GraphQL<a class="headerlink" href="#netflix-dgs-and-spring-graphql" title="Permanent link">&para;</a></h2>
+<p>Two Spring Boot frameworks dominate GraphQL on the JVM today, and since 2024
+they are no longer competitors at the engine level: the Netflix DGS framework
+is built on Spring GraphQL.</p>
+<h3 id="netflix-dgs">Netflix DGS<a class="headerlink" href="#netflix-dgs" title="Permanent link">&para;</a></h3>
+<p>The <a href="https://netflix.github.io/dgs/">DGS (Domain Graph Service) framework</a> is
+Netflix's GraphQL server framework for Spring Boot, open-sourced in 2021. It
+is schema-first: you write SDL under <code>src/main/resources/schema/</code>, then
+implement data fetchers as annotated Spring components:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a><span class="nd">@DgsComponent</span>
+<a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a><span class="kd">public</span><span class="w"> </span><span class="kd">class</span> <span class="nc">PostsDataFetcher</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a><span class="w">    </span><span class="kd">private</span><span class="w"> </span><span class="kd">final</span><span class="w"> </span><span class="n">PostService</span><span class="w"> </span><span class="n">postService</span><span class="p">;</span>
+<a id="__codelineno-14-4" name="__codelineno-14-4" href="#__codelineno-14-4"></a>
+<a id="__codelineno-14-5" name="__codelineno-14-5" href="#__codelineno-14-5"></a><span class="w">    </span><span class="nd">@DgsQuery</span>
+<a id="__codelineno-14-6" name="__codelineno-14-6" href="#__codelineno-14-6"></a><span class="w">    </span><span class="kd">public</span><span class="w"> </span><span class="n">List</span><span class="o">&lt;</span><span class="n">Post</span><span class="o">&gt;</span><span class="w"> </span><span class="nf">allPosts</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-14-7" name="__codelineno-14-7" href="#__codelineno-14-7"></a><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="na">postService</span><span class="p">.</span><span class="na">getAllPosts</span><span class="p">();</span>
+<a id="__codelineno-14-8" name="__codelineno-14-8" href="#__codelineno-14-8"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-14-9" name="__codelineno-14-9" href="#__codelineno-14-9"></a>
+<a id="__codelineno-14-10" name="__codelineno-14-10" href="#__codelineno-14-10"></a><span class="w">    </span><span class="nd">@DgsQuery</span>
+<a id="__codelineno-14-11" name="__codelineno-14-11" href="#__codelineno-14-11"></a><span class="w">    </span><span class="kd">public</span><span class="w"> </span><span class="n">Post</span><span class="w"> </span><span class="nf">postById</span><span class="p">(</span><span class="nd">@InputArgument</span><span class="w"> </span><span class="n">Long</span><span class="w"> </span><span class="n">postId</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-14-12" name="__codelineno-14-12" href="#__codelineno-14-12"></a><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="na">postService</span><span class="p">.</span><span class="na">getPostById</span><span class="p">(</span><span class="n">postId</span><span class="p">);</span>
+<a id="__codelineno-14-13" name="__codelineno-14-13" href="#__codelineno-14-13"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-14-14" name="__codelineno-14-14" href="#__codelineno-14-14"></a>
+<a id="__codelineno-14-15" name="__codelineno-14-15" href="#__codelineno-14-15"></a><span class="w">    </span><span class="nd">@DgsData</span><span class="p">(</span><span class="n">parentType</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"Post"</span><span class="p">,</span><span class="w"> </span><span class="n">field</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"author"</span><span class="p">)</span>
+<a id="__codelineno-14-16" name="__codelineno-14-16" href="#__codelineno-14-16"></a><span class="w">    </span><span class="kd">public</span><span class="w"> </span><span class="n">CompletableFuture</span><span class="o">&lt;</span><span class="n">Author</span><span class="o">&gt;</span><span class="w"> </span><span class="nf">author</span><span class="p">(</span><span class="n">DgsDataFetchingEnvironment</span><span class="w"> </span><span class="n">dfe</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-14-17" name="__codelineno-14-17" href="#__codelineno-14-17"></a><span class="w">        </span><span class="n">DataLoader</span><span class="o">&lt;</span><span class="n">Long</span><span class="p">,</span><span class="w"> </span><span class="n">Author</span><span class="o">&gt;</span><span class="w"> </span><span class="n">dataLoader</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">dfe</span><span class="p">.</span><span class="na">getDataLoader</span><span class="p">(</span><span class="s">"authorsLoader"</span><span class="p">);</span>
+<a id="__codelineno-14-18" name="__codelineno-14-18" href="#__codelineno-14-18"></a><span class="w">        </span><span class="n">Post</span><span class="w"> </span><span class="n">post</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">dfe</span><span class="p">.</span><span class="na">getSource</span><span class="p">();</span>
+<a id="__codelineno-14-19" name="__codelineno-14-19" href="#__codelineno-14-19"></a><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">dataLoader</span><span class="p">.</span><span class="na">load</span><span class="p">(</span><span class="n">post</span><span class="p">.</span><span class="na">getAuthorId</span><span class="p">());</span>
+<a id="__codelineno-14-20" name="__codelineno-14-20" href="#__codelineno-14-20"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-14-21" name="__codelineno-14-21" href="#__codelineno-14-21"></a>
+<a id="__codelineno-14-22" name="__codelineno-14-22" href="#__codelineno-14-22"></a><span class="w">    </span><span class="nd">@DgsMutation</span>
+<a id="__codelineno-14-23" name="__codelineno-14-23" href="#__codelineno-14-23"></a><span class="w">    </span><span class="kd">public</span><span class="w"> </span><span class="n">Post</span><span class="w"> </span><span class="nf">createPost</span><span class="p">(</span><span class="nd">@InputArgument</span><span class="p">(</span><span class="s">"createPostInput"</span><span class="p">)</span><span class="w"> </span><span class="n">CreatePostInput</span><span class="w"> </span><span class="n">input</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-14-24" name="__codelineno-14-24" href="#__codelineno-14-24"></a><span class="w">        </span><span class="kd">var</span><span class="w"> </span><span class="n">id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="na">postService</span><span class="p">.</span><span class="na">createPost</span><span class="p">(</span><span class="n">input</span><span class="p">);</span>
+<a id="__codelineno-14-25" name="__codelineno-14-25" href="#__codelineno-14-25"></a><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="na">postService</span><span class="p">.</span><span class="na">getPostById</span><span class="p">(</span><span class="n">id</span><span class="p">);</span>
+<a id="__codelineno-14-26" name="__codelineno-14-26" href="#__codelineno-14-26"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-14-27" name="__codelineno-14-27" href="#__codelineno-14-27"></a><span class="p">}</span>
+</code></pre></div>
+<p>The annotations map directly to the schema: <code>@DgsComponent</code> marks the class as
+a data fetcher container, <code>@DgsQuery</code> / <code>@DgsMutation</code> / <code>@DgsSubscription</code>
+bind a method to a root-type field, <code>@DgsData(parentType = "...",
+field = "...")</code> binds a method to any field on any type, and <code>@InputArgument</code>
+binds a GraphQL argument to a method parameter. Subscriptions return a
+reactive <code>Publisher</code>.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The DGS framework itself is written mainly in Kotlin. This is an
+implementation detail — DGS works equally well from Java, and this
+repository demonstrates both the Java (<code>dgs</code>) and Kotlin (<code>dgs-kotlin</code>,
+<code>dgs-kotlin-co</code>) styles.</p>
+</div>
+<p>DGS also ships a codegen plugin that generates Java or Kotlin types from the
+schema (the <a href="https://github.com/hantsy/spring-graphql-sample/tree/master/dgs-codegen">dgs-codegen</a>
+example), first-class Apollo Federation support for federated subgraphs, and a
+test framework (<code>DgsQueryExecutor</code>, <code>@DgsTest</code>).</p>
+<h3 id="spring-graphql">Spring GraphQL<a class="headerlink" href="#spring-graphql" title="Permanent link">&para;</a></h3>
+<p><a href="https://spring.io/projects/spring-graphql">Spring GraphQL</a> is the Spring
+team's official GraphQL support, built on GraphQL Java. Version 1.0 arrived in
+May 2022, and Spring Boot 2.7 introduced <code>spring-boot-starter-graphql</code>. It is
+also schema-first, with SDL files under <code>src/main/resources/graphql/</code> and
+annotated controllers in the style of Spring MVC:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a><span class="nd">@Controller</span>
+<a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a><span class="kd">public</span><span class="w"> </span><span class="kd">class</span> <span class="nc">PostController</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-15-3" name="__codelineno-15-3" href="#__codelineno-15-3"></a><span class="w">    </span><span class="kd">private</span><span class="w"> </span><span class="kd">final</span><span class="w"> </span><span class="n">PostService</span><span class="w"> </span><span class="n">postService</span><span class="p">;</span>
+<a id="__codelineno-15-4" name="__codelineno-15-4" href="#__codelineno-15-4"></a>
+<a id="__codelineno-15-5" name="__codelineno-15-5" href="#__codelineno-15-5"></a><span class="w">    </span><span class="nd">@QueryMapping</span>
+<a id="__codelineno-15-6" name="__codelineno-15-6" href="#__codelineno-15-6"></a><span class="w">    </span><span class="kd">public</span><span class="w"> </span><span class="n">List</span><span class="o">&lt;</span><span class="n">Post</span><span class="o">&gt;</span><span class="w"> </span><span class="nf">allPosts</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-15-7" name="__codelineno-15-7" href="#__codelineno-15-7"></a><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="na">postService</span><span class="p">.</span><span class="na">getAllPosts</span><span class="p">();</span>
+<a id="__codelineno-15-8" name="__codelineno-15-8" href="#__codelineno-15-8"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-15-9" name="__codelineno-15-9" href="#__codelineno-15-9"></a>
+<a id="__codelineno-15-10" name="__codelineno-15-10" href="#__codelineno-15-10"></a><span class="w">    </span><span class="nd">@QueryMapping</span>
+<a id="__codelineno-15-11" name="__codelineno-15-11" href="#__codelineno-15-11"></a><span class="w">    </span><span class="kd">public</span><span class="w"> </span><span class="n">Post</span><span class="w"> </span><span class="nf">postById</span><span class="p">(</span><span class="nd">@Argument</span><span class="p">(</span><span class="s">"postId"</span><span class="p">)</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">id</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-15-12" name="__codelineno-15-12" href="#__codelineno-15-12"></a><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="na">postService</span><span class="p">.</span><span class="na">getPostById</span><span class="p">(</span><span class="n">id</span><span class="p">);</span>
+<a id="__codelineno-15-13" name="__codelineno-15-13" href="#__codelineno-15-13"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-15-14" name="__codelineno-15-14" href="#__codelineno-15-14"></a>
+<a id="__codelineno-15-15" name="__codelineno-15-15" href="#__codelineno-15-15"></a><span class="w">    </span><span class="nd">@MutationMapping</span>
+<a id="__codelineno-15-16" name="__codelineno-15-16" href="#__codelineno-15-16"></a><span class="w">    </span><span class="kd">public</span><span class="w"> </span><span class="n">Post</span><span class="w"> </span><span class="nf">createPost</span><span class="p">(</span><span class="nd">@Argument</span><span class="p">(</span><span class="s">"createPostInput"</span><span class="p">)</span><span class="w"> </span><span class="nd">@Valid</span><span class="w"> </span><span class="n">CreatePostInput</span><span class="w"> </span><span class="n">input</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-15-17" name="__codelineno-15-17" href="#__codelineno-15-17"></a><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">postService</span><span class="p">.</span><span class="na">createPost</span><span class="p">(</span><span class="n">input</span><span class="p">);</span>
+<a id="__codelineno-15-18" name="__codelineno-15-18" href="#__codelineno-15-18"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-15-19" name="__codelineno-15-19" href="#__codelineno-15-19"></a>
+<a id="__codelineno-15-20" name="__codelineno-15-20" href="#__codelineno-15-20"></a><span class="w">    </span><span class="nd">@SubscriptionMapping</span>
+<a id="__codelineno-15-21" name="__codelineno-15-21" href="#__codelineno-15-21"></a><span class="w">    </span><span class="kd">public</span><span class="w"> </span><span class="n">Publisher</span><span class="o">&lt;</span><span class="n">Comment</span><span class="o">&gt;</span><span class="w"> </span><span class="nf">commentAdded</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-15-22" name="__codelineno-15-22" href="#__codelineno-15-22"></a><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="na">postService</span><span class="p">.</span><span class="na">commentAdded</span><span class="p">();</span>
+<a id="__codelineno-15-23" name="__codelineno-15-23" href="#__codelineno-15-23"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-15-24" name="__codelineno-15-24" href="#__codelineno-15-24"></a>
+<a id="__codelineno-15-25" name="__codelineno-15-25" href="#__codelineno-15-25"></a><span class="w">    </span><span class="nd">@SchemaMapping</span><span class="p">(</span><span class="n">field</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"author"</span><span class="p">)</span>
+<a id="__codelineno-15-26" name="__codelineno-15-26" href="#__codelineno-15-26"></a><span class="w">    </span><span class="kd">public</span><span class="w"> </span><span class="n">CompletionStage</span><span class="o">&lt;</span><span class="n">Author</span><span class="o">&gt;</span><span class="w"> </span><span class="nf">authorOfPost</span><span class="p">(</span>
+<a id="__codelineno-15-27" name="__codelineno-15-27" href="#__codelineno-15-27"></a><span class="w">            </span><span class="n">Post</span><span class="w"> </span><span class="n">post</span><span class="p">,</span><span class="w"> </span><span class="n">DataLoader</span><span class="o">&lt;</span><span class="n">String</span><span class="p">,</span><span class="w"> </span><span class="n">Author</span><span class="o">&gt;</span><span class="w"> </span><span class="n">authorDataLoader</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-15-28" name="__codelineno-15-28" href="#__codelineno-15-28"></a><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">authorDataLoader</span><span class="p">.</span><span class="na">load</span><span class="p">(</span><span class="n">post</span><span class="p">.</span><span class="na">getAuthorId</span><span class="p">());</span>
+<a id="__codelineno-15-29" name="__codelineno-15-29" href="#__codelineno-15-29"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-15-30" name="__codelineno-15-30" href="#__codelineno-15-30"></a><span class="p">}</span>
+</code></pre></div>
+<p><code>@QueryMapping</code>, <code>@MutationMapping</code>, and <code>@SubscriptionMapping</code> bind a method
+to a root-type field; <code>@SchemaMapping</code> binds a method to a field on any type;
+<code>@Argument</code> binds a GraphQL argument with coercion and Bean Validation
+(<code>@Valid</code>) support. Methods can return plain values, <code>CompletionStage</code>, or
+reactive types.</p>
+<p>Spring GraphQL separates execution from transport, so the same application
+code runs on WebMvc, WebFlux, WebSocket, and RSocket. It wraps GraphQL Java's
+DataLoader mechanism in a <code>BatchLoaderRegistry</code>, ships a dedicated testing API
+(<code>@GraphQlTest</code> slices with a protocol-neutral <code>GraphQlTester</code>, plus
+<code>HttpGraphQlTester</code> and <code>WebSocketGraphQlTester</code>), and provides the production
+client API (<code>HttpSyncGraphQlClient</code>, <code>HttpGraphQlClient</code>,
+<code>WebSocketGraphQlClient</code>).</p>
+<h3 id="the-integration">The integration<a class="headerlink" href="#the-integration" title="Permanent link">&para;</a></h3>
+<p>Netflix open-sourced DGS in 2021 and it became the most widely adopted GraphQL
+Java framework. Soon after, the DGS team learned of a parallel effort by the
+Spring team — Spring for GraphQL — and over the following year Spring GraphQL
+matured to rough feature parity with DGS. The result was two frameworks
+solving the same problem: new users had to choose, the maintainers duplicated
+work, and the community's feedback split across two projects.</p>
+<p>Neither could simply disappear. DGS is deeply embedded in many companies'
+architectures (including Netflix's), so forcing a migration would be costly
+with no benefit; at the same time, Spring deserves an out-of-the-box GraphQL
+offering. The teams chose integration over competition. DGS keeps its
+programming model and tooling but drops the parts that duplicated Spring
+GraphQL's low-level WebMvc/WebFlux integration. The integration shipped first
+as an opt-in <code>spring-graphql</code> flavor of the DGS starter, then became the
+default in DGS 9.0 (May 2024), which builds against Spring GraphQL 1.3, Spring
+Boot 3.3, and GraphQL Java 22.</p>
+<p>After the integration:</p>
+<ul>
+<li>You write data fetchers with the DGS programming model (<code>@DgsComponent</code>,
+  <code>@DgsQuery</code>), the Spring GraphQL programming model (<code>@QueryMapping</code>), or
+  both in the same application.</li>
+<li>DGS builds the <code>GraphQLSchema</code> from its programming model and schema files.</li>
+<li>Spring GraphQL handles the transports and executes every operation through
+  its <code>ExecutionGraphQlService</code>.</li>
+<li><code>DgsQueryExecutor</code> becomes a proxy over <code>ExecutionGraphQlService</code>, so
+  existing DGS test code keeps working unchanged.</li>
+</ul>
+<p>One engine, one transport layer, two programming models. For your code the
+integration is mostly a drop-in replacement — the areas to review when
+upgrading are the ones where the frameworks overlapped: configuration
+properties, file uploads, WebSocket subscriptions, schema inspection, and test
+setup. See Netflix's
+<a href="https://netflix.github.io/dgs/spring-graphql-integration/">Spring GraphQL Integration</a>
+document for the full list.</p>
+<h3 id="the-difference">The difference<a class="headerlink" href="#the-difference" title="Permanent link">&para;</a></h3>
+<p>Since the integration, DGS and Spring GraphQL share the same foundation: both
+run on Spring Boot, both execute with GraphQL Java, and DGS additionally uses
+Spring GraphQL's execution service and transports. The differences that remain
+are the programming model and the tooling around it:</p>
+<table>
+<thead>
+<tr>
+<th>Aspect</th>
+<th>Netflix DGS</th>
+<th>Spring GraphQL</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Programming model</td>
+<td><code>@DgsComponent</code> classes with <code>@DgsQuery</code>, <code>@DgsData</code>, <code>@InputArgument</code></td>
+<td><code>@Controller</code> classes with <code>@QueryMapping</code>, <code>@SchemaMapping</code>, <code>@Argument</code></td>
+</tr>
+<tr>
+<td>Schema location</td>
+<td><code>src/main/resources/schema/</code></td>
+<td><code>src/main/resources/graphql/</code></td>
+</tr>
+<tr>
+<td>Code generation</td>
+<td>Official Gradle/Maven plugin generates types from the schema</td>
+<td>No built-in codegen; use a third-party plugin if wanted</td>
+</tr>
+<tr>
+<td>Federation</td>
+<td>Built-in subgraph support</td>
+<td>Not built in; add a federation library</td>
+</tr>
+<tr>
+<td>Testing</td>
+<td><code>DgsQueryExecutor</code>, <code>@DgsTest</code></td>
+<td><code>GraphQlTester</code>, <code>@GraphQlTest</code>, transport testers</td>
+</tr>
+<tr>
+<td>Client</td>
+<td>Typesafe client generated from the schema</td>
+<td><code>HttpSyncGraphQlClient</code>, <code>HttpGraphQlClient</code>, <code>WebSocketGraphQlClient</code></td>
+</tr>
+<tr>
+<td>Transports</td>
+<td>HTTP, SSE, WebSocket (via Spring GraphQL)</td>
+<td>HTTP, SSE, WebSocket, RSocket</td>
+</tr>
+<tr>
+<td>Stewardship</td>
+<td>Netflix</td>
+<td>Spring team</td>
+</tr>
+<tr>
+<td>Dependency management</td>
+<td>DGS platform BOM aligned to a Boot version</td>
+<td>Spring Boot starter, version managed by Boot</td>
+</tr>
+</tbody>
+</table>
+<p>Both support Kotlin and coroutines, Spring Security, file uploads through
+<code>MultipartFile</code>, and DataLoader-based batching.</p>
+<h3 id="choosing-a-framework">Choosing a framework<a class="headerlink" href="#choosing-a-framework" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Starting a new Spring Boot application</strong> — choose Spring GraphQL. It is
+  the official Spring baseline, its versions move with Spring Boot, and its
+  controller model matches the rest of a Spring application.</li>
+<li><strong>Running DGS today</strong> — stay on DGS and keep upgrading. Since DGS 9 you are
+  already on Spring GraphQL underneath; a rewrite buys nothing, and you can
+  mix Spring GraphQL APIs into a DGS application where they help.</li>
+<li><strong>Needing codegen or federation</strong> — DGS's generated types and built-in
+  federation support are the strongest reasons to pick it for a new project.</li>
+<li><strong>Preferring code-first Kotlin</strong> — look at
+  <a href="https://opensource.expediagroup.com/graphql-kotlin/docs">GraphQL Kotlin</a>
+  instead; it generates the schema from Kotlin code rather than requiring SDL.</li>
+</ul>
+<p>The <code>dgs*</code> modules demonstrate the DGS programming model and the
+<code>spring-graphql*</code> modules demonstrate Spring GraphQL across every transport;
+both run the same blog domain (posts, authors, comments) against the same
+Postgres schema, so you can compare equivalent implementations directly.</p>
+
+
+
+
+
+
+
+  
+    
+  
+  
+
+
+  <aside class="md-source-file">
+    
+      
+  <span class="md-source-file__fact">
+    <span class="md-icon" title="Last update">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
+    </span>
+    2026-11-13
+  </span>
+
+    
+    
+    
+    
+  </aside>
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      Copyright &copy;2026 Hantsy
+    </div>
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+        
+<div class="md-social">
+  
+    
+    
+    
+    
+      
+      
+    
+    <a href="https://twitter.com/hantsy" target="_blank" rel="noopener" title="twitter.com" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M459.4 151.7c.3 4.5.3 9.1.3 13.6 0 138.7-105.6 298.6-298.6 298.6-59.5 0-114.7-17.2-161.1-47.1 8.4 1 16.6 1.3 25.3 1.3 49.1 0 94.2-16.6 130.3-44.8-46.1-1-84.8-31.2-98.1-72.8 6.5 1 13 1.6 19.8 1.6 9.4 0 18.8-1.3 27.6-3.6-48.1-9.7-84.1-52-84.1-103v-1.3c14 7.8 30.2 12.7 47.4 13.3-28.3-18.8-46.8-51-46.8-87.4 0-19.5 5.2-37.4 14.3-53C87.4 130.8 165 172.4 252.1 176.9c-1.6-7.8-2.6-15.9-2.6-24C249.5 95.1 296.3 48 354.4 48c30.2 0 57.5 12.7 76.7 33.1 23.7-4.5 46.5-13.3 66.6-25.3-7.8 24.4-24.4 44.8-46.1 57.8 21.1-2.3 41.6-8.1 60.4-16.2-14.3 20.8-32.2 39.3-52.6 54.3"/></svg>
+    </a>
+  
+    
+    
+    
+    
+      
+      
+    
+    <a href="https://linkedin.com/in/hantsy" target="_blank" rel="noopener" title="linkedin.com" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M416 32H31.9C14.3 32 0 46.5 0 64.3v383.4C0 465.5 14.3 480 31.9 480H416c17.6 0 32-14.5 32-32.3V64.3c0-17.8-14.4-32.3-32-32.3M135.4 416H69V202.2h66.5V416zM102.2 96a38.5 38.5 0 1 1 0 77 38.5 38.5 0 1 1 0-77m282.1 320h-66.4V312c0-24.8-.5-56.7-34.5-56.7-34.6 0-39.9 27-39.9 54.9V416h-66.4V202.2h63.7v29.2h.9c8.9-16.8 30.6-34.5 62.9-34.5 67.2 0 79.7 44.3 79.7 101.9z"/></svg>
+    </a>
+  
+    
+    
+    
+    
+      
+      
+    
+    <a href="https://medium.com/@hantsy" target="_blank" rel="noopener" title="medium.com" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M369.4 32c43.4 0 78.6 35.2 78.6 78.6v83.8c-1.9-.1-3.8-.2-5.7-.2h-.4c-10 0-22.3 2.4-31.1 6.8-10 4.6-18.7 11.5-26 20.6-11.8 14.6-18.9 34.3-20.6 56.4-.1.7-.1 1.3-.2 2s-.1 1.2-.1 1.9c-.1 1.2-.1 2.4-.1 3.6 0 1.9-.1 3.8 0 5.8 1.2 50.1 28.2 90.2 76.3 90.2 2.7 0 5.3-.1 7.9-.4v20.4c0 43.4-35.2 78.6-78.6 78.6L78.6 480C35.2 480 0 444.8 0 401.4V110.6C0 67.2 35.2 32 78.6 32zM82.3 138.9l.3.1c13.2 3 19.8 7.4 19.8 23.4v187.2c0 16-6.7 20.4-19.9 23.4l-.3.1v2.8H135v-2.8l-.3-.1c-13.2-3-19.9-7.4-19.9-23.4V173.3l86.1 202.5h4.9l88.6-208.2v186.6c-1.1 12.6-7.8 16.5-19.7 19.2l-.3.1v2.7h91.9v-2.7l-.3-.1c-11.9-2.7-18.7-6.6-19.9-19.2l-.1-191.8h.1c0-16 6.7-20.4 19.9-23.4l.3-.1v-2.7h-72.2l-67 157.4-67-157.4H82.3zM448 340.3c-25.1-7.4-43-35.1-41.2-67.8h41.1v67.8zm-6.4-135.6c2.3 0 4.4.3 6.4.9V263h-40.2c1.5-33.6 13.6-57.9 33.8-58.3"/></svg>
+    </a>
+  
+    
+    
+    
+    
+      
+      
+    
+    <a href="https://github.com/hantsy" target="_blank" rel="noopener" title="github.com" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["search.suggest", "navigation.expand", "navigation.indexes"], "search": "../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.a5f9d56c.min.js"></script>
+      
+    
+  </body>
+</html>
