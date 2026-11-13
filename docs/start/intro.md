@@ -487,9 +487,9 @@ The ecosystem today:
 | [GraphQL Java Kickstart](https://www.graphql-java-kickstart.com/) | Schema-first tools + Spring Boot starters | Starters archived; use Spring GraphQL. |
 | [GraphQL SPQR](https://github.com/leangen/graphql-spqr) | Code-first schema generation | Inactive. |
 
-GraphQL Java is also integrated outside Spring — see
-[GraphQL with Quarkus](https://github.com/hantsy/quarkus-sandbox) and
-[GraphQL with Vert.x](https://github.com/hantsy/vertx-sandbox). The `legacy/`
+Outside Spring, the author's companion repositories show GraphQL Java with
+[Quarkus](https://github.com/hantsy/quarkus-sandbox) and
+[Vert.x](https://github.com/hantsy/vertx-sandbox). The `legacy/`
 folder in this repository preserves the discontinued stacks (Kickstart, SPQR,
 vanilla GraphQL Java) on the Spring Boot and Java versions they were last
 verified with; the active modules track current Spring Boot and either Spring
