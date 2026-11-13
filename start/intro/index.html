@@ -1295,7 +1295,10 @@ nullability rules decide how much of the response survives.</p>
 the real world: HTTP for queries and mutations, and WebSocket (or Server-Sent
 Events) for subscriptions.</p>
 <h3 id="http">HTTP<a class="headerlink" href="#http" title="Permanent link">&para;</a></h3>
-<p>A server must support GraphQL requests via POST with a UTF-8 JSON body and the
+<p>The
+<a href="https://github.com/graphql/graphql-over-http">GraphQL over HTTP specification</a>
+formalizes how GraphQL runs over HTTP. A server must support GraphQL requests
+via POST with a UTF-8 JSON body and the
 <code>Content-Type: application/json</code> header. Every example in this repository
 accepts POST on <code>/graphql</code>. A server may also support GET for read-only
 queries, with the request members moved into the URL query string; GET must
@@ -1316,7 +1319,8 @@ does not mean every field succeeded.</p>
 <p>Subscriptions need a channel that stays open. Over plain HTTP, the client
 POSTs the subscription document with <code>Accept: text/event-stream</code>, and the
 server keeps the response open and writes one <code>data:</code> event per result. The
-<code>-http</code> modules — for example
+<a href="https://github.com/enisdenjo/graphql-sse/blob/master/PROTOCOL.md">GraphQL over Server-Sent Events protocol</a>
+defines these events. The <code>-http</code> modules — for example
 <a href="https://github.com/hantsy/spring-graphql-sample/tree/master/spring-graphql-webmvc-http">spring-graphql-webmvc-http</a>
 — serve queries, mutations, and SSE subscriptions on the same <code>/graphql</code>
 endpoint.</p>
