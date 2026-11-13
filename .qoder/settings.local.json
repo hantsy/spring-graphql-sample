@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(P=~/.m2/repository/com/netflix/graphql/graphql-dgs-platform-dependencies/12.1.0/graphql-dgs-platform-dependencies-12.1.0.pom; [ -f \"$P\" ] && grep -A2 -i \"codegen\" \"$P\" | head -40 || echo \"NOT FOUND locally\")",
+      "Bash(curl -sf https://repo1.maven.org/maven2/com/netflix/graphql/graphql-dgs-platform-dependencies/12.1.0/graphql-dgs-platform-dependencies-12.1.0.pom -o /tmp/dgsbom.pom && grep -B1 -A2 -i \"codegen\" /tmp/dgsbom.pom | head -60; echo \"---\"; grep -o \"<version>[^<]*</version>\" /tmp/dgsbom.pom | head -3)",
+      "Bash(curl -sf https://repo1.maven.org/maven2/com/netflix/graphql/dgs/graphql-dgs-platform-dependencies/12.1.0/graphql-dgs-platform-dependencies-12.1.0.pom -o /tmp/dgsbom.pom && echo OK && grep -i -B2 -A2 \"codegen\" /tmp/dgsbom.pom | head -60)",
+      "Bash(grep -o \"<artifactId>[^<]*</artifactId>\" /tmp/dgsbom.pom | sort -u | head -40; echo \"===\"; grep -c \"<dependency>\" /tmp/dgsbom.pom)",
+      "Bash(curl -sf https://repo1.maven.org/maven2/com/netflix/graphql/dgs/graphql-dgs-platform/12.1.0/graphql-dgs-platform-12.1.0.pom -o /tmp/dgsplat.pom && echo OK && grep -i -B3 -A3 \"codegen\" /tmp/dgsplat.pom | head -80)"
+    ]
+  }
+}

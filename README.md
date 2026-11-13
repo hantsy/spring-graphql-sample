@@ -16,7 +16,18 @@ Other GraphQL Java integration examples with Java frameworks.
 
 ## Guide
 
-TBD
+The [documentation site](https://hantsy.github.io/spring-graphql-sample/) covers
+GraphQL fundamentals (the specification, schema, requests and responses, file
+uploads, HTTP and WebSocket transports), GraphQL Java core concepts and
+integration history, and the Netflix DGS / Spring GraphQL frameworks.
+
+To preview the site locally, install MkDocs Material and start the development
+server from the repository root:
+
+```bash
+pip install mkdocs-material mkdocs-git-revision-date-plugin
+mkdocs serve
+```
 
 ## Example Codes
 |  Example name       | Description     |

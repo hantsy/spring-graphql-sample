@@ -70,3 +70,7 @@ docs/superpowers/
 
 # scratch scripts written to drive a local build or poll CI are never committed
 .mgen/
+
+# mkdocs build output
+site/
+.qoder
