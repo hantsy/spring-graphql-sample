@@ -1551,11 +1551,14 @@ of it. The framework links come from the
 </table>
 <p>Outside Spring, the author's companion repositories show GraphQL Java with
 <a href="https://github.com/hantsy/quarkus-sandbox">Quarkus</a> and
-<a href="https://github.com/hantsy/vertx-sandbox">Vert.x</a>. The <code>legacy/</code>
-folder in this repository preserves the discontinued stacks (Kickstart, SPQR,
-vanilla GraphQL Java) on the Spring Boot and Java versions they were last
-verified with; the active modules track current Spring Boot and either Spring
-GraphQL or DGS.</p>
+<a href="https://github.com/hantsy/vertx-sandbox">Vert.x</a>. The
+<a href="https://github.com/hantsy/spring-graphql-sample/tree/master/legacy"><code>legacy/</code></a>
+folder in this repository preserves the discontinued stacks —
+<a href="https://github.com/hantsy/spring-graphql-sample/tree/master/legacy/graphql-java-kickstart">Kickstart</a>,
+<a href="https://github.com/hantsy/spring-graphql-sample/tree/master/legacy/graphql-spqr">SPQR</a>,
+<a href="https://github.com/hantsy/spring-graphql-sample/tree/master/legacy/graphql-java">vanilla GraphQL Java</a>
+— on the Spring Boot and Java versions they were last verified with; the
+active modules track current Spring Boot and either Spring GraphQL or DGS.</p>
 <h2 id="netflix-dgs-and-spring-graphql">Netflix DGS and Spring GraphQL<a class="headerlink" href="#netflix-dgs-and-spring-graphql" title="Permanent link">&para;</a></h2>
 <p>Two Spring Boot frameworks dominate GraphQL on the JVM today, and since 2024
 they are no longer competitors at the engine level: the Netflix DGS framework
@@ -1603,8 +1606,12 @@ reactive <code>Publisher</code>.</p>
 <p class="admonition-title">Note</p>
 <p>The DGS framework itself is written mainly in Kotlin. This is an
 implementation detail — DGS works equally well from Java, and this
-repository demonstrates both the Java (<code>dgs</code>) and Kotlin (<code>dgs-kotlin</code>,
-<code>dgs-kotlin-co</code>) styles.</p>
+repository demonstrates both the Java
+(<a href="https://github.com/hantsy/spring-graphql-sample/tree/master/dgs"><code>dgs</code></a>)
+and Kotlin
+(<a href="https://github.com/hantsy/spring-graphql-sample/tree/master/dgs-kotlin"><code>dgs-kotlin</code></a>,
+<a href="https://github.com/hantsy/spring-graphql-sample/tree/master/dgs-kotlin-co"><code>dgs-kotlin-co</code></a>)
+styles.</p>
 </div>
 <p>DGS also ships a codegen plugin that generates Java or Kotlin types from the
 schema (the <a href="https://github.com/hantsy/spring-graphql-sample/tree/master/dgs-codegen">dgs-codegen</a>
