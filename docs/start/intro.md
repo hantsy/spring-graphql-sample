@@ -495,11 +495,14 @@ The ecosystem today:
 
 Outside Spring, the author's companion repositories show GraphQL Java with
 [Quarkus](https://github.com/hantsy/quarkus-sandbox) and
-[Vert.x](https://github.com/hantsy/vertx-sandbox). The `legacy/`
-folder in this repository preserves the discontinued stacks (Kickstart, SPQR,
-vanilla GraphQL Java) on the Spring Boot and Java versions they were last
-verified with; the active modules track current Spring Boot and either Spring
-GraphQL or DGS.
+[Vert.x](https://github.com/hantsy/vertx-sandbox). The
+[`legacy/`](https://github.com/hantsy/spring-graphql-sample/tree/master/legacy)
+folder in this repository preserves the discontinued stacks —
+[Kickstart](https://github.com/hantsy/spring-graphql-sample/tree/master/legacy/graphql-java-kickstart),
+[SPQR](https://github.com/hantsy/spring-graphql-sample/tree/master/legacy/graphql-spqr),
+[vanilla GraphQL Java](https://github.com/hantsy/spring-graphql-sample/tree/master/legacy/graphql-java)
+— on the Spring Boot and Java versions they were last verified with; the
+active modules track current Spring Boot and either Spring GraphQL or DGS.
 
 ## Netflix DGS and Spring GraphQL
 
@@ -554,8 +557,12 @@ reactive `Publisher`.
 !!! note
     The DGS framework itself is written mainly in Kotlin. This is an
     implementation detail — DGS works equally well from Java, and this
-    repository demonstrates both the Java (`dgs`) and Kotlin (`dgs-kotlin`,
-    `dgs-kotlin-co`) styles.
+    repository demonstrates both the Java
+    ([`dgs`](https://github.com/hantsy/spring-graphql-sample/tree/master/dgs))
+    and Kotlin
+    ([`dgs-kotlin`](https://github.com/hantsy/spring-graphql-sample/tree/master/dgs-kotlin),
+    [`dgs-kotlin-co`](https://github.com/hantsy/spring-graphql-sample/tree/master/dgs-kotlin-co))
+    styles.
 
 DGS also ships a codegen plugin that generates Java or Kotlin types from the
 schema (the [dgs-codegen](https://github.com/hantsy/spring-graphql-sample/tree/master/dgs-codegen)
