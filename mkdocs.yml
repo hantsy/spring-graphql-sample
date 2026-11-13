@@ -56,5 +56,4 @@ plugins:
 nav:
   - Preface:
     - index.md
-  - Start:
-    - "An introduction to GraphQL and Spring": start/intro.md
+  - "An introduction to GraphQL and Spring": intro.md

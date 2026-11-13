@@ -27,7 +27,7 @@ example index and build instructions.
 ## Read this guide
 
 If you are new to GraphQL on the JVM, read
-[An introduction to GraphQL and Spring](./start/intro.md): what GraphQL is and
+[An introduction to GraphQL and Spring](./intro.md): what GraphQL is and
 why you would use it instead of REST, the schema language and the
 request/response protocol, the HTTP and WebSocket transports, the GraphQL Java
 execution engine, and the Netflix DGS and Spring GraphQL frameworks.
