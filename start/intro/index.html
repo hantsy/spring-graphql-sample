@@ -623,12 +623,7 @@
   
 </li>
         
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
+          <li class="md-nav__item">
   <a href="#graphql-in-the-java-ecosystem" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -636,6 +631,11 @@
       
     </span>
   </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -708,6 +708,17 @@
         
       </ul>
     </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#summary" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Summary
+      
+    </span>
+  </a>
   
 </li>
       
@@ -942,12 +953,7 @@
   
 </li>
         
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
+          <li class="md-nav__item">
   <a href="#graphql-in-the-java-ecosystem" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -955,6 +961,11 @@
       
     </span>
   </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -1030,6 +1041,17 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#summary" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Summary
+      
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -1051,16 +1073,16 @@
 
 
 <h1 id="an-introduction-to-graphql-and-spring">An introduction to GraphQL and Spring<a class="headerlink" href="#an-introduction-to-graphql-and-spring" title="Permanent link">&para;</a></h1>
+<p>GraphQL is more and more popular in developer communities. What began as an
+internal Facebook tool for mobile apps is now a cross-ecosystem standard, with
+servers and tooling for nearly every language and platform. On the JVM, that
+means one shared engine — GraphQL Java — and two Spring Boot frameworks built
+on top of it.</p>
 <p>This chapter is for Java developers who know Spring and want to understand
-GraphQL and the frameworks that run it on the JVM. It starts with what GraphQL
-is and why you would choose it over REST, then covers the schema language and
-the request/response protocol, the HTTP and WebSocket transports, and the
-GraphQL Java execution engine. It ends with the two Spring Boot frameworks —
-Netflix DGS and Spring GraphQL — how they merged, and how to choose between
-them.</p>
-<p>The examples use Java 25 and Spring Boot 4.1.2 / Spring Framework 7, with some
-written in Kotlin (Kotlin 2.4.x). This chapter is not a Spring tutorial; it
-assumes you can already build a Spring Boot application.</p>
+GraphQL and the frameworks that run it on the JVM. The examples use Java 25 and
+Spring Boot 4.1.2 / Spring Framework 7, with some written in Kotlin (Kotlin
+2.4.x). This chapter is not a Spring tutorial; it assumes you can already build
+a Spring Boot application.</p>
 <h2 id="what-is-graphql">What is GraphQL<a class="headerlink" href="#what-is-graphql" title="Permanent link">&para;</a></h2>
 <p>GraphQL is a query language for APIs and a runtime for executing those queries
 against your data. Facebook's mobile apps have been powered by GraphQL since
@@ -1444,9 +1466,11 @@ batch:</p>
 </code></pre></div>
 <p>Loaders are registered in a <code>DataLoaderRegistry</code> keyed by name. Spring GraphQL
 and DGS both build on this same mechanism.</p>
-<h2 id="graphql-in-the-java-ecosystem">GraphQL in the Java ecosystem<a class="headerlink" href="#graphql-in-the-java-ecosystem" title="Permanent link">&para;</a></h2>
+<h3 id="graphql-in-the-java-ecosystem">GraphQL in the Java ecosystem<a class="headerlink" href="#graphql-in-the-java-ecosystem" title="Permanent link">&para;</a></h3>
 <p>GraphQL on the JVM has gone through several generations of integration
-libraries. The framework links come from the
+libraries. GraphQL Java is the low-level engine; Netflix DGS and Spring
+GraphQL are the two actively maintained Spring Boot frameworks built on top
+of it. The framework links come from the
 <a href="https://github.com/hantsy/spring-graphql-sample#readme">README</a>.</p>
 <ul>
 <li><strong>2015: GraphQL Java.</strong> Facebook open-sourced the specification, and GraphQL
@@ -1467,7 +1491,11 @@ libraries. The framework links come from the
 <li><strong>The code-first alternative: SPQR.</strong>
   <a href="https://github.com/leangen/graphql-spqr">GraphQL SPQR</a> annotated plain Java
   methods and generated the schema from the code. Development is no longer
-  active.</li>
+  active, but the code-first approach lives on in
+  <a href="https://github.com/eclipse/microprofile-graphql">MicroProfile GraphQL</a>,
+  implemented by
+  <a href="https://github.com/smallrye/smallrye-graphql">SmallRye GraphQL</a> and
+  supported in Quarkus.</li>
 <li><strong>2021: Netflix DGS.</strong> Netflix open-sourced the
   <a href="https://netflix.github.io/dgs/">DGS (Domain Graph Service) framework</a> in
   February 2021 after years of internal use — an annotation-based Spring Boot
@@ -1746,6 +1774,15 @@ are the programming model and the tooling around it:</p>
 <code>spring-graphql*</code> modules demonstrate Spring GraphQL across every transport;
 both run the same blog domain (posts, authors, comments) against the same
 Postgres schema, so you can compare equivalent implementations directly.</p>
+<h2 id="summary">Summary<a class="headerlink" href="#summary" title="Permanent link">&para;</a></h2>
+<p>You have seen what GraphQL is and why you would choose it over REST, the schema
+language (SDL) and the request/response envelope, the HTTP and WebSocket
+transports, and the GraphQL Java execution engine. You have also met the two
+Spring Boot frameworks — Netflix DGS and Spring GraphQL — how DGS adopted
+Spring GraphQL as its foundation, and how to choose between them.</p>
+<p>To go further, clone the
+<a href="https://github.com/hantsy/spring-graphql-sample">spring-graphql-sample</a>
+repository and run one of the <code>dgs*</code> or <code>spring-graphql*</code> modules.</p>
 
 
 
