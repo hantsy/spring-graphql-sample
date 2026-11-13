@@ -56,19 +56,5 @@ plugins:
 nav:
   - Preface:
     - index.md
-  - Introduction to GraphQL:
-    - intro/index.md
-    - "Specification and schema": intro/spec.md
-    - "Requests and responses": intro/request-response.md
-    - "File upload": intro/file-upload.md
-    - "GraphQL over HTTP": intro/http.md
-    - "Subscriptions over WebSocket": intro/websocket.md
-  - GraphQL Java:
-    - java/index.md
-    - "Integration history": java/history.md
-  - Netflix DGS and Spring GraphQL:
-    - frameworks/index.md
-    - "Netflix DGS": frameworks/dgs.md
-    - "Spring GraphQL": frameworks/spring-graphql.md
-    - "The DGS and Spring GraphQL integration": frameworks/integration.md
-    - "DGS or Spring GraphQL?": frameworks/compare.md
+  - Start:
+    - "An introduction to GraphQL and Spring": start/intro.md

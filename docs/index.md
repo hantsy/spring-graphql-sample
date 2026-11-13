@@ -26,16 +26,11 @@ example index and build instructions.
 
 ## Read this guide
 
-Read the sections in order if you are new to GraphQL on the JVM:
-
-1. [Introduction to GraphQL](./intro/index.md) — the specification, the schema
-   language, and the HTTP and WebSocket transports.
-2. [GraphQL Java](./java/index.md) — the core concepts of the execution engine,
-   and the [integration history](./java/history.md) of GraphQL in the Java
-   ecosystem.
-3. [Netflix DGS and Spring GraphQL](./frameworks/index.md) — the two frameworks,
-   their [integration](./frameworks/integration.md), and
-   [how to choose](./frameworks/compare.md).
+If you are new to GraphQL on the JVM, read
+[An introduction to GraphQL and Spring](./start/intro.md): what GraphQL is and
+why you would use it instead of REST, the schema language and the
+request/response protocol, the HTTP and WebSocket transports, the GraphQL Java
+execution engine, and the Netflix DGS and Spring GraphQL frameworks.
 
 ## Contribute
 
