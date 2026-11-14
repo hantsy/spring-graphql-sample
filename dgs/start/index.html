@@ -1426,8 +1426,9 @@ creates these tables when the application starts:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="na">spring.sql.init.mode</span><span class="o">=</span><span class="s">always</span>
 </code></pre></div>
 <h3 id="start-postgresql-locally">Start PostgreSQL locally<a class="headerlink" href="#start-postgresql-locally" title="Permanent link">&para;</a></h3>
-<p>For a standalone project, add a <code>docker-compose.yml</code> with a PostgreSQL service.
-This service uses the same database name and credentials as the application:</p>
+<p>For a standalone project, create a <code>docker-compose.yml</code> file in the project
+root with a PostgreSQL service. This service uses the same database name and
+credentials as the application:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="nt">services</span><span class="p">:</span>
 <a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="w">  </span><span class="nt">postgres</span><span class="p">:</span>
 <a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="w">    </span><span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">postgres:16</span>
@@ -1801,7 +1802,7 @@ input; the <code>CommentInput</code> model is used by the WebFlux extension:</p>
 <a id="__codelineno-11-49" name="__codelineno-11-49" href="#__codelineno-11-49"></a>
 <a id="__codelineno-11-50" name="__codelineno-11-50" href="#__codelineno-11-50"></a><span class="c1">// PostStatus.java</span>
 <a id="__codelineno-11-51" name="__codelineno-11-51" href="#__codelineno-11-51"></a><span class="kd">public</span><span class="w"> </span><span class="kd">enum</span><span class="w"> </span><span class="n">PostStatus</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-11-52" name="__codelineno-11-52" href="#__codelineno-11-52"></a><span class="w">    </span><span class="n">DRAFT</span><span class="p">,</span><span class="w"> </span><span class="n">PENDING_MODERATION</span><span class="p">,</span><span class="w"> </span><span class="n">PUBLISHED</span>
+<a id="__codelineno-11-52" name="__codelineno-11-52" href="#__codelineno-11-52"></a><span class="w">    </span><span class="n">DRAFT</span><span class="p">,</span><span class="w"> </span><span class="n">PUBLISHED</span>
 <a id="__codelineno-11-53" name="__codelineno-11-53" href="#__codelineno-11-53"></a><span class="p">}</span>
 </code></pre></div>
 <p>Input types can declare Bean Validation constraints. <code>@NotEmpty</code> requires a
@@ -1816,8 +1817,7 @@ configuration.</p>
 <code>@DgsComponent</code>, then bind methods to schema fields with DGS annotations.</p>
 <p>Create a <code>PostsDataFetcher</code> class in package
 <code>com.example.demo.gql.datafetchers</code>. Use <code>@DgsQuery</code> and <code>@DgsMutation</code> for
-root operations, and <code>@DgsData</code> for nested fields. The example class handles
-all three kinds:</p>
+root operations, and <code>@DgsData</code> for nested fields.</p>
 <p>When a query selects nested fields such as <code>Post.author</code>, each field is
 resolved for every returned post. <strong>The N+1 problem</strong> occurs when this causes
 one extra database or service call per post. A <strong>DataLoader</strong> collects those
