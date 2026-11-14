@@ -108,8 +108,8 @@ type** describes data clients can pass to an operation. `Query` is the root
 type for reads, and `Mutation` is the root type for writes. In SDL, `!` marks
 a required value and square brackets mark a list.
 
-Create `src/main/resources/schema/schema.graphql` and define the blog types,
-queries, and mutation:
+Create a `schema.graphql` file in `src/main/resources/schema` and define the
+blog types, queries, and mutation:
 
 ```graphql
 type Post {
@@ -164,9 +164,7 @@ sample data. Complete these steps before you start the application.
 
 ### Create the database tables
 
-Create `src/main/resources/schema.sql`. Set
-`spring.sql.init.mode=always` in `application.properties` so Spring Boot
-creates these tables when the application starts:
+Create a `schema.sql` file in `src/main/resources`:
 
 ```sql
 CREATE TABLE IF NOT EXISTS users (
@@ -188,6 +186,13 @@ CREATE TABLE IF NOT EXISTS comments (
     content    VARCHAR(255),
     post_id    BIGINT REFERENCES posts(id) ON DELETE CASCADE
 );
+```
+
+Set `spring.sql.init.mode=always` in `application.properties` so Spring Boot
+creates these tables when the application starts:
+
+```properties
+spring.sql.init.mode=always
 ```
 
 ### Start PostgreSQL locally
@@ -222,9 +227,8 @@ run the sample.
 
 ### Map database rows to Java records
 
-Create Java records that represent rows in the three tables. Put each public
-record in a matching `.java` file under
-`src/main/java/com/example/demo/model/`:
+Create a Java record for each table in package `com.example.demo.model`, one
+record per file:
 
 ```java
 // PostEntity.java
@@ -256,9 +260,8 @@ public record AuthorEntity(
 
 ### Create the repositories
 
-Create `PostRepository.java` under
-`src/main/java/com/example/demo/repository/` to read and write posts with
-Spring's `JdbcClient`:
+Create a `PostRepository` class in package `com.example.demo.repository` to
+read and write posts with Spring's `JdbcClient`:
 
 ```java
 @Component
@@ -332,8 +335,8 @@ public class PostRepository {
 The `create` method inserts a post and returns the generated id, and `mapPost`
 maps a `ResultSet` row to a `PostEntity`.
 
-Create `CommentRepository.java` and `AuthorRepository.java` in the same
-directory for the other tables:
+Create `CommentRepository` and `AuthorRepository` classes in package
+`com.example.demo.repository` for the other tables:
 
 ```java
 // CommentRepository.java
@@ -464,8 +467,8 @@ public class AuthorRepository {
 
 ### Seed sample data
 
-An `ApplicationRunner` runs after Spring starts. Add `DataInitializer.java`
-under `src/main/java/com/example/demo/` to seed sample authors, posts, and
+An `ApplicationRunner` runs after Spring starts. Create a `DataInitializer`
+class in package `com.example.demo` to seed sample authors, posts, and
 comments, so you can query data right away:
 
 ```java
@@ -514,8 +517,8 @@ them to the repositories through a service and data fetchers.
 ## Step 4: Model GraphQL types
 
 GraphQL models are the Java objects returned by your data fetchers. Create a
-Java class for each schema object type under
-`src/main/java/com/example/demo/gql/types/`. Start with `Post.java`:
+Java class for each schema object type in package `com.example.demo.gql.types`.
+Start with `Post`:
 
 ```java
 @Data
@@ -541,7 +544,8 @@ public class Post {
 }
 ```
 
-Create `Author` and `Comment` to represent the remaining schema types.
+Create `Author` and `Comment` classes in package `com.example.demo.gql.types`
+to represent the remaining schema types.
 `PostStatus` is an application enum used to map the stored post status; the
 core schema does not expose it. The code-generation extension later adds it to
 the GraphQL schema. `CreatePostInput` represents the schema's create-post
@@ -617,10 +621,10 @@ configuration.
 `Post.author` when a client selects them. Mark the containing class with
 `@DgsComponent`, then bind methods to schema fields with DGS annotations.
 
-Add `PostsDataFetcher.java` under
-`src/main/java/com/example/demo/gql/datafetchers/`. Use `@DgsQuery` and
-`@DgsMutation` for root operations, and `@DgsData` for nested fields. The
-example class handles all three kinds:
+Create a `PostsDataFetcher` class in package
+`com.example.demo.gql.datafetchers`. Use `@DgsQuery` and `@DgsMutation` for
+root operations, and `@DgsData` for nested fields. The example class handles
+all three kinds:
 
 When a query selects nested fields such as `Post.author`, each field is
 resolved for every returned post. **The N+1 problem** occurs when this causes
@@ -683,8 +687,8 @@ The annotations, in order of appearance:
 ### Add the service layer
 
 The service layer keeps database access out of your data fetchers. It calls
-the repositories and maps database entities to GraphQL models. Add
-`PostService.java` under `src/main/java/com/example/demo/service/`:
+the repositories and maps database entities to GraphQL models. Create a
+`PostService` class in package `com.example.demo.service`:
 
 ```java
 @Service
@@ -754,9 +758,9 @@ public class PostService {
 The `authorsLoader` implements a batched lookup. Register it with
 `@DgsDataLoader`; DGS gathers keys requested by the field fetchers and passes
 them to `load` together. For example, ten posts can load their authors with
-one `WHERE id IN (...)` query instead of ten individual queries. Put
-`AuthorsDataLoader.java` and `CommentsDataLoader.java` in
-`src/main/java/com/example/demo/gql/dataloaders/`:
+one `WHERE id IN (...)` query instead of ten individual queries. Create
+`AuthorsDataLoader` and `CommentsDataLoader` classes in package
+`com.example.demo.gql.dataloaders`:
 
 ```java
 @DgsDataLoader(name = "authorsLoader")
@@ -809,9 +813,8 @@ public class CommentsDataLoader implements MappedBatchLoader<Long, List<Comment>
 errors in the GraphQL response. Implement `DataFetcherExceptionHandler` to
 choose how known exceptions map to errors, while delegating unexpected ones to
 the default handler. DGS's `TypedGraphQLError` can attach a well-known error
-type such as `NOT_FOUND`. Add
-`CustomDataFetchingExceptionHandler.java` under
-`src/main/java/com/example/demo/gql/`:
+type such as `NOT_FOUND`. Create a `CustomDataFetchingExceptionHandler` class
+in package `com.example.demo.gql`:
 
 ```java
 @Component
