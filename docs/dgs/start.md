@@ -316,14 +316,48 @@ right you run operations and read the response.
 
 Create a post with the `createPost` mutation:
 
+```graphql
+mutation {
+  createPost(createPostInput: { title: "Hello DGS", content: "My first post" }) {
+    id
+    title
+    content
+  }
+}
+```
+
 ![Creating a post in GraphiQL](../ui-createPost.png)
 
 Then read it back. `allPosts` returns every post, resolving each author and
 comment list too:
 
+```graphql
+{
+  allPosts {
+    id
+    title
+    content
+    author { name email }
+    comments { id content }
+  }
+}
+```
+
 ![Listing posts in GraphiQL](../ui-allPosts.png)
 
 And fetch one post by id with `postById`:
+
+```graphql
+{
+  postById(postId: "1") {
+    id
+    title
+    content
+    author { name email }
+    comments { id content }
+  }
+}
+```
 
 ![Fetching a single post in GraphiQL](../ui-postById.png)
 
