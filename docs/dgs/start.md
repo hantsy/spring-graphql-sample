@@ -1,103 +1,49 @@
-# Getting started with Netflix DGS
+# Build a GraphQL API with Netflix DGS
 
-Netflix DGS (Domain Graph Service) is a GraphQL framework that Netflix
-open-sourced in 2021 and has run in production since. It gives Spring Boot
-developers a schema-first, annotation-driven way to build GraphQL APIs on top
-of GraphQL Java.
+This tutorial is for Java developers who know Spring Boot and want to build a
+GraphQL API with Netflix DGS (Domain Graph Service). You build a small blog
+API for posts, authors, and comments, connect it to PostgreSQL, and try it in
+GraphiQL.
 
-In this guide you build a small blog API — `Post`, `Author`, and `Comment` —
-and, along the way, meet the pieces that make up a DGS application: the schema,
-data fetchers, data loaders, error handling, and validation. From there you
-extend it to a reactive WebFlux stack, generate types with the DGS codegen
-plugin, call the API with the generated client, and accept file uploads.
-
-Every section maps to a working module in the repository. The code excerpts
-are trimmed to the parts that matter.
-
-This tutorial follows the same order you would use to build the service:
-
-1. Define the GraphQL schema and the Java data model.
-2. Connect DGS fetchers to the schema and persist data.
-3. Run the application and exercise its API in GraphiQL.
-4. Extend the service with reactive execution, generated types, custom
-   components, a typesafe client, and file uploads.
-
-Repository: [spring-graphql-sample](https://github.com/hantsy/spring-graphql-sample).
+Start with the core API, then explore optional extensions: reactive execution
+with WebFlux, generated types, custom scalars and directives, a typesafe
+client, and file uploads. This guide focuses on a single service; it does not
+cover federation or production deployment. The examples correspond to working
+modules in the
+[spring-graphql-sample repository](https://github.com/hantsy/spring-graphql-sample).
+Code excerpts omit package declarations and imports when they are not needed
+to understand the step.
 
 ## Prerequisites
 
-- **Java 25** — the examples target Spring Boot 4.1.2 / Spring Framework 7.
-- **Docker** — the blog API stores data in PostgreSQL, started with Docker
-  Compose.
-- **Maven** — optional; every module ships its own Maven Wrapper (`mvnw`).
+Before you begin, install or prepare the following:
 
-## The blog domain and schema
+- Java 25. The examples target Spring Boot 4.1.2 and Spring Framework 7.
+- Docker running locally, for PostgreSQL.
+- Git, if you want to clone and run the sample repository.
+
+You do not need to install Maven separately; Spring Initializr generates a
+Maven Wrapper with the project.
 
 **A GraphQL schema** is the contract that describes which data clients can
 read or change and what each operation returns. DGS is schema-first: you write
 that contract in the GraphQL Schema Definition Language (SDL), then connect
 Java code to its fields.
 
-Start with three object types: a post, its author, and its comments. An
-**object type** describes a value clients can select fields from; an **input
-type** describes structured data clients can pass into an operation. `Query`
-is the root for reads, and `Mutation` is the root for writes. In SDL, `!`
-means a value is required, while brackets describe a list.
+## Step 1: Create a Spring Boot project
 
-Here is the schema for the blog domain — the types, their fields, and the operations clients can call:
+Create a Maven project with [Spring Initializr](https://start.spring.io/):
 
-```graphql
-type Post {
-    id: ID!
-    title: String!
-    content: String
-    comments: [Comment]
-    authorId: String
-    author: Author
-}
+1. Select Java 25 and Spring Boot 4.1.2.
+2. Set the group to `com.example` and the artifact to `demo` to match the
+   package names in the examples.
+3. Add Spring Web, Validation, JDBC API, PostgreSQL Driver, and Lombok.
+4. Generate the project, extract it, and open it in your IDE.
 
-type Author {
-    id: ID!
-    name: String!
-    email: String!
-    posts: [Post]
-}
-
-type Comment {
-    id: ID!
-    content: String!
-    postId: String!
-}
-
-input CreatePostInput {
-    title: String!
-    content: String!
-}
-
-type Query {
-    allPosts: [Post!]!
-    postById(postId: ID!): Post
-}
-
-type Mutation {
-    createPost(createPostInput: CreatePostInput!): Post!
-}
-```
-
-The three object types are the nodes of the graph, `CreatePostInput` is the
-argument you pass to create a post, and the `Query` and `Mutation` root types
-are the entry points clients call.
-
-## Generate project skeleton
-
-Start from a standard Spring Boot skeleton. Scaffold it with
-[Spring Initializr](https://start.spring.io/), selecting Web (Spring MVC),
-Validation, JDBC API, PostgreSQL Driver, and Lombok.
-
-Then add the DGS dependencies: import the
-`graphql-dgs-platform-dependencies` BOM in `dependencyManagement`, and add
-`dgs-starter` to the dependencies. The relevant parts of `pom.xml` look like
-this:
+**A BOM** (bill of materials) keeps related dependency versions aligned. Add
+the DGS BOM to `pom.xml`, then add `dgs-starter` and the Spring Boot
+dependencies for web, validation, and JDBC. The relevant parts of the POM
+look like this:
 
 ```xml
 <properties>
@@ -147,19 +93,84 @@ this:
 </dependencies>
 ```
 
-- `dgs-starter` is the DGS auto-configuration. Since DGS 9 it is built on
-  Spring GraphQL, so it also pulls in Spring GraphQL's execution and transport
-  support.
+The dependencies serve these roles:
+
+- `dgs-starter` configures DGS and its GraphQL execution support.
 - `spring-boot-starter-webmvc` provides the HTTP endpoint.
-- `spring-boot-starter-validation` enables Bean Validation on input types.
-- `spring-boot-starter-data-jdbc` and the PostgreSQL driver give us a
-  `JdbcClient` for persistence.
+- `spring-boot-starter-validation` provides Bean Validation.
+- `spring-boot-starter-data-jdbc` and the PostgreSQL driver provide
+  `JdbcClient` and PostgreSQL connectivity.
 
-## Set up database  
+Example project: [the `dgs` module](https://github.com/hantsy/spring-graphql-sample/tree/master/dgs).
 
-Next, create the tables in `src/main/resources/schema.sql`.
-`spring.sql.init.mode=always` tells Spring Boot to run the script when the
-application starts:
+## Step 2: Define the GraphQL schema
+
+An **object type** describes data clients can select fields from. An **input
+type** describes data clients can pass to an operation. `Query` is the root
+type for reads, and `Mutation` is the root type for writes. In SDL, `!` marks
+a required value and square brackets mark a list.
+
+Create `src/main/resources/schema/schema.graphql` and define the blog types,
+queries, and mutation:
+
+```graphql
+type Post {
+    id: ID!
+    title: String!
+    content: String
+    comments: [Comment]
+    authorId: String
+    author: Author
+}
+
+type Author {
+    id: ID!
+    name: String!
+    email: String!
+    posts: [Post]
+}
+
+type Comment {
+    id: ID!
+    content: String!
+    postId: String!
+}
+
+input CreatePostInput {
+    title: String!
+    content: String!
+}
+
+type Query {
+    allPosts: [Post!]!
+    postById(postId: ID!): Post
+}
+
+type Mutation {
+    createPost(createPostInput: CreatePostInput!): Post!
+}
+```
+
+This schema exposes two queries and one mutation. The `Post`, `Author`, and
+`Comment` object types describe returned data; `CreatePostInput` describes the
+input to `createPost`. The schema also declares `Author.posts`, but the core
+example does not implement that reverse relationship. Use `Post.author` in the
+queries below; add an `Author.posts` data fetcher before querying the reverse
+relationship.
+
+Example schema: [the `dgs` module](https://github.com/hantsy/spring-graphql-sample/tree/master/dgs).
+
+## Step 3: Set up PostgreSQL and persistence
+
+The persistence layer has five parts: a database schema, a local PostgreSQL
+instance, Java records that map database rows, repositories that run SQL, and
+sample data. Complete these steps before you start the application.
+
+### Create the database tables
+
+Create `src/main/resources/schema.sql`. Set
+`spring.sql.init.mode=always` in `application.properties` so Spring Boot
+creates these tables when the application starts:
 
 ```sql
 CREATE TABLE IF NOT EXISTS users (
@@ -183,30 +194,41 @@ CREATE TABLE IF NOT EXISTS comments (
 );
 ```
 
-For local development, run the database with Docker Compose and use
-Testcontainers to start a throwaway PostgreSQL for integration tests.
+### Start PostgreSQL locally
 
-An example `docker-compose.yml`:
+For a standalone project, add a `docker-compose.yml` with a PostgreSQL service.
+This service uses the same database name and credentials as the application:
 
 ```yaml
-version: "3.8"
 services:
   postgres:
-    image: postgres:15.3-alpine
-    container_name: blog-postgres
+    image: postgres:16
     environment:
       POSTGRES_DB: blogdb
       POSTGRES_USER: user
       POSTGRES_PASSWORD: password
     ports:
       - "5432:5432"
-    healthcheck:
-      test: ["CMD", "pg_isready", "-U", "user"]
-      interval: 10s 
-```      
+```
 
+Add these connection settings to `src/main/resources/application.properties`:
 
-Next, create Java records that represent the rows in those tables:
+```properties
+spring.datasource.url=jdbc:postgresql://localhost/blogdb
+spring.datasource.username=user
+spring.datasource.password=password
+spring.sql.init.mode=always
+```
+
+The sample repository already has a shared PostgreSQL service in its root
+`docker-compose.yml`; use that file instead of creating another one when you
+run the sample.
+
+### Map database rows to Java records
+
+Create Java records that represent rows in the three tables. Put each public
+record in a matching `.java` file under
+`src/main/java/com/example/demo/model/`:
 
 ```java
 // PostEntity.java
@@ -236,7 +258,11 @@ public record AuthorEntity(
 }
 ```
 
-Then create a repository that handles persistence for posts:
+### Create the repositories
+
+Create `PostRepository.java` under
+`src/main/java/com/example/demo/repository/` to read and write posts with
+Spring's `JdbcClient`:
 
 ```java
 @Component
@@ -310,7 +336,8 @@ public class PostRepository {
 The `create` method inserts a post and returns the generated id, and `mapPost`
 maps a `ResultSet` row to a `PostEntity`.
 
-Create similar repositories for comments and authors:
+Create `CommentRepository.java` and `AuthorRepository.java` in the same
+directory for the other tables:
 
 ```java
 // CommentRepository.java
@@ -439,8 +466,11 @@ public class AuthorRepository {
 }
 ```
 
-A `DataInitializer` bean implements `ApplicationRunner` and seeds a few posts
-and comments on startup, so you have data to query right away:
+### Seed sample data
+
+An `ApplicationRunner` runs after Spring starts. Add `DataInitializer.java`
+under `src/main/java/com/example/demo/` to seed sample authors, posts, and
+comments, so you can query data right away:
 
 ```java
 @Component
@@ -478,13 +508,20 @@ public class DataInitializer implements ApplicationRunner {
 }
 ```
 
-The database side is done. Next you map the schema to Java: first the GraphQL
-type models, then the data fetchers that connect them to the repositories.
+The sample initializer deletes existing authors, posts, and comments before it
+seeds new rows. Use it only with a disposable local database; do not copy this
+cleanup behavior into production.
 
-## GraphQL type models
+The persistence layer is ready. Next, create the GraphQL models and connect
+them to the repositories through a service and data fetchers.
 
-The schema is the contract between client and server. Now create Java classes
-that mirror its types. Here is the `Post` model:
+Example persistence code: [the `dgs` module](https://github.com/hantsy/spring-graphql-sample/tree/master/dgs).
+
+## Step 4: Model GraphQL types
+
+GraphQL models are the Java objects returned by your data fetchers. Create a
+Java class for each schema object type under
+`src/main/java/com/example/demo/gql/types/`. Start with `Post.java`:
 
 ```java
 @Data
@@ -510,8 +547,11 @@ public class Post {
 }
 ```
 
-Create the remaining types — `Author`, `Comment`, and the two input types —
-the same way:
+Create `Author` and `Comment` to represent the remaining schema types.
+`PostStatus` is an application enum used to map the stored post status; the
+core schema does not expose it. The code-generation extension later adds it to
+the GraphQL schema. `CreatePostInput` represents the schema's create-post
+input; the `CommentInput` model is used by the WebFlux extension:
 
 ```java
 
@@ -570,26 +610,32 @@ public enum PostStatus {
 }
 ```
 
-Input types can also declare validation constraints. Bean Validation checks
-them before your service runs: `@NotEmpty` requires a value, and `@Length`
-bounds the title's length.
+Input types can declare Bean Validation constraints. `@NotEmpty` requires a
+value, and `@Length` limits the title. These annotations do not run by
+themselves: to validate a GraphQL argument, add `@Valid` to the argument and
+`@Validated` to the fetcher class. The WebFlux example later shows this
+configuration.
 
-## Data fetchers
+Example model code: [the `dgs` module](https://github.com/hantsy/spring-graphql-sample/tree/master/dgs).
 
-**A data fetcher** is the resolver that supplies the value for a GraphQL
-schema field. A request enters through a `Query` or `Mutation` fetcher; nested
-fields such as `Post.author` are resolved separately when a client selects
-them. Mark the containing class with `@DgsComponent`, then bind methods to
-schema fields with DGS annotations.
+## Step 5: Implement data fetchers
 
-The following implementation covers the request flow: list posts, find one
-post, resolve its nested author and comments, and create a post.
+**A data fetcher** resolves a GraphQL schema field. A request enters through a
+`Query` or `Mutation` fetcher; DGS also resolves nested fields such as
+`Post.author` when a client selects them. Mark the containing class with
+`@DgsComponent`, then bind methods to schema fields with DGS annotations.
+
+Add `PostsDataFetcher.java` under
+`src/main/java/com/example/demo/gql/datafetchers/`. Use `@DgsQuery` and
+`@DgsMutation` for root operations, and `@DgsData` for nested fields. The
+example class handles all three kinds:
 
 When a query selects nested fields such as `Post.author`, each field is
 resolved for every returned post. **The N+1 problem** occurs when this causes
 one extra database or service call per post. A **DataLoader** collects those
 lookup keys, batches them, and caches results for the current request. The
-fetchers below use DataLoaders for authors and comments.
+following resolver class handles root operations and delegates nested lookups
+to DataLoaders:
 
 ```java
 @DgsComponent
@@ -642,8 +688,11 @@ The annotations, in order of appearance:
   the parameter type. `@InputArgument("createPostInput")` names the argument
   explicitly because the parameter is `input`, not `createPostInput`.
 
-`PostService` is the service layer: it delegates to the repositories and
-converts database entities into GraphQL types.
+### Add the service layer
+
+The service layer keeps database access out of your data fetchers. It calls
+the repositories and maps database entities to GraphQL models. Add
+`PostService.java` under `src/main/java/com/example/demo/service/`:
 
 ```java
 @Service
@@ -708,10 +757,14 @@ public class PostService {
 }
 ```
 
-The `authorsLoader` data loader implements the batched lookup. Register one
-with `@DgsDataLoader`, and DGS gathers the keys the field fetchers request and
-passes them to `load` in one call. Ten posts load their authors with a single
-`WHERE id IN (...)` query instead of ten:
+### Batch nested-field lookups
+
+The `authorsLoader` implements a batched lookup. Register it with
+`@DgsDataLoader`; DGS gathers keys requested by the field fetchers and passes
+them to `load` together. For example, ten posts can load their authors with
+one `WHERE id IN (...)` query instead of ten individual queries. Put
+`AuthorsDataLoader.java` and `CommentsDataLoader.java` in
+`src/main/java/com/example/demo/gql/dataloaders/`:
 
 ```java
 @DgsDataLoader(name = "authorsLoader")
@@ -758,14 +811,17 @@ public class CommentsDataLoader implements MappedBatchLoader<Long, List<Comment>
 }
 ```
 
+Example fetchers: [the `dgs` module](https://github.com/hantsy/spring-graphql-sample/tree/master/dgs).
 
-## Error handling
+## Step 6: Handle errors
 
 **Error handling** converts exceptions thrown during field resolution into
 errors in the GraphQL response. Implement `DataFetcherExceptionHandler` to
 choose how known exceptions map to errors, while delegating unexpected ones to
 the default handler. DGS's `TypedGraphQLError` can attach a well-known error
-type such as `NOT_FOUND`:
+type such as `NOT_FOUND`. Add
+`CustomDataFetchingExceptionHandler.java` under
+`src/main/java/com/example/demo/gql/`:
 
 ```java
 @Component
@@ -790,16 +846,18 @@ public class CustomDataFetchingExceptionHandler implements DataFetcherExceptionH
 }
 ```
 
-Now a `postById` for a missing id returns a typed `NOT_FOUND` error with a
-clear message instead of a generic stack trace. The `dgs-webflux` module goes
-one step further and also maps `ConstraintViolationException` to a typed
-`BAD_REQUEST`, so validation failures are reported consistently.
+Now a `postById` request for a missing id returns a typed `NOT_FOUND` error
+with a clear message. The `dgs-webflux` module also maps
+`ConstraintViolationException` to a typed `BAD_REQUEST`, so validation
+failures are reported consistently.
 
 Example code: [the `dgs` module](https://github.com/hantsy/spring-graphql-sample/tree/master/dgs), [the `dgs-codegen` module](https://github.com/hantsy/spring-graphql-sample/tree/master/dgs-codegen), and [the `dgs-webflux` module](https://github.com/hantsy/spring-graphql-sample/tree/master/dgs-webflux).
 
-## Build and run
+## Step 7: Run the application
 
-Follow these steps to start the database and the application:
+Start PostgreSQL and the application. The following steps use the checked-in
+sample; if you created a standalone project, run Docker Compose and its Maven
+Wrapper from that project's root directory:
 
 1. From the repository root, start the shared PostgreSQL container:
 
@@ -810,30 +868,35 @@ Follow these steps to start the database and the application:
    The `docker-compose.yml` creates a `blogdb` database with user `user` and
    password `password`, matching `application.properties`.
 
-2. Start the application from its module directory:
+2. Start the DGS application:
 
    ```bash
    cd dgs
    ./mvnw spring-boot:run
    ```
 
-   On Windows, use `mvnw.cmd spring-boot:run`.
+   On Windows, run `mvnw.cmd spring-boot:run` from the `dgs` directory. For a
+   standalone project, omit `cd dgs`.
 
-When the `Started DemoApplication` log line appears, the server is ready. Open
-`http://localhost:8080/graphiql` in your browser.
+When the `Started DemoApplication` log line appears, the server is ready.
 
-## GraphiQL
+Open `http://localhost:8080/graphiql` in your browser to run a GraphQL
+operation. The server provides GraphiQL at this path.
+
+Example application: [the `dgs` module](https://github.com/hantsy/spring-graphql-sample/tree/master/dgs).
+
+## Step 8: Test the API in GraphiQL
 
 **GraphiQL** is an in-browser GraphQL IDE. It reads the schema through
 introspection and provides field completion, schema documentation, and a query
-runner. Open the IDE at `http://localhost:8080/graphiql`; the schema explorer
-is on the left and the operation editor and response are on the right.
+runner. The schema explorer is on the left; use the operation editor and
+response panel to try the API.
 
-Start by creating a post. A **mutation** changes server-side data; its
-selection set specifies which fields the server should return after the
-change.
+### Create a post
 
-Create a post with the `createPost` mutation:
+A **mutation** changes server-side data. Run this operation to create a post
+and return its id, title, and content. Paste the operation into the editor and
+run it:
 
 ```graphql
 mutation {
@@ -847,9 +910,14 @@ mutation {
 
 ![Creating a post in GraphiQL](ui-createPost.png)
 
-Next, read the data back. A **query** reads data without changing it.
-`allPosts` returns every post, and the nested selections request each post's
-author and comments:
+GraphiQL should show the new post's id, title, and content. Next, list posts
+and check that the new post appears with its author and comments.
+
+### List posts
+
+A **query** reads data without changing it. Paste this operation into the
+editor and run it. `allPosts` returns every post, and the nested selections
+request each post's author and comments:
 
 ```graphql
 {
@@ -865,8 +933,10 @@ author and comments:
 
 ![Listing posts in GraphiQL](ui-allPosts.png)
 
-Finally, use `postById` to request one post by id. GraphQL returns only the
-fields in the selection set:
+### Fetch one post
+
+Use `postById` to request one post by id. Paste this operation into the editor
+and run it; GraphQL returns only the fields in the selection set:
 
 ```graphql
 {
@@ -888,12 +958,13 @@ query per post.
 
 Example code: [the `dgs` module](https://github.com/hantsy/spring-graphql-sample/tree/master/dgs).
 
-## Switching to WebFlux
+## Switch to WebFlux
 
 **WebFlux** is Spring's reactive web stack. **R2DBC** provides reactive
 relational database access, unlike the blocking JDBC API used above. The
 `dgs-webflux` module keeps the same domain and schema but replaces the
-servlet/JDBC dependencies with WebFlux and R2DBC:
+servlet/JDBC dependencies with WebFlux and R2DBC. Replace the MVC and JDBC
+dependencies with these:
 
 ```xml
 <dependency>
@@ -912,8 +983,11 @@ servlet/JDBC dependencies with WebFlux and R2DBC:
 ```
 
 Make the same change in your application: replace `webmvc` with `webflux` and
-JDBC with R2DBC. Fetchers then return Reactor's `Mono` (zero or one value) or
-`Flux` (a stream of values); the DGS annotations stay the same.
+JDBC with R2DBC. You must also update the repository and service layers to use
+reactive database operations; changing dependencies alone does not make
+blocking JDBC code reactive. Fetchers then return Reactor's `Mono` (zero or
+one value) or `Flux` (a stream of values); the DGS annotations stay the same.
+The fetcher methods then look like this:
 
 ```java
 @DgsComponent
@@ -949,7 +1023,7 @@ public class PostsDataFetcher {
 }
 ```
 
-There are two additions to notice:
+This example adds input validation and a subscription:
 
 - `@Valid` on the argument turns on Bean Validation for `CreatePostInput`.
 - `@DgsSubscription` turns a method that returns a reactive `Publisher` into a
@@ -962,15 +1036,23 @@ updates.
 
 Example code: [the `dgs-webflux` module](https://github.com/hantsy/spring-graphql-sample/tree/master/dgs-webflux).
 
-## Codegen for type safety
+## Generate types from the schema
 
 **Code generation** creates Java types and constants from the GraphQL schema,
 reducing the chance that Java code and schema names drift apart. The
 `dgs-codegen` module uses the DGS codegen Maven plugin to generate
 `Post`, `Author`, `CreatePostInput`, and a `DgsConstants` class.
 
-To try it, configure the plugin in `pom.xml` and add the generated sources to
-the build:
+To try it, set the plugin version in `pom.xml`:
+
+```xml
+<properties>
+    <dgs-codegen-plugin.version>3.10.2</dgs-codegen-plugin.version>
+</properties>
+```
+
+Add the codegen plugin under `build/plugins`. Point `schemaPaths` at your SDL
+files and choose the generated Java package:
 
 ```xml
 <plugin>
@@ -993,9 +1075,45 @@ the build:
 </plugin>
 ```
 
-Because this is the Maven plugin rather than the Gradle one, you also add
-`graphql-dgs-codegen-shared-core`, which supplies the base classes of the
-generated client API.
+The Maven plugin does not register its output directory as a source root.
+Add `build-helper-maven-plugin` so Maven compiles the generated files:
+
+```xml
+<plugin>
+    <groupId>org.codehaus.mojo</groupId>
+    <artifactId>build-helper-maven-plugin</artifactId>
+    <executions>
+        <execution>
+            <id>add-dgs-source</id>
+            <phase>generate-sources</phase>
+            <goals>
+                <goal>add-source</goal>
+            </goals>
+            <configuration>
+                <sources>
+                    <source>${project.build.directory}/generated-sources</source>
+                </sources>
+            </configuration>
+        </execution>
+    </executions>
+</plugin>
+```
+
+If you generate the client API, add `graphql-dgs-codegen-shared-core`; it
+provides base classes used by the generated client. The Maven plugin does not
+add this dependency automatically. Use the version property from the sample
+POM or set the version shown here:
+
+```xml
+<dependency>
+    <groupId>com.netflix.graphql.dgs.codegen</groupId>
+    <artifactId>graphql-dgs-codegen-shared-core</artifactId>
+    <version>8.8.0</version>
+</dependency>
+```
+
+Run `./mvnw compile` from the module root. Maven generates the Java types and
+compiles them with your application code.
 
 The generated types follow the schema. This version adds an enum, a timestamp,
 and two concepts used later in the tutorial:
@@ -1051,9 +1169,10 @@ Example code: [the `dgs-codegen` module](https://github.com/hantsy/spring-graphq
 A **scalar** is a leaf value in a GraphQL response: clients select it directly
 but cannot request subfields from it. GraphQL has built-in scalars such as
 `String` and `Int`; a **custom scalar** adds a domain-specific value type.
-Declare `LocalDateTime` in the schema, then register a coercer with
-`@DgsScalar` to convert between Java values and the string representation sent
-over GraphQL:
+The schema in the code-generation section declares `LocalDateTime`. Register
+a coercer with `@DgsScalar` to convert between Java values and the string
+representation sent over GraphQL. Implement serialization and both input
+parsing paths:
 
 ```java
 @DgsScalar(name = "LocalDateTime")
@@ -1068,6 +1187,14 @@ public class LocalDateTimeScalar implements Coercing<LocalDateTime, String> {
     }
 
     @Override
+    public LocalDateTime parseValue(Object input, GraphQLContext ctx, Locale locale) {
+        if (input instanceof String value) {
+            return LocalDateTime.parse(value, DateTimeFormatter.ISO_DATE_TIME);
+        }
+        throw new CoercingParseValueException("Value is not a valid ISO date time");
+    }
+
+    @Override
     public LocalDateTime parseLiteral(Value<?> input, CoercedVariables variables,
                                       GraphQLContext ctx, Locale locale) {
         if (input instanceof StringValue value) {
@@ -1078,19 +1205,23 @@ public class LocalDateTimeScalar implements Coercing<LocalDateTime, String> {
 }
 ```
 
-`serialize` turns a `LocalDateTime` into the ISO string sent to the client;
-`parseValue`/`parseLiteral` do the reverse for input. A `UUIDScalar` does the
-same for `java.util.UUID`. The `graphql-dgs-extended-scalars` dependency ships
-ready-made scalars for common types if you would rather not write your own.
+`serialize` converts the Java value to an ISO string for the response.
+`parseValue` handles variables, and `parseLiteral` handles values written
+directly in a GraphQL document. A `UUIDScalar` follows the same pattern for
+`java.util.UUID`. The checked-in `dgs-codegen` scalar accepts a
+`LocalDateTime` object in `parseValue`; the string parsing shown here is needed
+for standard ISO date-time strings in GraphQL JSON variables. The
+`graphql-dgs-extended-scalars` dependency also provides scalars for common
+types.
 
 Example code: [the `dgs-codegen` module](https://github.com/hantsy/spring-graphql-sample/tree/master/dgs-codegen).
 
 ## Custom directives
 
 A **directive** is an annotation in the schema that adds behavior to a type,
-field, or argument. Define its location in SDL, then implement
-`SchemaDirectiveWiring` to wrap or replace the field's data fetcher. The
-`@uppercase` directive changes the value returned for the decorated field:
+field, or argument. The schema already declares `@uppercase` for fields.
+Register its behavior by implementing `SchemaDirectiveWiring` and wrapping the
+field's data fetcher:
 
 ```java
 @DgsDirective(name = "uppercase")
@@ -1125,6 +1256,111 @@ generated Java classes rather than hand-written query strings. The
 `dgs-client` module is a separate command-line application: it declares the
 same schema, enables `generateClientApi`, and depends on
 `graphql-dgs-client` and `spring-boot-starter-restclient`.
+
+Add these version properties and import the DGS bill of materials (BOM) in
+`pom.xml`:
+
+```xml
+<properties>
+    <dgs-platform.version>12.1.0</dgs-platform.version>
+    <dgs-codegen-plugin.version>3.10.2</dgs-codegen-plugin.version>
+    <dgs-codegen-core.version>8.8.0</dgs-codegen-core.version>
+</properties>
+
+<dependencyManagement>
+    <dependencies>
+        <dependency>
+            <groupId>com.netflix.graphql.dgs</groupId>
+            <artifactId>graphql-dgs-platform-dependencies</artifactId>
+            <version>${dgs-platform.version}</version>
+            <type>pom</type>
+            <scope>import</scope>
+        </dependency>
+    </dependencies>
+</dependencyManagement>
+```
+
+Add the generated-client support library, DGS client, and Spring HTTP client
+dependencies. The sample also includes WebMVC and the Jackson Kotlin module:
+
+```xml
+<dependencies>
+    <dependency>
+        <groupId>com.netflix.graphql.dgs.codegen</groupId>
+        <artifactId>graphql-dgs-codegen-shared-core</artifactId>
+        <version>${dgs-codegen-core.version}</version>
+    </dependency>
+    <dependency>
+        <groupId>com.netflix.graphql.dgs</groupId>
+        <artifactId>graphql-dgs-client</artifactId>
+    </dependency>
+    <dependency>
+        <groupId>tools.jackson.module</groupId>
+        <artifactId>jackson-module-kotlin</artifactId>
+    </dependency>
+    <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-webmvc</artifactId>
+    </dependency>
+    <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-restclient</artifactId>
+    </dependency>
+</dependencies>
+```
+
+Configure the Maven code-generation plugin to read the schema and generate the
+client API. Register its generated source directory so Maven compiles those
+classes:
+
+```xml
+<build>
+    <plugins>
+        <plugin>
+            <groupId>io.github.deweyjose</groupId>
+            <artifactId>graphqlcodegen-maven-plugin</artifactId>
+            <version>${dgs-codegen-plugin.version}</version>
+            <executions>
+                <execution>
+                    <id>dgs-codegen</id>
+                    <goals>
+                        <goal>generate</goal>
+                    </goals>
+                    <configuration>
+                        <schemaPaths>
+                            <param>${project.basedir}/src/main/resources/schema</param>
+                        </schemaPaths>
+                        <packageName>com.example.demo.gql</packageName>
+                        <generateClientApi>true</generateClientApi>
+                    </configuration>
+                </execution>
+            </executions>
+        </plugin>
+        <plugin>
+            <groupId>org.codehaus.mojo</groupId>
+            <artifactId>build-helper-maven-plugin</artifactId>
+            <executions>
+                <execution>
+                    <id>add-dgs-source</id>
+                    <phase>generate-sources</phase>
+                    <goals>
+                        <goal>add-source</goal>
+                    </goals>
+                    <configuration>
+                        <sources>
+                            <source>${project.build.directory}/generated-sources</source>
+                        </sources>
+                    </configuration>
+                </execution>
+            </executions>
+        </plugin>
+    </plugins>
+</build>
+```
+
+From the client module directory, run `./mvnw generate-sources` (or
+`mvnw.cmd generate-sources` on Windows) to generate the Java classes before
+building the client.
 
 The generated client API has two parts. A query object identifies the
 operation, while a projection describes the fields requested in the selection
@@ -1166,7 +1402,15 @@ Example code: [the `dgs-client` module](https://github.com/hantsy/spring-graphql
 need a transport convention to send files alongside GraphQL operations. The
 `dgs-fileupload` module uses the GraphQL multipart request specification,
 implemented for Spring GraphQL by the `multipart-spring-graphql` library.
-First, add the library dependency:
+Add the library version to `pom.xml`:
+
+```xml
+<properties>
+    <multipart-spring-graphql.version>2.1.0</multipart-spring-graphql.version>
+</properties>
+```
+
+Then add the dependency:
 
 ```xml
 <dependency>
@@ -1208,6 +1452,10 @@ public class FileUploadMutation {
 
 The multipart parsing happens in the transport layer; your fetcher only sees
 the resolved `MultipartFile`.
+
+The sample reads and logs the file's metadata and text content; it does not
+store the file. Add your own storage and input checks before using uploads in
+an application.
 
 References: [GraphQL multipart request specification](https://github.com/jaydenseric/graphql-multipart-request-spec) and [multipart-spring-graphql](https://github.com/nkonev/multiple-spring-graphql).
 
