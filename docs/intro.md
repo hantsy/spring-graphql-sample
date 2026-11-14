@@ -740,6 +740,18 @@ the `Upload` scalar to a Spring `MultipartFile`. The
 [dgs-fileupload](https://github.com/hantsy/spring-graphql-sample/tree/master/dgs-fileupload)
 example has been updated to use it.
 
+### GraphQL Kotlin
+
+[GraphQL Kotlin](https://opensource.expediagroup.com/graphql-kotlin/docs) is
+Expedia Group's code-first GraphQL library for Kotlin. Unlike DGS and Spring
+GraphQL, which are schema-first, GraphQL Kotlin generates the schema from your
+Kotlin code, so there is no SDL to maintain.
+
+It ships server integrations for both Spring and Ktor, with first-class
+coroutine support, plus schema generation, federation, and client tooling. The
+[graphql-kotlin](https://github.com/hantsy/spring-graphql-sample/tree/master/graphql-kotlin)
+example demonstrates it with Spring Boot.
+
 ### Choosing a framework
 
 - **Starting a new Spring Boot application** — choose Spring GraphQL. It is
