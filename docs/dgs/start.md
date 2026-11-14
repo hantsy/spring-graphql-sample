@@ -311,51 +311,25 @@ DemoApplication" log line, open
 
 DGS ships [GraphiQL](https://github.com/graphql/graphiql), an in-browser IDE
 that reads your schema through introspection and provides completion,
-documentation, and a query runner. On the left you can browse the schema; on
-the right you run operations.
+documentation, and a query runner. On the left you browse the schema; on the
+right you run operations and read the response.
 
-Create a post:
+Create a post with the `createPost` mutation:
 
-```graphql
-mutation {
-  createPost(createPostInput: { title: "Hello DGS", content: "My first post" }) {
-    id
-    title
-    content
-  }
-}
-```
+![Creating a post in GraphiQL](../ui-createPost.png)
 
-The response comes back in the same shape:
+Then read it back. `allPosts` returns every post, resolving each author and
+comment list too:
 
-```json
-{
-  "data": {
-    "createPost": {
-      "id": "5",
-      "title": "Hello DGS",
-      "content": "My first post"
-    }
-  }
-}
-```
+![Listing posts in GraphiQL](../ui-allPosts.png)
 
-Now fetch every post with its author and comments:
+And fetch one post by id with `postById`:
 
-```graphql
-{
-  allPosts {
-    id
-    title
-    content
-    author { name email }
-    comments { id content }
-  }
-}
-```
+![Fetching a single post in GraphiQL](../ui-postById.png)
 
-Because the author and comments are separate tables, this query is what the
-`DataLoader`s exist for — a plain nested fetch would run one query per post.
+Because the author and comments live in separate tables, `allPosts` is exactly
+where the `DataLoader`s earn their keep — a plain nested fetch would run one
+query per post.
 
 ## Switching to WebFlux
 
