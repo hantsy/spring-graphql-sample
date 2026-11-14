@@ -1212,13 +1212,13 @@ moves the choice of response shape from the server to the client.</p>
 WebSocket are the common choices, and separate specifications cover them.</p>
 <h2 id="why-graphql-instead-of-rest">Why GraphQL instead of REST<a class="headerlink" href="#why-graphql-instead-of-rest" title="Permanent link">&para;</a></h2>
 <h3 id="the-rest-problem">The REST problem<a class="headerlink" href="#the-rest-problem" title="Permanent link">&para;</a></h3>
-<p>Consider a blog screen that shows a post, its author, and the latest three
-comments. Against a typical REST API, that one screen takes several calls:</p>
+<p>Consider a blog screen that shows a post, its author, and its comments.
+Against a typical REST API, that one screen takes several calls:</p>
 <ul>
 <li><code>GET /posts/1</code> returns the whole post — id, title, content, tags, and
   timestamps — even though the screen only needs the title.</li>
-<li><code>GET /posts/1/comments</code> returns every comment, so the client filters the
-  latest three itself.</li>
+<li><code>GET /posts/1/comments</code> returns every comment, even though the screen only
+  needs a few.</li>
 <li><code>GET /authors/7</code> returns the full author profile just to show one name.</li>
 </ul>
 <p>The client over-fetches fields it does not use, under-fetches data it must
