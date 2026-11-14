@@ -57,3 +57,5 @@ nav:
   - Preface:
     - index.md
   - "An introduction to GraphQL and Spring": intro.md
+  - Netflix DGS:
+    - "Getting started": dgs/start.md
