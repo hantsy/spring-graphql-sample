@@ -1464,15 +1464,17 @@ For a runnable upload example, explore the
 
 ## Testing
 
-Test GraphQL behavior at two boundaries: execute operations against DGS in
-process to check schema and fetcher behavior, then use an HTTP client when you
-need to check the GraphQL-over-HTTP protocol or a remote GraphQL service.
+Test a DGS application in layers, from fastest and most isolated to the full
+wire. First test the data fetchers in process with the service layer mocked,
+then the repositories against a real PostgreSQL, and finally the whole
+application over HTTP. A fourth technique — stubbing a remote endpoint with
+WireMock — tests your GraphQL *client*.
 
-### Test DGS components
+### Test data fetchers
 
-`@EnableDgsTest` enables DGS test support, and `DgsQueryExecutor` executes a
+`@EnableDgsTest` enables DGS test support, and `DgsQueryExecutor` runs a
 GraphQL operation directly against the schema without starting an HTTP server.
-Mock the service layer to focus the test on the fetcher and its GraphQL
+Mock the service layer so the test focuses on the fetcher and its GraphQL
 response. Add `dgs-starter-test` with test scope to the server module:
 
 ```xml
@@ -1490,13 +1492,12 @@ response. Add `dgs-starter-test` with test scope to the server module:
 </dependencies>
 ```
 
-For example, import the fetcher, provide test database configuration, and
-replace its service with a mock:
+Import the fetcher into a minimal test configuration and replace its service
+with a mock:
 
 ```java
 @EnableDgsTest
 @SpringBootTest(classes = PostsQueryTest.TestConfig.class)
-@Import(TestcontainersConfiguration.class)
 class PostsQueryTest {
     @Autowired
     DgsQueryExecutor executor;
@@ -1524,43 +1525,98 @@ class PostsQueryTest {
 }
 ```
 
-In the repository, `TestcontainersConfiguration` starts PostgreSQL for the
-Spring test context. The database-backed test suites need Docker running.
+Because the service is mocked, this test needs no database and no
+`TestcontainersConfiguration`. Pass variables as a `Map` when testing
+arguments, and use `executor.execute(...)` — which returns the full result —
+instead of `executeAndExtractJsonPath` when you need to inspect GraphQL errors.
 
-Pass variables as a map when testing arguments. Use `executor.execute(...)`
-instead of extracting a JSON path when you need to inspect GraphQL errors.
-For WebFlux tests, use `DgsReactiveQueryExecutor` and verify its `Mono` or
-`Flux` with Reactor's `StepVerifier`.
+The same test runs unchanged on the reactive stack. Swap the executor for
+`DgsReactiveQueryExecutor`, which returns Reactor `Mono`/`Flux` instead of
+plain values, and assert the stream with `StepVerifier`:
 
-The sample modules use this pattern in different ways:
+```java
+Mono<List<String>> titles = executor.executeAndExtractJsonPath(
+        "{ allPosts { title content } }",
+        "data.allPosts[*].title");
 
-- `dgs` tests query and mutation fetchers and their error responses.
+StepVerifier.create(titles)
+        .consumeNextWith(it -> assertThat(it).containsExactly("DGS test"))
+        .verifyComplete();
+```
+
+The sample modules exercise this pattern in different ways:
+
+- `dgs` tests the query and mutation fetchers and their error responses.
 - `dgs-codegen` tests generated operations, validation, custom scalars, and
   directives.
-- `dgs-fileupload` tests the `Upload` scalar with `MockMultipartFile`; its
-  tests for a file nested in a GraphQL input object are disabled.
-- `dgs-webflux` tests reactive fetchers and subscriptions. Its integration
-  test starts the application on a random port and calls `/graphql` with
-  `DgsWebClientGraphQLClient`.
+- `dgs-fileupload` tests the `Upload` scalar with `MockMultipartFile`.
+- `dgs-webflux` tests reactive fetchers and subscriptions with
+  `DgsReactiveQueryExecutor`.
 
-### Test functionalities with HTTP clients
+### Test repositories against a database
 
-Use an HTTP client to test the transport as well as the GraphQL response.
-`DgsRestClientGraphQLClient` sends requests with Spring's `RestClient`; the
-WebFlux integration test uses `DgsWebClientGraphQLClient`. Start the server
-with `@SpringBootTest(webEnvironment = RANDOM_PORT)` and inject its port to
-exercise the `/graphql` endpoint:
+Fetcher tests mock the data access, so they never touch a database. To verify
+the repositories themselves, run them against a real PostgreSQL. The
+repository tests use a narrowed `@SpringBootTest` that imports only the
+repositories, plus `@Import(TestcontainersConfiguration.class)` for the
+database connection:
+
+```java
+@SpringBootTest(classes = PostRepositoryTests.Config.class)
+@Import(TestcontainersConfiguration.class)
+@Transactional
+class PostRepositoryTests {
+
+    @Configuration(proxyBeanMethods = false)
+    @EnableAutoConfiguration
+    @Import({PostRepository.class, CommentRepository.class, AuthorRepository.class})
+    static class Config {
+    }
+
+    @Autowired
+    PostRepository posts;
+
+    @Autowired
+    AuthorRepository authors;
+
+    @Test
+    void createAndFindById() {
+        var authorId = authors.create("test user", "test@example.com");
+        var postId = posts.create("test title", "test content", "DRAFT", authorId);
+
+        var post = posts.findById(postId);
+        assertThat(post.title()).isEqualTo("test title");
+    }
+}
+```
+
+`TestcontainersConfiguration` is a `@TestConfiguration` whose
+`@Bean @ServiceConnection PostgreSQLContainer` supplies the `DataSource`.
+`spring.sql.init.mode=always` runs `schema.sql` against that container, and
+`@Transactional` rolls back each test so they stay independent. The
+configuration does not component-scan, so `DataInitializer` does not run and
+seed data. The `dgs` module has `PostRepositoryTests` and
+`CommentRepositoryTests`; the database-backed suites need Docker running.
+
+### Test over HTTP
+
+Component and repository tests never exercise the transport. To verify the
+GraphQL-over-HTTP endpoint, start the application on a random port and call
+`/graphql`. `DgsRestClientGraphQLClient` sends requests with Spring's blocking
+`RestClient`; the `dgs` and `dgs-codegen` integration tests use it:
 
 ```java
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-class GraphQlHttpTests {
+@Import(TestcontainersConfiguration.class)
+class IntegrationTests {
+
     @LocalServerPort
     int port;
 
     @Test
     void createPostOverHttp() {
-        var client = new DgsWebClientGraphQLClient(
-                WebClient.create("http://localhost:" + port + "/graphql"));
+        var client = new DgsRestClientGraphQLClient(
+                RestClient.builder().baseUrl("http://localhost:" + port + "/graphql").build());
         var query = """
                 mutation createPost($input: CreatePostInput!) {
                     createPost(createPostInput: $input) { title }
@@ -1569,15 +1625,32 @@ class GraphQlHttpTests {
         var variables = Map.of("input", Map.of(
                 "title", "test title",
                 "content", "test content"));
-        var result = client.reactiveExecuteQuery(query, variables)
-                .map(response -> response.extractValueAsObject("createPost", Post.class));
 
-        StepVerifier.create(result)
-                .consumeNextWith(post -> assertThat(post.getTitle()).isEqualTo("test title"))
-                .verifyComplete();
+        var response = client.executeQuery(query, variables);
+        String title = response.extractValueAsObject("createPost.title", String.class);
+
+        assertThat(title).isEqualTo("test title");
     }
 }
 ```
+
+On the reactive stack, use `DgsWebClientGraphQLClient`, which rides Spring's
+`WebClient` and returns `Mono`/`Flux`. Verify the result with `StepVerifier`:
+
+```java
+var client = new DgsWebClientGraphQLClient(
+        WebClient.create("http://localhost:" + port + "/graphql"));
+
+var result = client.reactiveExecuteQuery(query, variables)
+        .map(response -> response.extractValueAsObject("createPost", Post.class));
+
+StepVerifier.create(result)
+        .consumeNextWith(post -> assertThat(post.getTitle()).isEqualTo("test title"))
+        .verifyComplete();
+```
+
+The `dgs-webflux` integration test uses the reactive client; the blocking one
+is in `dgs` and `dgs-codegen`.
 
 ### Mock remote GraphQL APIs
 

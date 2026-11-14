@@ -41,7 +41,6 @@ import static org.awaitility.Awaitility.await;
 import static org.mockito.Mockito.*;
 
 @SpringBootTest(classes = SubscriptionTests.SubscriptionTestsConfig.class)
-@Import(TestcontainersConfiguration.class)
 @Slf4j
 @EnableDgsTest
 //@Disabled

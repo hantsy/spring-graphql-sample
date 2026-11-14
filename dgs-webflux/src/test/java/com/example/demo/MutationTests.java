@@ -26,7 +26,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
 @SpringBootTest(classes = MutationTests.MutationTestsConfig.class)
-@Import(TestcontainersConfiguration.class)
 @EnableDgsTest
 @Slf4j
 class MutationTests {

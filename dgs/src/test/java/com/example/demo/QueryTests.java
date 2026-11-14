@@ -23,7 +23,6 @@ import static org.mockito.Mockito.*;
 
 @EnableDgsTest
 @SpringBootTest(classes = {QueryTests.QueryTestsConfig.class})
-@Import(TestcontainersConfiguration.class)
 @Slf4j
 class QueryTests {
 

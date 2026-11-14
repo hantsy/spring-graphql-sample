@@ -22,7 +22,6 @@ import static org.mockito.Mockito.*;
 
 @EnableDgsTest
 @SpringBootTest(classes = {MutationTests.MutationTestsConfig.class})
-@Import(TestcontainersConfiguration.class)
 @Slf4j
 class MutationTests {
 

@@ -28,7 +28,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
 @SpringBootTest(classes = {QueryTests.QueryTestsConfig.class})
-@Import(TestcontainersConfiguration.class)
 @EnableDgsTest
 @Slf4j
 class QueryTests {
