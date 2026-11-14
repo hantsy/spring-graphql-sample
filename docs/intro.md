@@ -38,27 +38,67 @@ WebSocket are the common choices, and separate specifications cover them.
 
 ## Why GraphQL instead of REST
 
-GraphQL is not a wholesale replacement for REST. It is a different trade-off
-that fits the case where clients are many, diverse, and evolve independently
-of the server.
+### The REST problem
 
-- **No over-fetching.** A REST endpoint returns a fixed payload: a client that
-  needs only a post's title still receives the whole post, its author, and its
-  comments. A GraphQL query asks for exactly the fields it needs.
-- **No under-fetching.** A screen that needs a post *and* its author calls two
-  REST endpoints, or a bespoke composite endpoint, and assembles the result
-  with several round trips. A GraphQL query nests the author under the post
-  and resolves both in one request.
+Consider a blog screen that shows a post, its author, and the latest three
+comments. Against a typical REST API, that one screen takes several calls:
+
+- `GET /posts/1` returns the whole post — id, title, content, tags, and
+  timestamps — even though the screen only needs the title.
+- `GET /posts/1/comments` returns every comment, so the client filters the
+  latest three itself.
+- `GET /authors/7` returns the full author profile just to show one name.
+
+The client over-fetches fields it does not use, under-fetches data it must
+assemble from several endpoints, and pays a round trip for each call. The
+usual fix is a bespoke endpoint such as `GET /posts/1?include=author,comments`
+— and then one of those per screen. REST's resource-per-URL model works well
+for simple, independent resources, but it fights you as soon as the data forms
+a graph.
+
+### The GraphQL approach
+
+GraphQL turns the request around. The client describes the graph it needs in a
+single document, and the server resolves it in one round trip:
+
+```graphql
+{
+  postById(postId: "1") {
+    title
+    author { name }
+    comments { content }
+  }
+}
+```
+
+The response comes back in the same shape, which removes the REST problems:
+
+- **No over-fetching.** The query asks for exactly the fields it needs — the
+  post's title, not its tags or timestamps.
+- **No under-fetching, no round trips.** The author and the comments ride
+  along in the same response.
 - **A typed, introspectable contract.** The schema is machine-readable, so
   tools generate clients, validate queries, and offer autocomplete (GraphiQL,
   Apollo Client) without a separate API-description layer such as OpenAPI.
-- **One endpoint.** GraphQL has no per-resource URLs and no version in the
-  URL. Adding a field is additive and does not break existing clients.
+- **One endpoint, no versioning.** GraphQL has no per-resource URLs. Adding a
+  field is additive and does not break existing clients.
 
-The costs sit on the server: GraphQL makes HTTP caching harder, moves query
-cost and validation onto the server, and has no built-in file upload — that
-needs a separate multipart specification. REST remains the simpler fit for
-small, resource-oriented, cacheable APIs.
+### Trade-offs
+
+GraphQL is not a free lunch. The costs sit mostly on the server:
+
+- **Harder caching.** GraphQL responses are not addressed by URL, so HTTP
+  caching does not apply as naturally as it does to REST resources.
+- **Query cost on the server.** The server must parse, validate, and bound
+  every query, so a deep or expensive query is a real operational concern.
+- **No built-in file upload.** Uploads need the separate multipart request
+  specification.
+- **More moving parts.** A GraphQL server and its toolchain are more to build
+  and operate than a simple REST endpoint.
+
+REST remains the simpler fit for small, resource-oriented, cacheable APIs.
+GraphQL pays off when clients are many, diverse, and evolve independently of
+the server.
 
 ## Schema and SDL
 
@@ -154,9 +194,14 @@ Introspection is part of the specification, so it works against any compliant
 server. The specification is published in dated editions (June 2018, October
 2021, September 2025), with a draft of the next edition always available.
 
-## The request and response envelope
+## GraphQL request lifecycle
 
-### The request
+A GraphQL request follows the same lifecycle on every transport: the client
+sends a document, the server parses and validates it against the schema,
+executes the operation, and returns a response. The next two sections walk
+through the request and the response.
+
+### Request
 
 A GraphQL request carries three members:
 
@@ -202,7 +247,7 @@ curl http://localhost:8080/graphql \
   }'
 ```
 
-### The response
+### Response
 
 A GraphQL response is a JSON object with up to three members:
 
@@ -719,7 +764,7 @@ Postgres schema, so you can compare equivalent implementations directly.
 ## Summary
 
 You have seen what GraphQL is and why you would choose it over REST, the schema
-language (SDL) and the request/response envelope, the HTTP and WebSocket
+language (SDL) and the request lifecycle, the HTTP and WebSocket
 transports, and the GraphQL Java execution engine. You have also met the two
 Spring Boot frameworks — Netflix DGS and Spring GraphQL — how DGS adopted
 Spring GraphQL as its foundation, and how to choose between them.
