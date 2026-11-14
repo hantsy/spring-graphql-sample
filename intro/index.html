@@ -660,21 +660,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#the-integration" class="md-nav__link">
+  <a href="#how-dgs-adopted-spring-graphql" class="md-nav__link">
     <span class="md-ellipsis">
       
-        The integration
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#the-difference" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        The difference
+        How DGS adopted Spring GraphQL
       
     </span>
   </a>
@@ -1021,21 +1010,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#the-integration" class="md-nav__link">
+  <a href="#how-dgs-adopted-spring-graphql" class="md-nav__link">
     <span class="md-ellipsis">
       
-        The integration
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#the-difference" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        The difference
+        How DGS adopted Spring GraphQL
       
     </span>
   </a>
@@ -1437,15 +1415,8 @@ all speak <code>graphql-transport-ws</code>.</p>
 the
 <a href="https://github.com/jaydenseric/graphql-multipart-request-spec">GraphQL multipart request specification</a>,
 which wraps the usual <code>operations</code> JSON in a multipart form and maps file
-fields to object paths.</p>
-<p>Spring GraphQL does not implement this specification. The legacy DGS starter
-had multipart file upload built in, but with the Spring GraphQL integration it
-is no longer available by default: add the
-<a href="https://github.com/nkonev/multiple-spring-graphql">multipart-spring-graphql</a>
-dependency (<code>name.nkonev.multipart-spring-graphql:multipart-spring-graphql</code>) to
-restore it, mapping the <code>Upload</code> scalar to a Spring <code>MultipartFile</code>. The
-<a href="https://github.com/hantsy/spring-graphql-sample/tree/master/dgs-fileupload">dgs-fileupload</a>
-example has been updated to use it.</p>
+fields to object paths. For Spring GraphQL and DGS support, see
+<a href="#how-dgs-adopted-spring-graphql">How DGS adopted Spring GraphQL</a>.</p>
 <h2 id="graphql-java">GraphQL Java<a class="headerlink" href="#graphql-java" title="Permanent link">&para;</a></h2>
 <p><a href="https://www.graphql-java.com/">GraphQL Java</a> is the JVM implementation of the
 GraphQL specification, started in 2015. It is an execution engine, not a
@@ -1729,7 +1700,7 @@ DataLoader mechanism in a <code>BatchLoaderRegistry</code>, ships a dedicated te
 <code>HttpGraphQlTester</code> and <code>WebSocketGraphQlTester</code>), and provides the production
 client API (<code>HttpSyncGraphQlClient</code>, <code>HttpGraphQlClient</code>,
 <code>WebSocketGraphQlClient</code>).</p>
-<h3 id="the-integration">The integration<a class="headerlink" href="#the-integration" title="Permanent link">&para;</a></h3>
+<h3 id="how-dgs-adopted-spring-graphql">How DGS adopted Spring GraphQL<a class="headerlink" href="#how-dgs-adopted-spring-graphql" title="Permanent link">&para;</a></h3>
 <p>Netflix open-sourced DGS in 2021 and it became the most widely adopted GraphQL
 Java framework. Soon after, the DGS team learned of a parallel effort by the
 Spring team — Spring for GraphQL — and over the following year Spring GraphQL
@@ -1764,11 +1735,10 @@ properties, file uploads, WebSocket subscriptions, schema inspection, and test
 setup. See Netflix's
 <a href="https://netflix.github.io/dgs/spring-graphql-integration/">Spring GraphQL Integration</a>
 document for the full list.</p>
-<h3 id="the-difference">The difference<a class="headerlink" href="#the-difference" title="Permanent link">&para;</a></h3>
-<p>Since the integration, DGS and Spring GraphQL share the same foundation: both
-run on Spring Boot, both execute with GraphQL Java, and DGS additionally uses
-Spring GraphQL's execution service and transports. The differences that remain
-are the programming model and the tooling around it:</p>
+<p>The two frameworks now share the same foundation — both run on Spring Boot,
+both execute with GraphQL Java, and DGS additionally uses Spring GraphQL's
+execution service and transports. The differences that remain are the
+programming model and the tooling around it:</p>
 <table>
 <thead>
 <tr>
@@ -1826,9 +1796,16 @@ are the programming model and the tooling around it:</p>
 </tbody>
 </table>
 <p>Both support Kotlin and coroutines, Spring Security, and DataLoader-based
-batching. Neither implements the GraphQL multipart request specification out
-of the box: Spring GraphQL never implemented it, and DGS moved its built-in
-file upload out of the default starter when it switched to Spring GraphQL.</p>
+batching.</p>
+<p>File upload is one concrete difference. Spring GraphQL never implemented the
+GraphQL multipart request specification, and DGS's built-in file upload left
+with the legacy code in DGS 10.0.0. To add file upload to a Spring GraphQL or
+DGS application, use
+<a href="https://github.com/nkonev/multiple-spring-graphql">multipart-spring-graphql</a>
+(<code>name.nkonev.multipart-spring-graphql:multipart-spring-graphql</code>), which maps
+the <code>Upload</code> scalar to a Spring <code>MultipartFile</code>. The
+<a href="https://github.com/hantsy/spring-graphql-sample/tree/master/dgs-fileupload">dgs-fileupload</a>
+example has been updated to use it.</p>
 <h3 id="choosing-a-framework">Choosing a framework<a class="headerlink" href="#choosing-a-framework" title="Permanent link">&para;</a></h3>
 <ul>
 <li><strong>Starting a new Spring Boot application</strong> — choose Spring GraphQL. It is
