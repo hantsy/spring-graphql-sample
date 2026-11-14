@@ -767,10 +767,10 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#test-dgs-components" class="md-nav__link">
+  <a href="#test-data-fetchers" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Test DGS components
+        Test data fetchers
       
     </span>
   </a>
@@ -778,10 +778,21 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#test-functionalities-with-http-clients" class="md-nav__link">
+  <a href="#test-repositories-against-a-database" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Test functionalities with HTTP clients
+        Test repositories against a database
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#test-over-http" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Test over HTTP
       
     </span>
   </a>
@@ -1163,10 +1174,10 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#test-dgs-components" class="md-nav__link">
+  <a href="#test-data-fetchers" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Test DGS components
+        Test data fetchers
       
     </span>
   </a>
@@ -1174,10 +1185,21 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#test-functionalities-with-http-clients" class="md-nav__link">
+  <a href="#test-repositories-against-a-database" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Test functionalities with HTTP clients
+        Test repositories against a database
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#test-over-http" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Test over HTTP
       
     </span>
   </a>
@@ -2508,13 +2530,15 @@ an application.</p>
 <p>For a runnable upload example, explore the
 <a href="https://github.com/hantsy/spring-graphql-sample/tree/master/dgs-fileupload"><code>dgs-fileupload</code> module</a>.</p>
 <h2 id="testing">Testing<a class="headerlink" href="#testing" title="Permanent link">&para;</a></h2>
-<p>Test GraphQL behavior at two boundaries: execute operations against DGS in
-process to check schema and fetcher behavior, then use an HTTP client when you
-need to check the GraphQL-over-HTTP protocol or a remote GraphQL service.</p>
-<h3 id="test-dgs-components">Test DGS components<a class="headerlink" href="#test-dgs-components" title="Permanent link">&para;</a></h3>
-<p><code>@EnableDgsTest</code> enables DGS test support, and <code>DgsQueryExecutor</code> executes a
+<p>Test a DGS application in layers, from fastest and most isolated to the full
+wire. First test the data fetchers in process with the service layer mocked,
+then the repositories against a real PostgreSQL, and finally the whole
+application over HTTP. A fourth technique — stubbing a remote endpoint with
+WireMock — tests your GraphQL <em>client</em>.</p>
+<h3 id="test-data-fetchers">Test data fetchers<a class="headerlink" href="#test-data-fetchers" title="Permanent link">&para;</a></h3>
+<p><code>@EnableDgsTest</code> enables DGS test support, and <code>DgsQueryExecutor</code> runs a
 GraphQL operation directly against the schema without starting an HTTP server.
-Mock the service layer to focus the test on the fetcher and its GraphQL
+Mock the service layer so the test focuses on the fetcher and its GraphQL
 response. Add <code>dgs-starter-test</code> with test scope to the server module:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-40-1" name="__codelineno-40-1" href="#__codelineno-40-1"></a><span class="nt">&lt;dependencies&gt;</span>
 <a id="__codelineno-40-2" name="__codelineno-40-2" href="#__codelineno-40-2"></a><span class="w">    </span><span class="nt">&lt;dependency&gt;</span>
@@ -2529,143 +2553,203 @@ response. Add <code>dgs-starter-test</code> with test scope to the server module
 <a id="__codelineno-40-11" name="__codelineno-40-11" href="#__codelineno-40-11"></a><span class="w">    </span><span class="nt">&lt;/dependency&gt;</span>
 <a id="__codelineno-40-12" name="__codelineno-40-12" href="#__codelineno-40-12"></a><span class="nt">&lt;/dependencies&gt;</span>
 </code></pre></div>
-<p>For example, import the fetcher, provide test database configuration, and
-replace its service with a mock:</p>
+<p>Import the fetcher into a minimal test configuration and replace its service
+with a mock:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-41-1" name="__codelineno-41-1" href="#__codelineno-41-1"></a><span class="nd">@EnableDgsTest</span>
 <a id="__codelineno-41-2" name="__codelineno-41-2" href="#__codelineno-41-2"></a><span class="nd">@SpringBootTest</span><span class="p">(</span><span class="n">classes</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">PostsQueryTest</span><span class="p">.</span><span class="na">TestConfig</span><span class="p">.</span><span class="na">class</span><span class="p">)</span>
-<a id="__codelineno-41-3" name="__codelineno-41-3" href="#__codelineno-41-3"></a><span class="nd">@Import</span><span class="p">(</span><span class="n">TestcontainersConfiguration</span><span class="p">.</span><span class="na">class</span><span class="p">)</span>
-<a id="__codelineno-41-4" name="__codelineno-41-4" href="#__codelineno-41-4"></a><span class="kd">class</span> <span class="nc">PostsQueryTest</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-41-5" name="__codelineno-41-5" href="#__codelineno-41-5"></a><span class="w">    </span><span class="nd">@Autowired</span>
-<a id="__codelineno-41-6" name="__codelineno-41-6" href="#__codelineno-41-6"></a><span class="w">    </span><span class="n">DgsQueryExecutor</span><span class="w"> </span><span class="n">executor</span><span class="p">;</span>
-<a id="__codelineno-41-7" name="__codelineno-41-7" href="#__codelineno-41-7"></a>
-<a id="__codelineno-41-8" name="__codelineno-41-8" href="#__codelineno-41-8"></a><span class="w">    </span><span class="nd">@MockitoBean</span>
-<a id="__codelineno-41-9" name="__codelineno-41-9" href="#__codelineno-41-9"></a><span class="w">    </span><span class="n">PostService</span><span class="w"> </span><span class="n">postService</span><span class="p">;</span>
-<a id="__codelineno-41-10" name="__codelineno-41-10" href="#__codelineno-41-10"></a>
-<a id="__codelineno-41-11" name="__codelineno-41-11" href="#__codelineno-41-11"></a><span class="w">    </span><span class="nd">@Configuration</span>
-<a id="__codelineno-41-12" name="__codelineno-41-12" href="#__codelineno-41-12"></a><span class="w">    </span><span class="nd">@Import</span><span class="p">(</span><span class="n">PostsDataFetcher</span><span class="p">.</span><span class="na">class</span><span class="p">)</span>
-<a id="__codelineno-41-13" name="__codelineno-41-13" href="#__codelineno-41-13"></a><span class="w">    </span><span class="kd">static</span><span class="w"> </span><span class="kd">class</span> <span class="nc">TestConfig</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-41-14" name="__codelineno-41-14" href="#__codelineno-41-14"></a><span class="w">    </span><span class="p">}</span>
-<a id="__codelineno-41-15" name="__codelineno-41-15" href="#__codelineno-41-15"></a>
-<a id="__codelineno-41-16" name="__codelineno-41-16" href="#__codelineno-41-16"></a><span class="w">    </span><span class="nd">@Test</span>
-<a id="__codelineno-41-17" name="__codelineno-41-17" href="#__codelineno-41-17"></a><span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="nf">allPosts</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-41-18" name="__codelineno-41-18" href="#__codelineno-41-18"></a><span class="w">        </span><span class="n">when</span><span class="p">(</span><span class="n">postService</span><span class="p">.</span><span class="na">getAllPosts</span><span class="p">()).</span><span class="na">thenReturn</span><span class="p">(</span><span class="n">List</span><span class="p">.</span><span class="na">of</span><span class="p">(</span>
-<a id="__codelineno-41-19" name="__codelineno-41-19" href="#__codelineno-41-19"></a><span class="w">                </span><span class="n">Post</span><span class="p">.</span><span class="na">builder</span><span class="p">().</span><span class="na">id</span><span class="p">(</span><span class="mi">1L</span><span class="p">).</span><span class="na">title</span><span class="p">(</span><span class="s">"DGS test"</span><span class="p">).</span><span class="na">content</span><span class="p">(</span><span class="s">"Example"</span><span class="p">).</span><span class="na">build</span><span class="p">()</span>
-<a id="__codelineno-41-20" name="__codelineno-41-20" href="#__codelineno-41-20"></a><span class="w">        </span><span class="p">));</span>
-<a id="__codelineno-41-21" name="__codelineno-41-21" href="#__codelineno-41-21"></a>
-<a id="__codelineno-41-22" name="__codelineno-41-22" href="#__codelineno-41-22"></a><span class="w">        </span><span class="n">List</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span><span class="w"> </span><span class="n">titles</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">executor</span><span class="p">.</span><span class="na">executeAndExtractJsonPath</span><span class="p">(</span>
-<a id="__codelineno-41-23" name="__codelineno-41-23" href="#__codelineno-41-23"></a><span class="w">                </span><span class="s">"{ allPosts { title content } }"</span><span class="p">,</span>
-<a id="__codelineno-41-24" name="__codelineno-41-24" href="#__codelineno-41-24"></a><span class="w">                </span><span class="s">"data.allPosts[*].title"</span><span class="p">);</span>
-<a id="__codelineno-41-25" name="__codelineno-41-25" href="#__codelineno-41-25"></a>
-<a id="__codelineno-41-26" name="__codelineno-41-26" href="#__codelineno-41-26"></a><span class="w">        </span><span class="n">assertThat</span><span class="p">(</span><span class="n">titles</span><span class="p">).</span><span class="na">containsExactly</span><span class="p">(</span><span class="s">"DGS test"</span><span class="p">);</span>
-<a id="__codelineno-41-27" name="__codelineno-41-27" href="#__codelineno-41-27"></a><span class="w">    </span><span class="p">}</span>
-<a id="__codelineno-41-28" name="__codelineno-41-28" href="#__codelineno-41-28"></a><span class="p">}</span>
+<a id="__codelineno-41-3" name="__codelineno-41-3" href="#__codelineno-41-3"></a><span class="kd">class</span> <span class="nc">PostsQueryTest</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-41-4" name="__codelineno-41-4" href="#__codelineno-41-4"></a><span class="w">    </span><span class="nd">@Autowired</span>
+<a id="__codelineno-41-5" name="__codelineno-41-5" href="#__codelineno-41-5"></a><span class="w">    </span><span class="n">DgsQueryExecutor</span><span class="w"> </span><span class="n">executor</span><span class="p">;</span>
+<a id="__codelineno-41-6" name="__codelineno-41-6" href="#__codelineno-41-6"></a>
+<a id="__codelineno-41-7" name="__codelineno-41-7" href="#__codelineno-41-7"></a><span class="w">    </span><span class="nd">@MockitoBean</span>
+<a id="__codelineno-41-8" name="__codelineno-41-8" href="#__codelineno-41-8"></a><span class="w">    </span><span class="n">PostService</span><span class="w"> </span><span class="n">postService</span><span class="p">;</span>
+<a id="__codelineno-41-9" name="__codelineno-41-9" href="#__codelineno-41-9"></a>
+<a id="__codelineno-41-10" name="__codelineno-41-10" href="#__codelineno-41-10"></a><span class="w">    </span><span class="nd">@Configuration</span>
+<a id="__codelineno-41-11" name="__codelineno-41-11" href="#__codelineno-41-11"></a><span class="w">    </span><span class="nd">@Import</span><span class="p">(</span><span class="n">PostsDataFetcher</span><span class="p">.</span><span class="na">class</span><span class="p">)</span>
+<a id="__codelineno-41-12" name="__codelineno-41-12" href="#__codelineno-41-12"></a><span class="w">    </span><span class="kd">static</span><span class="w"> </span><span class="kd">class</span> <span class="nc">TestConfig</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-41-13" name="__codelineno-41-13" href="#__codelineno-41-13"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-41-14" name="__codelineno-41-14" href="#__codelineno-41-14"></a>
+<a id="__codelineno-41-15" name="__codelineno-41-15" href="#__codelineno-41-15"></a><span class="w">    </span><span class="nd">@Test</span>
+<a id="__codelineno-41-16" name="__codelineno-41-16" href="#__codelineno-41-16"></a><span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="nf">allPosts</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-41-17" name="__codelineno-41-17" href="#__codelineno-41-17"></a><span class="w">        </span><span class="n">when</span><span class="p">(</span><span class="n">postService</span><span class="p">.</span><span class="na">getAllPosts</span><span class="p">()).</span><span class="na">thenReturn</span><span class="p">(</span><span class="n">List</span><span class="p">.</span><span class="na">of</span><span class="p">(</span>
+<a id="__codelineno-41-18" name="__codelineno-41-18" href="#__codelineno-41-18"></a><span class="w">                </span><span class="n">Post</span><span class="p">.</span><span class="na">builder</span><span class="p">().</span><span class="na">id</span><span class="p">(</span><span class="mi">1L</span><span class="p">).</span><span class="na">title</span><span class="p">(</span><span class="s">"DGS test"</span><span class="p">).</span><span class="na">content</span><span class="p">(</span><span class="s">"Example"</span><span class="p">).</span><span class="na">build</span><span class="p">()</span>
+<a id="__codelineno-41-19" name="__codelineno-41-19" href="#__codelineno-41-19"></a><span class="w">        </span><span class="p">));</span>
+<a id="__codelineno-41-20" name="__codelineno-41-20" href="#__codelineno-41-20"></a>
+<a id="__codelineno-41-21" name="__codelineno-41-21" href="#__codelineno-41-21"></a><span class="w">        </span><span class="n">List</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span><span class="w"> </span><span class="n">titles</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">executor</span><span class="p">.</span><span class="na">executeAndExtractJsonPath</span><span class="p">(</span>
+<a id="__codelineno-41-22" name="__codelineno-41-22" href="#__codelineno-41-22"></a><span class="w">                </span><span class="s">"{ allPosts { title content } }"</span><span class="p">,</span>
+<a id="__codelineno-41-23" name="__codelineno-41-23" href="#__codelineno-41-23"></a><span class="w">                </span><span class="s">"data.allPosts[*].title"</span><span class="p">);</span>
+<a id="__codelineno-41-24" name="__codelineno-41-24" href="#__codelineno-41-24"></a>
+<a id="__codelineno-41-25" name="__codelineno-41-25" href="#__codelineno-41-25"></a><span class="w">        </span><span class="n">assertThat</span><span class="p">(</span><span class="n">titles</span><span class="p">).</span><span class="na">containsExactly</span><span class="p">(</span><span class="s">"DGS test"</span><span class="p">);</span>
+<a id="__codelineno-41-26" name="__codelineno-41-26" href="#__codelineno-41-26"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-41-27" name="__codelineno-41-27" href="#__codelineno-41-27"></a><span class="p">}</span>
 </code></pre></div>
-<p>In the repository, <code>TestcontainersConfiguration</code> starts PostgreSQL for the
-Spring test context. The database-backed test suites need Docker running.</p>
-<p>Pass variables as a map when testing arguments. Use <code>executor.execute(...)</code>
-instead of extracting a JSON path when you need to inspect GraphQL errors.
-For WebFlux tests, use <code>DgsReactiveQueryExecutor</code> and verify its <code>Mono</code> or
-<code>Flux</code> with Reactor's <code>StepVerifier</code>.</p>
-<p>The sample modules use this pattern in different ways:</p>
+<p>Because the service is mocked, this test needs no database and no
+<code>TestcontainersConfiguration</code>. Pass variables as a <code>Map</code> when testing
+arguments, and use <code>executor.execute(...)</code> — which returns the full result —
+instead of <code>executeAndExtractJsonPath</code> when you need to inspect GraphQL errors.</p>
+<p>The same test runs unchanged on the reactive stack. Swap the executor for
+<code>DgsReactiveQueryExecutor</code>, which returns Reactor <code>Mono</code>/<code>Flux</code> instead of
+plain values, and assert the stream with <code>StepVerifier</code>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-42-1" name="__codelineno-42-1" href="#__codelineno-42-1"></a><span class="n">Mono</span><span class="o">&lt;</span><span class="n">List</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">titles</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">executor</span><span class="p">.</span><span class="na">executeAndExtractJsonPath</span><span class="p">(</span>
+<a id="__codelineno-42-2" name="__codelineno-42-2" href="#__codelineno-42-2"></a><span class="w">        </span><span class="s">"{ allPosts { title content } }"</span><span class="p">,</span>
+<a id="__codelineno-42-3" name="__codelineno-42-3" href="#__codelineno-42-3"></a><span class="w">        </span><span class="s">"data.allPosts[*].title"</span><span class="p">);</span>
+<a id="__codelineno-42-4" name="__codelineno-42-4" href="#__codelineno-42-4"></a>
+<a id="__codelineno-42-5" name="__codelineno-42-5" href="#__codelineno-42-5"></a><span class="n">StepVerifier</span><span class="p">.</span><span class="na">create</span><span class="p">(</span><span class="n">titles</span><span class="p">)</span>
+<a id="__codelineno-42-6" name="__codelineno-42-6" href="#__codelineno-42-6"></a><span class="w">        </span><span class="p">.</span><span class="na">consumeNextWith</span><span class="p">(</span><span class="n">it</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">assertThat</span><span class="p">(</span><span class="n">it</span><span class="p">).</span><span class="na">containsExactly</span><span class="p">(</span><span class="s">"DGS test"</span><span class="p">))</span>
+<a id="__codelineno-42-7" name="__codelineno-42-7" href="#__codelineno-42-7"></a><span class="w">        </span><span class="p">.</span><span class="na">verifyComplete</span><span class="p">();</span>
+</code></pre></div>
+<p>The sample modules exercise this pattern in different ways:</p>
 <ul>
-<li><code>dgs</code> tests query and mutation fetchers and their error responses.</li>
+<li><code>dgs</code> tests the query and mutation fetchers and their error responses.</li>
 <li><code>dgs-codegen</code> tests generated operations, validation, custom scalars, and
   directives.</li>
-<li><code>dgs-fileupload</code> tests the <code>Upload</code> scalar with <code>MockMultipartFile</code>; its
-  tests for a file nested in a GraphQL input object are disabled.</li>
-<li><code>dgs-webflux</code> tests reactive fetchers and subscriptions. Its integration
-  test starts the application on a random port and calls <code>/graphql</code> with
-  <code>DgsWebClientGraphQLClient</code>.</li>
+<li><code>dgs-fileupload</code> tests the <code>Upload</code> scalar with <code>MockMultipartFile</code>.</li>
+<li><code>dgs-webflux</code> tests reactive fetchers and subscriptions with
+  <code>DgsReactiveQueryExecutor</code>.</li>
 </ul>
-<h3 id="test-functionalities-with-http-clients">Test functionalities with HTTP clients<a class="headerlink" href="#test-functionalities-with-http-clients" title="Permanent link">&para;</a></h3>
-<p>Use an HTTP client to test the transport as well as the GraphQL response.
-<code>DgsRestClientGraphQLClient</code> sends requests with Spring's <code>RestClient</code>; the
-WebFlux integration test uses <code>DgsWebClientGraphQLClient</code>. Start the server
-with <code>@SpringBootTest(webEnvironment = RANDOM_PORT)</code> and inject its port to
-exercise the <code>/graphql</code> endpoint:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-42-1" name="__codelineno-42-1" href="#__codelineno-42-1"></a><span class="nd">@SpringBootTest</span><span class="p">(</span><span class="n">webEnvironment</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">SpringBootTest</span><span class="p">.</span><span class="na">WebEnvironment</span><span class="p">.</span><span class="na">RANDOM_PORT</span><span class="p">)</span>
-<a id="__codelineno-42-2" name="__codelineno-42-2" href="#__codelineno-42-2"></a><span class="kd">class</span> <span class="nc">GraphQlHttpTests</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-42-3" name="__codelineno-42-3" href="#__codelineno-42-3"></a><span class="w">    </span><span class="nd">@LocalServerPort</span>
-<a id="__codelineno-42-4" name="__codelineno-42-4" href="#__codelineno-42-4"></a><span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">port</span><span class="p">;</span>
-<a id="__codelineno-42-5" name="__codelineno-42-5" href="#__codelineno-42-5"></a>
-<a id="__codelineno-42-6" name="__codelineno-42-6" href="#__codelineno-42-6"></a><span class="w">    </span><span class="nd">@Test</span>
-<a id="__codelineno-42-7" name="__codelineno-42-7" href="#__codelineno-42-7"></a><span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="nf">createPostOverHttp</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-42-8" name="__codelineno-42-8" href="#__codelineno-42-8"></a><span class="w">        </span><span class="kd">var</span><span class="w"> </span><span class="n">client</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">DgsWebClientGraphQLClient</span><span class="p">(</span>
-<a id="__codelineno-42-9" name="__codelineno-42-9" href="#__codelineno-42-9"></a><span class="w">                </span><span class="n">WebClient</span><span class="p">.</span><span class="na">create</span><span class="p">(</span><span class="s">"http://localhost:"</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">port</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="s">"/graphql"</span><span class="p">));</span>
-<a id="__codelineno-42-10" name="__codelineno-42-10" href="#__codelineno-42-10"></a><span class="w">        </span><span class="kd">var</span><span class="w"> </span><span class="n">query</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"""</span>
-<a id="__codelineno-42-11" name="__codelineno-42-11" href="#__codelineno-42-11"></a><span class="s">                mutation createPost($input: CreatePostInput!) {</span>
-<a id="__codelineno-42-12" name="__codelineno-42-12" href="#__codelineno-42-12"></a><span class="s">                    createPost(createPostInput: $input) { title }</span>
-<a id="__codelineno-42-13" name="__codelineno-42-13" href="#__codelineno-42-13"></a><span class="s">                }</span>
-<a id="__codelineno-42-14" name="__codelineno-42-14" href="#__codelineno-42-14"></a><span class="s">                """</span><span class="p">;</span>
-<a id="__codelineno-42-15" name="__codelineno-42-15" href="#__codelineno-42-15"></a><span class="w">        </span><span class="kd">var</span><span class="w"> </span><span class="n">variables</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Map</span><span class="p">.</span><span class="na">of</span><span class="p">(</span><span class="s">"input"</span><span class="p">,</span><span class="w"> </span><span class="n">Map</span><span class="p">.</span><span class="na">of</span><span class="p">(</span>
-<a id="__codelineno-42-16" name="__codelineno-42-16" href="#__codelineno-42-16"></a><span class="w">                </span><span class="s">"title"</span><span class="p">,</span><span class="w"> </span><span class="s">"test title"</span><span class="p">,</span>
-<a id="__codelineno-42-17" name="__codelineno-42-17" href="#__codelineno-42-17"></a><span class="w">                </span><span class="s">"content"</span><span class="p">,</span><span class="w"> </span><span class="s">"test content"</span><span class="p">));</span>
-<a id="__codelineno-42-18" name="__codelineno-42-18" href="#__codelineno-42-18"></a><span class="w">        </span><span class="kd">var</span><span class="w"> </span><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">client</span><span class="p">.</span><span class="na">reactiveExecuteQuery</span><span class="p">(</span><span class="n">query</span><span class="p">,</span><span class="w"> </span><span class="n">variables</span><span class="p">)</span>
-<a id="__codelineno-42-19" name="__codelineno-42-19" href="#__codelineno-42-19"></a><span class="w">                </span><span class="p">.</span><span class="na">map</span><span class="p">(</span><span class="n">response</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">response</span><span class="p">.</span><span class="na">extractValueAsObject</span><span class="p">(</span><span class="s">"createPost"</span><span class="p">,</span><span class="w"> </span><span class="n">Post</span><span class="p">.</span><span class="na">class</span><span class="p">));</span>
-<a id="__codelineno-42-20" name="__codelineno-42-20" href="#__codelineno-42-20"></a>
-<a id="__codelineno-42-21" name="__codelineno-42-21" href="#__codelineno-42-21"></a><span class="w">        </span><span class="n">StepVerifier</span><span class="p">.</span><span class="na">create</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
-<a id="__codelineno-42-22" name="__codelineno-42-22" href="#__codelineno-42-22"></a><span class="w">                </span><span class="p">.</span><span class="na">consumeNextWith</span><span class="p">(</span><span class="n">post</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">assertThat</span><span class="p">(</span><span class="n">post</span><span class="p">.</span><span class="na">getTitle</span><span class="p">()).</span><span class="na">isEqualTo</span><span class="p">(</span><span class="s">"test title"</span><span class="p">))</span>
-<a id="__codelineno-42-23" name="__codelineno-42-23" href="#__codelineno-42-23"></a><span class="w">                </span><span class="p">.</span><span class="na">verifyComplete</span><span class="p">();</span>
-<a id="__codelineno-42-24" name="__codelineno-42-24" href="#__codelineno-42-24"></a><span class="w">    </span><span class="p">}</span>
-<a id="__codelineno-42-25" name="__codelineno-42-25" href="#__codelineno-42-25"></a><span class="p">}</span>
+<h3 id="test-repositories-against-a-database">Test repositories against a database<a class="headerlink" href="#test-repositories-against-a-database" title="Permanent link">&para;</a></h3>
+<p>Fetcher tests mock the data access, so they never touch a database. To verify
+the repositories themselves, run them against a real PostgreSQL. The
+repository tests use a narrowed <code>@SpringBootTest</code> that imports only the
+repositories, plus <code>@Import(TestcontainersConfiguration.class)</code> for the
+database connection:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-43-1" name="__codelineno-43-1" href="#__codelineno-43-1"></a><span class="nd">@SpringBootTest</span><span class="p">(</span><span class="n">classes</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">PostRepositoryTests</span><span class="p">.</span><span class="na">Config</span><span class="p">.</span><span class="na">class</span><span class="p">)</span>
+<a id="__codelineno-43-2" name="__codelineno-43-2" href="#__codelineno-43-2"></a><span class="nd">@Import</span><span class="p">(</span><span class="n">TestcontainersConfiguration</span><span class="p">.</span><span class="na">class</span><span class="p">)</span>
+<a id="__codelineno-43-3" name="__codelineno-43-3" href="#__codelineno-43-3"></a><span class="nd">@Transactional</span>
+<a id="__codelineno-43-4" name="__codelineno-43-4" href="#__codelineno-43-4"></a><span class="kd">class</span> <span class="nc">PostRepositoryTests</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-43-5" name="__codelineno-43-5" href="#__codelineno-43-5"></a>
+<a id="__codelineno-43-6" name="__codelineno-43-6" href="#__codelineno-43-6"></a><span class="w">    </span><span class="nd">@Configuration</span><span class="p">(</span><span class="n">proxyBeanMethods</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">false</span><span class="p">)</span>
+<a id="__codelineno-43-7" name="__codelineno-43-7" href="#__codelineno-43-7"></a><span class="w">    </span><span class="nd">@EnableAutoConfiguration</span>
+<a id="__codelineno-43-8" name="__codelineno-43-8" href="#__codelineno-43-8"></a><span class="w">    </span><span class="nd">@Import</span><span class="p">({</span><span class="n">PostRepository</span><span class="p">.</span><span class="na">class</span><span class="p">,</span><span class="w"> </span><span class="n">CommentRepository</span><span class="p">.</span><span class="na">class</span><span class="p">,</span><span class="w"> </span><span class="n">AuthorRepository</span><span class="p">.</span><span class="na">class</span><span class="p">})</span>
+<a id="__codelineno-43-9" name="__codelineno-43-9" href="#__codelineno-43-9"></a><span class="w">    </span><span class="kd">static</span><span class="w"> </span><span class="kd">class</span> <span class="nc">Config</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-43-10" name="__codelineno-43-10" href="#__codelineno-43-10"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-43-11" name="__codelineno-43-11" href="#__codelineno-43-11"></a>
+<a id="__codelineno-43-12" name="__codelineno-43-12" href="#__codelineno-43-12"></a><span class="w">    </span><span class="nd">@Autowired</span>
+<a id="__codelineno-43-13" name="__codelineno-43-13" href="#__codelineno-43-13"></a><span class="w">    </span><span class="n">PostRepository</span><span class="w"> </span><span class="n">posts</span><span class="p">;</span>
+<a id="__codelineno-43-14" name="__codelineno-43-14" href="#__codelineno-43-14"></a>
+<a id="__codelineno-43-15" name="__codelineno-43-15" href="#__codelineno-43-15"></a><span class="w">    </span><span class="nd">@Autowired</span>
+<a id="__codelineno-43-16" name="__codelineno-43-16" href="#__codelineno-43-16"></a><span class="w">    </span><span class="n">AuthorRepository</span><span class="w"> </span><span class="n">authors</span><span class="p">;</span>
+<a id="__codelineno-43-17" name="__codelineno-43-17" href="#__codelineno-43-17"></a>
+<a id="__codelineno-43-18" name="__codelineno-43-18" href="#__codelineno-43-18"></a><span class="w">    </span><span class="nd">@Test</span>
+<a id="__codelineno-43-19" name="__codelineno-43-19" href="#__codelineno-43-19"></a><span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="nf">createAndFindById</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-43-20" name="__codelineno-43-20" href="#__codelineno-43-20"></a><span class="w">        </span><span class="kd">var</span><span class="w"> </span><span class="n">authorId</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">authors</span><span class="p">.</span><span class="na">create</span><span class="p">(</span><span class="s">"test user"</span><span class="p">,</span><span class="w"> </span><span class="s">"test@example.com"</span><span class="p">);</span>
+<a id="__codelineno-43-21" name="__codelineno-43-21" href="#__codelineno-43-21"></a><span class="w">        </span><span class="kd">var</span><span class="w"> </span><span class="n">postId</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">posts</span><span class="p">.</span><span class="na">create</span><span class="p">(</span><span class="s">"test title"</span><span class="p">,</span><span class="w"> </span><span class="s">"test content"</span><span class="p">,</span><span class="w"> </span><span class="s">"DRAFT"</span><span class="p">,</span><span class="w"> </span><span class="n">authorId</span><span class="p">);</span>
+<a id="__codelineno-43-22" name="__codelineno-43-22" href="#__codelineno-43-22"></a>
+<a id="__codelineno-43-23" name="__codelineno-43-23" href="#__codelineno-43-23"></a><span class="w">        </span><span class="kd">var</span><span class="w"> </span><span class="n">post</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">posts</span><span class="p">.</span><span class="na">findById</span><span class="p">(</span><span class="n">postId</span><span class="p">);</span>
+<a id="__codelineno-43-24" name="__codelineno-43-24" href="#__codelineno-43-24"></a><span class="w">        </span><span class="n">assertThat</span><span class="p">(</span><span class="n">post</span><span class="p">.</span><span class="na">title</span><span class="p">()).</span><span class="na">isEqualTo</span><span class="p">(</span><span class="s">"test title"</span><span class="p">);</span>
+<a id="__codelineno-43-25" name="__codelineno-43-25" href="#__codelineno-43-25"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-43-26" name="__codelineno-43-26" href="#__codelineno-43-26"></a><span class="p">}</span>
 </code></pre></div>
+<p><code>TestcontainersConfiguration</code> is a <code>@TestConfiguration</code> whose
+<code>@Bean @ServiceConnection PostgreSQLContainer</code> supplies the <code>DataSource</code>.
+<code>spring.sql.init.mode=always</code> runs <code>schema.sql</code> against that container, and
+<code>@Transactional</code> rolls back each test so they stay independent. The
+configuration does not component-scan, so <code>DataInitializer</code> does not run and
+seed data. The <code>dgs</code> module has <code>PostRepositoryTests</code> and
+<code>CommentRepositoryTests</code>; the database-backed suites need Docker running.</p>
+<h3 id="test-over-http">Test over HTTP<a class="headerlink" href="#test-over-http" title="Permanent link">&para;</a></h3>
+<p>Component and repository tests never exercise the transport. To verify the
+GraphQL-over-HTTP endpoint, start the application on a random port and call
+<code>/graphql</code>. <code>DgsRestClientGraphQLClient</code> sends requests with Spring's blocking
+<code>RestClient</code>; the <code>dgs</code> and <code>dgs-codegen</code> integration tests use it:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-44-1" name="__codelineno-44-1" href="#__codelineno-44-1"></a><span class="nd">@SpringBootTest</span><span class="p">(</span><span class="n">webEnvironment</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">SpringBootTest</span><span class="p">.</span><span class="na">WebEnvironment</span><span class="p">.</span><span class="na">RANDOM_PORT</span><span class="p">)</span>
+<a id="__codelineno-44-2" name="__codelineno-44-2" href="#__codelineno-44-2"></a><span class="nd">@Import</span><span class="p">(</span><span class="n">TestcontainersConfiguration</span><span class="p">.</span><span class="na">class</span><span class="p">)</span>
+<a id="__codelineno-44-3" name="__codelineno-44-3" href="#__codelineno-44-3"></a><span class="kd">class</span> <span class="nc">IntegrationTests</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-44-4" name="__codelineno-44-4" href="#__codelineno-44-4"></a>
+<a id="__codelineno-44-5" name="__codelineno-44-5" href="#__codelineno-44-5"></a><span class="w">    </span><span class="nd">@LocalServerPort</span>
+<a id="__codelineno-44-6" name="__codelineno-44-6" href="#__codelineno-44-6"></a><span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">port</span><span class="p">;</span>
+<a id="__codelineno-44-7" name="__codelineno-44-7" href="#__codelineno-44-7"></a>
+<a id="__codelineno-44-8" name="__codelineno-44-8" href="#__codelineno-44-8"></a><span class="w">    </span><span class="nd">@Test</span>
+<a id="__codelineno-44-9" name="__codelineno-44-9" href="#__codelineno-44-9"></a><span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="nf">createPostOverHttp</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-44-10" name="__codelineno-44-10" href="#__codelineno-44-10"></a><span class="w">        </span><span class="kd">var</span><span class="w"> </span><span class="n">client</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">DgsRestClientGraphQLClient</span><span class="p">(</span>
+<a id="__codelineno-44-11" name="__codelineno-44-11" href="#__codelineno-44-11"></a><span class="w">                </span><span class="n">RestClient</span><span class="p">.</span><span class="na">builder</span><span class="p">().</span><span class="na">baseUrl</span><span class="p">(</span><span class="s">"http://localhost:"</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">port</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="s">"/graphql"</span><span class="p">).</span><span class="na">build</span><span class="p">());</span>
+<a id="__codelineno-44-12" name="__codelineno-44-12" href="#__codelineno-44-12"></a><span class="w">        </span><span class="kd">var</span><span class="w"> </span><span class="n">query</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"""</span>
+<a id="__codelineno-44-13" name="__codelineno-44-13" href="#__codelineno-44-13"></a><span class="s">                mutation createPost($input: CreatePostInput!) {</span>
+<a id="__codelineno-44-14" name="__codelineno-44-14" href="#__codelineno-44-14"></a><span class="s">                    createPost(createPostInput: $input) { title }</span>
+<a id="__codelineno-44-15" name="__codelineno-44-15" href="#__codelineno-44-15"></a><span class="s">                }</span>
+<a id="__codelineno-44-16" name="__codelineno-44-16" href="#__codelineno-44-16"></a><span class="s">                """</span><span class="p">;</span>
+<a id="__codelineno-44-17" name="__codelineno-44-17" href="#__codelineno-44-17"></a><span class="w">        </span><span class="kd">var</span><span class="w"> </span><span class="n">variables</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Map</span><span class="p">.</span><span class="na">of</span><span class="p">(</span><span class="s">"input"</span><span class="p">,</span><span class="w"> </span><span class="n">Map</span><span class="p">.</span><span class="na">of</span><span class="p">(</span>
+<a id="__codelineno-44-18" name="__codelineno-44-18" href="#__codelineno-44-18"></a><span class="w">                </span><span class="s">"title"</span><span class="p">,</span><span class="w"> </span><span class="s">"test title"</span><span class="p">,</span>
+<a id="__codelineno-44-19" name="__codelineno-44-19" href="#__codelineno-44-19"></a><span class="w">                </span><span class="s">"content"</span><span class="p">,</span><span class="w"> </span><span class="s">"test content"</span><span class="p">));</span>
+<a id="__codelineno-44-20" name="__codelineno-44-20" href="#__codelineno-44-20"></a>
+<a id="__codelineno-44-21" name="__codelineno-44-21" href="#__codelineno-44-21"></a><span class="w">        </span><span class="kd">var</span><span class="w"> </span><span class="n">response</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">client</span><span class="p">.</span><span class="na">executeQuery</span><span class="p">(</span><span class="n">query</span><span class="p">,</span><span class="w"> </span><span class="n">variables</span><span class="p">);</span>
+<a id="__codelineno-44-22" name="__codelineno-44-22" href="#__codelineno-44-22"></a><span class="w">        </span><span class="n">String</span><span class="w"> </span><span class="n">title</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">response</span><span class="p">.</span><span class="na">extractValueAsObject</span><span class="p">(</span><span class="s">"createPost.title"</span><span class="p">,</span><span class="w"> </span><span class="n">String</span><span class="p">.</span><span class="na">class</span><span class="p">);</span>
+<a id="__codelineno-44-23" name="__codelineno-44-23" href="#__codelineno-44-23"></a>
+<a id="__codelineno-44-24" name="__codelineno-44-24" href="#__codelineno-44-24"></a><span class="w">        </span><span class="n">assertThat</span><span class="p">(</span><span class="n">title</span><span class="p">).</span><span class="na">isEqualTo</span><span class="p">(</span><span class="s">"test title"</span><span class="p">);</span>
+<a id="__codelineno-44-25" name="__codelineno-44-25" href="#__codelineno-44-25"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-44-26" name="__codelineno-44-26" href="#__codelineno-44-26"></a><span class="p">}</span>
+</code></pre></div>
+<p>On the reactive stack, use <code>DgsWebClientGraphQLClient</code>, which rides Spring's
+<code>WebClient</code> and returns <code>Mono</code>/<code>Flux</code>. Verify the result with <code>StepVerifier</code>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-45-1" name="__codelineno-45-1" href="#__codelineno-45-1"></a><span class="kd">var</span><span class="w"> </span><span class="n">client</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">DgsWebClientGraphQLClient</span><span class="p">(</span>
+<a id="__codelineno-45-2" name="__codelineno-45-2" href="#__codelineno-45-2"></a><span class="w">        </span><span class="n">WebClient</span><span class="p">.</span><span class="na">create</span><span class="p">(</span><span class="s">"http://localhost:"</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">port</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="s">"/graphql"</span><span class="p">));</span>
+<a id="__codelineno-45-3" name="__codelineno-45-3" href="#__codelineno-45-3"></a>
+<a id="__codelineno-45-4" name="__codelineno-45-4" href="#__codelineno-45-4"></a><span class="kd">var</span><span class="w"> </span><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">client</span><span class="p">.</span><span class="na">reactiveExecuteQuery</span><span class="p">(</span><span class="n">query</span><span class="p">,</span><span class="w"> </span><span class="n">variables</span><span class="p">)</span>
+<a id="__codelineno-45-5" name="__codelineno-45-5" href="#__codelineno-45-5"></a><span class="w">        </span><span class="p">.</span><span class="na">map</span><span class="p">(</span><span class="n">response</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">response</span><span class="p">.</span><span class="na">extractValueAsObject</span><span class="p">(</span><span class="s">"createPost"</span><span class="p">,</span><span class="w"> </span><span class="n">Post</span><span class="p">.</span><span class="na">class</span><span class="p">));</span>
+<a id="__codelineno-45-6" name="__codelineno-45-6" href="#__codelineno-45-6"></a>
+<a id="__codelineno-45-7" name="__codelineno-45-7" href="#__codelineno-45-7"></a><span class="n">StepVerifier</span><span class="p">.</span><span class="na">create</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
+<a id="__codelineno-45-8" name="__codelineno-45-8" href="#__codelineno-45-8"></a><span class="w">        </span><span class="p">.</span><span class="na">consumeNextWith</span><span class="p">(</span><span class="n">post</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">assertThat</span><span class="p">(</span><span class="n">post</span><span class="p">.</span><span class="na">getTitle</span><span class="p">()).</span><span class="na">isEqualTo</span><span class="p">(</span><span class="s">"test title"</span><span class="p">))</span>
+<a id="__codelineno-45-9" name="__codelineno-45-9" href="#__codelineno-45-9"></a><span class="w">        </span><span class="p">.</span><span class="na">verifyComplete</span><span class="p">();</span>
+</code></pre></div>
+<p>The <code>dgs-webflux</code> integration test uses the reactive client; the blocking one
+is in <code>dgs</code> and <code>dgs-codegen</code>.</p>
 <h3 id="mock-remote-graphql-apis">Mock remote GraphQL APIs<a class="headerlink" href="#mock-remote-graphql-apis" title="Permanent link">&para;</a></h3>
 <p>To test a client that calls a third-party GraphQL API, point it at a local
 WireMock server instead of making a network request. The <code>dgs-client</code> module
 uses WireMock with a GraphQL body matcher, which compares operations without
 depending on whitespace or field order.</p>
 <p>Add these test dependencies to the client module:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-43-1" name="__codelineno-43-1" href="#__codelineno-43-1"></a><span class="nt">&lt;properties&gt;</span>
-<a id="__codelineno-43-2" name="__codelineno-43-2" href="#__codelineno-43-2"></a><span class="w">    </span><span class="nt">&lt;wiremock.version&gt;</span>3.13.2<span class="nt">&lt;/wiremock.version&gt;</span>
-<a id="__codelineno-43-3" name="__codelineno-43-3" href="#__codelineno-43-3"></a><span class="w">    </span><span class="nt">&lt;wiremock-graphql-extension.version&gt;</span>0.9.0<span class="nt">&lt;/wiremock-graphql-extension.version&gt;</span>
-<a id="__codelineno-43-4" name="__codelineno-43-4" href="#__codelineno-43-4"></a><span class="nt">&lt;/properties&gt;</span>
-<a id="__codelineno-43-5" name="__codelineno-43-5" href="#__codelineno-43-5"></a>
-<a id="__codelineno-43-6" name="__codelineno-43-6" href="#__codelineno-43-6"></a><span class="nt">&lt;dependencies&gt;</span>
-<a id="__codelineno-43-7" name="__codelineno-43-7" href="#__codelineno-43-7"></a><span class="w">    </span><span class="nt">&lt;dependency&gt;</span>
-<a id="__codelineno-43-8" name="__codelineno-43-8" href="#__codelineno-43-8"></a><span class="w">        </span><span class="nt">&lt;groupId&gt;</span>org.springframework.boot<span class="nt">&lt;/groupId&gt;</span>
-<a id="__codelineno-43-9" name="__codelineno-43-9" href="#__codelineno-43-9"></a><span class="w">        </span><span class="nt">&lt;artifactId&gt;</span>spring-boot-starter-test<span class="nt">&lt;/artifactId&gt;</span>
-<a id="__codelineno-43-10" name="__codelineno-43-10" href="#__codelineno-43-10"></a><span class="w">        </span><span class="nt">&lt;scope&gt;</span>test<span class="nt">&lt;/scope&gt;</span>
-<a id="__codelineno-43-11" name="__codelineno-43-11" href="#__codelineno-43-11"></a><span class="w">    </span><span class="nt">&lt;/dependency&gt;</span>
-<a id="__codelineno-43-12" name="__codelineno-43-12" href="#__codelineno-43-12"></a><span class="w">    </span><span class="nt">&lt;dependency&gt;</span>
-<a id="__codelineno-43-13" name="__codelineno-43-13" href="#__codelineno-43-13"></a><span class="w">        </span><span class="nt">&lt;groupId&gt;</span>org.wiremock<span class="nt">&lt;/groupId&gt;</span>
-<a id="__codelineno-43-14" name="__codelineno-43-14" href="#__codelineno-43-14"></a><span class="w">        </span><span class="nt">&lt;artifactId&gt;</span>wiremock-standalone<span class="nt">&lt;/artifactId&gt;</span>
-<a id="__codelineno-43-15" name="__codelineno-43-15" href="#__codelineno-43-15"></a><span class="w">        </span><span class="nt">&lt;version&gt;</span>${wiremock.version}<span class="nt">&lt;/version&gt;</span>
-<a id="__codelineno-43-16" name="__codelineno-43-16" href="#__codelineno-43-16"></a><span class="w">        </span><span class="nt">&lt;scope&gt;</span>test<span class="nt">&lt;/scope&gt;</span>
-<a id="__codelineno-43-17" name="__codelineno-43-17" href="#__codelineno-43-17"></a><span class="w">    </span><span class="nt">&lt;/dependency&gt;</span>
-<a id="__codelineno-43-18" name="__codelineno-43-18" href="#__codelineno-43-18"></a><span class="w">    </span><span class="nt">&lt;dependency&gt;</span>
-<a id="__codelineno-43-19" name="__codelineno-43-19" href="#__codelineno-43-19"></a><span class="w">        </span><span class="nt">&lt;groupId&gt;</span>io.github.nilwurtz<span class="nt">&lt;/groupId&gt;</span>
-<a id="__codelineno-43-20" name="__codelineno-43-20" href="#__codelineno-43-20"></a><span class="w">        </span><span class="nt">&lt;artifactId&gt;</span>wiremock-graphql-extension<span class="nt">&lt;/artifactId&gt;</span>
-<a id="__codelineno-43-21" name="__codelineno-43-21" href="#__codelineno-43-21"></a><span class="w">        </span><span class="nt">&lt;version&gt;</span>${wiremock-graphql-extension.version}<span class="nt">&lt;/version&gt;</span>
-<a id="__codelineno-43-22" name="__codelineno-43-22" href="#__codelineno-43-22"></a><span class="w">        </span><span class="nt">&lt;scope&gt;</span>test<span class="nt">&lt;/scope&gt;</span>
-<a id="__codelineno-43-23" name="__codelineno-43-23" href="#__codelineno-43-23"></a><span class="w">    </span><span class="nt">&lt;/dependency&gt;</span>
-<a id="__codelineno-43-24" name="__codelineno-43-24" href="#__codelineno-43-24"></a><span class="nt">&lt;/dependencies&gt;</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-46-1" name="__codelineno-46-1" href="#__codelineno-46-1"></a><span class="nt">&lt;properties&gt;</span>
+<a id="__codelineno-46-2" name="__codelineno-46-2" href="#__codelineno-46-2"></a><span class="w">    </span><span class="nt">&lt;wiremock.version&gt;</span>3.13.2<span class="nt">&lt;/wiremock.version&gt;</span>
+<a id="__codelineno-46-3" name="__codelineno-46-3" href="#__codelineno-46-3"></a><span class="w">    </span><span class="nt">&lt;wiremock-graphql-extension.version&gt;</span>0.9.0<span class="nt">&lt;/wiremock-graphql-extension.version&gt;</span>
+<a id="__codelineno-46-4" name="__codelineno-46-4" href="#__codelineno-46-4"></a><span class="nt">&lt;/properties&gt;</span>
+<a id="__codelineno-46-5" name="__codelineno-46-5" href="#__codelineno-46-5"></a>
+<a id="__codelineno-46-6" name="__codelineno-46-6" href="#__codelineno-46-6"></a><span class="nt">&lt;dependencies&gt;</span>
+<a id="__codelineno-46-7" name="__codelineno-46-7" href="#__codelineno-46-7"></a><span class="w">    </span><span class="nt">&lt;dependency&gt;</span>
+<a id="__codelineno-46-8" name="__codelineno-46-8" href="#__codelineno-46-8"></a><span class="w">        </span><span class="nt">&lt;groupId&gt;</span>org.springframework.boot<span class="nt">&lt;/groupId&gt;</span>
+<a id="__codelineno-46-9" name="__codelineno-46-9" href="#__codelineno-46-9"></a><span class="w">        </span><span class="nt">&lt;artifactId&gt;</span>spring-boot-starter-test<span class="nt">&lt;/artifactId&gt;</span>
+<a id="__codelineno-46-10" name="__codelineno-46-10" href="#__codelineno-46-10"></a><span class="w">        </span><span class="nt">&lt;scope&gt;</span>test<span class="nt">&lt;/scope&gt;</span>
+<a id="__codelineno-46-11" name="__codelineno-46-11" href="#__codelineno-46-11"></a><span class="w">    </span><span class="nt">&lt;/dependency&gt;</span>
+<a id="__codelineno-46-12" name="__codelineno-46-12" href="#__codelineno-46-12"></a><span class="w">    </span><span class="nt">&lt;dependency&gt;</span>
+<a id="__codelineno-46-13" name="__codelineno-46-13" href="#__codelineno-46-13"></a><span class="w">        </span><span class="nt">&lt;groupId&gt;</span>org.wiremock<span class="nt">&lt;/groupId&gt;</span>
+<a id="__codelineno-46-14" name="__codelineno-46-14" href="#__codelineno-46-14"></a><span class="w">        </span><span class="nt">&lt;artifactId&gt;</span>wiremock-standalone<span class="nt">&lt;/artifactId&gt;</span>
+<a id="__codelineno-46-15" name="__codelineno-46-15" href="#__codelineno-46-15"></a><span class="w">        </span><span class="nt">&lt;version&gt;</span>${wiremock.version}<span class="nt">&lt;/version&gt;</span>
+<a id="__codelineno-46-16" name="__codelineno-46-16" href="#__codelineno-46-16"></a><span class="w">        </span><span class="nt">&lt;scope&gt;</span>test<span class="nt">&lt;/scope&gt;</span>
+<a id="__codelineno-46-17" name="__codelineno-46-17" href="#__codelineno-46-17"></a><span class="w">    </span><span class="nt">&lt;/dependency&gt;</span>
+<a id="__codelineno-46-18" name="__codelineno-46-18" href="#__codelineno-46-18"></a><span class="w">    </span><span class="nt">&lt;dependency&gt;</span>
+<a id="__codelineno-46-19" name="__codelineno-46-19" href="#__codelineno-46-19"></a><span class="w">        </span><span class="nt">&lt;groupId&gt;</span>io.github.nilwurtz<span class="nt">&lt;/groupId&gt;</span>
+<a id="__codelineno-46-20" name="__codelineno-46-20" href="#__codelineno-46-20"></a><span class="w">        </span><span class="nt">&lt;artifactId&gt;</span>wiremock-graphql-extension<span class="nt">&lt;/artifactId&gt;</span>
+<a id="__codelineno-46-21" name="__codelineno-46-21" href="#__codelineno-46-21"></a><span class="w">        </span><span class="nt">&lt;version&gt;</span>${wiremock-graphql-extension.version}<span class="nt">&lt;/version&gt;</span>
+<a id="__codelineno-46-22" name="__codelineno-46-22" href="#__codelineno-46-22"></a><span class="w">        </span><span class="nt">&lt;scope&gt;</span>test<span class="nt">&lt;/scope&gt;</span>
+<a id="__codelineno-46-23" name="__codelineno-46-23" href="#__codelineno-46-23"></a><span class="w">    </span><span class="nt">&lt;/dependency&gt;</span>
+<a id="__codelineno-46-24" name="__codelineno-46-24" href="#__codelineno-46-24"></a><span class="nt">&lt;/dependencies&gt;</span>
 </code></pre></div>
 <p>Stub the remote operation and direct the DGS HTTP client to WireMock's local
 URL:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-44-1" name="__codelineno-44-1" href="#__codelineno-44-1"></a><span class="n">String</span><span class="w"> </span><span class="n">query</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"{ allPosts { id title } }"</span><span class="p">;</span>
-<a id="__codelineno-44-2" name="__codelineno-44-2" href="#__codelineno-44-2"></a><span class="n">WireMockServer</span><span class="w"> </span><span class="n">wireMock</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">WireMockServer</span><span class="p">(</span>
-<a id="__codelineno-44-3" name="__codelineno-44-3" href="#__codelineno-44-3"></a><span class="w">        </span><span class="n">options</span><span class="p">().</span><span class="na">dynamicPort</span><span class="p">().</span><span class="na">extensions</span><span class="p">(</span><span class="k">new</span><span class="w"> </span><span class="n">GraphqlBodyMatcher</span><span class="p">()));</span>
-<a id="__codelineno-44-4" name="__codelineno-44-4" href="#__codelineno-44-4"></a><span class="n">wireMock</span><span class="p">.</span><span class="na">start</span><span class="p">();</span>
-<a id="__codelineno-44-5" name="__codelineno-44-5" href="#__codelineno-44-5"></a><span class="k">try</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-44-6" name="__codelineno-44-6" href="#__codelineno-44-6"></a><span class="w">    </span><span class="n">wireMock</span><span class="p">.</span><span class="na">stubFor</span><span class="p">(</span><span class="n">post</span><span class="p">(</span><span class="n">urlEqualTo</span><span class="p">(</span><span class="s">"/graphql"</span><span class="p">))</span>
-<a id="__codelineno-44-7" name="__codelineno-44-7" href="#__codelineno-44-7"></a><span class="w">            </span><span class="p">.</span><span class="na">andMatching</span><span class="p">(</span><span class="n">GraphqlBodyMatcher</span><span class="p">.</span><span class="na">extensionName</span><span class="p">,</span>
-<a id="__codelineno-44-8" name="__codelineno-44-8" href="#__codelineno-44-8"></a><span class="w">                    </span><span class="n">GraphqlBodyMatcher</span><span class="p">.</span><span class="na">parameters</span><span class="p">(</span><span class="n">query</span><span class="p">,</span><span class="w"> </span><span class="n">Map</span><span class="p">.</span><span class="na">of</span><span class="p">()))</span>
-<a id="__codelineno-44-9" name="__codelineno-44-9" href="#__codelineno-44-9"></a><span class="w">            </span><span class="p">.</span><span class="na">willReturn</span><span class="p">(</span><span class="n">okJson</span><span class="p">(</span><span class="s">"""</span>
-<a id="__codelineno-44-10" name="__codelineno-44-10" href="#__codelineno-44-10"></a><span class="s">                    {"data":{"allPosts":[{"id":"1","title":"Mocked post"}]}}</span>
-<a id="__codelineno-44-11" name="__codelineno-44-11" href="#__codelineno-44-11"></a><span class="s">                    """</span><span class="p">)));</span>
-<a id="__codelineno-44-12" name="__codelineno-44-12" href="#__codelineno-44-12"></a>
-<a id="__codelineno-44-13" name="__codelineno-44-13" href="#__codelineno-44-13"></a><span class="w">    </span><span class="n">DgsGraphQLClient</span><span class="w"> </span><span class="n">client</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">DgsRestClientGraphQLClient</span><span class="p">(</span>
-<a id="__codelineno-44-14" name="__codelineno-44-14" href="#__codelineno-44-14"></a><span class="w">            </span><span class="n">RestClient</span><span class="p">.</span><span class="na">builder</span><span class="p">().</span><span class="na">baseUrl</span><span class="p">(</span><span class="n">wireMock</span><span class="p">.</span><span class="na">url</span><span class="p">(</span><span class="s">"/graphql"</span><span class="p">)).</span><span class="na">build</span><span class="p">());</span>
-<a id="__codelineno-44-15" name="__codelineno-44-15" href="#__codelineno-44-15"></a><span class="w">    </span><span class="n">DgsGraphQLResponse</span><span class="w"> </span><span class="n">response</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">client</span><span class="p">.</span><span class="na">executeQuery</span><span class="p">(</span><span class="n">query</span><span class="p">,</span><span class="w"> </span><span class="n">Map</span><span class="p">.</span><span class="na">of</span><span class="p">());</span>
-<a id="__codelineno-44-16" name="__codelineno-44-16" href="#__codelineno-44-16"></a><span class="w">    </span><span class="n">List</span><span class="o">&lt;</span><span class="n">Post</span><span class="o">&gt;</span><span class="w"> </span><span class="n">posts</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">response</span><span class="p">.</span><span class="na">extractValueAsObject</span><span class="p">(</span>
-<a id="__codelineno-44-17" name="__codelineno-44-17" href="#__codelineno-44-17"></a><span class="w">            </span><span class="s">"allPosts"</span><span class="p">,</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">TypeRef</span><span class="o">&lt;</span><span class="n">List</span><span class="o">&lt;</span><span class="n">Post</span><span class="o">&gt;&gt;</span><span class="p">()</span><span class="w"> </span><span class="p">{});</span>
-<a id="__codelineno-44-18" name="__codelineno-44-18" href="#__codelineno-44-18"></a>
-<a id="__codelineno-44-19" name="__codelineno-44-19" href="#__codelineno-44-19"></a><span class="w">    </span><span class="n">assertThat</span><span class="p">(</span><span class="n">posts</span><span class="p">).</span><span class="na">singleElement</span><span class="p">()</span>
-<a id="__codelineno-44-20" name="__codelineno-44-20" href="#__codelineno-44-20"></a><span class="w">            </span><span class="p">.</span><span class="na">satisfies</span><span class="p">(</span><span class="n">post</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">assertThat</span><span class="p">(</span><span class="n">post</span><span class="p">.</span><span class="na">getTitle</span><span class="p">()).</span><span class="na">isEqualTo</span><span class="p">(</span><span class="s">"Mocked post"</span><span class="p">));</span>
-<a id="__codelineno-44-21" name="__codelineno-44-21" href="#__codelineno-44-21"></a><span class="w">    </span><span class="n">wireMock</span><span class="p">.</span><span class="na">verify</span><span class="p">(</span><span class="n">postRequestedFor</span><span class="p">(</span><span class="n">urlEqualTo</span><span class="p">(</span><span class="s">"/graphql"</span><span class="p">)));</span>
-<a id="__codelineno-44-22" name="__codelineno-44-22" href="#__codelineno-44-22"></a><span class="p">}</span><span class="w"> </span><span class="k">finally</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-44-23" name="__codelineno-44-23" href="#__codelineno-44-23"></a><span class="w">    </span><span class="n">wireMock</span><span class="p">.</span><span class="na">stop</span><span class="p">();</span>
-<a id="__codelineno-44-24" name="__codelineno-44-24" href="#__codelineno-44-24"></a><span class="p">}</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-47-1" name="__codelineno-47-1" href="#__codelineno-47-1"></a><span class="n">String</span><span class="w"> </span><span class="n">query</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"{ allPosts { id title } }"</span><span class="p">;</span>
+<a id="__codelineno-47-2" name="__codelineno-47-2" href="#__codelineno-47-2"></a><span class="n">WireMockServer</span><span class="w"> </span><span class="n">wireMock</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">WireMockServer</span><span class="p">(</span>
+<a id="__codelineno-47-3" name="__codelineno-47-3" href="#__codelineno-47-3"></a><span class="w">        </span><span class="n">options</span><span class="p">().</span><span class="na">dynamicPort</span><span class="p">().</span><span class="na">extensions</span><span class="p">(</span><span class="k">new</span><span class="w"> </span><span class="n">GraphqlBodyMatcher</span><span class="p">()));</span>
+<a id="__codelineno-47-4" name="__codelineno-47-4" href="#__codelineno-47-4"></a><span class="n">wireMock</span><span class="p">.</span><span class="na">start</span><span class="p">();</span>
+<a id="__codelineno-47-5" name="__codelineno-47-5" href="#__codelineno-47-5"></a><span class="k">try</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-47-6" name="__codelineno-47-6" href="#__codelineno-47-6"></a><span class="w">    </span><span class="n">wireMock</span><span class="p">.</span><span class="na">stubFor</span><span class="p">(</span><span class="n">post</span><span class="p">(</span><span class="n">urlEqualTo</span><span class="p">(</span><span class="s">"/graphql"</span><span class="p">))</span>
+<a id="__codelineno-47-7" name="__codelineno-47-7" href="#__codelineno-47-7"></a><span class="w">            </span><span class="p">.</span><span class="na">andMatching</span><span class="p">(</span><span class="n">GraphqlBodyMatcher</span><span class="p">.</span><span class="na">extensionName</span><span class="p">,</span>
+<a id="__codelineno-47-8" name="__codelineno-47-8" href="#__codelineno-47-8"></a><span class="w">                    </span><span class="n">GraphqlBodyMatcher</span><span class="p">.</span><span class="na">parameters</span><span class="p">(</span><span class="n">query</span><span class="p">,</span><span class="w"> </span><span class="n">Map</span><span class="p">.</span><span class="na">of</span><span class="p">()))</span>
+<a id="__codelineno-47-9" name="__codelineno-47-9" href="#__codelineno-47-9"></a><span class="w">            </span><span class="p">.</span><span class="na">willReturn</span><span class="p">(</span><span class="n">okJson</span><span class="p">(</span><span class="s">"""</span>
+<a id="__codelineno-47-10" name="__codelineno-47-10" href="#__codelineno-47-10"></a><span class="s">                    {"data":{"allPosts":[{"id":"1","title":"Mocked post"}]}}</span>
+<a id="__codelineno-47-11" name="__codelineno-47-11" href="#__codelineno-47-11"></a><span class="s">                    """</span><span class="p">)));</span>
+<a id="__codelineno-47-12" name="__codelineno-47-12" href="#__codelineno-47-12"></a>
+<a id="__codelineno-47-13" name="__codelineno-47-13" href="#__codelineno-47-13"></a><span class="w">    </span><span class="n">DgsGraphQLClient</span><span class="w"> </span><span class="n">client</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">DgsRestClientGraphQLClient</span><span class="p">(</span>
+<a id="__codelineno-47-14" name="__codelineno-47-14" href="#__codelineno-47-14"></a><span class="w">            </span><span class="n">RestClient</span><span class="p">.</span><span class="na">builder</span><span class="p">().</span><span class="na">baseUrl</span><span class="p">(</span><span class="n">wireMock</span><span class="p">.</span><span class="na">url</span><span class="p">(</span><span class="s">"/graphql"</span><span class="p">)).</span><span class="na">build</span><span class="p">());</span>
+<a id="__codelineno-47-15" name="__codelineno-47-15" href="#__codelineno-47-15"></a><span class="w">    </span><span class="n">DgsGraphQLResponse</span><span class="w"> </span><span class="n">response</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">client</span><span class="p">.</span><span class="na">executeQuery</span><span class="p">(</span><span class="n">query</span><span class="p">,</span><span class="w"> </span><span class="n">Map</span><span class="p">.</span><span class="na">of</span><span class="p">());</span>
+<a id="__codelineno-47-16" name="__codelineno-47-16" href="#__codelineno-47-16"></a><span class="w">    </span><span class="n">List</span><span class="o">&lt;</span><span class="n">Post</span><span class="o">&gt;</span><span class="w"> </span><span class="n">posts</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">response</span><span class="p">.</span><span class="na">extractValueAsObject</span><span class="p">(</span>
+<a id="__codelineno-47-17" name="__codelineno-47-17" href="#__codelineno-47-17"></a><span class="w">            </span><span class="s">"allPosts"</span><span class="p">,</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">TypeRef</span><span class="o">&lt;</span><span class="n">List</span><span class="o">&lt;</span><span class="n">Post</span><span class="o">&gt;&gt;</span><span class="p">()</span><span class="w"> </span><span class="p">{});</span>
+<a id="__codelineno-47-18" name="__codelineno-47-18" href="#__codelineno-47-18"></a>
+<a id="__codelineno-47-19" name="__codelineno-47-19" href="#__codelineno-47-19"></a><span class="w">    </span><span class="n">assertThat</span><span class="p">(</span><span class="n">posts</span><span class="p">).</span><span class="na">singleElement</span><span class="p">()</span>
+<a id="__codelineno-47-20" name="__codelineno-47-20" href="#__codelineno-47-20"></a><span class="w">            </span><span class="p">.</span><span class="na">satisfies</span><span class="p">(</span><span class="n">post</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">assertThat</span><span class="p">(</span><span class="n">post</span><span class="p">.</span><span class="na">getTitle</span><span class="p">()).</span><span class="na">isEqualTo</span><span class="p">(</span><span class="s">"Mocked post"</span><span class="p">));</span>
+<a id="__codelineno-47-21" name="__codelineno-47-21" href="#__codelineno-47-21"></a><span class="w">    </span><span class="n">wireMock</span><span class="p">.</span><span class="na">verify</span><span class="p">(</span><span class="n">postRequestedFor</span><span class="p">(</span><span class="n">urlEqualTo</span><span class="p">(</span><span class="s">"/graphql"</span><span class="p">)));</span>
+<a id="__codelineno-47-22" name="__codelineno-47-22" href="#__codelineno-47-22"></a><span class="p">}</span><span class="w"> </span><span class="k">finally</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-47-23" name="__codelineno-47-23" href="#__codelineno-47-23"></a><span class="w">    </span><span class="n">wireMock</span><span class="p">.</span><span class="na">stop</span><span class="p">();</span>
+<a id="__codelineno-47-24" name="__codelineno-47-24" href="#__codelineno-47-24"></a><span class="p">}</span>
 </code></pre></div>
 <p>Replace <code>allPosts</code> and the stubbed response with the operation and schema from
 the third-party service. This keeps client tests repeatable and lets you test
