@@ -874,7 +874,7 @@ When the `Started DemoApplication` log line appears, the server is ready.
 Open `http://localhost:8080/graphiql` in your browser to run a GraphQL
 operation. The server provides GraphiQL at this path.
 
-## Step 8: Test API in GraphiQL
+## Step 8: Test APIs in GraphiQL
 
 **GraphiQL** is an in-browser GraphQL IDE. It reads the schema through
 introspection and provides field completion, schema documentation, and a query
@@ -883,9 +883,8 @@ response panel to try the API.
 
 ### Create a post
 
-A **mutation** changes server-side data. Run this operation to create a post
-and return its id, title, and content. Paste the operation into the editor and
-run it:
+A **mutation** changes server-side data. Paste this operation into the editor
+and run it to create a post and return its id, title, and content:
 
 ```graphql
 mutation {
@@ -922,10 +921,14 @@ request each post's author and comments:
 
 ![Listing posts in GraphiQL](ui-allPosts.png)
 
+Because the author and comments live in separate tables, `allPosts` is exactly
+where the `DataLoader`s earn their keep — a plain nested fetch would run one
+query per post.
+
 ### Fetch one post
 
-Use `postById` to request one post by id. Paste this operation into the editor
-and run it; GraphQL returns only the fields in the selection set:
+Use `postById` to request one post by id. Replace `1` with an id from the
+`allPosts` result above; GraphQL returns only the fields in the selection set:
 
 ```graphql
 {
@@ -941,9 +944,26 @@ and run it; GraphQL returns only the fields in the selection set:
 
 ![Fetching a single post in GraphiQL](ui-postById.png)
 
-Because the author and comments live in separate tables, `allPosts` is exactly
-where the `DataLoader`s earn their keep — a plain nested fetch would run one
-query per post.
+### Fetch a non-existent post
+
+Requesting a post that does not exist still returns `data`, but `postById` is
+`null`, and the response includes an `errors` entry with the message and a
+`NOT_FOUND` error type. Replace `1000` with an id that has no matching post,
+then run the query:
+
+```graphql
+{
+  postById(postId: "1000") {
+    id
+    title
+    content
+    author { name email }
+    comments { id content }
+  }
+}
+```
+
+![Fetching a non-existent post in GraphiQL](ui-errors.png)
 
 To compare this walkthrough with runnable code, explore the
 [`dgs` module](https://github.com/hantsy/spring-graphql-sample/tree/master/dgs).
