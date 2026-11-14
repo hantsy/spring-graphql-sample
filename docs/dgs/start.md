@@ -972,6 +972,13 @@ shows the generated-type variant, and the
 [`dgs-webflux` module](https://github.com/hantsy/spring-graphql-sample/tree/master/dgs-webflux)
 includes reactive validation and typed error handling.
 
+GraphiQL is enabled by default. To disable it, add
+`spring.graphql.graphiql.enabled=false` to `application.properties`:
+
+```properties
+spring.graphql.graphiql.enabled=false
+```
+
 ## Switch to WebFlux
 
 **WebFlux** is Spring's reactive web stack. **R2DBC** provides reactive
