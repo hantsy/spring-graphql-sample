@@ -72,7 +72,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#build-a-graphql-api-with-netflix-dgs" class="md-skip">
+        <a href="#building-graphql-apis-with-netflix-dgs" class="md-skip">
           Skip to content
         </a>
       
@@ -1253,7 +1253,7 @@
   
 
 
-<h1 id="build-a-graphql-api-with-netflix-dgs">Build a GraphQL API with Netflix DGS<a class="headerlink" href="#build-a-graphql-api-with-netflix-dgs" title="Permanent link">&para;</a></h1>
+<h1 id="building-graphql-apis-with-netflix-dgs">Building GraphQL APIs with Netflix DGS<a class="headerlink" href="#building-graphql-apis-with-netflix-dgs" title="Permanent link">&para;</a></h1>
 <p>This tutorial is for Java developers who know Spring Boot and want to build a
 GraphQL API with Netflix DGS (Domain Graph Service). You build a small blog
 API for posts, authors, and comments, connect it to PostgreSQL, and try it in
@@ -2600,12 +2600,14 @@ plain values, and assert the stream with <code>StepVerifier</code>:</p>
 </code></pre></div>
 <p>The sample modules exercise this pattern in different ways:</p>
 <ul>
-<li><code>dgs</code> tests the query and mutation fetchers and their error responses.</li>
-<li><code>dgs-codegen</code> tests generated operations, validation, custom scalars, and
-  directives.</li>
-<li><code>dgs-fileupload</code> tests the <code>Upload</code> scalar with <code>MockMultipartFile</code>.</li>
-<li><code>dgs-webflux</code> tests reactive fetchers and subscriptions with
-  <code>DgsReactiveQueryExecutor</code>.</li>
+<li><a href="https://github.com/hantsy/spring-graphql-sample/tree/master/dgs"><code>dgs</code></a>
+  tests the query and mutation fetchers and their error responses.</li>
+<li><a href="https://github.com/hantsy/spring-graphql-sample/tree/master/dgs-codegen"><code>dgs-codegen</code></a>
+  tests generated operations, validation, custom scalars, and directives.</li>
+<li><a href="https://github.com/hantsy/spring-graphql-sample/tree/master/dgs-fileupload"><code>dgs-fileupload</code></a>
+  tests the <code>Upload</code> scalar with <code>MockMultipartFile</code>.</li>
+<li><a href="https://github.com/hantsy/spring-graphql-sample/tree/master/dgs-webflux"><code>dgs-webflux</code></a>
+  tests reactive fetchers and subscriptions with <code>DgsReactiveQueryExecutor</code>.</li>
 </ul>
 <h3 id="test-repositories-against-a-database">Test repositories against a database<a class="headerlink" href="#test-repositories-against-a-database" title="Permanent link">&para;</a></h3>
 <p>Fetcher tests mock the data access, so they never touch a database. To verify
@@ -2645,13 +2647,18 @@ database connection:</p>
 <code>spring.sql.init.mode=always</code> runs <code>schema.sql</code> against that container, and
 <code>@Transactional</code> rolls back each test so they stay independent. The
 configuration does not component-scan, so <code>DataInitializer</code> does not run and
-seed data. The <code>dgs</code> module has <code>PostRepositoryTests</code> and
-<code>CommentRepositoryTests</code>; the database-backed suites need Docker running.</p>
+seed data. The
+<a href="https://github.com/hantsy/spring-graphql-sample/tree/master/dgs"><code>dgs</code></a> module
+has <code>PostRepositoryTests</code> and <code>CommentRepositoryTests</code>; the database-backed
+suites need Docker running.</p>
 <h3 id="test-over-http">Test over HTTP<a class="headerlink" href="#test-over-http" title="Permanent link">&para;</a></h3>
 <p>Component and repository tests never exercise the transport. To verify the
 GraphQL-over-HTTP endpoint, start the application on a random port and call
 <code>/graphql</code>. <code>DgsRestClientGraphQLClient</code> sends requests with Spring's blocking
-<code>RestClient</code>; the <code>dgs</code> and <code>dgs-codegen</code> integration tests use it:</p>
+<code>RestClient</code>; the
+<a href="https://github.com/hantsy/spring-graphql-sample/tree/master/dgs"><code>dgs</code></a> and
+<a href="https://github.com/hantsy/spring-graphql-sample/tree/master/dgs-codegen"><code>dgs-codegen</code></a>
+integration tests use it:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-44-1" name="__codelineno-44-1" href="#__codelineno-44-1"></a><span class="nd">@SpringBootTest</span><span class="p">(</span><span class="n">webEnvironment</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">SpringBootTest</span><span class="p">.</span><span class="na">WebEnvironment</span><span class="p">.</span><span class="na">RANDOM_PORT</span><span class="p">)</span>
 <a id="__codelineno-44-2" name="__codelineno-44-2" href="#__codelineno-44-2"></a><span class="nd">@Import</span><span class="p">(</span><span class="n">TestcontainersConfiguration</span><span class="p">.</span><span class="na">class</span><span class="p">)</span>
 <a id="__codelineno-44-3" name="__codelineno-44-3" href="#__codelineno-44-3"></a><span class="kd">class</span> <span class="nc">IntegrationTests</span><span class="w"> </span><span class="p">{</span>
@@ -2691,13 +2698,17 @@ GraphQL-over-HTTP endpoint, start the application on a random port and call
 <a id="__codelineno-45-8" name="__codelineno-45-8" href="#__codelineno-45-8"></a><span class="w">        </span><span class="p">.</span><span class="na">consumeNextWith</span><span class="p">(</span><span class="n">post</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">assertThat</span><span class="p">(</span><span class="n">post</span><span class="p">.</span><span class="na">getTitle</span><span class="p">()).</span><span class="na">isEqualTo</span><span class="p">(</span><span class="s">"test title"</span><span class="p">))</span>
 <a id="__codelineno-45-9" name="__codelineno-45-9" href="#__codelineno-45-9"></a><span class="w">        </span><span class="p">.</span><span class="na">verifyComplete</span><span class="p">();</span>
 </code></pre></div>
-<p>The <code>dgs-webflux</code> integration test uses the reactive client; the blocking one
-is in <code>dgs</code> and <code>dgs-codegen</code>.</p>
+<p>The
+<a href="https://github.com/hantsy/spring-graphql-sample/tree/master/dgs-webflux"><code>dgs-webflux</code></a>
+integration test uses the reactive client; the blocking one is in
+<a href="https://github.com/hantsy/spring-graphql-sample/tree/master/dgs"><code>dgs</code></a> and
+<a href="https://github.com/hantsy/spring-graphql-sample/tree/master/dgs-codegen"><code>dgs-codegen</code></a>.</p>
 <h3 id="mock-remote-graphql-apis">Mock remote GraphQL APIs<a class="headerlink" href="#mock-remote-graphql-apis" title="Permanent link">&para;</a></h3>
 <p>To test a client that calls a third-party GraphQL API, point it at a local
-WireMock server instead of making a network request. The <code>dgs-client</code> module
-uses WireMock with a GraphQL body matcher, which compares operations without
-depending on whitespace or field order.</p>
+WireMock server instead of making a network request. The
+<a href="https://github.com/hantsy/spring-graphql-sample/tree/master/dgs-client"><code>dgs-client</code></a>
+module uses WireMock with a GraphQL body matcher, which compares operations
+without depending on whitespace or field order.</p>
 <p>Add these test dependencies to the client module:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-46-1" name="__codelineno-46-1" href="#__codelineno-46-1"></a><span class="nt">&lt;properties&gt;</span>
 <a id="__codelineno-46-2" name="__codelineno-46-2" href="#__codelineno-46-2"></a><span class="w">    </span><span class="nt">&lt;wiremock.version&gt;</span>3.13.2<span class="nt">&lt;/wiremock.version&gt;</span>
