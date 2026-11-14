@@ -1220,7 +1220,6 @@ look like this:</p>
 <li><code>spring-boot-starter-data-jdbc</code> and the PostgreSQL driver provide
   <code>JdbcClient</code> and PostgreSQL connectivity.</li>
 </ul>
-<p>Example project: <a href="https://github.com/hantsy/spring-graphql-sample/tree/master/dgs">the <code>dgs</code> module</a>.</p>
 <h2 id="step-2-define-the-graphql-schema">Step 2: Define the GraphQL schema<a class="headerlink" href="#step-2-define-the-graphql-schema" title="Permanent link">&para;</a></h2>
 <p><strong>A GraphQL schema</strong> is the contract that describes which data clients can
 read or change and what each operation returns. DGS is schema-first: you write
@@ -1274,7 +1273,6 @@ input to <code>createPost</code>. The schema also declares <code>Author.posts</c
 example does not implement that reverse relationship. Use <code>Post.author</code> in the
 queries below; add an <code>Author.posts</code> data fetcher before querying the reverse
 relationship.</p>
-<p>Example schema: <a href="https://github.com/hantsy/spring-graphql-sample/tree/master/dgs">the <code>dgs</code> module</a>.</p>
 <h2 id="step-3-set-up-postgresql-and-persistence">Step 3: Set up PostgreSQL and persistence<a class="headerlink" href="#step-3-set-up-postgresql-and-persistence" title="Permanent link">&para;</a></h2>
 <p>The persistence layer has five parts: a database schema, a local PostgreSQL
 instance, Java records that map database rows, repositories that run SQL, and
@@ -1598,7 +1596,6 @@ seeds new rows. Use it only with a disposable local database; do not copy this
 cleanup behavior into production.</p>
 <p>The persistence layer is ready. Next, create the GraphQL models and connect
 them to the repositories through a service and data fetchers.</p>
-<p>Example persistence code: <a href="https://github.com/hantsy/spring-graphql-sample/tree/master/dgs">the <code>dgs</code> module</a>.</p>
 <h2 id="step-4-model-graphql-types">Step 4: Model GraphQL types<a class="headerlink" href="#step-4-model-graphql-types" title="Permanent link">&para;</a></h2>
 <p>GraphQL models are the Java objects returned by your data fetchers. Create a
 Java class for each schema object type under
@@ -1689,7 +1686,6 @@ value, and <code>@Length</code> limits the title. These annotations do not run b
 themselves: to validate a GraphQL argument, add <code>@Valid</code> to the argument and
 <code>@Validated</code> to the fetcher class. The WebFlux example later shows this
 configuration.</p>
-<p>Example model code: <a href="https://github.com/hantsy/spring-graphql-sample/tree/master/dgs">the <code>dgs</code> module</a>.</p>
 <h2 id="step-5-implement-data-fetchers">Step 5: Implement data fetchers<a class="headerlink" href="#step-5-implement-data-fetchers" title="Permanent link">&para;</a></h2>
 <p><strong>A data fetcher</strong> resolves a GraphQL schema field. A request enters through a
 <code>Query</code> or <code>Mutation</code> fetcher; DGS also resolves nested fields such as
@@ -1865,7 +1861,6 @@ requested posts and groups them by post id:</p>
 <a id="__codelineno-14-19" name="__codelineno-14-19" href="#__codelineno-14-19"></a><span class="w">    </span><span class="p">}</span>
 <a id="__codelineno-14-20" name="__codelineno-14-20" href="#__codelineno-14-20"></a><span class="p">}</span>
 </code></pre></div>
-<p>Example fetchers: <a href="https://github.com/hantsy/spring-graphql-sample/tree/master/dgs">the <code>dgs</code> module</a>.</p>
 <h2 id="step-6-handle-errors">Step 6: Handle errors<a class="headerlink" href="#step-6-handle-errors" title="Permanent link">&para;</a></h2>
 <p><strong>Error handling</strong> converts exceptions thrown during field resolution into
 errors in the GraphQL response. Implement <code>DataFetcherExceptionHandler</code> to
@@ -1899,7 +1894,6 @@ type such as <code>NOT_FOUND</code>. Add
 with a clear message. The <code>dgs-webflux</code> module also maps
 <code>ConstraintViolationException</code> to a typed <code>BAD_REQUEST</code>, so validation
 failures are reported consistently.</p>
-<p>Example code: <a href="https://github.com/hantsy/spring-graphql-sample/tree/master/dgs">the <code>dgs</code> module</a>, <a href="https://github.com/hantsy/spring-graphql-sample/tree/master/dgs-codegen">the <code>dgs-codegen</code> module</a>, and <a href="https://github.com/hantsy/spring-graphql-sample/tree/master/dgs-webflux">the <code>dgs-webflux</code> module</a>.</p>
 <h2 id="step-7-run-the-application">Step 7: Run the application<a class="headerlink" href="#step-7-run-the-application" title="Permanent link">&para;</a></h2>
 <p>Start PostgreSQL and the application. The following steps use the checked-in
 sample; if you created a standalone project, run Docker Compose and its Maven
@@ -1922,7 +1916,6 @@ Wrapper from that project's root directory:</p>
 <p>When the <code>Started DemoApplication</code> log line appears, the server is ready.</p>
 <p>Open <code>http://localhost:8080/graphiql</code> in your browser to run a GraphQL
 operation. The server provides GraphiQL at this path.</p>
-<p>Example application: <a href="https://github.com/hantsy/spring-graphql-sample/tree/master/dgs">the <code>dgs</code> module</a>.</p>
 <h2 id="step-8-test-the-api-in-graphiql">Step 8: Test the API in GraphiQL<a class="headerlink" href="#step-8-test-the-api-in-graphiql" title="Permanent link">&para;</a></h2>
 <p><strong>GraphiQL</strong> is an in-browser GraphQL IDE. It reads the schema through
 introspection and provides field completion, schema documentation, and a query
@@ -1975,7 +1968,12 @@ and run it; GraphQL returns only the fields in the selection set:</p>
 <p>Because the author and comments live in separate tables, <code>allPosts</code> is exactly
 where the <code>DataLoader</code>s earn their keep — a plain nested fetch would run one
 query per post.</p>
-<p>Example code: <a href="https://github.com/hantsy/spring-graphql-sample/tree/master/dgs">the <code>dgs</code> module</a>.</p>
+<p>To compare this walkthrough with runnable code, explore the
+<a href="https://github.com/hantsy/spring-graphql-sample/tree/master/dgs"><code>dgs</code> module</a>.
+The <a href="https://github.com/hantsy/spring-graphql-sample/tree/master/dgs-codegen"><code>dgs-codegen</code> module</a>
+shows the generated-type variant, and the
+<a href="https://github.com/hantsy/spring-graphql-sample/tree/master/dgs-webflux"><code>dgs-webflux</code> module</a>
+includes reactive validation and typed error handling.</p>
 <h2 id="switch-to-webflux">Switch to WebFlux<a class="headerlink" href="#switch-to-webflux" title="Permanent link">&para;</a></h2>
 <p><strong>WebFlux</strong> is Spring's reactive web stack. <strong>R2DBC</strong> provides reactive
 relational database access, unlike the blocking JDBC API used above. The
@@ -2044,7 +2042,8 @@ The fetcher methods then look like this:</p>
 <p>This module also adds a second mutation (<code>addComment</code>) and demonstrates the
 subscription transport, so it is the one to copy when you need real-time
 updates.</p>
-<p>Example code: <a href="https://github.com/hantsy/spring-graphql-sample/tree/master/dgs-webflux">the <code>dgs-webflux</code> module</a>.</p>
+<p>To explore the reactive version, see the
+<a href="https://github.com/hantsy/spring-graphql-sample/tree/master/dgs-webflux"><code>dgs-webflux</code> module</a>.</p>
 <h2 id="generate-types-from-the-schema">Generate types from the schema<a class="headerlink" href="#generate-types-from-the-schema" title="Permanent link">&para;</a></h2>
 <p><strong>Code generation</strong> creates Java types and constants from the GraphQL schema,
 reducing the chance that Java code and schema names drift apart. The
@@ -2148,7 +2147,8 @@ strings, and the generated types instead of hand-written ones:</p>
 </code></pre></div>
 <p><code>DgsConstants.POST.TYPE_NAME</code> and <code>DgsConstants.POST.Author</code> are generated, so
 a schema rename becomes a compile error rather than a silent typo.</p>
-<p>Example code: <a href="https://github.com/hantsy/spring-graphql-sample/tree/master/dgs-codegen">the <code>dgs-codegen</code> module</a>.</p>
+<p>For a complete code-generation setup, explore the
+<a href="https://github.com/hantsy/spring-graphql-sample/tree/master/dgs-codegen"><code>dgs-codegen</code> module</a>.</p>
 <h2 id="custom-scalars">Custom scalars<a class="headerlink" href="#custom-scalars" title="Permanent link">&para;</a></h2>
 <p>A <strong>scalar</strong> is a leaf value in a GraphQL response: clients select it directly
 but cannot request subfields from it. GraphQL has built-in scalars such as
@@ -2194,7 +2194,9 @@ directly in a GraphQL document. A <code>UUIDScalar</code> follows the same patte
 for standard ISO date-time strings in GraphQL JSON variables. The
 <code>graphql-dgs-extended-scalars</code> dependency also provides scalars for common
 types.</p>
-<p>Example code: <a href="https://github.com/hantsy/spring-graphql-sample/tree/master/dgs-codegen">the <code>dgs-codegen</code> module</a>.</p>
+<p>See the
+<a href="https://github.com/hantsy/spring-graphql-sample/tree/master/dgs-codegen"><code>dgs-codegen</code> module</a>
+for a working custom-scalar example.</p>
 <h2 id="custom-directives">Custom directives<a class="headerlink" href="#custom-directives" title="Permanent link">&para;</a></h2>
 <p>A <strong>directive</strong> is an annotation in the schema that adds behavior to a type,
 field, or argument. The schema already declares <code>@uppercase</code> for fields.
@@ -2221,7 +2223,8 @@ field's data fetcher:</p>
 <p>Because the schema marks <code>title: String! @uppercase</code>, every <code>title</code> that comes
 back from the server is upper-cased — the directive changed the field's
 behavior without touching the fetcher.</p>
-<p>Example code: <a href="https://github.com/hantsy/spring-graphql-sample/tree/master/dgs-codegen">the <code>dgs-codegen</code> module</a>.</p>
+<p>The <a href="https://github.com/hantsy/spring-graphql-sample/tree/master/dgs-codegen"><code>dgs-codegen</code> module</a>
+also includes a working custom-directive example.</p>
 <h2 id="typesafe-client">Typesafe client<a class="headerlink" href="#typesafe-client" title="Permanent link">&para;</a></h2>
 <p><strong>A typesafe GraphQL client</strong> builds operations and field selections using
 generated Java classes rather than hand-written query strings. The
@@ -2348,7 +2351,8 @@ the DGS client, which rides Spring's <code>RestClient</code>:</p>
 type, and <code>extractValueAsObject</code> deserializes into the generated <code>Post</code>. The
 module's test stubs the <code>/graphql</code> endpoint with WireMock and verifies the
 request body semantically, so the client is exercised without a running server.</p>
-<p>Example code: <a href="https://github.com/hantsy/spring-graphql-sample/tree/master/dgs-client">the <code>dgs-client</code> module</a>.</p>
+<p>Try the generated client against the
+<a href="https://github.com/hantsy/spring-graphql-sample/tree/master/dgs-client"><code>dgs-client</code> module</a>.</p>
 <h2 id="file-upload">File upload<a class="headerlink" href="#file-upload" title="Permanent link">&para;</a></h2>
 <p><strong>File upload</strong> is not defined by the GraphQL specification, so applications
 need a transport convention to send files alongside GraphQL operations. The
@@ -2396,7 +2400,8 @@ the resolved <code>MultipartFile</code>.</p>
 store the file. Add your own storage and input checks before using uploads in
 an application.</p>
 <p>References: <a href="https://github.com/jaydenseric/graphql-multipart-request-spec">GraphQL multipart request specification</a> and <a href="https://github.com/nkonev/multiple-spring-graphql">multipart-spring-graphql</a>.</p>
-<p>Example code: <a href="https://github.com/hantsy/spring-graphql-sample/tree/master/dgs-fileupload">the <code>dgs-fileupload</code> module</a>.</p>
+<p>For a runnable upload example, explore the
+<a href="https://github.com/hantsy/spring-graphql-sample/tree/master/dgs-fileupload"><code>dgs-fileupload</code> module</a>.</p>
 <h2 id="conclusion">Conclusion<a class="headerlink" href="#conclusion" title="Permanent link">&para;</a></h2>
 <p>You now have a working DGS application and a tour of its extension points. The
 base <code>dgs</code> module shows the core programming model; <code>dgs-webflux</code> the reactive
