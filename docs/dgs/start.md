@@ -197,8 +197,9 @@ spring.sql.init.mode=always
 
 ### Start PostgreSQL locally
 
-For a standalone project, add a `docker-compose.yml` with a PostgreSQL service.
-This service uses the same database name and credentials as the application:
+For a standalone project, create a `docker-compose.yml` file in the project
+root with a PostgreSQL service. This service uses the same database name and
+credentials as the application:
 
 ```yaml
 services:
@@ -604,7 +605,7 @@ public class CommentInput {
 
 // PostStatus.java
 public enum PostStatus {
-    DRAFT, PENDING_MODERATION, PUBLISHED
+    DRAFT, PUBLISHED
 }
 ```
 
@@ -623,8 +624,7 @@ configuration.
 
 Create a `PostsDataFetcher` class in package
 `com.example.demo.gql.datafetchers`. Use `@DgsQuery` and `@DgsMutation` for
-root operations, and `@DgsData` for nested fields. The example class handles
-all three kinds:
+root operations, and `@DgsData` for nested fields.
 
 When a query selects nested fields such as `Post.author`, each field is
 resolved for every returned post. **The N+1 problem** occurs when this causes
