@@ -2227,10 +2227,11 @@ behavior without touching the fetcher.</p>
 also includes a working custom-directive example.</p>
 <h2 id="typesafe-client">Typesafe client<a class="headerlink" href="#typesafe-client" title="Permanent link">&para;</a></h2>
 <p><strong>A typesafe GraphQL client</strong> builds operations and field selections using
-generated Java classes rather than hand-written query strings. The
-<code>dgs-client</code> module is a separate command-line application: it declares the
-same schema, enables <code>generateClientApi</code>, and depends on
-<code>graphql-dgs-client</code> and <code>spring-boot-starter-restclient</code>.</p>
+generated Java classes rather than hand-written query strings. Reuse the DGS
+codegen Maven plugin from the previous section and set <code>generateClientApi</code> to
+<code>true</code> to generate the client API alongside the schema types. Add
+<code>graphql-dgs-client</code> and <code>spring-boot-starter-restclient</code> to build and execute
+client requests.</p>
 <p>Add these version properties and import the DGS bill of materials (BOM) in
 <code>pom.xml</code>:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-31-1" name="__codelineno-31-1" href="#__codelineno-31-1"></a><span class="nt">&lt;properties&gt;</span>
@@ -2351,8 +2352,10 @@ the DGS client, which rides Spring's <code>RestClient</code>:</p>
 type, and <code>extractValueAsObject</code> deserializes into the generated <code>Post</code>. The
 module's test stubs the <code>/graphql</code> endpoint with WireMock and verifies the
 request body semantically, so the client is exercised without a running server.</p>
-<p>Try the generated client against the
-<a href="https://github.com/hantsy/spring-graphql-sample/tree/master/dgs-client"><code>dgs-client</code> module</a>.</p>
+<p>For a runnable example, explore the repository's
+<a href="https://github.com/hantsy/spring-graphql-sample/tree/master/dgs-client"><code>dgs-client</code> module</a>,
+a separate command-line application that declares the same schema and
+exercises the generated client.</p>
 <h2 id="file-upload">File upload<a class="headerlink" href="#file-upload" title="Permanent link">&para;</a></h2>
 <p><strong>File upload</strong> is not defined by the GraphQL specification, so applications
 need a transport convention to send files alongside GraphQL operations. The
