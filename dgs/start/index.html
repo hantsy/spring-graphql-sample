@@ -1153,10 +1153,6 @@ to understand the step.</p>
 </ul>
 <p>You do not need to install Maven separately; Spring Initializr generates a
 Maven Wrapper with the project.</p>
-<p><strong>A GraphQL schema</strong> is the contract that describes which data clients can
-read or change and what each operation returns. DGS is schema-first: you write
-that contract in the GraphQL Schema Definition Language (SDL), then connect
-Java code to its fields.</p>
 <h2 id="step-1-create-a-spring-boot-project">Step 1: Create a Spring Boot project<a class="headerlink" href="#step-1-create-a-spring-boot-project" title="Permanent link">&para;</a></h2>
 <p>Create a Maven project with <a href="https://start.spring.io/">Spring Initializr</a>:</p>
 <ol>
@@ -1226,6 +1222,10 @@ look like this:</p>
 </ul>
 <p>Example project: <a href="https://github.com/hantsy/spring-graphql-sample/tree/master/dgs">the <code>dgs</code> module</a>.</p>
 <h2 id="step-2-define-the-graphql-schema">Step 2: Define the GraphQL schema<a class="headerlink" href="#step-2-define-the-graphql-schema" title="Permanent link">&para;</a></h2>
+<p><strong>A GraphQL schema</strong> is the contract that describes which data clients can
+read or change and what each operation returns. DGS is schema-first: you write
+that contract in the GraphQL Schema Definition Language (SDL), then connect
+Java code to its fields.</p>
 <p>An <strong>object type</strong> describes data clients can select fields from. An <strong>input
 type</strong> describes data clients can pass to an operation. <code>Query</code> is the root
 type for reads, and <code>Mutation</code> is the root type for writes. In SDL, <code>!</code> marks
