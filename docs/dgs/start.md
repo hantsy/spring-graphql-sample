@@ -25,11 +25,6 @@ Before you begin, install or prepare the following:
 You do not need to install Maven separately; Spring Initializr generates a
 Maven Wrapper with the project.
 
-**A GraphQL schema** is the contract that describes which data clients can
-read or change and what each operation returns. DGS is schema-first: you write
-that contract in the GraphQL Schema Definition Language (SDL), then connect
-Java code to its fields.
-
 ## Step 1: Create a Spring Boot project
 
 Create a Maven project with [Spring Initializr](https://start.spring.io/):
@@ -101,9 +96,12 @@ The dependencies serve these roles:
 - `spring-boot-starter-data-jdbc` and the PostgreSQL driver provide
   `JdbcClient` and PostgreSQL connectivity.
 
-Example project: [the `dgs` module](https://github.com/hantsy/spring-graphql-sample/tree/master/dgs).
-
 ## Step 2: Define the GraphQL schema
+
+**A GraphQL schema** is the contract that describes which data clients can
+read or change and what each operation returns. DGS is schema-first: you write
+that contract in the GraphQL Schema Definition Language (SDL), then connect
+Java code to its fields.
 
 An **object type** describes data clients can select fields from. An **input
 type** describes data clients can pass to an operation. `Query` is the root
@@ -157,8 +155,6 @@ input to `createPost`. The schema also declares `Author.posts`, but the core
 example does not implement that reverse relationship. Use `Post.author` in the
 queries below; add an `Author.posts` data fetcher before querying the reverse
 relationship.
-
-Example schema: [the `dgs` module](https://github.com/hantsy/spring-graphql-sample/tree/master/dgs).
 
 ## Step 3: Set up PostgreSQL and persistence
 
@@ -515,8 +511,6 @@ cleanup behavior into production.
 The persistence layer is ready. Next, create the GraphQL models and connect
 them to the repositories through a service and data fetchers.
 
-Example persistence code: [the `dgs` module](https://github.com/hantsy/spring-graphql-sample/tree/master/dgs).
-
 ## Step 4: Model GraphQL types
 
 GraphQL models are the Java objects returned by your data fetchers. Create a
@@ -615,8 +609,6 @@ value, and `@Length` limits the title. These annotations do not run by
 themselves: to validate a GraphQL argument, add `@Valid` to the argument and
 `@Validated` to the fetcher class. The WebFlux example later shows this
 configuration.
-
-Example model code: [the `dgs` module](https://github.com/hantsy/spring-graphql-sample/tree/master/dgs).
 
 ## Step 5: Implement data fetchers
 
@@ -811,8 +803,6 @@ public class CommentsDataLoader implements MappedBatchLoader<Long, List<Comment>
 }
 ```
 
-Example fetchers: [the `dgs` module](https://github.com/hantsy/spring-graphql-sample/tree/master/dgs).
-
 ## Step 6: Handle errors
 
 **Error handling** converts exceptions thrown during field resolution into
@@ -851,8 +841,6 @@ with a clear message. The `dgs-webflux` module also maps
 `ConstraintViolationException` to a typed `BAD_REQUEST`, so validation
 failures are reported consistently.
 
-Example code: [the `dgs` module](https://github.com/hantsy/spring-graphql-sample/tree/master/dgs), [the `dgs-codegen` module](https://github.com/hantsy/spring-graphql-sample/tree/master/dgs-codegen), and [the `dgs-webflux` module](https://github.com/hantsy/spring-graphql-sample/tree/master/dgs-webflux).
-
 ## Step 7: Run the application
 
 Start PostgreSQL and the application. The following steps use the checked-in
@@ -861,29 +849,27 @@ Wrapper from that project's root directory:
 
 1. From the repository root, start the shared PostgreSQL container:
 
-   ```bash
-   docker compose up -d postgres
-   ```
+    ```bash
+    docker compose up -d postgres
+    ```
 
-   The `docker-compose.yml` creates a `blogdb` database with user `user` and
-   password `password`, matching `application.properties`.
+    The `docker-compose.yml` creates a `blogdb` database with user `user` and
+    password `password`, matching `application.properties`.
 
 2. Start the DGS application:
 
-   ```bash
-   cd dgs
-   ./mvnw spring-boot:run
-   ```
+    ```bash
+    cd dgs
+    ./mvnw spring-boot:run
+    ```
 
-   On Windows, run `mvnw.cmd spring-boot:run` from the `dgs` directory. For a
-   standalone project, omit `cd dgs`.
+    On Windows, run `mvnw.cmd spring-boot:run` from the `dgs` directory. For
+    a standalone project, omit `cd dgs`.
 
 When the `Started DemoApplication` log line appears, the server is ready.
 
 Open `http://localhost:8080/graphiql` in your browser to run a GraphQL
 operation. The server provides GraphiQL at this path.
-
-Example application: [the `dgs` module](https://github.com/hantsy/spring-graphql-sample/tree/master/dgs).
 
 ## Step 8: Test the API in GraphiQL
 
@@ -956,7 +942,12 @@ Because the author and comments live in separate tables, `allPosts` is exactly
 where the `DataLoader`s earn their keep — a plain nested fetch would run one
 query per post.
 
-Example code: [the `dgs` module](https://github.com/hantsy/spring-graphql-sample/tree/master/dgs).
+To compare this walkthrough with runnable code, explore the
+[`dgs` module](https://github.com/hantsy/spring-graphql-sample/tree/master/dgs).
+The [`dgs-codegen` module](https://github.com/hantsy/spring-graphql-sample/tree/master/dgs-codegen)
+shows the generated-type variant, and the
+[`dgs-webflux` module](https://github.com/hantsy/spring-graphql-sample/tree/master/dgs-webflux)
+includes reactive validation and typed error handling.
 
 ## Switch to WebFlux
 
@@ -1034,7 +1025,8 @@ This module also adds a second mutation (`addComment`) and demonstrates the
 subscription transport, so it is the one to copy when you need real-time
 updates.
 
-Example code: [the `dgs-webflux` module](https://github.com/hantsy/spring-graphql-sample/tree/master/dgs-webflux).
+To explore the reactive version, see the
+[`dgs-webflux` module](https://github.com/hantsy/spring-graphql-sample/tree/master/dgs-webflux).
 
 ## Generate types from the schema
 
@@ -1162,7 +1154,8 @@ public CompletableFuture<Author> author(DgsDataFetchingEnvironment dfe) {
 `DgsConstants.POST.TYPE_NAME` and `DgsConstants.POST.Author` are generated, so
 a schema rename becomes a compile error rather than a silent typo.
 
-Example code: [the `dgs-codegen` module](https://github.com/hantsy/spring-graphql-sample/tree/master/dgs-codegen).
+For a complete code-generation setup, explore the
+[`dgs-codegen` module](https://github.com/hantsy/spring-graphql-sample/tree/master/dgs-codegen).
 
 ## Custom scalars
 
@@ -1214,7 +1207,9 @@ for standard ISO date-time strings in GraphQL JSON variables. The
 `graphql-dgs-extended-scalars` dependency also provides scalars for common
 types.
 
-Example code: [the `dgs-codegen` module](https://github.com/hantsy/spring-graphql-sample/tree/master/dgs-codegen).
+See the
+[`dgs-codegen` module](https://github.com/hantsy/spring-graphql-sample/tree/master/dgs-codegen)
+for a working custom-scalar example.
 
 ## Custom directives
 
@@ -1247,15 +1242,17 @@ Because the schema marks `title: String! @uppercase`, every `title` that comes
 back from the server is upper-cased — the directive changed the field's
 behavior without touching the fetcher.
 
-Example code: [the `dgs-codegen` module](https://github.com/hantsy/spring-graphql-sample/tree/master/dgs-codegen).
+The [`dgs-codegen` module](https://github.com/hantsy/spring-graphql-sample/tree/master/dgs-codegen)
+also includes a working custom-directive example.
 
 ## Typesafe client
 
 **A typesafe GraphQL client** builds operations and field selections using
-generated Java classes rather than hand-written query strings. The
-`dgs-client` module is a separate command-line application: it declares the
-same schema, enables `generateClientApi`, and depends on
-`graphql-dgs-client` and `spring-boot-starter-restclient`.
+generated Java classes rather than hand-written query strings. Reuse the DGS
+codegen Maven plugin from the previous section and set `generateClientApi` to
+`true` to generate the client API alongside the schema types. Add
+`graphql-dgs-client` and `spring-boot-starter-restclient` to build and execute
+client requests.
 
 Add these version properties and import the DGS bill of materials (BOM) in
 `pom.xml`:
@@ -1394,7 +1391,10 @@ type, and `extractValueAsObject` deserializes into the generated `Post`. The
 module's test stubs the `/graphql` endpoint with WireMock and verifies the
 request body semantically, so the client is exercised without a running server.
 
-Example code: [the `dgs-client` module](https://github.com/hantsy/spring-graphql-sample/tree/master/dgs-client).
+For a runnable example, explore the repository's
+[`dgs-client` module](https://github.com/hantsy/spring-graphql-sample/tree/master/dgs-client),
+a separate command-line application that declares the same schema and
+exercises the generated client.
 
 ## File upload
 
@@ -1459,7 +1459,198 @@ an application.
 
 References: [GraphQL multipart request specification](https://github.com/jaydenseric/graphql-multipart-request-spec) and [multipart-spring-graphql](https://github.com/nkonev/multiple-spring-graphql).
 
-Example code: [the `dgs-fileupload` module](https://github.com/hantsy/spring-graphql-sample/tree/master/dgs-fileupload).
+For a runnable upload example, explore the
+[`dgs-fileupload` module](https://github.com/hantsy/spring-graphql-sample/tree/master/dgs-fileupload).
+
+## Testing
+
+Test GraphQL behavior at two boundaries: execute operations against DGS in
+process to check schema and fetcher behavior, then use an HTTP client when you
+need to check the GraphQL-over-HTTP protocol or a remote GraphQL service.
+
+### Test DGS components
+
+`@EnableDgsTest` enables DGS test support, and `DgsQueryExecutor` executes a
+GraphQL operation directly against the schema without starting an HTTP server.
+Mock the service layer to focus the test on the fetcher and its GraphQL
+response. Add `dgs-starter-test` with test scope to the server module:
+
+```xml
+<dependencies>
+    <dependency>
+        <groupId>com.netflix.graphql.dgs</groupId>
+        <artifactId>dgs-starter-test</artifactId>
+        <scope>test</scope>
+    </dependency>
+    <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-test</artifactId>
+        <scope>test</scope>
+    </dependency>
+</dependencies>
+```
+
+For example, import the fetcher, provide test database configuration, and
+replace its service with a mock:
+
+```java
+@EnableDgsTest
+@SpringBootTest(classes = PostsQueryTest.TestConfig.class)
+@Import(TestcontainersConfiguration.class)
+class PostsQueryTest {
+    @Autowired
+    DgsQueryExecutor executor;
+
+    @MockitoBean
+    PostService postService;
+
+    @Configuration
+    @Import(PostsDataFetcher.class)
+    static class TestConfig {
+    }
+
+    @Test
+    void allPosts() {
+        when(postService.getAllPosts()).thenReturn(List.of(
+                Post.builder().id(1L).title("DGS test").content("Example").build()
+        ));
+
+        List<String> titles = executor.executeAndExtractJsonPath(
+                "{ allPosts { title content } }",
+                "data.allPosts[*].title");
+
+        assertThat(titles).containsExactly("DGS test");
+    }
+}
+```
+
+In the repository, `TestcontainersConfiguration` starts PostgreSQL for the
+Spring test context. The database-backed test suites need Docker running.
+
+Pass variables as a map when testing arguments. Use `executor.execute(...)`
+instead of extracting a JSON path when you need to inspect GraphQL errors.
+For WebFlux tests, use `DgsReactiveQueryExecutor` and verify its `Mono` or
+`Flux` with Reactor's `StepVerifier`.
+
+The sample modules use this pattern in different ways:
+
+- `dgs` tests query and mutation fetchers and their error responses.
+- `dgs-codegen` tests generated operations, validation, custom scalars, and
+  directives.
+- `dgs-fileupload` tests the `Upload` scalar with `MockMultipartFile`; its
+  tests for a file nested in a GraphQL input object are disabled.
+- `dgs-webflux` tests reactive fetchers and subscriptions. Its integration
+  test starts the application on a random port and calls `/graphql` with
+  `DgsWebClientGraphQLClient`.
+
+### Test functionalities with HTTP clients
+
+Use an HTTP client to test the transport as well as the GraphQL response.
+`DgsRestClientGraphQLClient` sends requests with Spring's `RestClient`; the
+WebFlux integration test uses `DgsWebClientGraphQLClient`. Start the server
+with `@SpringBootTest(webEnvironment = RANDOM_PORT)` and inject its port to
+exercise the `/graphql` endpoint:
+
+```java
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+class GraphQlHttpTests {
+    @LocalServerPort
+    int port;
+
+    @Test
+    void createPostOverHttp() {
+        var client = new DgsWebClientGraphQLClient(
+                WebClient.create("http://localhost:" + port + "/graphql"));
+        var query = """
+                mutation createPost($input: CreatePostInput!) {
+                    createPost(createPostInput: $input) { title }
+                }
+                """;
+        var variables = Map.of("input", Map.of(
+                "title", "test title",
+                "content", "test content"));
+        var result = client.reactiveExecuteQuery(query, variables)
+                .map(response -> response.extractValueAsObject("createPost", Post.class));
+
+        StepVerifier.create(result)
+                .consumeNextWith(post -> assertThat(post.getTitle()).isEqualTo("test title"))
+                .verifyComplete();
+    }
+}
+```
+
+### Mock remote GraphQL APIs
+
+To test a client that calls a third-party GraphQL API, point it at a local
+WireMock server instead of making a network request. The `dgs-client` module
+uses WireMock with a GraphQL body matcher, which compares operations without
+depending on whitespace or field order.
+
+Add these test dependencies to the client module:
+
+```xml
+<properties>
+    <wiremock.version>3.13.2</wiremock.version>
+    <wiremock-graphql-extension.version>0.9.0</wiremock-graphql-extension.version>
+</properties>
+
+<dependencies>
+    <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-test</artifactId>
+        <scope>test</scope>
+    </dependency>
+    <dependency>
+        <groupId>org.wiremock</groupId>
+        <artifactId>wiremock-standalone</artifactId>
+        <version>${wiremock.version}</version>
+        <scope>test</scope>
+    </dependency>
+    <dependency>
+        <groupId>io.github.nilwurtz</groupId>
+        <artifactId>wiremock-graphql-extension</artifactId>
+        <version>${wiremock-graphql-extension.version}</version>
+        <scope>test</scope>
+    </dependency>
+</dependencies>
+```
+
+Stub the remote operation and direct the DGS HTTP client to WireMock's local
+URL:
+
+```java
+String query = "{ allPosts { id title } }";
+WireMockServer wireMock = new WireMockServer(
+        options().dynamicPort().extensions(new GraphqlBodyMatcher()));
+wireMock.start();
+try {
+    wireMock.stubFor(post(urlEqualTo("/graphql"))
+            .andMatching(GraphqlBodyMatcher.extensionName,
+                    GraphqlBodyMatcher.parameters(query, Map.of()))
+            .willReturn(okJson("""
+                    {"data":{"allPosts":[{"id":"1","title":"Mocked post"}]}}
+                    """)));
+
+    DgsGraphQLClient client = new DgsRestClientGraphQLClient(
+            RestClient.builder().baseUrl(wireMock.url("/graphql")).build());
+    DgsGraphQLResponse response = client.executeQuery(query, Map.of());
+    List<Post> posts = response.extractValueAsObject(
+            "allPosts", new TypeRef<List<Post>>() {});
+
+    assertThat(posts).singleElement()
+            .satisfies(post -> assertThat(post.getTitle()).isEqualTo("Mocked post"));
+    wireMock.verify(postRequestedFor(urlEqualTo("/graphql")));
+} finally {
+    wireMock.stop();
+}
+```
+
+Replace `allPosts` and the stubbed response with the operation and schema from
+the third-party service. This keeps client tests repeatable and lets you test
+how your code handles success responses without relying on the remote API.
+
+The WireMock client test is in
+[`dgs-client`](https://github.com/hantsy/spring-graphql-sample/tree/master/dgs-client).
 
 ## Conclusion
 
