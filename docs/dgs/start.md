@@ -1558,33 +1558,45 @@ The sample modules exercise this pattern in different ways:
 ### Test repositories against a database
 
 Fetcher tests mock the data access, so they never touch a database. To verify
-the repositories themselves, run them against a real PostgreSQL. The
-repository tests use a narrowed `@SpringBootTest` that imports only the
-repositories, plus `@Import(TestcontainersConfiguration.class)` for the
-database connection:
+the repositories themselves, run them against a real PostgreSQL with
+Testcontainers. Use a full `@SpringBootTest` — it component-scans the
+repositories, so you can inject them directly — and add
+`@Import(TestcontainersConfiguration.class)` for the database connection:
 
 ```java
-@SpringBootTest(classes = PostRepositoryTests.Config.class)
+@SpringBootTest
 @Import(TestcontainersConfiguration.class)
 @Transactional
-class PostRepositoryTests {
-
-    @Configuration(proxyBeanMethods = false)
-    @EnableAutoConfiguration
-    @Import({PostRepository.class, CommentRepository.class, AuthorRepository.class})
-    static class Config {
-    }
+class RepositoryTests {
 
     @Autowired
     PostRepository posts;
 
     @Autowired
+    CommentRepository comments;
+
+    @Autowired
     AuthorRepository authors;
 
+    private Long newAuthor() {
+        return authors.create("test user", "test@example.com");
+    }
+
+    private Long newPost(String title) {
+        return newPost(newAuthor(), title);
+    }
+
+    private Long newPost(Long authorId, String title) {
+        return posts.create(title, title + " content", "DRAFT", authorId);
+    }
+
+    private Long newComment(Long postId, String content) {
+        return comments.create(content, postId);
+    }
+
     @Test
-    void createAndFindById() {
-        var authorId = authors.create("test user", "test@example.com");
-        var postId = posts.create("test title", "test content", "DRAFT", authorId);
+    void createAndFindPostById() {
+        var postId = newPost("test title");
 
         var post = posts.findById(postId);
         assertThat(post.title()).isEqualTo("test title");
@@ -1592,15 +1604,16 @@ class PostRepositoryTests {
 }
 ```
 
-`TestcontainersConfiguration` is a `@TestConfiguration` whose
-`@Bean @ServiceConnection PostgreSQLContainer` supplies the `DataSource`.
-`spring.sql.init.mode=always` runs `schema.sql` against that container, and
-`@Transactional` rolls back each test so they stay independent. The
-configuration does not component-scan, so `DataInitializer` does not run and
-seed data. The
+The `newAuthor`, `newPost`, and `newComment` helpers make it easy to set up
+the foreign-key relations in each test. `TestcontainersConfiguration` is a
+`@TestConfiguration` whose `@Bean @ServiceConnection PostgreSQLContainer`
+supplies the `DataSource`; `spring.sql.init.mode=always` runs `schema.sql`
+against it, and `@Transactional` rolls back each test. Because the application
+seeds sample data on startup, tests that read a whole table assert with
+`contains` rather than an exact count. The
 [`dgs`](https://github.com/hantsy/spring-graphql-sample/tree/master/dgs) module
-has `PostRepositoryTests` and `CommentRepositoryTests`; the database-backed
-suites need Docker running.
+has a single `RepositoryTests` class; the database-backed suites need Docker
+running.
 
 ### Test over HTTP
 
@@ -1658,9 +1671,7 @@ StepVerifier.create(result)
 
 The
 [`dgs-webflux`](https://github.com/hantsy/spring-graphql-sample/tree/master/dgs-webflux)
-integration test uses the reactive client; the blocking one is in
-[`dgs`](https://github.com/hantsy/spring-graphql-sample/tree/master/dgs) and
-[`dgs-codegen`](https://github.com/hantsy/spring-graphql-sample/tree/master/dgs-codegen).
+integration test uses the reactive client.
 
 ### Mock remote GraphQL APIs
 
