@@ -1899,20 +1899,22 @@ failures are reported consistently.</p>
 sample; if you created a standalone project, run Docker Compose and its Maven
 Wrapper from that project's root directory:</p>
 <ol>
-<li>From the repository root, start the shared PostgreSQL container:</li>
-</ol>
+<li>
+<p>From the repository root, start the shared PostgreSQL container:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a>docker<span class="w"> </span>compose<span class="w"> </span>up<span class="w"> </span>-d<span class="w"> </span>postgres
 </code></pre></div>
 <p>The <code>docker-compose.yml</code> creates a <code>blogdb</code> database with user <code>user</code> and
-   password <code>password</code>, matching <code>application.properties</code>.</p>
-<ol>
-<li>Start the DGS application:</li>
-</ol>
+password <code>password</code>, matching <code>application.properties</code>.</p>
+</li>
+<li>
+<p>Start the DGS application:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a><span class="nb">cd</span><span class="w"> </span>dgs
 <a id="__codelineno-17-2" name="__codelineno-17-2" href="#__codelineno-17-2"></a>./mvnw<span class="w"> </span>spring-boot:run
 </code></pre></div>
-<p>On Windows, run <code>mvnw.cmd spring-boot:run</code> from the <code>dgs</code> directory. For a
-   standalone project, omit <code>cd dgs</code>.</p>
+<p>On Windows, run <code>mvnw.cmd spring-boot:run</code> from the <code>dgs</code> directory. For
+a standalone project, omit <code>cd dgs</code>.</p>
+</li>
+</ol>
 <p>When the <code>Started DemoApplication</code> log line appears, the server is ready.</p>
 <p>Open <code>http://localhost:8080/graphiql</code> in your browser to run a GraphQL
 operation. The server provides GraphiQL at this path.</p>
