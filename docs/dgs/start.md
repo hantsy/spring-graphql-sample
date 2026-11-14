@@ -96,7 +96,7 @@ The dependencies serve these roles:
 - `spring-boot-starter-data-jdbc` and the PostgreSQL driver provide
   `JdbcClient` and PostgreSQL connectivity.
 
-## Step 2: Define the GraphQL schema
+## Step 2: Define GraphQL schema
 
 **A GraphQL schema** is the contract that describes which data clients can
 read or change and what each operation returns. DGS is schema-first: you write
@@ -162,7 +162,7 @@ The persistence layer has five parts: a database schema, a local PostgreSQL
 instance, Java records that map database rows, repositories that run SQL, and
 sample data. Complete these steps before you start the application.
 
-### Create the database tables
+### Create database tables
 
 Create a `schema.sql` file in `src/main/resources`:
 
@@ -259,7 +259,7 @@ public record AuthorEntity(
 }
 ```
 
-### Create the repositories
+### Create repositories
 
 Create a `PostRepository` class in package `com.example.demo.repository` to
 read and write posts with Spring's `JdbcClient`:
@@ -684,7 +684,7 @@ The annotations, in order of appearance:
   the parameter type. `@InputArgument("createPostInput")` names the argument
   explicitly because the parameter is `input`, not `createPostInput`.
 
-### Add the service layer
+### Add service layer
 
 The service layer keeps database access out of your data fetchers. It calls
 the repositories and maps database entities to GraphQL models. Create a
@@ -844,7 +844,7 @@ with a clear message. The `dgs-webflux` module also maps
 `ConstraintViolationException` to a typed `BAD_REQUEST`, so validation
 failures are reported consistently.
 
-## Step 7: Run the application
+## Step 7: Run application
 
 Start PostgreSQL and the application. The following steps use the checked-in
 sample; if you created a standalone project, run Docker Compose and its Maven
@@ -874,7 +874,7 @@ When the `Started DemoApplication` log line appears, the server is ready.
 Open `http://localhost:8080/graphiql` in your browser to run a GraphQL
 operation. The server provides GraphiQL at this path.
 
-## Step 8: Test the API in GraphiQL
+## Step 8: Test API in GraphiQL
 
 **GraphiQL** is an in-browser GraphQL IDE. It reads the schema through
 introspection and provides field completion, schema documentation, and a query
@@ -1031,7 +1031,7 @@ updates.
 To explore the reactive version, see the
 [`dgs-webflux` module](https://github.com/hantsy/spring-graphql-sample/tree/master/dgs-webflux).
 
-## Generate types from the schema
+## Generate types from schema
 
 **Code generation** creates Java types and constants from the GraphQL schema,
 reducing the chance that Java code and schema names drift apart. The
