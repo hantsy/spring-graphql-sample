@@ -15,7 +15,7 @@
 	<description>Spring GraphQL WebMVC: GraphQL-over-WebSocket for queries, mutations and subscriptions</description>
 	<properties>
 		<java.version>25</java.version>
-		<commons-lang3.version>3.21.0</commons-lang3.version>
+		<commons-lang3.version>3.22.0</commons-lang3.version>
 	</properties>
 	<repositories>
 		<repository>
