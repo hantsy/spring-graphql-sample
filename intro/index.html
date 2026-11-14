@@ -401,6 +401,45 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="Why GraphQL instead of REST">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#the-rest-problem" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The REST problem
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#the-graphql-approach" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The GraphQL approach
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#trade-offs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Trade-offs
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -415,22 +454,22 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#the-request-and-response-envelope" class="md-nav__link">
+  <a href="#graphql-request-lifecycle" class="md-nav__link">
     <span class="md-ellipsis">
       
-        The request and response envelope
+        GraphQL request lifecycle
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="The request and response envelope">
+    <nav class="md-nav" aria-label="GraphQL request lifecycle">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#the-request" class="md-nav__link">
+  <a href="#request" class="md-nav__link">
     <span class="md-ellipsis">
       
-        The request
+        Request
       
     </span>
   </a>
@@ -438,10 +477,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#the-response" class="md-nav__link">
+  <a href="#response" class="md-nav__link">
     <span class="md-ellipsis">
       
-        The response
+        Response
       
     </span>
   </a>
@@ -723,6 +762,45 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="Why GraphQL instead of REST">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#the-rest-problem" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The REST problem
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#the-graphql-approach" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The GraphQL approach
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#trade-offs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Trade-offs
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -737,22 +815,22 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#the-request-and-response-envelope" class="md-nav__link">
+  <a href="#graphql-request-lifecycle" class="md-nav__link">
     <span class="md-ellipsis">
       
-        The request and response envelope
+        GraphQL request lifecycle
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="The request and response envelope">
+    <nav class="md-nav" aria-label="GraphQL request lifecycle">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#the-request" class="md-nav__link">
+  <a href="#request" class="md-nav__link">
     <span class="md-ellipsis">
       
-        The request
+        Request
       
     </span>
   </a>
@@ -760,10 +838,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#the-response" class="md-nav__link">
+  <a href="#response" class="md-nav__link">
     <span class="md-ellipsis">
       
-        The response
+        Response
       
     </span>
   </a>
@@ -1043,68 +1121,101 @@ moves the choice of response shape from the server to the client.</p>
 <p>The specification deliberately says nothing about the transport. HTTP and
 WebSocket are the common choices, and separate specifications cover them.</p>
 <h2 id="why-graphql-instead-of-rest">Why GraphQL instead of REST<a class="headerlink" href="#why-graphql-instead-of-rest" title="Permanent link">&para;</a></h2>
-<p>GraphQL is not a wholesale replacement for REST. It is a different trade-off
-that fits the case where clients are many, diverse, and evolve independently
-of the server.</p>
+<h3 id="the-rest-problem">The REST problem<a class="headerlink" href="#the-rest-problem" title="Permanent link">&para;</a></h3>
+<p>Consider a blog screen that shows a post, its author, and the latest three
+comments. Against a typical REST API, that one screen takes several calls:</p>
 <ul>
-<li><strong>No over-fetching.</strong> A REST endpoint returns a fixed payload: a client that
-  needs only a post's title still receives the whole post, its author, and its
-  comments. A GraphQL query asks for exactly the fields it needs.</li>
-<li><strong>No under-fetching.</strong> A screen that needs a post <em>and</em> its author calls two
-  REST endpoints, or a bespoke composite endpoint, and assembles the result
-  with several round trips. A GraphQL query nests the author under the post
-  and resolves both in one request.</li>
+<li><code>GET /posts/1</code> returns the whole post — id, title, content, tags, and
+  timestamps — even though the screen only needs the title.</li>
+<li><code>GET /posts/1/comments</code> returns every comment, so the client filters the
+  latest three itself.</li>
+<li><code>GET /authors/7</code> returns the full author profile just to show one name.</li>
+</ul>
+<p>The client over-fetches fields it does not use, under-fetches data it must
+assemble from several endpoints, and pays a round trip for each call. The
+usual fix is a bespoke endpoint such as <code>GET /posts/1?include=author,comments</code>
+— and then one of those per screen. REST's resource-per-URL model works well
+for simple, independent resources, but it fights you as soon as the data forms
+a graph.</p>
+<h3 id="the-graphql-approach">The GraphQL approach<a class="headerlink" href="#the-graphql-approach" title="Permanent link">&para;</a></h3>
+<p>GraphQL turns the request around. The client describes the graph it needs in a
+single document, and the server resolves it in one round trip:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="p">{</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="w">  </span><span class="n">postById</span><span class="p">(</span><span class="n">postId</span><span class="p">:</span><span class="w"> </span><span class="s">"1"</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="w">    </span><span class="n">title</span>
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="w">    </span><span class="n">author</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">name</span><span class="w"> </span><span class="p">}</span>
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="w">    </span><span class="n">comments</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">content</span><span class="w"> </span><span class="p">}</span>
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="w">  </span><span class="p">}</span>
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="p">}</span>
+</code></pre></div>
+<p>The response comes back in the same shape, which removes the REST problems:</p>
+<ul>
+<li><strong>No over-fetching.</strong> The query asks for exactly the fields it needs — the
+  post's title, not its tags or timestamps.</li>
+<li><strong>No under-fetching, no round trips.</strong> The author and the comments ride
+  along in the same response.</li>
 <li><strong>A typed, introspectable contract.</strong> The schema is machine-readable, so
   tools generate clients, validate queries, and offer autocomplete (GraphiQL,
   Apollo Client) without a separate API-description layer such as OpenAPI.</li>
-<li><strong>One endpoint.</strong> GraphQL has no per-resource URLs and no version in the
-  URL. Adding a field is additive and does not break existing clients.</li>
+<li><strong>One endpoint, no versioning.</strong> GraphQL has no per-resource URLs. Adding a
+  field is additive and does not break existing clients.</li>
 </ul>
-<p>The costs sit on the server: GraphQL makes HTTP caching harder, moves query
-cost and validation onto the server, and has no built-in file upload — that
-needs a separate multipart specification. REST remains the simpler fit for
-small, resource-oriented, cacheable APIs.</p>
+<h3 id="trade-offs">Trade-offs<a class="headerlink" href="#trade-offs" title="Permanent link">&para;</a></h3>
+<p>GraphQL is not a free lunch. The costs sit mostly on the server:</p>
+<ul>
+<li><strong>Harder caching.</strong> GraphQL responses are not addressed by URL, so HTTP
+  caching does not apply as naturally as it does to REST resources.</li>
+<li><strong>Query cost on the server.</strong> The server must parse, validate, and bound
+  every query, so a deep or expensive query is a real operational concern.</li>
+<li><strong>No built-in file upload.</strong> Uploads need the separate multipart request
+  specification.</li>
+<li><strong>More moving parts.</strong> A GraphQL server and its toolchain are more to build
+  and operate than a simple REST endpoint.</li>
+</ul>
+<p>REST remains the simpler fit for small, resource-oriented, cacheable APIs.
+GraphQL pays off when clients are many, diverse, and evolve independently of
+the server.</p>
 <h2 id="schema-and-sdl">Schema and SDL<a class="headerlink" href="#schema-and-sdl" title="Permanent link">&para;</a></h2>
 <p>A GraphQL schema is a contract written in the Schema Definition Language
 (SDL). It declares the types a server exposes and the operations clients can
 run. The following schema is the one used by the
 <a href="https://github.com/hantsy/spring-graphql-sample/tree/master/dgs">dgs</a> example
 (comments and formatting trimmed):</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="k">type</span><span class="w"> </span><span class="err">Post</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="w">    </span><span class="nl">id</span><span class="p">:</span><span class="w"> </span><span class="n">ID</span><span class="err">!</span>
-<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="w">    </span><span class="nl">title</span><span class="p">:</span><span class="w"> </span><span class="n">String</span><span class="err">!</span>
-<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="w">    </span><span class="nl">content</span><span class="p">:</span><span class="w"> </span><span class="n">String</span>
-<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="w">    </span><span class="nl">comments</span><span class="p">:</span><span class="w"> </span><span class="err">[</span><span class="n">Comment</span><span class="err">]</span>
-<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="w">    </span><span class="nl">authorId</span><span class="p">:</span><span class="w"> </span><span class="n">String</span>
-<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="w">    </span><span class="nl">author</span><span class="p">:</span><span class="w"> </span><span class="n">Author</span>
-<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="p">}</span>
-<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>
-<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a><span class="k">type</span><span class="w"> </span><span class="err">Author</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a><span class="w">    </span><span class="nl">id</span><span class="p">:</span><span class="w"> </span><span class="n">ID</span><span class="err">!</span>
-<a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a><span class="w">    </span><span class="nl">name</span><span class="p">:</span><span class="w"> </span><span class="n">String</span><span class="err">!</span>
-<a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a><span class="w">    </span><span class="nl">email</span><span class="p">:</span><span class="w"> </span><span class="n">String</span><span class="err">!</span>
-<a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a><span class="w">    </span><span class="nl">posts</span><span class="p">:</span><span class="w"> </span><span class="err">[</span><span class="n">Post</span><span class="err">]</span>
-<a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a><span class="p">}</span>
-<a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a>
-<a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a><span class="k">type</span><span class="w"> </span><span class="err">Comment</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a><span class="w">    </span><span class="nl">id</span><span class="p">:</span><span class="w"> </span><span class="n">ID</span><span class="err">!</span>
-<a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a><span class="w">    </span><span class="nl">content</span><span class="p">:</span><span class="w"> </span><span class="n">String</span><span class="err">!</span>
-<a id="__codelineno-0-20" name="__codelineno-0-20" href="#__codelineno-0-20"></a><span class="w">    </span><span class="nl">postId</span><span class="p">:</span><span class="w"> </span><span class="n">String</span><span class="err">!</span>
-<a id="__codelineno-0-21" name="__codelineno-0-21" href="#__codelineno-0-21"></a><span class="p">}</span>
-<a id="__codelineno-0-22" name="__codelineno-0-22" href="#__codelineno-0-22"></a>
-<a id="__codelineno-0-23" name="__codelineno-0-23" href="#__codelineno-0-23"></a><span class="k">input</span><span class="w"> </span><span class="err">CreatePostInput</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-0-24" name="__codelineno-0-24" href="#__codelineno-0-24"></a><span class="w">    </span><span class="nl">title</span><span class="p">:</span><span class="w"> </span><span class="n">String</span><span class="err">!</span>
-<a id="__codelineno-0-25" name="__codelineno-0-25" href="#__codelineno-0-25"></a><span class="w">    </span><span class="nl">content</span><span class="p">:</span><span class="w"> </span><span class="n">String</span><span class="err">!</span>
-<a id="__codelineno-0-26" name="__codelineno-0-26" href="#__codelineno-0-26"></a><span class="p">}</span>
-<a id="__codelineno-0-27" name="__codelineno-0-27" href="#__codelineno-0-27"></a>
-<a id="__codelineno-0-28" name="__codelineno-0-28" href="#__codelineno-0-28"></a><span class="k">type</span><span class="w"> </span><span class="err">Query</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-0-29" name="__codelineno-0-29" href="#__codelineno-0-29"></a><span class="w">    </span><span class="nl">allPosts</span><span class="p">:</span><span class="w"> </span><span class="err">[</span><span class="n">Post</span><span class="err">!]!</span>
-<a id="__codelineno-0-30" name="__codelineno-0-30" href="#__codelineno-0-30"></a><span class="w">    </span><span class="n">postById</span><span class="p">(</span><span class="n">postId</span><span class="p">:</span><span class="w"> </span><span class="no">ID</span><span class="err">!</span><span class="p">)</span><span class="err">:</span><span class="w"> </span><span class="n">Post</span>
-<a id="__codelineno-0-31" name="__codelineno-0-31" href="#__codelineno-0-31"></a><span class="p">}</span>
-<a id="__codelineno-0-32" name="__codelineno-0-32" href="#__codelineno-0-32"></a>
-<a id="__codelineno-0-33" name="__codelineno-0-33" href="#__codelineno-0-33"></a><span class="k">type</span><span class="w"> </span><span class="err">Mutation</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-0-34" name="__codelineno-0-34" href="#__codelineno-0-34"></a><span class="w">    </span><span class="n">createPost</span><span class="p">(</span><span class="n">createPostInput</span><span class="p">:</span><span class="w"> </span><span class="no">CreatePostInput</span><span class="err">!</span><span class="p">)</span><span class="err">:</span><span class="w"> </span><span class="n">Post</span><span class="err">!</span>
-<a id="__codelineno-0-35" name="__codelineno-0-35" href="#__codelineno-0-35"></a><span class="p">}</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="k">type</span><span class="w"> </span><span class="err">Post</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="w">    </span><span class="nl">id</span><span class="p">:</span><span class="w"> </span><span class="n">ID</span><span class="err">!</span>
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="w">    </span><span class="nl">title</span><span class="p">:</span><span class="w"> </span><span class="n">String</span><span class="err">!</span>
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="w">    </span><span class="nl">content</span><span class="p">:</span><span class="w"> </span><span class="n">String</span>
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="w">    </span><span class="nl">comments</span><span class="p">:</span><span class="w"> </span><span class="err">[</span><span class="n">Comment</span><span class="err">]</span>
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="w">    </span><span class="nl">authorId</span><span class="p">:</span><span class="w"> </span><span class="n">String</span>
+<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="w">    </span><span class="nl">author</span><span class="p">:</span><span class="w"> </span><span class="n">Author</span>
+<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a><span class="p">}</span>
+<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>
+<a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a><span class="k">type</span><span class="w"> </span><span class="err">Author</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a><span class="w">    </span><span class="nl">id</span><span class="p">:</span><span class="w"> </span><span class="n">ID</span><span class="err">!</span>
+<a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a><span class="w">    </span><span class="nl">name</span><span class="p">:</span><span class="w"> </span><span class="n">String</span><span class="err">!</span>
+<a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a><span class="w">    </span><span class="nl">email</span><span class="p">:</span><span class="w"> </span><span class="n">String</span><span class="err">!</span>
+<a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a><span class="w">    </span><span class="nl">posts</span><span class="p">:</span><span class="w"> </span><span class="err">[</span><span class="n">Post</span><span class="err">]</span>
+<a id="__codelineno-1-15" name="__codelineno-1-15" href="#__codelineno-1-15"></a><span class="p">}</span>
+<a id="__codelineno-1-16" name="__codelineno-1-16" href="#__codelineno-1-16"></a>
+<a id="__codelineno-1-17" name="__codelineno-1-17" href="#__codelineno-1-17"></a><span class="k">type</span><span class="w"> </span><span class="err">Comment</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-1-18" name="__codelineno-1-18" href="#__codelineno-1-18"></a><span class="w">    </span><span class="nl">id</span><span class="p">:</span><span class="w"> </span><span class="n">ID</span><span class="err">!</span>
+<a id="__codelineno-1-19" name="__codelineno-1-19" href="#__codelineno-1-19"></a><span class="w">    </span><span class="nl">content</span><span class="p">:</span><span class="w"> </span><span class="n">String</span><span class="err">!</span>
+<a id="__codelineno-1-20" name="__codelineno-1-20" href="#__codelineno-1-20"></a><span class="w">    </span><span class="nl">postId</span><span class="p">:</span><span class="w"> </span><span class="n">String</span><span class="err">!</span>
+<a id="__codelineno-1-21" name="__codelineno-1-21" href="#__codelineno-1-21"></a><span class="p">}</span>
+<a id="__codelineno-1-22" name="__codelineno-1-22" href="#__codelineno-1-22"></a>
+<a id="__codelineno-1-23" name="__codelineno-1-23" href="#__codelineno-1-23"></a><span class="k">input</span><span class="w"> </span><span class="err">CreatePostInput</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-1-24" name="__codelineno-1-24" href="#__codelineno-1-24"></a><span class="w">    </span><span class="nl">title</span><span class="p">:</span><span class="w"> </span><span class="n">String</span><span class="err">!</span>
+<a id="__codelineno-1-25" name="__codelineno-1-25" href="#__codelineno-1-25"></a><span class="w">    </span><span class="nl">content</span><span class="p">:</span><span class="w"> </span><span class="n">String</span><span class="err">!</span>
+<a id="__codelineno-1-26" name="__codelineno-1-26" href="#__codelineno-1-26"></a><span class="p">}</span>
+<a id="__codelineno-1-27" name="__codelineno-1-27" href="#__codelineno-1-27"></a>
+<a id="__codelineno-1-28" name="__codelineno-1-28" href="#__codelineno-1-28"></a><span class="k">type</span><span class="w"> </span><span class="err">Query</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-1-29" name="__codelineno-1-29" href="#__codelineno-1-29"></a><span class="w">    </span><span class="nl">allPosts</span><span class="p">:</span><span class="w"> </span><span class="err">[</span><span class="n">Post</span><span class="err">!]!</span>
+<a id="__codelineno-1-30" name="__codelineno-1-30" href="#__codelineno-1-30"></a><span class="w">    </span><span class="n">postById</span><span class="p">(</span><span class="n">postId</span><span class="p">:</span><span class="w"> </span><span class="no">ID</span><span class="err">!</span><span class="p">)</span><span class="err">:</span><span class="w"> </span><span class="n">Post</span>
+<a id="__codelineno-1-31" name="__codelineno-1-31" href="#__codelineno-1-31"></a><span class="p">}</span>
+<a id="__codelineno-1-32" name="__codelineno-1-32" href="#__codelineno-1-32"></a>
+<a id="__codelineno-1-33" name="__codelineno-1-33" href="#__codelineno-1-33"></a><span class="k">type</span><span class="w"> </span><span class="err">Mutation</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-1-34" name="__codelineno-1-34" href="#__codelineno-1-34"></a><span class="w">    </span><span class="n">createPost</span><span class="p">(</span><span class="n">createPostInput</span><span class="p">:</span><span class="w"> </span><span class="no">CreatePostInput</span><span class="err">!</span><span class="p">)</span><span class="err">:</span><span class="w"> </span><span class="n">Post</span><span class="err">!</span>
+<a id="__codelineno-1-35" name="__codelineno-1-35" href="#__codelineno-1-35"></a><span class="p">}</span>
 </code></pre></div>
 <p>The building blocks are:</p>
 <ul>
@@ -1138,19 +1249,23 @@ servers — and every example in this repository — use the defaults.</p>
 <p>A schema is also queryable. Clients ask the server for its own types through
 the meta-fields <code>__schema</code> and <code>__type</code>, which is how tools such as GraphiQL
 provide completion and documentation:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="p">{</span>
-<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="w">  </span><span class="n">__schema</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="w">    </span><span class="n">types</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="w">      </span><span class="n">name</span>
-<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="w">    </span><span class="p">}</span>
-<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="w">  </span><span class="p">}</span>
-<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="p">}</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="p">{</span>
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="w">  </span><span class="n">__schema</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="w">    </span><span class="n">types</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="w">      </span><span class="n">name</span>
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="w">  </span><span class="p">}</span>
+<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="p">}</span>
 </code></pre></div>
 <p>Introspection is part of the specification, so it works against any compliant
 server. The specification is published in dated editions (June 2018, October
 2021, September 2025), with a draft of the next edition always available.</p>
-<h2 id="the-request-and-response-envelope">The request and response envelope<a class="headerlink" href="#the-request-and-response-envelope" title="Permanent link">&para;</a></h2>
-<h3 id="the-request">The request<a class="headerlink" href="#the-request" title="Permanent link">&para;</a></h3>
+<h2 id="graphql-request-lifecycle">GraphQL request lifecycle<a class="headerlink" href="#graphql-request-lifecycle" title="Permanent link">&para;</a></h2>
+<p>A GraphQL request follows the same lifecycle on every transport: the client
+sends a document, the server parses and validates it against the schema,
+executes the operation, and returns a response. The next two sections walk
+through the request and the response.</p>
+<h3 id="request">Request<a class="headerlink" href="#request" title="Permanent link">&para;</a></h3>
 <p>A GraphQL request carries three members:</p>
 <ul>
 <li><code>query</code> — the document: one or more operations, each a <code>query</code>, <code>mutation</code>,
@@ -1162,31 +1277,31 @@ server. The specification is published in dated editions (June 2018, October
 </ul>
 <p>Over HTTP, the client POSTs this as a JSON body. The following request reads
 every post with its title and author name:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>curl<span class="w"> </span>http://localhost:8080/graphql<span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="w">  </span>-H<span class="w"> </span><span class="s2">"Content-Type: application/json"</span><span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="w">  </span>-d<span class="w"> </span><span class="s1">'{"query": "{ allPosts { id title author { name } } }"}'</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>curl<span class="w"> </span>http://localhost:8080/graphql<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="w">  </span>-H<span class="w"> </span><span class="s2">"Content-Type: application/json"</span><span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="w">  </span>-d<span class="w"> </span><span class="s1">'{"query": "{ allPosts { id title author { name } } }"}'</span>
 </code></pre></div>
 <p>Never build a document by concatenating user input into the query string.
 Declare variables instead, and let the server coerce and validate them:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>curl<span class="w"> </span>http://localhost:8080/graphql<span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="w">  </span>-H<span class="w"> </span><span class="s2">"Content-Type: application/json"</span><span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="w">  </span>-d<span class="w"> </span><span class="s1">'{</span>
-<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="s1">    "query": "query PostById($postId: ID!) { postById(postId: $postId) { title content } }",</span>
-<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="s1">    "variables": { "postId": "1" },</span>
-<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a><span class="s1">    "operationName": "PostById"</span>
-<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a><span class="s1">  }'</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>curl<span class="w"> </span>http://localhost:8080/graphql<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="w">  </span>-H<span class="w"> </span><span class="s2">"Content-Type: application/json"</span><span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="w">  </span>-d<span class="w"> </span><span class="s1">'{</span>
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="s1">    "query": "query PostById($postId: ID!) { postById(postId: $postId) { title content } }",</span>
+<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="s1">    "variables": { "postId": "1" },</span>
+<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a><span class="s1">    "operationName": "PostById"</span>
+<a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a><span class="s1">  }'</span>
 </code></pre></div>
 <p>The document declares <code>$postId: ID!</code>; the <code>variables</code> object supplies the
 value. The server validates the document against the schema before any data
 fetcher runs. A mutation uses the same envelope:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>curl<span class="w"> </span>http://localhost:8080/graphql<span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="w">  </span>-H<span class="w"> </span><span class="s2">"Content-Type: application/json"</span><span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="w">  </span>-d<span class="w"> </span><span class="s1">'{</span>
-<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="s1">    "query": "mutation CreatePost($input: CreatePostInput!) { createPost(createPostInput: $input) { id title } }",</span>
-<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="s1">    "variables": { "input": { "title": "Hello GraphQL", "content": "First post" } }</span>
-<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a><span class="s1">  }'</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>curl<span class="w"> </span>http://localhost:8080/graphql<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="w">  </span>-H<span class="w"> </span><span class="s2">"Content-Type: application/json"</span><span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="w">  </span>-d<span class="w"> </span><span class="s1">'{</span>
+<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="s1">    "query": "mutation CreatePost($input: CreatePostInput!) { createPost(createPostInput: $input) { id title } }",</span>
+<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a><span class="s1">    "variables": { "input": { "title": "Hello GraphQL", "content": "First post" } }</span>
+<a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a><span class="s1">  }'</span>
 </code></pre></div>
-<h3 id="the-response">The response<a class="headerlink" href="#the-response" title="Permanent link">&para;</a></h3>
+<h3 id="response">Response<a class="headerlink" href="#response" title="Permanent link">&para;</a></h3>
 <p>A GraphQL response is a JSON object with up to three members:</p>
 <ul>
 <li><code>data</code> — the result, in the same shape as the operation's selection set.</li>
@@ -1196,34 +1311,34 @@ fetcher runs. A mutation uses the same envelope:</p>
   tracing data.</li>
 </ul>
 <p>A successful response to the <code>allPosts</code> query looks like this:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="p">{</span>
-<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="w">  </span><span class="nt">"data"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="w">    </span><span class="nt">"allPosts"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
-<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="w">      </span><span class="p">{</span><span class="w"> </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"1"</span><span class="p">,</span><span class="w"> </span><span class="nt">"title"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Hello GraphQL"</span><span class="p">,</span><span class="w"> </span><span class="nt">"author"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Hantsy"</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="p">}</span>
-<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a><span class="w">    </span><span class="p">]</span>
-<a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a><span class="w">  </span><span class="p">}</span>
-<a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a><span class="p">}</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="p">{</span>
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="w">  </span><span class="nt">"data"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="w">    </span><span class="nt">"allPosts"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="w">      </span><span class="p">{</span><span class="w"> </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"1"</span><span class="p">,</span><span class="w"> </span><span class="nt">"title"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Hello GraphQL"</span><span class="p">,</span><span class="w"> </span><span class="nt">"author"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Hantsy"</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="p">}</span>
+<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a><span class="w">    </span><span class="p">]</span>
+<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a><span class="w">  </span><span class="p">}</span>
+<a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a><span class="p">}</span>
 </code></pre></div>
 <p>GraphQL distinguishes request errors from field errors. A request error — a
 syntax error, a validation failure, an unknown operation — rejects the whole
 operation, and the response has <code>errors</code> and no <code>data</code>. A field error — a data
 fetcher that throws — nulls out only that field, and the rest of the response
 still returns:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="p">{</span>
-<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="w">  </span><span class="nt">"data"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="w">    </span><span class="nt">"postById"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="w">      </span><span class="nt">"title"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Hello GraphQL"</span><span class="p">,</span>
-<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a><span class="w">      </span><span class="nt">"author"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span>
-<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a><span class="w">    </span><span class="p">}</span>
-<a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a><span class="w">  </span><span class="p">},</span>
-<a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a><span class="w">  </span><span class="nt">"errors"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
-<a id="__codelineno-6-9" name="__codelineno-6-9" href="#__codelineno-6-9"></a><span class="w">    </span><span class="p">{</span>
-<a id="__codelineno-6-10" name="__codelineno-6-10" href="#__codelineno-6-10"></a><span class="w">      </span><span class="nt">"message"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Failed to load author"</span><span class="p">,</span>
-<a id="__codelineno-6-11" name="__codelineno-6-11" href="#__codelineno-6-11"></a><span class="w">      </span><span class="nt">"locations"</span><span class="p">:</span><span class="w"> </span><span class="p">[{</span><span class="w"> </span><span class="nt">"line"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="nt">"column"</span><span class="p">:</span><span class="w"> </span><span class="mi">40</span><span class="w"> </span><span class="p">}],</span>
-<a id="__codelineno-6-12" name="__codelineno-6-12" href="#__codelineno-6-12"></a><span class="w">      </span><span class="nt">"path"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"postById"</span><span class="p">,</span><span class="w"> </span><span class="s2">"author"</span><span class="p">]</span>
-<a id="__codelineno-6-13" name="__codelineno-6-13" href="#__codelineno-6-13"></a><span class="w">    </span><span class="p">}</span>
-<a id="__codelineno-6-14" name="__codelineno-6-14" href="#__codelineno-6-14"></a><span class="w">  </span><span class="p">]</span>
-<a id="__codelineno-6-15" name="__codelineno-6-15" href="#__codelineno-6-15"></a><span class="p">}</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="p">{</span>
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="w">  </span><span class="nt">"data"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a><span class="w">    </span><span class="nt">"postById"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a><span class="w">      </span><span class="nt">"title"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Hello GraphQL"</span><span class="p">,</span>
+<a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a><span class="w">      </span><span class="nt">"author"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span>
+<a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a><span class="w">  </span><span class="p">},</span>
+<a id="__codelineno-7-8" name="__codelineno-7-8" href="#__codelineno-7-8"></a><span class="w">  </span><span class="nt">"errors"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<a id="__codelineno-7-9" name="__codelineno-7-9" href="#__codelineno-7-9"></a><span class="w">    </span><span class="p">{</span>
+<a id="__codelineno-7-10" name="__codelineno-7-10" href="#__codelineno-7-10"></a><span class="w">      </span><span class="nt">"message"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Failed to load author"</span><span class="p">,</span>
+<a id="__codelineno-7-11" name="__codelineno-7-11" href="#__codelineno-7-11"></a><span class="w">      </span><span class="nt">"locations"</span><span class="p">:</span><span class="w"> </span><span class="p">[{</span><span class="w"> </span><span class="nt">"line"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="nt">"column"</span><span class="p">:</span><span class="w"> </span><span class="mi">40</span><span class="w"> </span><span class="p">}],</span>
+<a id="__codelineno-7-12" name="__codelineno-7-12" href="#__codelineno-7-12"></a><span class="w">      </span><span class="nt">"path"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"postById"</span><span class="p">,</span><span class="w"> </span><span class="s2">"author"</span><span class="p">]</span>
+<a id="__codelineno-7-13" name="__codelineno-7-13" href="#__codelineno-7-13"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-7-14" name="__codelineno-7-14" href="#__codelineno-7-14"></a><span class="w">  </span><span class="p">]</span>
+<a id="__codelineno-7-15" name="__codelineno-7-15" href="#__codelineno-7-15"></a><span class="p">}</span>
 </code></pre></div>
 <p>Each error carries a <code>message</code>, the <code>locations</code> in the document that caused
 it, and the <code>path</code> to the field that failed. If a non-null field (<code>Author!</code>)
@@ -1342,20 +1457,20 @@ Kickstart and SPQR examples — embeds it and delegates execution to it.</p>
 <p>Execution starts with a <code>GraphQLSchema</code>. The schema-first path parses SDL into
 a <code>TypeDefinitionRegistry</code>, then combines it with a <code>RuntimeWiring</code> to produce
 an executable schema:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="n">TypeDefinitionRegistry</span><span class="w"> </span><span class="n">typeRegistry</span><span class="w"> </span><span class="o">=</span>
-<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="w">        </span><span class="k">new</span><span class="w"> </span><span class="n">SchemaParser</span><span class="p">().</span><span class="na">parse</span><span class="p">(</span><span class="k">new</span><span class="w"> </span><span class="n">ClassPathResource</span><span class="p">(</span><span class="s">"/schema/schema.graphql"</span><span class="p">).</span><span class="na">getFile</span><span class="p">());</span>
-<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>
-<a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a><span class="n">GraphQLSchema</span><span class="w"> </span><span class="n">graphQLSchema</span><span class="w"> </span><span class="o">=</span>
-<a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a><span class="w">        </span><span class="k">new</span><span class="w"> </span><span class="n">SchemaGenerator</span><span class="p">().</span><span class="na">makeExecutableSchema</span><span class="p">(</span><span class="n">typeRegistry</span><span class="p">,</span><span class="w"> </span><span class="n">runtimeWiring</span><span class="p">);</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="n">TypeDefinitionRegistry</span><span class="w"> </span><span class="n">typeRegistry</span><span class="w"> </span><span class="o">=</span>
+<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span class="w">        </span><span class="k">new</span><span class="w"> </span><span class="n">SchemaParser</span><span class="p">().</span><span class="na">parse</span><span class="p">(</span><span class="k">new</span><span class="w"> </span><span class="n">ClassPathResource</span><span class="p">(</span><span class="s">"/schema/schema.graphql"</span><span class="p">).</span><span class="na">getFile</span><span class="p">());</span>
+<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>
+<a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a><span class="n">GraphQLSchema</span><span class="w"> </span><span class="n">graphQLSchema</span><span class="w"> </span><span class="o">=</span>
+<a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a><span class="w">        </span><span class="k">new</span><span class="w"> </span><span class="n">SchemaGenerator</span><span class="p">().</span><span class="na">makeExecutableSchema</span><span class="p">(</span><span class="n">typeRegistry</span><span class="p">,</span><span class="w"> </span><span class="n">runtimeWiring</span><span class="p">);</span>
 </code></pre></div>
 <p><code>RuntimeWiring</code> is where behavior attaches to the type system: data fetchers,
 custom scalars, directives, and type resolvers for interfaces and unions:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="n">RuntimeWiring</span><span class="p">.</span><span class="na">newRuntimeWiring</span><span class="p">()</span>
-<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span class="w">        </span><span class="p">.</span><span class="na">codeRegistry</span><span class="p">(</span><span class="n">codeRegistry</span><span class="p">)</span>
-<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a><span class="w">        </span><span class="p">.</span><span class="na">scalar</span><span class="p">(</span><span class="n">Scalars</span><span class="p">.</span><span class="na">localDateTimeType</span><span class="p">())</span>
-<a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a><span class="w">        </span><span class="p">.</span><span class="na">scalar</span><span class="p">(</span><span class="n">Scalars</span><span class="p">.</span><span class="na">uuidType</span><span class="p">())</span>
-<a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a><span class="w">        </span><span class="p">.</span><span class="na">directive</span><span class="p">(</span><span class="s">"uppercase"</span><span class="p">,</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">UpperCaseDirectiveWiring</span><span class="p">())</span>
-<a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a><span class="w">        </span><span class="p">.</span><span class="na">build</span><span class="p">();</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="n">RuntimeWiring</span><span class="p">.</span><span class="na">newRuntimeWiring</span><span class="p">()</span>
+<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a><span class="w">        </span><span class="p">.</span><span class="na">codeRegistry</span><span class="p">(</span><span class="n">codeRegistry</span><span class="p">)</span>
+<a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a><span class="w">        </span><span class="p">.</span><span class="na">scalar</span><span class="p">(</span><span class="n">Scalars</span><span class="p">.</span><span class="na">localDateTimeType</span><span class="p">())</span>
+<a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a><span class="w">        </span><span class="p">.</span><span class="na">scalar</span><span class="p">(</span><span class="n">Scalars</span><span class="p">.</span><span class="na">uuidType</span><span class="p">())</span>
+<a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a><span class="w">        </span><span class="p">.</span><span class="na">directive</span><span class="p">(</span><span class="s">"uppercase"</span><span class="p">,</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">UpperCaseDirectiveWiring</span><span class="p">())</span>
+<a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a><span class="w">        </span><span class="p">.</span><span class="na">build</span><span class="p">();</span>
 </code></pre></div>
 <p>A code-first path also exists — building <code>GraphQLSchema</code> programmatically with
 builders instead of SDL — but every example in this repository is schema-first.</p>
@@ -1363,12 +1478,12 @@ builders instead of SDL — but every example in this repository is schema-first
 <p>A <code>DataFetcher&lt;T&gt;</code> resolves one field. It receives a <code>DataFetchingEnvironment</code>
 with the field arguments, the parent object, the execution context, and the
 data loader registry:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="kd">public</span><span class="w"> </span><span class="n">DataFetcher</span><span class="o">&lt;</span><span class="n">Post</span><span class="o">&gt;</span><span class="w"> </span><span class="nf">postById</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="p">(</span><span class="n">DataFetchingEnvironment</span><span class="w"> </span><span class="n">dfe</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a><span class="w">        </span><span class="n">String</span><span class="w"> </span><span class="n">postId</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">dfe</span><span class="p">.</span><span class="na">getArgument</span><span class="p">(</span><span class="s">"postId"</span><span class="p">);</span>
-<a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">postService</span><span class="p">.</span><span class="na">getPostById</span><span class="p">(</span><span class="n">postId</span><span class="p">);</span>
-<a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a><span class="w">    </span><span class="p">};</span>
-<a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a><span class="p">}</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="kd">public</span><span class="w"> </span><span class="n">DataFetcher</span><span class="o">&lt;</span><span class="n">Post</span><span class="o">&gt;</span><span class="w"> </span><span class="nf">postById</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="p">(</span><span class="n">DataFetchingEnvironment</span><span class="w"> </span><span class="n">dfe</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a><span class="w">        </span><span class="n">String</span><span class="w"> </span><span class="n">postId</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">dfe</span><span class="p">.</span><span class="na">getArgument</span><span class="p">(</span><span class="s">"postId"</span><span class="p">);</span>
+<a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">postService</span><span class="p">.</span><span class="na">getPostById</span><span class="p">(</span><span class="n">postId</span><span class="p">);</span>
+<a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a><span class="w">    </span><span class="p">};</span>
+<a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a><span class="p">}</span>
 </code></pre></div>
 <p>Fields without an explicit fetcher fall back to <code>PropertyDataFetcher</code>, which
 reads a matching property from the parent object — this is why a <code>Post</code> record
@@ -1378,15 +1493,15 @@ return a plain value, a <code>CompletionStage</code> for asynchronous work, or a
 <h3 id="execute-operations">Execute operations<a class="headerlink" href="#execute-operations" title="Permanent link">&para;</a></h3>
 <p>The <code>GraphQL</code> object is the engine entry point. Build it once from the schema,
 then execute an <code>ExecutionInput</code> per request:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="n">GraphQL</span><span class="w"> </span><span class="n">graphQL</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">GraphQL</span><span class="p">.</span><span class="na">newGraphQL</span><span class="p">(</span><span class="n">graphQLSchema</span><span class="p">).</span><span class="na">build</span><span class="p">();</span>
-<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>
-<a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a><span class="n">ExecutionInput</span><span class="w"> </span><span class="n">input</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ExecutionInput</span><span class="p">.</span><span class="na">newExecutionInput</span><span class="p">()</span>
-<a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a><span class="w">        </span><span class="p">.</span><span class="na">query</span><span class="p">(</span><span class="s">"{ allPosts { id title } }"</span><span class="p">)</span>
-<a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a><span class="w">        </span><span class="p">.</span><span class="na">build</span><span class="p">();</span>
-<a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a>
-<a id="__codelineno-10-7" name="__codelineno-10-7" href="#__codelineno-10-7"></a><span class="n">ExecutionResult</span><span class="w"> </span><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">graphQL</span><span class="p">.</span><span class="na">execute</span><span class="p">(</span><span class="n">input</span><span class="p">);</span>
-<a id="__codelineno-10-8" name="__codelineno-10-8" href="#__codelineno-10-8"></a><span class="n">Map</span><span class="o">&lt;</span><span class="n">String</span><span class="p">,</span><span class="w"> </span><span class="n">Object</span><span class="o">&gt;</span><span class="w"> </span><span class="n">data</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">result</span><span class="p">.</span><span class="na">getData</span><span class="p">();</span>
-<a id="__codelineno-10-9" name="__codelineno-10-9" href="#__codelineno-10-9"></a><span class="n">List</span><span class="o">&lt;</span><span class="n">GraphQLError</span><span class="o">&gt;</span><span class="w"> </span><span class="n">errors</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">result</span><span class="p">.</span><span class="na">getErrors</span><span class="p">();</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="n">GraphQL</span><span class="w"> </span><span class="n">graphQL</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">GraphQL</span><span class="p">.</span><span class="na">newGraphQL</span><span class="p">(</span><span class="n">graphQLSchema</span><span class="p">).</span><span class="na">build</span><span class="p">();</span>
+<a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a>
+<a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a><span class="n">ExecutionInput</span><span class="w"> </span><span class="n">input</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ExecutionInput</span><span class="p">.</span><span class="na">newExecutionInput</span><span class="p">()</span>
+<a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a><span class="w">        </span><span class="p">.</span><span class="na">query</span><span class="p">(</span><span class="s">"{ allPosts { id title } }"</span><span class="p">)</span>
+<a id="__codelineno-11-5" name="__codelineno-11-5" href="#__codelineno-11-5"></a><span class="w">        </span><span class="p">.</span><span class="na">build</span><span class="p">();</span>
+<a id="__codelineno-11-6" name="__codelineno-11-6" href="#__codelineno-11-6"></a>
+<a id="__codelineno-11-7" name="__codelineno-11-7" href="#__codelineno-11-7"></a><span class="n">ExecutionResult</span><span class="w"> </span><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">graphQL</span><span class="p">.</span><span class="na">execute</span><span class="p">(</span><span class="n">input</span><span class="p">);</span>
+<a id="__codelineno-11-8" name="__codelineno-11-8" href="#__codelineno-11-8"></a><span class="n">Map</span><span class="o">&lt;</span><span class="n">String</span><span class="p">,</span><span class="w"> </span><span class="n">Object</span><span class="o">&gt;</span><span class="w"> </span><span class="n">data</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">result</span><span class="p">.</span><span class="na">getData</span><span class="p">();</span>
+<a id="__codelineno-11-9" name="__codelineno-11-9" href="#__codelineno-11-9"></a><span class="n">List</span><span class="o">&lt;</span><span class="n">GraphQLError</span><span class="o">&gt;</span><span class="w"> </span><span class="n">errors</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">result</span><span class="p">.</span><span class="na">getErrors</span><span class="p">();</span>
 </code></pre></div>
 <p><code>executeAsync</code> returns a <code>CompletableFuture&lt;ExecutionResult&gt;</code> instead. The
 <code>ExecutionResult</code> maps directly to the response envelope. The engine picks an
@@ -1399,18 +1514,18 @@ each post's comments runs eleven queries. The
 <a href="https://github.com/graphql-java/java-dataloader">java-dataloader</a> library — a
 separate project under the GraphQL Java organization — batches and caches
 loads per request. Before, one query per post:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="k">SELECT</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">comments</span><span class="w"> </span><span class="k">WHERE</span><span class="w"> </span><span class="n">post_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">?</span>
-<a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a><span class="k">SELECT</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">comments</span><span class="w"> </span><span class="k">WHERE</span><span class="w"> </span><span class="n">post_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">?</span>
-<a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a><span class="k">SELECT</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">comments</span><span class="w"> </span><span class="k">WHERE</span><span class="w"> </span><span class="n">post_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">?</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="k">SELECT</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">comments</span><span class="w"> </span><span class="k">WHERE</span><span class="w"> </span><span class="n">post_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">?</span>
+<a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a><span class="k">SELECT</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">comments</span><span class="w"> </span><span class="k">WHERE</span><span class="w"> </span><span class="n">post_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">?</span>
+<a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a><span class="k">SELECT</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">comments</span><span class="w"> </span><span class="k">WHERE</span><span class="w"> </span><span class="n">post_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">?</span>
 </code></pre></div>
 <p>After, one batched query:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="k">SELECT</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">comments</span><span class="w"> </span><span class="k">WHERE</span><span class="w"> </span><span class="n">post_id</span><span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="p">(</span><span class="o">?</span><span class="p">,</span><span class="w"> </span><span class="o">?</span><span class="p">,</span><span class="w"> </span><span class="o">?</span><span class="p">,</span><span class="w"> </span><span class="o">?</span><span class="p">)</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a><span class="k">SELECT</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">comments</span><span class="w"> </span><span class="k">WHERE</span><span class="w"> </span><span class="n">post_id</span><span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="p">(</span><span class="o">?</span><span class="p">,</span><span class="w"> </span><span class="o">?</span><span class="p">,</span><span class="w"> </span><span class="o">?</span><span class="p">,</span><span class="w"> </span><span class="o">?</span><span class="p">)</span>
 </code></pre></div>
 <p>A fetcher asks the environment for a registered loader and loads a key; the
 loader collects keys during the execution tick and dispatches them as one
 batch:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a><span class="n">DataLoader</span><span class="o">&lt;</span><span class="n">String</span><span class="p">,</span><span class="w"> </span><span class="n">Author</span><span class="o">&gt;</span><span class="w"> </span><span class="n">dataLoader</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">dfe</span><span class="p">.</span><span class="na">getDataLoader</span><span class="p">(</span><span class="s">"authorsLoader"</span><span class="p">);</span>
-<a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a><span class="k">return</span><span class="w"> </span><span class="n">dataLoader</span><span class="p">.</span><span class="na">load</span><span class="p">(</span><span class="n">post</span><span class="p">.</span><span class="na">getAuthorId</span><span class="p">());</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a><span class="n">DataLoader</span><span class="o">&lt;</span><span class="n">String</span><span class="p">,</span><span class="w"> </span><span class="n">Author</span><span class="o">&gt;</span><span class="w"> </span><span class="n">dataLoader</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">dfe</span><span class="p">.</span><span class="na">getDataLoader</span><span class="p">(</span><span class="s">"authorsLoader"</span><span class="p">);</span>
+<a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a><span class="k">return</span><span class="w"> </span><span class="n">dataLoader</span><span class="p">.</span><span class="na">load</span><span class="p">(</span><span class="n">post</span><span class="p">.</span><span class="na">getAuthorId</span><span class="p">());</span>
 </code></pre></div>
 <p>Loaders are registered in a <code>DataLoaderRegistry</code> keyed by name. Spring GraphQL
 and DGS both build on this same mechanism.</p>
@@ -1516,33 +1631,33 @@ is built on Spring GraphQL.</p>
 Netflix's GraphQL server framework for Spring Boot, open-sourced in 2021. It
 is schema-first: you write SDL under <code>src/main/resources/schema/</code>, then
 implement data fetchers as annotated Spring components:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a><span class="nd">@DgsComponent</span>
-<a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a><span class="kd">public</span><span class="w"> </span><span class="kd">class</span> <span class="nc">PostsDataFetcher</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a><span class="w">    </span><span class="kd">private</span><span class="w"> </span><span class="kd">final</span><span class="w"> </span><span class="n">PostService</span><span class="w"> </span><span class="n">postService</span><span class="p">;</span>
-<a id="__codelineno-14-4" name="__codelineno-14-4" href="#__codelineno-14-4"></a>
-<a id="__codelineno-14-5" name="__codelineno-14-5" href="#__codelineno-14-5"></a><span class="w">    </span><span class="nd">@DgsQuery</span>
-<a id="__codelineno-14-6" name="__codelineno-14-6" href="#__codelineno-14-6"></a><span class="w">    </span><span class="kd">public</span><span class="w"> </span><span class="n">List</span><span class="o">&lt;</span><span class="n">Post</span><span class="o">&gt;</span><span class="w"> </span><span class="nf">allPosts</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-14-7" name="__codelineno-14-7" href="#__codelineno-14-7"></a><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="na">postService</span><span class="p">.</span><span class="na">getAllPosts</span><span class="p">();</span>
-<a id="__codelineno-14-8" name="__codelineno-14-8" href="#__codelineno-14-8"></a><span class="w">    </span><span class="p">}</span>
-<a id="__codelineno-14-9" name="__codelineno-14-9" href="#__codelineno-14-9"></a>
-<a id="__codelineno-14-10" name="__codelineno-14-10" href="#__codelineno-14-10"></a><span class="w">    </span><span class="nd">@DgsQuery</span>
-<a id="__codelineno-14-11" name="__codelineno-14-11" href="#__codelineno-14-11"></a><span class="w">    </span><span class="kd">public</span><span class="w"> </span><span class="n">Post</span><span class="w"> </span><span class="nf">postById</span><span class="p">(</span><span class="nd">@InputArgument</span><span class="w"> </span><span class="n">Long</span><span class="w"> </span><span class="n">postId</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-14-12" name="__codelineno-14-12" href="#__codelineno-14-12"></a><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="na">postService</span><span class="p">.</span><span class="na">getPostById</span><span class="p">(</span><span class="n">postId</span><span class="p">);</span>
-<a id="__codelineno-14-13" name="__codelineno-14-13" href="#__codelineno-14-13"></a><span class="w">    </span><span class="p">}</span>
-<a id="__codelineno-14-14" name="__codelineno-14-14" href="#__codelineno-14-14"></a>
-<a id="__codelineno-14-15" name="__codelineno-14-15" href="#__codelineno-14-15"></a><span class="w">    </span><span class="nd">@DgsData</span><span class="p">(</span><span class="n">parentType</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"Post"</span><span class="p">,</span><span class="w"> </span><span class="n">field</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"author"</span><span class="p">)</span>
-<a id="__codelineno-14-16" name="__codelineno-14-16" href="#__codelineno-14-16"></a><span class="w">    </span><span class="kd">public</span><span class="w"> </span><span class="n">CompletableFuture</span><span class="o">&lt;</span><span class="n">Author</span><span class="o">&gt;</span><span class="w"> </span><span class="nf">author</span><span class="p">(</span><span class="n">DgsDataFetchingEnvironment</span><span class="w"> </span><span class="n">dfe</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-14-17" name="__codelineno-14-17" href="#__codelineno-14-17"></a><span class="w">        </span><span class="n">DataLoader</span><span class="o">&lt;</span><span class="n">Long</span><span class="p">,</span><span class="w"> </span><span class="n">Author</span><span class="o">&gt;</span><span class="w"> </span><span class="n">dataLoader</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">dfe</span><span class="p">.</span><span class="na">getDataLoader</span><span class="p">(</span><span class="s">"authorsLoader"</span><span class="p">);</span>
-<a id="__codelineno-14-18" name="__codelineno-14-18" href="#__codelineno-14-18"></a><span class="w">        </span><span class="n">Post</span><span class="w"> </span><span class="n">post</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">dfe</span><span class="p">.</span><span class="na">getSource</span><span class="p">();</span>
-<a id="__codelineno-14-19" name="__codelineno-14-19" href="#__codelineno-14-19"></a><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">dataLoader</span><span class="p">.</span><span class="na">load</span><span class="p">(</span><span class="n">post</span><span class="p">.</span><span class="na">getAuthorId</span><span class="p">());</span>
-<a id="__codelineno-14-20" name="__codelineno-14-20" href="#__codelineno-14-20"></a><span class="w">    </span><span class="p">}</span>
-<a id="__codelineno-14-21" name="__codelineno-14-21" href="#__codelineno-14-21"></a>
-<a id="__codelineno-14-22" name="__codelineno-14-22" href="#__codelineno-14-22"></a><span class="w">    </span><span class="nd">@DgsMutation</span>
-<a id="__codelineno-14-23" name="__codelineno-14-23" href="#__codelineno-14-23"></a><span class="w">    </span><span class="kd">public</span><span class="w"> </span><span class="n">Post</span><span class="w"> </span><span class="nf">createPost</span><span class="p">(</span><span class="nd">@InputArgument</span><span class="p">(</span><span class="s">"createPostInput"</span><span class="p">)</span><span class="w"> </span><span class="n">CreatePostInput</span><span class="w"> </span><span class="n">input</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-14-24" name="__codelineno-14-24" href="#__codelineno-14-24"></a><span class="w">        </span><span class="kd">var</span><span class="w"> </span><span class="n">id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="na">postService</span><span class="p">.</span><span class="na">createPost</span><span class="p">(</span><span class="n">input</span><span class="p">);</span>
-<a id="__codelineno-14-25" name="__codelineno-14-25" href="#__codelineno-14-25"></a><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="na">postService</span><span class="p">.</span><span class="na">getPostById</span><span class="p">(</span><span class="n">id</span><span class="p">);</span>
-<a id="__codelineno-14-26" name="__codelineno-14-26" href="#__codelineno-14-26"></a><span class="w">    </span><span class="p">}</span>
-<a id="__codelineno-14-27" name="__codelineno-14-27" href="#__codelineno-14-27"></a><span class="p">}</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a><span class="nd">@DgsComponent</span>
+<a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a><span class="kd">public</span><span class="w"> </span><span class="kd">class</span> <span class="nc">PostsDataFetcher</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-15-3" name="__codelineno-15-3" href="#__codelineno-15-3"></a><span class="w">    </span><span class="kd">private</span><span class="w"> </span><span class="kd">final</span><span class="w"> </span><span class="n">PostService</span><span class="w"> </span><span class="n">postService</span><span class="p">;</span>
+<a id="__codelineno-15-4" name="__codelineno-15-4" href="#__codelineno-15-4"></a>
+<a id="__codelineno-15-5" name="__codelineno-15-5" href="#__codelineno-15-5"></a><span class="w">    </span><span class="nd">@DgsQuery</span>
+<a id="__codelineno-15-6" name="__codelineno-15-6" href="#__codelineno-15-6"></a><span class="w">    </span><span class="kd">public</span><span class="w"> </span><span class="n">List</span><span class="o">&lt;</span><span class="n">Post</span><span class="o">&gt;</span><span class="w"> </span><span class="nf">allPosts</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-15-7" name="__codelineno-15-7" href="#__codelineno-15-7"></a><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="na">postService</span><span class="p">.</span><span class="na">getAllPosts</span><span class="p">();</span>
+<a id="__codelineno-15-8" name="__codelineno-15-8" href="#__codelineno-15-8"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-15-9" name="__codelineno-15-9" href="#__codelineno-15-9"></a>
+<a id="__codelineno-15-10" name="__codelineno-15-10" href="#__codelineno-15-10"></a><span class="w">    </span><span class="nd">@DgsQuery</span>
+<a id="__codelineno-15-11" name="__codelineno-15-11" href="#__codelineno-15-11"></a><span class="w">    </span><span class="kd">public</span><span class="w"> </span><span class="n">Post</span><span class="w"> </span><span class="nf">postById</span><span class="p">(</span><span class="nd">@InputArgument</span><span class="w"> </span><span class="n">Long</span><span class="w"> </span><span class="n">postId</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-15-12" name="__codelineno-15-12" href="#__codelineno-15-12"></a><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="na">postService</span><span class="p">.</span><span class="na">getPostById</span><span class="p">(</span><span class="n">postId</span><span class="p">);</span>
+<a id="__codelineno-15-13" name="__codelineno-15-13" href="#__codelineno-15-13"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-15-14" name="__codelineno-15-14" href="#__codelineno-15-14"></a>
+<a id="__codelineno-15-15" name="__codelineno-15-15" href="#__codelineno-15-15"></a><span class="w">    </span><span class="nd">@DgsData</span><span class="p">(</span><span class="n">parentType</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"Post"</span><span class="p">,</span><span class="w"> </span><span class="n">field</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"author"</span><span class="p">)</span>
+<a id="__codelineno-15-16" name="__codelineno-15-16" href="#__codelineno-15-16"></a><span class="w">    </span><span class="kd">public</span><span class="w"> </span><span class="n">CompletableFuture</span><span class="o">&lt;</span><span class="n">Author</span><span class="o">&gt;</span><span class="w"> </span><span class="nf">author</span><span class="p">(</span><span class="n">DgsDataFetchingEnvironment</span><span class="w"> </span><span class="n">dfe</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-15-17" name="__codelineno-15-17" href="#__codelineno-15-17"></a><span class="w">        </span><span class="n">DataLoader</span><span class="o">&lt;</span><span class="n">Long</span><span class="p">,</span><span class="w"> </span><span class="n">Author</span><span class="o">&gt;</span><span class="w"> </span><span class="n">dataLoader</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">dfe</span><span class="p">.</span><span class="na">getDataLoader</span><span class="p">(</span><span class="s">"authorsLoader"</span><span class="p">);</span>
+<a id="__codelineno-15-18" name="__codelineno-15-18" href="#__codelineno-15-18"></a><span class="w">        </span><span class="n">Post</span><span class="w"> </span><span class="n">post</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">dfe</span><span class="p">.</span><span class="na">getSource</span><span class="p">();</span>
+<a id="__codelineno-15-19" name="__codelineno-15-19" href="#__codelineno-15-19"></a><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">dataLoader</span><span class="p">.</span><span class="na">load</span><span class="p">(</span><span class="n">post</span><span class="p">.</span><span class="na">getAuthorId</span><span class="p">());</span>
+<a id="__codelineno-15-20" name="__codelineno-15-20" href="#__codelineno-15-20"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-15-21" name="__codelineno-15-21" href="#__codelineno-15-21"></a>
+<a id="__codelineno-15-22" name="__codelineno-15-22" href="#__codelineno-15-22"></a><span class="w">    </span><span class="nd">@DgsMutation</span>
+<a id="__codelineno-15-23" name="__codelineno-15-23" href="#__codelineno-15-23"></a><span class="w">    </span><span class="kd">public</span><span class="w"> </span><span class="n">Post</span><span class="w"> </span><span class="nf">createPost</span><span class="p">(</span><span class="nd">@InputArgument</span><span class="p">(</span><span class="s">"createPostInput"</span><span class="p">)</span><span class="w"> </span><span class="n">CreatePostInput</span><span class="w"> </span><span class="n">input</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-15-24" name="__codelineno-15-24" href="#__codelineno-15-24"></a><span class="w">        </span><span class="kd">var</span><span class="w"> </span><span class="n">id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="na">postService</span><span class="p">.</span><span class="na">createPost</span><span class="p">(</span><span class="n">input</span><span class="p">);</span>
+<a id="__codelineno-15-25" name="__codelineno-15-25" href="#__codelineno-15-25"></a><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="na">postService</span><span class="p">.</span><span class="na">getPostById</span><span class="p">(</span><span class="n">id</span><span class="p">);</span>
+<a id="__codelineno-15-26" name="__codelineno-15-26" href="#__codelineno-15-26"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-15-27" name="__codelineno-15-27" href="#__codelineno-15-27"></a><span class="p">}</span>
 </code></pre></div>
 <p>The annotations map directly to the schema: <code>@DgsComponent</code> marks the class as
 a data fetcher container, <code>@DgsQuery</code> / <code>@DgsMutation</code> / <code>@DgsSubscription</code>
@@ -1571,36 +1686,36 @@ team's official GraphQL support, built on GraphQL Java. Version 1.0 arrived in
 May 2022, and Spring Boot 2.7 introduced <code>spring-boot-starter-graphql</code>. It is
 also schema-first, with SDL files under <code>src/main/resources/graphql/</code> and
 annotated controllers in the style of Spring MVC:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a><span class="nd">@Controller</span>
-<a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a><span class="kd">public</span><span class="w"> </span><span class="kd">class</span> <span class="nc">PostController</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-15-3" name="__codelineno-15-3" href="#__codelineno-15-3"></a><span class="w">    </span><span class="kd">private</span><span class="w"> </span><span class="kd">final</span><span class="w"> </span><span class="n">PostService</span><span class="w"> </span><span class="n">postService</span><span class="p">;</span>
-<a id="__codelineno-15-4" name="__codelineno-15-4" href="#__codelineno-15-4"></a>
-<a id="__codelineno-15-5" name="__codelineno-15-5" href="#__codelineno-15-5"></a><span class="w">    </span><span class="nd">@QueryMapping</span>
-<a id="__codelineno-15-6" name="__codelineno-15-6" href="#__codelineno-15-6"></a><span class="w">    </span><span class="kd">public</span><span class="w"> </span><span class="n">List</span><span class="o">&lt;</span><span class="n">Post</span><span class="o">&gt;</span><span class="w"> </span><span class="nf">allPosts</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-15-7" name="__codelineno-15-7" href="#__codelineno-15-7"></a><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="na">postService</span><span class="p">.</span><span class="na">getAllPosts</span><span class="p">();</span>
-<a id="__codelineno-15-8" name="__codelineno-15-8" href="#__codelineno-15-8"></a><span class="w">    </span><span class="p">}</span>
-<a id="__codelineno-15-9" name="__codelineno-15-9" href="#__codelineno-15-9"></a>
-<a id="__codelineno-15-10" name="__codelineno-15-10" href="#__codelineno-15-10"></a><span class="w">    </span><span class="nd">@QueryMapping</span>
-<a id="__codelineno-15-11" name="__codelineno-15-11" href="#__codelineno-15-11"></a><span class="w">    </span><span class="kd">public</span><span class="w"> </span><span class="n">Post</span><span class="w"> </span><span class="nf">postById</span><span class="p">(</span><span class="nd">@Argument</span><span class="p">(</span><span class="s">"postId"</span><span class="p">)</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">id</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-15-12" name="__codelineno-15-12" href="#__codelineno-15-12"></a><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="na">postService</span><span class="p">.</span><span class="na">getPostById</span><span class="p">(</span><span class="n">id</span><span class="p">);</span>
-<a id="__codelineno-15-13" name="__codelineno-15-13" href="#__codelineno-15-13"></a><span class="w">    </span><span class="p">}</span>
-<a id="__codelineno-15-14" name="__codelineno-15-14" href="#__codelineno-15-14"></a>
-<a id="__codelineno-15-15" name="__codelineno-15-15" href="#__codelineno-15-15"></a><span class="w">    </span><span class="nd">@MutationMapping</span>
-<a id="__codelineno-15-16" name="__codelineno-15-16" href="#__codelineno-15-16"></a><span class="w">    </span><span class="kd">public</span><span class="w"> </span><span class="n">Post</span><span class="w"> </span><span class="nf">createPost</span><span class="p">(</span><span class="nd">@Argument</span><span class="p">(</span><span class="s">"createPostInput"</span><span class="p">)</span><span class="w"> </span><span class="nd">@Valid</span><span class="w"> </span><span class="n">CreatePostInput</span><span class="w"> </span><span class="n">input</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-15-17" name="__codelineno-15-17" href="#__codelineno-15-17"></a><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">postService</span><span class="p">.</span><span class="na">createPost</span><span class="p">(</span><span class="n">input</span><span class="p">);</span>
-<a id="__codelineno-15-18" name="__codelineno-15-18" href="#__codelineno-15-18"></a><span class="w">    </span><span class="p">}</span>
-<a id="__codelineno-15-19" name="__codelineno-15-19" href="#__codelineno-15-19"></a>
-<a id="__codelineno-15-20" name="__codelineno-15-20" href="#__codelineno-15-20"></a><span class="w">    </span><span class="nd">@SubscriptionMapping</span>
-<a id="__codelineno-15-21" name="__codelineno-15-21" href="#__codelineno-15-21"></a><span class="w">    </span><span class="kd">public</span><span class="w"> </span><span class="n">Publisher</span><span class="o">&lt;</span><span class="n">Comment</span><span class="o">&gt;</span><span class="w"> </span><span class="nf">commentAdded</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-15-22" name="__codelineno-15-22" href="#__codelineno-15-22"></a><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="na">postService</span><span class="p">.</span><span class="na">commentAdded</span><span class="p">();</span>
-<a id="__codelineno-15-23" name="__codelineno-15-23" href="#__codelineno-15-23"></a><span class="w">    </span><span class="p">}</span>
-<a id="__codelineno-15-24" name="__codelineno-15-24" href="#__codelineno-15-24"></a>
-<a id="__codelineno-15-25" name="__codelineno-15-25" href="#__codelineno-15-25"></a><span class="w">    </span><span class="nd">@SchemaMapping</span><span class="p">(</span><span class="n">field</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"author"</span><span class="p">)</span>
-<a id="__codelineno-15-26" name="__codelineno-15-26" href="#__codelineno-15-26"></a><span class="w">    </span><span class="kd">public</span><span class="w"> </span><span class="n">CompletionStage</span><span class="o">&lt;</span><span class="n">Author</span><span class="o">&gt;</span><span class="w"> </span><span class="nf">authorOfPost</span><span class="p">(</span>
-<a id="__codelineno-15-27" name="__codelineno-15-27" href="#__codelineno-15-27"></a><span class="w">            </span><span class="n">Post</span><span class="w"> </span><span class="n">post</span><span class="p">,</span><span class="w"> </span><span class="n">DataLoader</span><span class="o">&lt;</span><span class="n">String</span><span class="p">,</span><span class="w"> </span><span class="n">Author</span><span class="o">&gt;</span><span class="w"> </span><span class="n">authorDataLoader</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-15-28" name="__codelineno-15-28" href="#__codelineno-15-28"></a><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">authorDataLoader</span><span class="p">.</span><span class="na">load</span><span class="p">(</span><span class="n">post</span><span class="p">.</span><span class="na">getAuthorId</span><span class="p">());</span>
-<a id="__codelineno-15-29" name="__codelineno-15-29" href="#__codelineno-15-29"></a><span class="w">    </span><span class="p">}</span>
-<a id="__codelineno-15-30" name="__codelineno-15-30" href="#__codelineno-15-30"></a><span class="p">}</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a><span class="nd">@Controller</span>
+<a id="__codelineno-16-2" name="__codelineno-16-2" href="#__codelineno-16-2"></a><span class="kd">public</span><span class="w"> </span><span class="kd">class</span> <span class="nc">PostController</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-16-3" name="__codelineno-16-3" href="#__codelineno-16-3"></a><span class="w">    </span><span class="kd">private</span><span class="w"> </span><span class="kd">final</span><span class="w"> </span><span class="n">PostService</span><span class="w"> </span><span class="n">postService</span><span class="p">;</span>
+<a id="__codelineno-16-4" name="__codelineno-16-4" href="#__codelineno-16-4"></a>
+<a id="__codelineno-16-5" name="__codelineno-16-5" href="#__codelineno-16-5"></a><span class="w">    </span><span class="nd">@QueryMapping</span>
+<a id="__codelineno-16-6" name="__codelineno-16-6" href="#__codelineno-16-6"></a><span class="w">    </span><span class="kd">public</span><span class="w"> </span><span class="n">List</span><span class="o">&lt;</span><span class="n">Post</span><span class="o">&gt;</span><span class="w"> </span><span class="nf">allPosts</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-16-7" name="__codelineno-16-7" href="#__codelineno-16-7"></a><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="na">postService</span><span class="p">.</span><span class="na">getAllPosts</span><span class="p">();</span>
+<a id="__codelineno-16-8" name="__codelineno-16-8" href="#__codelineno-16-8"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-16-9" name="__codelineno-16-9" href="#__codelineno-16-9"></a>
+<a id="__codelineno-16-10" name="__codelineno-16-10" href="#__codelineno-16-10"></a><span class="w">    </span><span class="nd">@QueryMapping</span>
+<a id="__codelineno-16-11" name="__codelineno-16-11" href="#__codelineno-16-11"></a><span class="w">    </span><span class="kd">public</span><span class="w"> </span><span class="n">Post</span><span class="w"> </span><span class="nf">postById</span><span class="p">(</span><span class="nd">@Argument</span><span class="p">(</span><span class="s">"postId"</span><span class="p">)</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">id</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-16-12" name="__codelineno-16-12" href="#__codelineno-16-12"></a><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="na">postService</span><span class="p">.</span><span class="na">getPostById</span><span class="p">(</span><span class="n">id</span><span class="p">);</span>
+<a id="__codelineno-16-13" name="__codelineno-16-13" href="#__codelineno-16-13"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-16-14" name="__codelineno-16-14" href="#__codelineno-16-14"></a>
+<a id="__codelineno-16-15" name="__codelineno-16-15" href="#__codelineno-16-15"></a><span class="w">    </span><span class="nd">@MutationMapping</span>
+<a id="__codelineno-16-16" name="__codelineno-16-16" href="#__codelineno-16-16"></a><span class="w">    </span><span class="kd">public</span><span class="w"> </span><span class="n">Post</span><span class="w"> </span><span class="nf">createPost</span><span class="p">(</span><span class="nd">@Argument</span><span class="p">(</span><span class="s">"createPostInput"</span><span class="p">)</span><span class="w"> </span><span class="nd">@Valid</span><span class="w"> </span><span class="n">CreatePostInput</span><span class="w"> </span><span class="n">input</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-16-17" name="__codelineno-16-17" href="#__codelineno-16-17"></a><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">postService</span><span class="p">.</span><span class="na">createPost</span><span class="p">(</span><span class="n">input</span><span class="p">);</span>
+<a id="__codelineno-16-18" name="__codelineno-16-18" href="#__codelineno-16-18"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-16-19" name="__codelineno-16-19" href="#__codelineno-16-19"></a>
+<a id="__codelineno-16-20" name="__codelineno-16-20" href="#__codelineno-16-20"></a><span class="w">    </span><span class="nd">@SubscriptionMapping</span>
+<a id="__codelineno-16-21" name="__codelineno-16-21" href="#__codelineno-16-21"></a><span class="w">    </span><span class="kd">public</span><span class="w"> </span><span class="n">Publisher</span><span class="o">&lt;</span><span class="n">Comment</span><span class="o">&gt;</span><span class="w"> </span><span class="nf">commentAdded</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-16-22" name="__codelineno-16-22" href="#__codelineno-16-22"></a><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="na">postService</span><span class="p">.</span><span class="na">commentAdded</span><span class="p">();</span>
+<a id="__codelineno-16-23" name="__codelineno-16-23" href="#__codelineno-16-23"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-16-24" name="__codelineno-16-24" href="#__codelineno-16-24"></a>
+<a id="__codelineno-16-25" name="__codelineno-16-25" href="#__codelineno-16-25"></a><span class="w">    </span><span class="nd">@SchemaMapping</span><span class="p">(</span><span class="n">field</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"author"</span><span class="p">)</span>
+<a id="__codelineno-16-26" name="__codelineno-16-26" href="#__codelineno-16-26"></a><span class="w">    </span><span class="kd">public</span><span class="w"> </span><span class="n">CompletionStage</span><span class="o">&lt;</span><span class="n">Author</span><span class="o">&gt;</span><span class="w"> </span><span class="nf">authorOfPost</span><span class="p">(</span>
+<a id="__codelineno-16-27" name="__codelineno-16-27" href="#__codelineno-16-27"></a><span class="w">            </span><span class="n">Post</span><span class="w"> </span><span class="n">post</span><span class="p">,</span><span class="w"> </span><span class="n">DataLoader</span><span class="o">&lt;</span><span class="n">String</span><span class="p">,</span><span class="w"> </span><span class="n">Author</span><span class="o">&gt;</span><span class="w"> </span><span class="n">authorDataLoader</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-16-28" name="__codelineno-16-28" href="#__codelineno-16-28"></a><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">authorDataLoader</span><span class="p">.</span><span class="na">load</span><span class="p">(</span><span class="n">post</span><span class="p">.</span><span class="na">getAuthorId</span><span class="p">());</span>
+<a id="__codelineno-16-29" name="__codelineno-16-29" href="#__codelineno-16-29"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-16-30" name="__codelineno-16-30" href="#__codelineno-16-30"></a><span class="p">}</span>
 </code></pre></div>
 <p><code>@QueryMapping</code>, <code>@MutationMapping</code>, and <code>@SubscriptionMapping</code> bind a method
 to a root-type field; <code>@SchemaMapping</code> binds a method to a field on any type;
@@ -1734,7 +1849,7 @@ both run the same blog domain (posts, authors, comments) against the same
 Postgres schema, so you can compare equivalent implementations directly.</p>
 <h2 id="summary">Summary<a class="headerlink" href="#summary" title="Permanent link">&para;</a></h2>
 <p>You have seen what GraphQL is and why you would choose it over REST, the schema
-language (SDL) and the request/response envelope, the HTTP and WebSocket
+language (SDL) and the request lifecycle, the HTTP and WebSocket
 transports, and the GraphQL Java execution engine. You have also met the two
 Spring Boot frameworks — Netflix DGS and Spring GraphQL — how DGS adopted
 Spring GraphQL as its foundation, and how to choose between them.</p>
