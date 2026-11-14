@@ -1322,10 +1322,15 @@ all speak <code>graphql-transport-ws</code>.</p>
 the
 <a href="https://github.com/jaydenseric/graphql-multipart-request-spec">GraphQL multipart request specification</a>,
 which wraps the usual <code>operations</code> JSON in a multipart form and maps file
-fields to object paths. Both DGS and Spring GraphQL resolve the uploaded file
-to a Spring <code>MultipartFile</code> argument; the
+fields to object paths.</p>
+<p>Spring GraphQL does not implement this specification. The legacy DGS starter
+had multipart file upload built in, but with the Spring GraphQL integration it
+is no longer available by default: add the
+<a href="https://github.com/nkonev/multiple-spring-graphql">multipart-spring-graphql</a>
+dependency (<code>name.nkonev.multipart-spring-graphql:multipart-spring-graphql</code>) to
+restore it, mapping the <code>Upload</code> scalar to a Spring <code>MultipartFile</code>. The
 <a href="https://github.com/hantsy/spring-graphql-sample/tree/master/dgs-fileupload">dgs-fileupload</a>
-example demonstrates it.</p>
+example has been updated to use it.</p>
 <h2 id="graphql-java">GraphQL Java<a class="headerlink" href="#graphql-java" title="Permanent link">&para;</a></h2>
 <p><a href="https://www.graphql-java.com/">GraphQL Java</a> is the JVM implementation of the
 GraphQL specification, started in 2015. It is an execution engine, not a
@@ -1624,7 +1629,8 @@ programming model and tooling but drops the parts that duplicated Spring
 GraphQL's low-level WebMvc/WebFlux integration. The integration shipped first
 as an opt-in <code>spring-graphql</code> flavor of the DGS starter, then became the
 default in DGS 9.0 (May 2024), which builds against Spring GraphQL 1.3, Spring
-Boot 3.3, and GraphQL Java 22.</p>
+Boot 3.3, and GraphQL Java 22. DGS 10.0.0 (December 2024) removed the legacy
+WebMvc/WebFlux code, making Spring GraphQL the sole foundation.</p>
 <p>After the integration:</p>
 <ul>
 <li>You write data fetchers with the DGS programming model (<code>@DgsComponent</code>,
@@ -1704,8 +1710,10 @@ are the programming model and the tooling around it:</p>
 </tr>
 </tbody>
 </table>
-<p>Both support Kotlin and coroutines, Spring Security, file uploads through
-<code>MultipartFile</code>, and DataLoader-based batching.</p>
+<p>Both support Kotlin and coroutines, Spring Security, and DataLoader-based
+batching. Neither implements the GraphQL multipart request specification out
+of the box: Spring GraphQL never implemented it, and DGS moved its built-in
+file upload out of the default starter when it switched to Spring GraphQL.</p>
 <h3 id="choosing-a-framework">Choosing a framework<a class="headerlink" href="#choosing-a-framework" title="Permanent link">&para;</a></h3>
 <ul>
 <li><strong>Starting a new Spring Boot application</strong> — choose Spring GraphQL. It is
@@ -1753,7 +1761,7 @@ repository and run one of the <code>dgs*</code> or <code>spring-graphql*</code> 
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    2026-11-13
+    2026-11-14
   </span>
 
     
