@@ -40,13 +40,13 @@ WebSocket are the common choices, and separate specifications cover them.
 
 ### The REST problem
 
-Consider a blog screen that shows a post, its author, and the latest three
-comments. Against a typical REST API, that one screen takes several calls:
+Consider a blog screen that shows a post, its author, and its comments.
+Against a typical REST API, that one screen takes several calls:
 
 - `GET /posts/1` returns the whole post — id, title, content, tags, and
   timestamps — even though the screen only needs the title.
-- `GET /posts/1/comments` returns every comment, so the client filters the
-  latest three itself.
+- `GET /posts/1/comments` returns every comment, even though the screen only
+  needs a few.
 - `GET /authors/7` returns the full author profile just to show one name.
 
 The client over-fetches fields it does not use, under-fetches data it must
