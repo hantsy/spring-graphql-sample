@@ -325,10 +325,16 @@ The specification does not define file uploads. The interoperable standard is
 the
 [GraphQL multipart request specification](https://github.com/jaydenseric/graphql-multipart-request-spec),
 which wraps the usual `operations` JSON in a multipart form and maps file
-fields to object paths. Both DGS and Spring GraphQL resolve the uploaded file
-to a Spring `MultipartFile` argument; the
+fields to object paths.
+
+Spring GraphQL does not implement this specification. The legacy DGS starter
+had multipart file upload built in, but with the Spring GraphQL integration it
+is no longer available by default: add the
+[multipart-spring-graphql](https://github.com/nkonev/multiple-spring-graphql)
+dependency (`name.nkonev.multipart-spring-graphql:multipart-spring-graphql`) to
+restore it, mapping the `Upload` scalar to a Spring `MultipartFile`. The
 [dgs-fileupload](https://github.com/hantsy/spring-graphql-sample/tree/master/dgs-fileupload)
-example demonstrates it.
+example has been updated to use it.
 
 ## GraphQL Java
 
@@ -645,7 +651,8 @@ programming model and tooling but drops the parts that duplicated Spring
 GraphQL's low-level WebMvc/WebFlux integration. The integration shipped first
 as an opt-in `spring-graphql` flavor of the DGS starter, then became the
 default in DGS 9.0 (May 2024), which builds against Spring GraphQL 1.3, Spring
-Boot 3.3, and GraphQL Java 22.
+Boot 3.3, and GraphQL Java 22. DGS 10.0.0 (December 2024) removed the legacy
+WebMvc/WebFlux code, making Spring GraphQL the sole foundation.
 
 After the integration:
 
@@ -685,8 +692,10 @@ are the programming model and the tooling around it:
 | Stewardship | Netflix | Spring team |
 | Dependency management | DGS platform BOM aligned to a Boot version | Spring Boot starter, version managed by Boot |
 
-Both support Kotlin and coroutines, Spring Security, file uploads through
-`MultipartFile`, and DataLoader-based batching.
+Both support Kotlin and coroutines, Spring Security, and DataLoader-based
+batching. Neither implements the GraphQL multipart request specification out
+of the box: Spring GraphQL never implemented it, and DGS moved its built-in
+file upload out of the default starter when it switched to Spring GraphQL.
 
 ### Choosing a framework
 
