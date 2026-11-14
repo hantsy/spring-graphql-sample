@@ -1,4 +1,4 @@
-# Build a GraphQL API with Netflix DGS
+# Building GraphQL APIs with Netflix DGS
 
 This tutorial is for Java developers who know Spring Boot and want to build a
 GraphQL API with Netflix DGS (Domain Graph Service). You build a small blog
@@ -1546,12 +1546,14 @@ StepVerifier.create(titles)
 
 The sample modules exercise this pattern in different ways:
 
-- `dgs` tests the query and mutation fetchers and their error responses.
-- `dgs-codegen` tests generated operations, validation, custom scalars, and
-  directives.
-- `dgs-fileupload` tests the `Upload` scalar with `MockMultipartFile`.
-- `dgs-webflux` tests reactive fetchers and subscriptions with
-  `DgsReactiveQueryExecutor`.
+- [`dgs`](https://github.com/hantsy/spring-graphql-sample/tree/master/dgs)
+  tests the query and mutation fetchers and their error responses.
+- [`dgs-codegen`](https://github.com/hantsy/spring-graphql-sample/tree/master/dgs-codegen)
+  tests generated operations, validation, custom scalars, and directives.
+- [`dgs-fileupload`](https://github.com/hantsy/spring-graphql-sample/tree/master/dgs-fileupload)
+  tests the `Upload` scalar with `MockMultipartFile`.
+- [`dgs-webflux`](https://github.com/hantsy/spring-graphql-sample/tree/master/dgs-webflux)
+  tests reactive fetchers and subscriptions with `DgsReactiveQueryExecutor`.
 
 ### Test repositories against a database
 
@@ -1595,15 +1597,20 @@ class PostRepositoryTests {
 `spring.sql.init.mode=always` runs `schema.sql` against that container, and
 `@Transactional` rolls back each test so they stay independent. The
 configuration does not component-scan, so `DataInitializer` does not run and
-seed data. The `dgs` module has `PostRepositoryTests` and
-`CommentRepositoryTests`; the database-backed suites need Docker running.
+seed data. The
+[`dgs`](https://github.com/hantsy/spring-graphql-sample/tree/master/dgs) module
+has `PostRepositoryTests` and `CommentRepositoryTests`; the database-backed
+suites need Docker running.
 
 ### Test over HTTP
 
 Component and repository tests never exercise the transport. To verify the
 GraphQL-over-HTTP endpoint, start the application on a random port and call
 `/graphql`. `DgsRestClientGraphQLClient` sends requests with Spring's blocking
-`RestClient`; the `dgs` and `dgs-codegen` integration tests use it:
+`RestClient`; the
+[`dgs`](https://github.com/hantsy/spring-graphql-sample/tree/master/dgs) and
+[`dgs-codegen`](https://github.com/hantsy/spring-graphql-sample/tree/master/dgs-codegen)
+integration tests use it:
 
 ```java
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -1649,15 +1656,19 @@ StepVerifier.create(result)
         .verifyComplete();
 ```
 
-The `dgs-webflux` integration test uses the reactive client; the blocking one
-is in `dgs` and `dgs-codegen`.
+The
+[`dgs-webflux`](https://github.com/hantsy/spring-graphql-sample/tree/master/dgs-webflux)
+integration test uses the reactive client; the blocking one is in
+[`dgs`](https://github.com/hantsy/spring-graphql-sample/tree/master/dgs) and
+[`dgs-codegen`](https://github.com/hantsy/spring-graphql-sample/tree/master/dgs-codegen).
 
 ### Mock remote GraphQL APIs
 
 To test a client that calls a third-party GraphQL API, point it at a local
-WireMock server instead of making a network request. The `dgs-client` module
-uses WireMock with a GraphQL body matcher, which compares operations without
-depending on whitespace or field order.
+WireMock server instead of making a network request. The
+[`dgs-client`](https://github.com/hantsy/spring-graphql-sample/tree/master/dgs-client)
+module uses WireMock with a GraphQL body matcher, which compares operations
+without depending on whitespace or field order.
 
 Add these test dependencies to the client module:
 
