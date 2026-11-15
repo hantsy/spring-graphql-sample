@@ -2171,7 +2171,8 @@ errors.</p>
 <p><code>subscribeToMore</code> hands back a teardown function, and <code>ngOnDestroy</code> calls
 it so the socket closes along with the component. Skip that and the
 connection leaks for the rest of the page's life.</p>
-<p>The template:</p>
+<p>Here is the template that puts it all on the page — the message list, the
+connection banner and the error banner:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-20-1" name="__codelineno-20-1" href="#__codelineno-20-1"></a><span class="p">&lt;</span><span class="nt">main</span> <span class="na">class</span><span class="o">=</span><span class="s">"container"</span><span class="p">&gt;</span>
 <a id="__codelineno-20-2" name="__codelineno-20-2" href="#__codelineno-20-2"></a>  <span class="p">&lt;</span><span class="nt">h1</span><span class="p">&gt;</span>DGS Subscription — WebSocket<span class="p">&lt;/</span><span class="nt">h1</span><span class="p">&gt;</span>
 <a id="__codelineno-20-3" name="__codelineno-20-3" href="#__codelineno-20-3"></a>
