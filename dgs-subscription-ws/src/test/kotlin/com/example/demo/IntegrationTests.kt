@@ -56,12 +56,9 @@ class IntegrationTests {
                 val messageSent = it.getData<Map<String, Any>>()!!["messageSent"]!! as Map<String, Any>
                 messageSent["body"] as String
             }
-            // the sink replays the last 100 messages to every new subscriber, so the stream
-            // is filtered down to the messages this test sent itself
-            .filter { it.startsWith("ws-") }
 
-        val message1 = "ws-text1 message"
-        val message2 = "ws-text2 message"
+        val message1 = "text1"
+        val message2 = "text2"
         val verifier = StepVerifier.create(executionResult)
             .thenAwait(Duration.ofMillis(1500)) // see: https://github.com/Netflix/dgs-framework/issues/657
             .consumeNextWith { assertThat(it).isEqualTo(message1) }

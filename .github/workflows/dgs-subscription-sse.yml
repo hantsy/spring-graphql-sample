@@ -1,23 +1,23 @@
 # This workflow will build a Java project with Maven
 # For more information see: https://help.github.com/actions/language-and-framework-guides/building-and-testing-java-with-maven
 
-name: dgs-subscription
+name: dgs-subscription-sse
 
 on:
   push:
     paths:
-      - "dgs-subscription/**"
+      - "dgs-subscription-sse/**"
     branches: [ master ]
   pull_request:
     paths:
-      - "dgs-subscription/**"
+      - "dgs-subscription-sse/**"
     types:
       - opened
       - synchronize
       - reopened
 
 jobs:
-
+  
   build:
     runs-on: ubuntu-latest
     steps:
@@ -29,6 +29,7 @@ jobs:
         distribution: 'temurin'
     - name: Build with Maven
       run: |
-        cd  dgs-subscription
+        cd dgs-subscription-sse
         chmod +x mvnw
         ./mvnw -B -ntp verify
+  

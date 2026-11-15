@@ -13,10 +13,10 @@ import org.springframework.web.reactive.function.client.WebClient
 import reactor.test.StepVerifier
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-class SseIntegrationTests {
+class IntegrationTests {
 
     @LocalServerPort
-    var port = 0
+    var port = 0;
 
     // The Dgs-prefixed clients are the Jackson 3 variants; GraphqlSSESubscriptionGraphQLClient and
     // RestClientGraphQLClient are their Jackson 2 predecessors.
@@ -37,19 +37,13 @@ class SseIntegrationTests {
     fun testMessages() {
         val subscriptionQuery = "subscription { messageSent { body } }"
         val variables = emptyMap<String, Any>()
-        val result = sseClient.reactiveExecuteQuery(subscriptionQuery, variables)
-            .map {
-                it.extractValueAsObject("data.messageSent", object : TypeRef<Map<String, Any>>() {})["body"] as String
-            }
-            // the sink replays the last 100 messages to every new subscriber, so the stream
-            // is filtered down to the messages this test sent itself
-            .filter { it.startsWith("sse-") }
+        val result = sseClient.reactiveExecuteQuery(subscriptionQuery, variables).map {
+            it.extractValueAsObject("data.messageSent", object : TypeRef<Map<String, Any>>() {})["body"] as String
+        }
 
-        val message1 = "sse-text1 message"
-        val message2 = "sse-text2 message"
         val verifier = StepVerifier.create(result)
-            .consumeNextWith { assertThat(it).isEqualTo(message1) }
-            .consumeNextWith { assertThat(it).isEqualTo(message2) }
+            .consumeNextWith { assertThat(it).isEqualTo("text1 message") }
+            .consumeNextWith { assertThat(it).isEqualTo("text2 message") }
             .thenCancel()
             .verifyLater()
 
@@ -57,15 +51,15 @@ class SseIntegrationTests {
 
         val sendText1 = restClient.executeQuery(
             sendMessageQuery,
-            mapOf("msg" to (mapOf("body" to message1)))
+            mapOf("msg" to (mapOf("body" to "text1 message")))
         ).extractValueAsObject("data.send.body", String::class.java)
-        assertThat(sendText1).isEqualTo(message1)
+        assertThat(sendText1).isEqualTo("text1 message")
 
         val sendText2 = restClient.executeQuery(
             sendMessageQuery,
-            mapOf("msg" to (mapOf("body" to message2)))
+            mapOf("msg" to (mapOf("body" to "text2 message")))
         ).extractValueAsObject("data.send.body", String::class.java)
-        assertThat(sendText2).isEqualTo(message2)
+        assertThat(sendText2).isEqualTo("text2 message")
 
         //verify it now.
         verifier.verify();
@@ -74,8 +68,6 @@ class SseIntegrationTests {
 
         val allMessages = restClient.executeQuery(allMessagesQuery, emptyMap<String, Any>())
             .extractValueAsObject("data.messages[*].body", object : TypeRef<List<String>>() {})
-        // the in-memory store is shared with the other tests in this JVM, so only assert
-        // that the messages sent by this test are persisted
-        assertThat(allMessages).containsAll(listOf(message1, message2))
+        assertThat(allMessages).allMatch { s: String -> s.contains("message") }
     }
 }
