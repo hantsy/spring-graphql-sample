@@ -375,7 +375,146 @@ caps how long the server waits for the client's `connection_init` message
 before hanging up. `keep-alive` has the server send a `ping` frame on an
 idle connection, which is exactly the case a proxy is most likely to drop.
 
-## Step 4: Build the Angular client
+## Step 4: Test the subscriptions
+
+Clicking around is a poor way to test a subscription. The samples test it
+on the server instead.
+
+### Test the subscription stream
+
+`DgsQueryExecutor` runs a subscription and hands back the publisher, which
+Reactor's `StepVerifier` can assert against. This test is transport
+agnostic — it exercises the fetcher, not the protocol. Create a
+`SubscriptionTest` class in `src/test/kotlin/com/example/demo`:
+
+```kotlin
+@SpringBootTest
+@EnableDgsTest
+class SubscriptionTest {
+
+    @Autowired
+    lateinit var dgsQueryExecutor: DgsQueryExecutor
+
+    @Test
+    fun testMessages() {
+        val executionResult = dgsQueryExecutor.execute("subscription { messageSent { body } }")
+        val publisher = executionResult.getData<Publisher<ExecutionResult>>()
+
+        val verifier = StepVerifier.create(publisher)
+            .consumeNextWith {
+                assertThat(
+                    it.getData<Map<String, Map<String, Any>>>()["messageSent"]
+                        ?.get("body") as String
+                ).contains("text1")
+            }
+            .consumeNextWith {
+                assertThat(
+                    it.getData<Map<String, Map<String, Any>>>()["messageSent"]
+                        ?.get("body") as String
+                ).contains("text2")
+            }
+            .thenCancel()
+            .verifyLater()
+
+        val sendText1 = dgsQueryExecutor.executeAndExtractJsonPath<String>(
+            "mutation sendMessage(\$msg: TextMessageInput!) { send(message:\$msg) { body}}",
+            "data.send.body",
+            mapOf("msg" to (mapOf("body" to "text1 message")))
+        )
+        assertThat(sendText1).contains("text1")
+
+        val sendText2 = dgsQueryExecutor.executeAndExtractJsonPath<String>(
+            "mutation sendMessage(\$msg: TextMessageInput!) { send(message:\$msg) { body}}",
+            "data.send.body",
+            mapOf("msg" to (mapOf("body" to "text2 message")))
+        )
+        assertThat(sendText2).contains("text2")
+
+        // verify it now.
+        verifier.verify()
+    }
+}
+```
+
+The ordering is the whole trick. Start the verifier with `verifyLater()`,
+send the messages, and only then call `verify()`: the subscription has to
+be registered before the mutations run, or the first message is emitted
+while nobody is listening.
+
+### Test over the WebSocket transport
+
+The `DgsQueryExecutor` test never touches the network, so it says nothing
+about the protocol. The integration tests do.
+
+The DGS client library ships two generations of every client. The
+`Dgs`-prefixed names — `DgsRestClientGraphQLClient`,
+`DgsWebClientGraphQLClient`, and `DgsGraphqlSSESubscriptionGraphQLClient` —
+are the Jackson 3 variants that match DGS 12 and Spring Boot 4. The
+unprefixed names — `RestClientGraphQLClient`, `WebClientGraphQLClient`,
+and `GraphqlSSESubscriptionGraphQLClient` — are their Jackson 2
+predecessors. Use the prefixed ones in new code.
+
+For WebSocket, Spring GraphQL ships its own `WebSocketGraphQlClient`:
+
+```kotlin
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+class IntegrationTests {
+
+    @LocalServerPort
+    var port = 0
+
+    lateinit var webClient: DgsWebClientGraphQLClient
+    lateinit var socketClient: WebSocketGraphQlClient
+
+    @BeforeEach
+    fun setup() {
+        val baseUrl = "http://localhost:$port/graphql"
+        this.webClient = DgsWebClientGraphQLClient(WebClient.create(baseUrl))
+
+        val subscriptionUrl = "ws://localhost:$port/graphql"
+        this.socketClient = WebSocketGraphQlClient.create(
+            URI.create(subscriptionUrl),
+            ReactorNettyWebSocketClient()
+        )
+        this.socketClient.start().subscribe()
+    }
+
+    @AfterEach
+    fun teardown() {
+        this.socketClient.stop().subscribe()
+    }
+
+    @Test
+    fun testMessages() {
+        val executionResult = socketClient.document("subscription { messageSent { body } }")
+            .executeSubscription()
+            .map {
+                val messageSent = it.getData<Map<String, Any>>()!!["messageSent"]!! as Map<String, Any>
+                messageSent["body"] as String
+            }
+
+        val verifier = StepVerifier.create(executionResult)
+            .thenAwait(Duration.ofMillis(1500))
+            .consumeNextWith { assertThat(it).isEqualTo("text1") }
+            .consumeNextWith { assertThat(it).isEqualTo("text2") }
+            .thenCancel()
+            .verifyLater()
+
+        // give the websocket subscription time to register on the server before sending,
+        // otherwise the first message may be emitted before the subscription is active
+        Thread.sleep(1000)
+
+        // send the messages over HTTP, then
+        verifier.verify()
+    }
+}
+```
+
+The subscription must be active on the server before the mutation runs.
+This test waits for it explicitly, because the socket handshake adds a
+round trip that the in-process test does not have.
+
+## Step 5: Build the Angular client
 
 The client is a single page with three parts: a list of messages, a text
 field, and a send button. Under the hood it is **Apollo Client** wired
@@ -808,7 +947,7 @@ The template:
 The banner at the top reports the connection state: whenever the transport
 is not open, the page says so.
 
-## Step 5: Run the server and client applications
+## Step 6: Run the server and client applications
 
 Now run the server and client applications locally to verify that the chat
 works as expected. They live in separate folders and run independently.
@@ -880,15 +1019,15 @@ curl http://localhost:8080/graphql \
 A WebSocket subscription is harder to inspect from a shell, because the
 `graphql-transport-ws` protocol opens with a `connection_init` handshake
 before any operation can be sent. The browser's network tab shows the
-socket and its frames, the integration test in Step 8 exercises the full
+socket and its frames, the integration test in Step 4 exercises the full
 handshake, and a tool such as `websocat` lets you drive the protocol by
-hand if you want to read the raw frames. The SSE version in Step 6 is the
-one that a single `curl` command can watch.
+hand if you want to read the raw frames. The SSE version later in the article
+is the one that a single `curl` command can watch.
 
 GraphiQL lives at `http://localhost:8080/graphiql` — handy for the query
 and the mutation, with completion and schema documentation.
 
-## Step 6: Switch to SSE subscriptions
+## Switch to SSE subscriptions
 
 The WebSocket version works, and it is the richer protocol — the socket is
 bidirectional, so the client could push over the same connection later. It
@@ -1152,7 +1291,91 @@ and the event shows up right away. `Ctrl+C` ends the subscription.
     one cannot talk to a server speaking the other, so migrate the client
     and the server together.
 
-## Step 7: Switch the Angular client to signals
+### Test the SSE transport
+
+The SSE transport has its own integration test, using the client DGS ships
+for the GraphQL over SSE protocol:
+
+```kotlin
+package com.example.demo
+
+import com.jayway.jsonpath.TypeRef
+import com.netflix.graphql.dgs.client.DgsGraphqlSSESubscriptionGraphQLClient
+import com.netflix.graphql.dgs.client.DgsRestClientGraphQLClient
+import org.assertj.core.api.Assertions.assertThat
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
+import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.boot.test.web.server.LocalServerPort
+import org.springframework.web.client.RestClient
+import org.springframework.web.reactive.function.client.WebClient
+import reactor.test.StepVerifier
+
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+class IntegrationTests {
+
+    @LocalServerPort
+    var port = 0;
+
+    // The Dgs-prefixed clients are the Jackson 3 variants; GraphqlSSESubscriptionGraphQLClient and
+    // RestClientGraphQLClient are their Jackson 2 predecessors.
+    lateinit var sseClient: DgsGraphqlSSESubscriptionGraphQLClient
+    lateinit var restClient: DgsRestClientGraphQLClient
+
+    @BeforeEach
+    fun setup() {
+        val baseUrl = "http://localhost:$port/graphql"
+        sseClient = DgsGraphqlSSESubscriptionGraphQLClient(
+            baseUrl,
+            WebClient.create(baseUrl)
+        )
+        restClient = DgsRestClientGraphQLClient(RestClient.builder().baseUrl(baseUrl).build())
+    }
+
+    @Test
+    fun testMessages() {
+        val subscriptionQuery = "subscription { messageSent { body } }"
+        val variables = emptyMap<String, Any>()
+        val result = sseClient.reactiveExecuteQuery(subscriptionQuery, variables).map {
+            it.extractValueAsObject("data.messageSent", object : TypeRef<Map<String, Any>>() {})["body"] as String
+        }
+
+        val verifier = StepVerifier.create(result)
+            .consumeNextWith { assertThat(it).isEqualTo("text1 message") }
+            .consumeNextWith { assertThat(it).isEqualTo("text2 message") }
+            .thenCancel()
+            .verifyLater()
+
+        val sendMessageQuery = "mutation sendMessage(\$msg: TextMessageInput!) { send(message:\$msg) { body}}"
+
+        val sendText1 = restClient.executeQuery(
+            sendMessageQuery,
+            mapOf("msg" to (mapOf("body" to "text1 message")))
+        ).extractValueAsObject("data.send.body", String::class.java)
+        assertThat(sendText1).isEqualTo("text1 message")
+
+        val sendText2 = restClient.executeQuery(
+            sendMessageQuery,
+            mapOf("msg" to (mapOf("body" to "text2 message")))
+        ).extractValueAsObject("data.send.body", String::class.java)
+        assertThat(sendText2).isEqualTo("text2 message")
+
+        //verify it now.
+        verifier.verify();
+
+        val allMessagesQuery = " { messages { body }}"
+
+        val allMessages = restClient.executeQuery(allMessagesQuery, emptyMap<String, Any>())
+            .extractValueAsObject("data.messages[*].body", object : TypeRef<List<String>>() {})
+        assertThat(allMessages).allMatch { s: String -> s.contains("message") }
+    }
+}
+```
+
+The SSE test has the same race as the WebSocket one: the subscription must
+be active on the server before the mutation runs.
+
+## Switch the Angular client to signals
 
 The traditional component version works, but it threads state through RxJS
 observables and `async` pipes. The signals version says the same thing with
@@ -1408,224 +1631,6 @@ Side by side, the two versions differ in four places:
     The Apollo cache stays the source of truth for the query; the signal
     array only carries what has arrived over the subscription since the
     page loaded.
-
-## Step 8: Test the subscriptions
-
-Clicking around is a poor way to test a subscription. The samples test it
-on the server instead.
-
-### Test the subscription stream
-
-`DgsQueryExecutor` runs a subscription and hands back the publisher, which
-Reactor's `StepVerifier` can assert against. This test is transport
-agnostic — it exercises the fetcher, not the protocol. Create a
-`SubscriptionTest` class in `src/test/kotlin/com/example/demo`:
-
-```kotlin
-@SpringBootTest
-@EnableDgsTest
-class SubscriptionTest {
-
-    @Autowired
-    lateinit var dgsQueryExecutor: DgsQueryExecutor
-
-    @Test
-    fun testMessages() {
-        val executionResult = dgsQueryExecutor.execute("subscription { messageSent { body } }")
-        val publisher = executionResult.getData<Publisher<ExecutionResult>>()
-
-        val verifier = StepVerifier.create(publisher)
-            .consumeNextWith {
-                assertThat(
-                    it.getData<Map<String, Map<String, Any>>>()["messageSent"]
-                        ?.get("body") as String
-                ).contains("text1")
-            }
-            .consumeNextWith {
-                assertThat(
-                    it.getData<Map<String, Map<String, Any>>>()["messageSent"]
-                        ?.get("body") as String
-                ).contains("text2")
-            }
-            .thenCancel()
-            .verifyLater()
-
-        val sendText1 = dgsQueryExecutor.executeAndExtractJsonPath<String>(
-            "mutation sendMessage(\$msg: TextMessageInput!) { send(message:\$msg) { body}}",
-            "data.send.body",
-            mapOf("msg" to (mapOf("body" to "text1 message")))
-        )
-        assertThat(sendText1).contains("text1")
-
-        val sendText2 = dgsQueryExecutor.executeAndExtractJsonPath<String>(
-            "mutation sendMessage(\$msg: TextMessageInput!) { send(message:\$msg) { body}}",
-            "data.send.body",
-            mapOf("msg" to (mapOf("body" to "text2 message")))
-        )
-        assertThat(sendText2).contains("text2")
-
-        // verify it now.
-        verifier.verify()
-    }
-}
-```
-
-The ordering is the whole trick. Start the verifier with `verifyLater()`,
-send the messages, and only then call `verify()`: the subscription has to
-be registered before the mutations run, or the first message is emitted
-while nobody is listening.
-
-### Test over the transport
-
-The `DgsQueryExecutor` test never touches the network, so it says nothing
-about the protocol. The integration tests do.
-
-The DGS client library ships two generations of every client. The
-`Dgs`-prefixed names — `DgsRestClientGraphQLClient`,
-`DgsWebClientGraphQLClient`, and `DgsGraphqlSSESubscriptionGraphQLClient` —
-are the Jackson 3 variants that match DGS 12 and Spring Boot 4. The
-unprefixed names — `RestClientGraphQLClient`, `WebClientGraphQLClient`,
-and `GraphqlSSESubscriptionGraphQLClient` — are their Jackson 2
-predecessors. Use the prefixed ones in new code.
-
-For WebSocket, Spring GraphQL ships its own `WebSocketGraphQlClient`:
-
-```kotlin
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-class IntegrationTests {
-
-    @LocalServerPort
-    var port = 0
-
-    lateinit var webClient: DgsWebClientGraphQLClient
-    lateinit var socketClient: WebSocketGraphQlClient
-
-    @BeforeEach
-    fun setup() {
-        val baseUrl = "http://localhost:$port/graphql"
-        this.webClient = DgsWebClientGraphQLClient(WebClient.create(baseUrl))
-
-        val subscriptionUrl = "ws://localhost:$port/graphql"
-        this.socketClient = WebSocketGraphQlClient.create(
-            URI.create(subscriptionUrl),
-            ReactorNettyWebSocketClient()
-        )
-        this.socketClient.start().subscribe()
-    }
-
-    @AfterEach
-    fun teardown() {
-        this.socketClient.stop().subscribe()
-    }
-
-    @Test
-    fun testMessages() {
-        val executionResult = socketClient.document("subscription { messageSent { body } }")
-            .executeSubscription()
-            .map {
-                val messageSent = it.getData<Map<String, Any>>()!!["messageSent"]!! as Map<String, Any>
-                messageSent["body"] as String
-            }
-
-        val verifier = StepVerifier.create(executionResult)
-            .thenAwait(Duration.ofMillis(1500))
-            .consumeNextWith { assertThat(it).isEqualTo("text1") }
-            .consumeNextWith { assertThat(it).isEqualTo("text2") }
-            .thenCancel()
-            .verifyLater()
-
-        // give the websocket subscription time to register on the server before sending,
-        // otherwise the first message may be emitted before the subscription is active
-        Thread.sleep(1000)
-
-        // send the messages over HTTP, then
-        verifier.verify()
-    }
-}
-```
-
-For SSE, DGS ships a client for the GraphQL over SSE protocol:
-
-```kotlin
-package com.example.demo
-
-import com.jayway.jsonpath.TypeRef
-import com.netflix.graphql.dgs.client.DgsGraphqlSSESubscriptionGraphQLClient
-import com.netflix.graphql.dgs.client.DgsRestClientGraphQLClient
-import org.assertj.core.api.Assertions.assertThat
-import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Test
-import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.boot.test.web.server.LocalServerPort
-import org.springframework.web.client.RestClient
-import org.springframework.web.reactive.function.client.WebClient
-import reactor.test.StepVerifier
-
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-class IntegrationTests {
-
-    @LocalServerPort
-    var port = 0;
-
-    // The Dgs-prefixed clients are the Jackson 3 variants; GraphqlSSESubscriptionGraphQLClient and
-    // RestClientGraphQLClient are their Jackson 2 predecessors.
-    lateinit var sseClient: DgsGraphqlSSESubscriptionGraphQLClient
-    lateinit var restClient: DgsRestClientGraphQLClient
-
-    @BeforeEach
-    fun setup() {
-        val baseUrl = "http://localhost:$port/graphql"
-        sseClient = DgsGraphqlSSESubscriptionGraphQLClient(
-            baseUrl,
-            WebClient.create(baseUrl)
-        )
-        restClient = DgsRestClientGraphQLClient(RestClient.builder().baseUrl(baseUrl).build())
-    }
-
-    @Test
-    fun testMessages() {
-        val subscriptionQuery = "subscription { messageSent { body } }"
-        val variables = emptyMap<String, Any>()
-        val result = sseClient.reactiveExecuteQuery(subscriptionQuery, variables).map {
-            it.extractValueAsObject("data.messageSent", object : TypeRef<Map<String, Any>>() {})["body"] as String
-        }
-
-        val verifier = StepVerifier.create(result)
-            .consumeNextWith { assertThat(it).isEqualTo("text1 message") }
-            .consumeNextWith { assertThat(it).isEqualTo("text2 message") }
-            .thenCancel()
-            .verifyLater()
-
-        val sendMessageQuery = "mutation sendMessage(\$msg: TextMessageInput!) { send(message:\$msg) { body}}"
-
-        val sendText1 = restClient.executeQuery(
-            sendMessageQuery,
-            mapOf("msg" to (mapOf("body" to "text1 message")))
-        ).extractValueAsObject("data.send.body", String::class.java)
-        assertThat(sendText1).isEqualTo("text1 message")
-
-        val sendText2 = restClient.executeQuery(
-            sendMessageQuery,
-            mapOf("msg" to (mapOf("body" to "text2 message")))
-        ).extractValueAsObject("data.send.body", String::class.java)
-        assertThat(sendText2).isEqualTo("text2 message")
-
-        //verify it now.
-        verifier.verify();
-
-        val allMessagesQuery = " { messages { body }}"
-
-        val allMessages = restClient.executeQuery(allMessagesQuery, emptyMap<String, Any>())
-            .extractValueAsObject("data.messages[*].body", object : TypeRef<List<String>>() {})
-        assertThat(allMessages).allMatch { s: String -> s.contains("message") }
-    }
-}
-```
-
-Both transports have the same race: the subscription must be active on the
-server before the mutation runs. The WebSocket test waits for it
-explicitly, because the socket handshake adds a round trip that the
-in-process test does not have.
 
 ## Example projects
 
