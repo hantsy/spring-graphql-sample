@@ -238,7 +238,7 @@ class MessagesDataFetcher {
     @DgsSubscription
     fun messageSent(): Publisher<TextMessage> = sink.asFlux()
 
-    private val sink: Many<TextMessage> = Sinks.many().replay().latest()
+    private val sink: Many<TextMessage> = Sinks.many().replay().limit(100)
 
     companion object {
         val STORE = mutableMapOf<String, TextMessage>()
@@ -261,17 +261,17 @@ a broadcasting channel that imperative code pushes into and reactive code
 reads from.
 
 ```kotlin
-private val sink: Many<TextMessage> = Sinks.many().replay().latest()
+private val sink: Many<TextMessage> = Sinks.many().replay().limit(100)
 ```
 
 `Sinks.many()` creates a multi-subscriber sink — every open browser tab
 gets its own subscription to the same stream. `.replay()` buffers what has
 been emitted, so a client that joins late still receives the recent
-messages instead of waiting for the next one to arrive. `.latest()` replays
-just the most recent message, which is enough for a WebSocket client: the
-socket stays open, so a reconnecting client only needs the last message
-before it catches up live. The SSE variant widens the buffer later, because
-its stream is short-lived and reconnects often.
+messages instead of waiting for the next one to arrive. `.limit(100)` caps
+that buffer at the last 100 messages: a late or reconnecting client catches
+up with the recent history and then follows the live stream. The SSE
+server keeps the same buffer, because its stream is short-lived and
+reconnects often.
 
 ```kotlin
 sink.emitNext(msg, Sinks.EmitFailureHandler.FAIL_FAST)
@@ -1071,8 +1071,8 @@ An SSE response is an asynchronous servlet request that stays open for as
 long as the subscription lives, and `spring.mvc.async.request-timeout`
 bounds it: after 45 seconds the server ends the stream.
 
-The SSE transport keeps a larger buffer, because its stream is short-lived
-and the client reconnects often:
+The SSE transport keeps the same 100-message buffer, because its stream is
+short-lived and the client reconnects often:
 
 ```kotlin
 private val sink: Many<TextMessage> = Sinks.many().replay().limit(100)
@@ -1280,7 +1280,7 @@ and the event shows up right away. `Ctrl+C` ends the subscription.
 | Client library | `graphql-ws` | `graphql-sse` |
 | Server dependency | `spring-boot-starter-websocket` | none beyond `spring-boot-starter-webmvc` |
 | Server configuration | `spring.graphql.websocket.*` | `spring.mvc.async.request-timeout` |
-| Replay on reconnect | the latest message | the last 100 messages |
+| Replay on reconnect | latest 100 messages | latest 100 messages |
 | Client link code | Apollo's `GraphQLWsLink`, about 10 lines | a hand-written `ApolloLink`, about 40 lines |
 | Proxy and firewall | needs the upgrade handshake | ordinary HTTP |
 
