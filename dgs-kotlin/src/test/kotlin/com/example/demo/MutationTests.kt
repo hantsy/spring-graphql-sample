@@ -11,7 +11,6 @@ import org.springframework.boot.test.web.server.LocalServerPort
 import org.springframework.context.annotation.Import
 import org.springframework.core.ParameterizedTypeReference
 import org.springframework.http.MediaType
-import org.springframework.test.context.ContextConfiguration
 import org.springframework.test.web.servlet.client.RestTestClient
 
 @SpringBootTest(
@@ -19,7 +18,6 @@ import org.springframework.test.web.servlet.client.RestTestClient
     webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT
 )
 @Import(TestcontainersConfiguration::class)
-@ContextConfiguration(initializers = [TestConfigInitializer::class])
 class MutationTests {
     private val log = LoggerFactory.getLogger(MutationTests::class.java)
 
@@ -67,12 +65,23 @@ class MutationTests {
 
         val errors = body["errors"]
         log.debug("errors: {}", errors)
-        // it prints out:
-        // errors: [{message=org.springframework.security.access.AccessDeniedException: Access is denied,
-        // locations=[], path=[createPost], extensions={errorType=PERMISSION_DENIED}}]
+        // Over HTTP the request goes through the Spring Security filter chain, which puts an
+        // anonymous `Authentication` into the `SecurityContext`. Method security (`@Secured`) then
+        // rejects the call with an `AccessDeniedException`, which DGS maps to PERMISSION_DENIED:
+        // errors: [{message=org.springframework.security.authorization.AuthorizationDeniedException: Access Denied,
+        // path=[createPost], extensions={errorType=PERMISSION_DENIED}}]
         assertThat(errors).isNotEmpty
         // if pr https://github.com/Netflix/dgs-framework/pull/556 is merged.
         //assertThat(errors!![0].extensions["errorType"]).isEqualTo("PERMISSION_DENIED")
+        //
+        // The in-process `DgsQueryExecutor` (see `QueryTests`) does not go through that filter
+        // chain, so the `SecurityContext` stays empty and Spring Security throws
+        // `AuthenticationCredentialsNotFoundException` instead. DGS' default exception handler only
+        // recognises `AccessDeniedException`, so that path reports the error as INTERNAL:
+        // errors: [{message='org.springframework.security.authentication.AuthenticationCredentialsNotFoundException:
+        // An Authentication object was not found in the SecurityContext', path=[createPost],
+        // extensions={errorType=INTERNAL}}]
+        // see `IntegrationTests` for the behaviour a real client sees.
     }
 
     // 1. sign in with user/password

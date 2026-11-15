@@ -164,6 +164,20 @@
 			<artifactId>reactor-test</artifactId>
 			<scope>test</scope>
 		</dependency>
+		<!-- Spring GraphQL's WebSocketGraphQlClient needs the reactive WebSocket client
+		     abstraction, which lives in spring-webflux; the Reactor Netty implementation
+		     behind it needs reactor-netty-http. Both are test scoped, the application
+		     itself is a servlet app. -->
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-webflux</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>io.projectreactor.netty</groupId>
+			<artifactId>reactor-netty-http</artifactId>
+			<scope>test</scope>
+		</dependency>
 		<dependency>
 			<groupId>com.netflix.graphql.dgs</groupId>
 			<artifactId>dgs-starter-test</artifactId>
