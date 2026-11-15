@@ -886,7 +886,8 @@ errors.
 it so the socket closes along with the component. Skip that and the
 connection leaks for the rest of the page's life.
 
-The template:
+Here is the template that puts it all on the page — the message list, the
+connection banner and the error banner:
 
 ```html
 <main class="container">
