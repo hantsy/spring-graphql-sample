@@ -8,13 +8,11 @@ A chat application has three core responsibilities: load message history, send n
 
 ## Prepare prerequisites
 
-Before you begin, install the following tools:
+Before you begin, install or prepare the following:
 
-| Tool | Version | Purpose |
-| ---- | ------- | ------- |
-| JDK | 25 | Runs samples on Spring Boot 4.1.2 and Kotlin 2.4.x |
-| Node.js | 24 | Runs Angular 22 clients and the Vitest test runner |
-| Git | Any | Required only if you plan to clone the sample repository |
+- JDK 25. The samples target Spring Boot 4.1.2 and Kotlin 2.4.x.
+- Node.js 24. The Angular clients use Angular 22 and the Vitest test runner.
+- Git, if you want to clone and run the sample repository.
 
 You do not need to install Maven separately. Spring Initializr generates a wrapper script (`mvnw`, or `mvnw.cmd` on Windows) in the project.
 
@@ -1413,13 +1411,17 @@ The component-based and signal-based implementations differ in these areas:
 
 Each step in this tutorial maps to a module in the [spring-graphql-sample repository](https://github.com/hantsy/spring-graphql-sample):
 
-| Module | Description |
-| ------ | ----------- |
-| [`dgs-subscription-ws`](https://github.com/hantsy/spring-graphql-sample/tree/master/dgs-subscription-ws) | DGS server with WebSocket subscriptions |
-| [`dgs-subscription-ui`](https://github.com/hantsy/spring-graphql-sample/tree/master/dgs-subscription-ui) | Angular component-based client with WebSocket transport |
-| [`dgs-subscription-ui-signals`](https://github.com/hantsy/spring-graphql-sample/tree/master/dgs-subscription-ui-signals) | Angular signals-based client with WebSocket transport |
-| [`dgs-subscription-sse`](https://github.com/hantsy/spring-graphql-sample/tree/master/dgs-subscription-sse) | DGS server with SSE subscriptions |
-| [`dgs-subscription-ui-sse`](https://github.com/hantsy/spring-graphql-sample/tree/master/dgs-subscription-ui-sse) | Angular component-based client with SSE transport |
-| [`dgs-subscription-ui-sse-signals`](https://github.com/hantsy/spring-graphql-sample/tree/master/dgs-subscription-ui-sse-signals) | Angular signals-based client with SSE transport |
+- [`dgs-subscription-ws`](https://github.com/hantsy/spring-graphql-sample/tree/master/dgs-subscription-ws)
+  implements the DGS server with WebSocket subscriptions.
+- [`dgs-subscription-ui`](https://github.com/hantsy/spring-graphql-sample/tree/master/dgs-subscription-ui)
+  provides the Angular component-based client with WebSocket transport.
+- [`dgs-subscription-ui-signals`](https://github.com/hantsy/spring-graphql-sample/tree/master/dgs-subscription-ui-signals)
+  provides the Angular signals-based client with WebSocket transport.
+- [`dgs-subscription-sse`](https://github.com/hantsy/spring-graphql-sample/tree/master/dgs-subscription-sse)
+  implements the DGS server with SSE subscriptions.
+- [`dgs-subscription-ui-sse`](https://github.com/hantsy/spring-graphql-sample/tree/master/dgs-subscription-ui-sse)
+  provides the Angular component-based client with SSE transport.
+- [`dgs-subscription-ui-sse-signals`](https://github.com/hantsy/spring-graphql-sample/tree/master/dgs-subscription-ui-sse-signals)
+  provides the Angular signals-based client with SSE transport.
 
 For broader DGS coverage, see [Building GraphQL APIs with Netflix DGS](./start.md). For protocol details behind WebSocket and SSE subscriptions, see [An introduction to GraphQL and Spring](../intro.md).
