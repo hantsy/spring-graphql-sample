@@ -3,11 +3,9 @@ package com.example.demo
 import com.jayway.jsonpath.TypeRef
 import com.netflix.graphql.dgs.client.DgsWebClientGraphQLClient
 import org.assertj.core.api.Assertions.assertThat
-import org.intellij.lang.annotations.Language
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.junit.platform.commons.logging.LoggerFactory
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.web.server.LocalServerPort
 import org.springframework.graphql.client.WebSocketGraphQlClient
@@ -16,15 +14,12 @@ import org.springframework.web.reactive.socket.client.ReactorNettyWebSocketClien
 import reactor.test.StepVerifier
 import java.net.URI
 import java.time.Duration
-import java.util.concurrent.CountDownLatch
-import java.util.concurrent.TimeUnit
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class IntegrationTests {
-    companion object {
-        private val log = LoggerFactory.getLogger(IntegrationTests::class.java)
-    }
-    // DgsWebClientGraphQLClient is the Jackson 3 variant of the Jackson 2 based WebClientGraphQLClient
+
+    // DgsWebClientGraphQLClient is the Jackson 3 variant of the Jackson 2 based WebClientGraphQLClient,
+    // and the subscription runs over Spring GraphQL's own WebSocketGraphQlClient.
     lateinit var webClient: DgsWebClientGraphQLClient
     lateinit var socketClient: WebSocketGraphQlClient
 
@@ -39,26 +34,20 @@ class IntegrationTests {
         val subscriptionUrl = "ws://localhost:$port/graphql"
         this.socketClient = WebSocketGraphQlClient.create(URI.create(subscriptionUrl), ReactorNettyWebSocketClient())
         this.socketClient.start().subscribe()
-    //        val latch = CountDownLatch(1)
-//        this.socketClient.start().doOnTerminate { latch.countDown() }.subscribe()
-//        latch.await(500, TimeUnit.MILLISECONDS)
     }
 
     @AfterEach
     fun teardown() {
         this.socketClient.stop().subscribe()
-//        val latch = CountDownLatch(1)
-//        this.socketClient.stop().doOnTerminate { latch.countDown() }.subscribe()
-//        latch.await(500, TimeUnit.MILLISECONDS)
     }
 
     @Test
     fun testMessages() {
-        @Language("graphql") val messageSentSubscriptionQuery = """
-            subscription { 
-                messageSent { 
-                    body 
-                } 
+        val messageSentSubscriptionQuery = """
+            subscription {
+                messageSent {
+                    body
+                }
             }
             """.trimIndent()
 
@@ -81,9 +70,9 @@ class IntegrationTests {
         // otherwise the first message may be emitted before the subscription is active
         Thread.sleep(1000)
 
-        @Language("graphql") val sendMessageQuery = """
+        val sendMessageQuery = """
             mutation sendMessage(${'$'}msg: TextMessageInput!) {
-                 send(message:${'$'}msg) { 
+                 send(message:${'$'}msg) {
                     body
                  }
              }
@@ -103,9 +92,9 @@ class IntegrationTests {
         //verify it now.
         verifier.verify()
 
-        @Language("graphql") val allMessagesQuery = """
-            query allMessages { 
-                messages { 
+        val allMessagesQuery = """
+            query allMessages {
+                messages {
                     body
                 }
             }
