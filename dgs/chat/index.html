@@ -492,6 +492,17 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#why-websocket-first" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Why WebSocket first
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#prerequisites" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -670,10 +681,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#the-sse-transport-link" class="md-nav__link">
+  <a href="#the-websocket-transport-link" class="md-nav__link">
     <span class="md-ellipsis">
       
-        The SSE transport link
+        The WebSocket transport link
       
     </span>
   </a>
@@ -758,15 +769,15 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#step-7-switch-to-websocket-subscriptions" class="md-nav__link">
+  <a href="#step-7-switch-to-sse-subscriptions" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Step 7: Switch to WebSocket subscriptions
+        Step 7: Switch to SSE subscriptions
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Step 7: Switch to WebSocket subscriptions">
+    <nav class="md-nav" aria-label="Step 7: Switch to SSE subscriptions">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -792,10 +803,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#what-changed-and-what-did-not" class="md-nav__link">
+  <a href="#try-it-again" class="md-nav__link">
     <span class="md-ellipsis">
       
-        What changed, and what did not
+        Try it again
       
     </span>
   </a>
@@ -803,10 +814,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#try-it-again" class="md-nav__link">
+  <a href="#what-changed-and-what-did-not" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Try it again
+        What changed, and what did not
       
     </span>
   </a>
@@ -961,6 +972,17 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#why-websocket-first" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Why WebSocket first
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#prerequisites" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1139,10 +1161,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#the-sse-transport-link" class="md-nav__link">
+  <a href="#the-websocket-transport-link" class="md-nav__link">
     <span class="md-ellipsis">
       
-        The SSE transport link
+        The WebSocket transport link
       
     </span>
   </a>
@@ -1227,15 +1249,15 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#step-7-switch-to-websocket-subscriptions" class="md-nav__link">
+  <a href="#step-7-switch-to-sse-subscriptions" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Step 7: Switch to WebSocket subscriptions
+        Step 7: Switch to SSE subscriptions
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Step 7: Switch to WebSocket subscriptions">
+    <nav class="md-nav" aria-label="Step 7: Switch to SSE subscriptions">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -1261,10 +1283,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#what-changed-and-what-did-not" class="md-nav__link">
+  <a href="#try-it-again" class="md-nav__link">
     <span class="md-ellipsis">
       
-        What changed, and what did not
+        Try it again
       
     </span>
   </a>
@@ -1272,10 +1294,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#try-it-again" class="md-nav__link">
+  <a href="#what-changed-and-what-did-not" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Try it again
+        What changed, and what did not
       
     </span>
   </a>
@@ -1413,11 +1435,29 @@ operation types: a <strong>query</strong> to load the history, a <strong>mutatio
 message, and a <strong>subscription</strong> to push new messages to every connected
 client. In this tutorial you build exactly that application with the Netflix
 DGS framework on the server and Angular on the client.</p>
-<p>You will build it twice. First over <strong>Server-Sent Events (SSE)</strong>, where the
-subscription is an ordinary HTTP response that stays open. Then over
-<strong>WebSocket</strong>, where the subscription rides a persistent socket. On the client
+<p>You will build it twice. First over <strong>WebSocket</strong>, where the subscription
+rides a persistent socket. Then over <strong>Server-Sent Events (SSE)</strong>, where the
+subscription is an ordinary HTTP response that stays open. On the client
 side you will build the UI twice as well: once with the classic Angular
 component API, and once with <strong>signals</strong>.</p>
+<h2 id="why-websocket-first">Why WebSocket first<a class="headerlink" href="#why-websocket-first" title="Permanent link">&para;</a></h2>
+<p>The two transports are not equally hard, and the difference shows up mostly
+on the client:</p>
+<ul>
+<li><strong>WebSocket</strong> is the transport Apollo Client ships a link for. The
+  <code>GraphQLWsLink</code> from <code>@apollo/client/link/subscriptions</code> is about ten
+  lines, and the <code>graphql-ws</code> package handles the handshake, the heartbeats,
+  and the reconnection for you.</li>
+<li><strong>SSE</strong> has no first-party Apollo link. The server side is arguably
+  simpler — an SSE subscription is just a long-lived HTTP response, so the
+  server needs no extra dependency at all — but the client has to wrap the
+  <code>graphql-sse</code> package in a hand-written <code>ApolloLink</code> that translates
+  Apollo operations into SSE requests.</li>
+</ul>
+<p>Starting with WebSocket gets you a working chat before you write any
+transport plumbing. The SSE switch that follows is then a short, focused
+exercise: swap one link for another, and watch the browser hold an
+event-stream response open instead of a socket.</p>
 <p>The examples correspond to working modules in the
 <a href="https://github.com/hantsy/spring-graphql-sample">spring-graphql-sample repository</a>:</p>
 <table>
@@ -1429,20 +1469,8 @@ component API, and once with <strong>signals</strong>.</p>
 </thead>
 <tbody>
 <tr>
-<td><a href="https://github.com/hantsy/spring-graphql-sample/tree/master/dgs-subscription-sse"><code>dgs-subscription-sse</code></a></td>
-<td>DGS server, subscriptions over SSE</td>
-</tr>
-<tr>
 <td><a href="https://github.com/hantsy/spring-graphql-sample/tree/master/dgs-subscription-ws"><code>dgs-subscription-ws</code></a></td>
 <td>DGS server, subscriptions over WebSocket</td>
-</tr>
-<tr>
-<td><a href="https://github.com/hantsy/spring-graphql-sample/tree/master/dgs-subscription-ui-sse"><code>dgs-subscription-ui-sse</code></a></td>
-<td>Angular client, components, SSE transport</td>
-</tr>
-<tr>
-<td><a href="https://github.com/hantsy/spring-graphql-sample/tree/master/dgs-subscription-ui-sse-signals"><code>dgs-subscription-ui-sse-signals</code></a></td>
-<td>Angular client, signals, SSE transport</td>
 </tr>
 <tr>
 <td><a href="https://github.com/hantsy/spring-graphql-sample/tree/master/dgs-subscription-ui"><code>dgs-subscription-ui</code></a></td>
@@ -1451,6 +1479,18 @@ component API, and once with <strong>signals</strong>.</p>
 <tr>
 <td><a href="https://github.com/hantsy/spring-graphql-sample/tree/master/dgs-subscription-ui-signals"><code>dgs-subscription-ui-signals</code></a></td>
 <td>Angular client, signals, WebSocket transport</td>
+</tr>
+<tr>
+<td><a href="https://github.com/hantsy/spring-graphql-sample/tree/master/dgs-subscription-sse"><code>dgs-subscription-sse</code></a></td>
+<td>DGS server, subscriptions over SSE</td>
+</tr>
+<tr>
+<td><a href="https://github.com/hantsy/spring-graphql-sample/tree/master/dgs-subscription-ui-sse"><code>dgs-subscription-ui-sse</code></a></td>
+<td>Angular client, components, SSE transport</td>
+</tr>
+<tr>
+<td><a href="https://github.com/hantsy/spring-graphql-sample/tree/master/dgs-subscription-ui-sse-signals"><code>dgs-subscription-ui-sse-signals</code></a></td>
+<td>Angular client, signals, SSE transport</td>
 </tr>
 </tbody>
 </table>
@@ -1534,7 +1574,7 @@ client needs no second API and no second contract to maintain.</p>
 <li>Stories 1 and 2 are ordinary GraphQL operations. They work over plain HTTP
   and need no special server setup.</li>
 <li>Story 3 is the only one that needs a <strong>long-lived connection</strong>. This is
-  where the transport decision — SSE or WebSocket — actually matters.</li>
+  where the transport decision — WebSocket or SSE — actually matters.</li>
 <li>Story 4 cannot be expressed in the schema. A subscription that silently
   dies looks exactly like a chat room where nobody is talking. The client
   therefore has to observe the transport directly, and every client in this
@@ -1585,22 +1625,35 @@ in memory, which keeps the focus on the subscription stream.</p>
 <a id="__codelineno-0-27" name="__codelineno-0-27" href="#__codelineno-0-27"></a><span class="w">        </span><span class="nt">&lt;artifactId&gt;</span>spring-boot-starter-webmvc<span class="nt">&lt;/artifactId&gt;</span>
 <a id="__codelineno-0-28" name="__codelineno-0-28" href="#__codelineno-0-28"></a><span class="w">    </span><span class="nt">&lt;/dependency&gt;</span>
 <a id="__codelineno-0-29" name="__codelineno-0-29" href="#__codelineno-0-29"></a><span class="w">    </span><span class="nt">&lt;dependency&gt;</span>
-<a id="__codelineno-0-30" name="__codelineno-0-30" href="#__codelineno-0-30"></a><span class="w">        </span><span class="nt">&lt;groupId&gt;</span>io.projectreactor<span class="nt">&lt;/groupId&gt;</span>
-<a id="__codelineno-0-31" name="__codelineno-0-31" href="#__codelineno-0-31"></a><span class="w">        </span><span class="nt">&lt;artifactId&gt;</span>reactor-core<span class="nt">&lt;/artifactId&gt;</span>
+<a id="__codelineno-0-30" name="__codelineno-0-30" href="#__codelineno-0-30"></a><span class="w">        </span><span class="nt">&lt;groupId&gt;</span>org.springframework.boot<span class="nt">&lt;/groupId&gt;</span>
+<a id="__codelineno-0-31" name="__codelineno-0-31" href="#__codelineno-0-31"></a><span class="w">        </span><span class="nt">&lt;artifactId&gt;</span>spring-boot-starter-websocket<span class="nt">&lt;/artifactId&gt;</span>
 <a id="__codelineno-0-32" name="__codelineno-0-32" href="#__codelineno-0-32"></a><span class="w">    </span><span class="nt">&lt;/dependency&gt;</span>
 <a id="__codelineno-0-33" name="__codelineno-0-33" href="#__codelineno-0-33"></a><span class="w">    </span><span class="nt">&lt;dependency&gt;</span>
-<a id="__codelineno-0-34" name="__codelineno-0-34" href="#__codelineno-0-34"></a><span class="w">        </span><span class="nt">&lt;groupId&gt;</span>org.jetbrains.kotlin<span class="nt">&lt;/groupId&gt;</span>
-<a id="__codelineno-0-35" name="__codelineno-0-35" href="#__codelineno-0-35"></a><span class="w">        </span><span class="nt">&lt;artifactId&gt;</span>kotlin-stdlib<span class="nt">&lt;/artifactId&gt;</span>
+<a id="__codelineno-0-34" name="__codelineno-0-34" href="#__codelineno-0-34"></a><span class="w">        </span><span class="nt">&lt;groupId&gt;</span>io.projectreactor<span class="nt">&lt;/groupId&gt;</span>
+<a id="__codelineno-0-35" name="__codelineno-0-35" href="#__codelineno-0-35"></a><span class="w">        </span><span class="nt">&lt;artifactId&gt;</span>reactor-core<span class="nt">&lt;/artifactId&gt;</span>
 <a id="__codelineno-0-36" name="__codelineno-0-36" href="#__codelineno-0-36"></a><span class="w">    </span><span class="nt">&lt;/dependency&gt;</span>
 <a id="__codelineno-0-37" name="__codelineno-0-37" href="#__codelineno-0-37"></a><span class="w">    </span><span class="nt">&lt;dependency&gt;</span>
 <a id="__codelineno-0-38" name="__codelineno-0-38" href="#__codelineno-0-38"></a><span class="w">        </span><span class="nt">&lt;groupId&gt;</span>org.jetbrains.kotlin<span class="nt">&lt;/groupId&gt;</span>
-<a id="__codelineno-0-39" name="__codelineno-0-39" href="#__codelineno-0-39"></a><span class="w">        </span><span class="nt">&lt;artifactId&gt;</span>kotlin-reflect<span class="nt">&lt;/artifactId&gt;</span>
+<a id="__codelineno-0-39" name="__codelineno-0-39" href="#__codelineno-0-39"></a><span class="w">        </span><span class="nt">&lt;artifactId&gt;</span>kotlin-stdlib<span class="nt">&lt;/artifactId&gt;</span>
 <a id="__codelineno-0-40" name="__codelineno-0-40" href="#__codelineno-0-40"></a><span class="w">    </span><span class="nt">&lt;/dependency&gt;</span>
-<a id="__codelineno-0-41" name="__codelineno-0-41" href="#__codelineno-0-41"></a><span class="nt">&lt;/dependencies&gt;</span>
+<a id="__codelineno-0-41" name="__codelineno-0-41" href="#__codelineno-0-41"></a><span class="w">    </span><span class="nt">&lt;dependency&gt;</span>
+<a id="__codelineno-0-42" name="__codelineno-0-42" href="#__codelineno-0-42"></a><span class="w">        </span><span class="nt">&lt;groupId&gt;</span>org.jetbrains.kotlin<span class="nt">&lt;/groupId&gt;</span>
+<a id="__codelineno-0-43" name="__codelineno-0-43" href="#__codelineno-0-43"></a><span class="w">        </span><span class="nt">&lt;artifactId&gt;</span>kotlin-reflect<span class="nt">&lt;/artifactId&gt;</span>
+<a id="__codelineno-0-44" name="__codelineno-0-44" href="#__codelineno-0-44"></a><span class="w">    </span><span class="nt">&lt;/dependency&gt;</span>
+<a id="__codelineno-0-45" name="__codelineno-0-45" href="#__codelineno-0-45"></a><span class="nt">&lt;/dependencies&gt;</span>
 </code></pre></div>
-<p>The <code>dgs-starter</code> dependency configures DGS and its GraphQL execution
-support, <code>spring-boot-starter-webmvc</code> provides the HTTP endpoint, and
-<code>reactor-core</code> supplies the reactive types the subscription returns.</p>
+<p>The dependencies serve these roles:</p>
+<ul>
+<li><code>dgs-starter</code> configures DGS and its GraphQL execution support.</li>
+<li><code>spring-boot-starter-webmvc</code> provides the HTTP endpoint.</li>
+<li><code>spring-boot-starter-websocket</code> enables the WebSocket transport. The
+  GraphQL WebSocket endpoint is disabled by default in Spring GraphQL, and
+  for a servlet application this starter is what turns it on.</li>
+<li><code>reactor-core</code> supplies the reactive types the subscription returns.</li>
+</ul>
+<p>The WebSocket starter is only needed for the WebSocket transport. When you
+switch to SSE in Step 7, the server does not need it at all — the SSE
+subscription is served by the HTTP endpoint.</p>
 <p>Configure the Kotlin compiler and the DGS code generation plugin in the
 build section. The code generator reads the SDL and produces Kotlin data
 classes and a typed Java client API, so the fetchers do not hand-write
@@ -1694,6 +1747,11 @@ subscription delivers it. The mutation response exists for correctness and
 for error reporting, not for the happy path. Second, <code>messageSent</code> returns
 a single message per event, not a list: a subscription delivers one result
 at a time, and the stream of events is the list.</p>
+<p>Notice also that nothing in the schema mentions the transport. The same
+schema serves the WebSocket version and the SSE version, and the same
+<code>@DgsSubscription</code> method backs both. That is the payoff of keeping the
+transport out of the schema — and the reason the SSE switch later is a
+client-side change plus two properties.</p>
 <h2 id="step-4-implement-the-dgs-data-fetchers">Step 4: Implement the DGS data fetchers<a class="headerlink" href="#step-4-implement-the-dgs-data-fetchers" title="Permanent link">&para;</a></h2>
 <p><strong>A data fetcher</strong> resolves a GraphQL schema field. Mark the containing class
 with <code>@DgsComponent</code>, then bind methods to schema fields with DGS
@@ -1722,7 +1780,7 @@ client.</p>
 <a id="__codelineno-3-19" name="__codelineno-3-19" href="#__codelineno-3-19"></a><span class="w">    </span><span class="nd">@DgsSubscription</span>
 <a id="__codelineno-3-20" name="__codelineno-3-20" href="#__codelineno-3-20"></a><span class="w">    </span><span class="kd">fun</span><span class="w"> </span><span class="nf">messageSent</span><span class="p">():</span><span class="w"> </span><span class="n">Publisher</span><span class="o">&lt;</span><span class="n">TextMessage</span><span class="o">&gt;</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">sink</span><span class="p">.</span><span class="na">asFlux</span><span class="p">()</span>
 <a id="__codelineno-3-21" name="__codelineno-3-21" href="#__codelineno-3-21"></a>
-<a id="__codelineno-3-22" name="__codelineno-3-22" href="#__codelineno-3-22"></a><span class="w">    </span><span class="kd">private</span><span class="w"> </span><span class="kd">val</span><span class="w"> </span><span class="nv">sink</span><span class="p">:</span><span class="w"> </span><span class="n">Many</span><span class="o">&lt;</span><span class="n">TextMessage</span><span class="o">&gt;</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Sinks</span><span class="p">.</span><span class="na">many</span><span class="p">().</span><span class="na">replay</span><span class="p">().</span><span class="na">latest</span><span class="p">()</span>
+<a id="__codelineno-3-22" name="__codelineno-3-22" href="#__codelineno-3-22"></a><span class="w">    </span><span class="kd">private</span><span class="w"> </span><span class="kd">val</span><span class="w"> </span><span class="nv">sink</span><span class="p">:</span><span class="w"> </span><span class="n">Many</span><span class="o">&lt;</span><span class="n">TextMessage</span><span class="o">&gt;</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Sinks</span><span class="p">.</span><span class="na">many</span><span class="p">().</span><span class="na">replay</span><span class="p">().</span><span class="na">limit</span><span class="p">(</span><span class="m">100</span><span class="p">)</span>
 <a id="__codelineno-3-23" name="__codelineno-3-23" href="#__codelineno-3-23"></a>
 <a id="__codelineno-3-24" name="__codelineno-3-24" href="#__codelineno-3-24"></a><span class="w">    </span><span class="kd">companion</span><span class="w"> </span><span class="kd">object</span><span class="w"> </span><span class="p">{</span>
 <a id="__codelineno-3-25" name="__codelineno-3-25" href="#__codelineno-3-25"></a><span class="w">        </span><span class="kd">val</span><span class="w"> </span><span class="nv">STORE</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">mutableMapOf</span><span class="o">&lt;</span><span class="kt">String</span><span class="p">,</span><span class="w"> </span><span class="n">TextMessage</span><span class="o">&gt;</span><span class="p">()</span>
@@ -1743,7 +1801,7 @@ client.</p>
 <p>The heart of a chat server is the <strong>sink</strong> — a Reactor <code>Sinks.Many</code>, which
 is a broadcasting channel that your imperative code pushes into and your
 reactive code reads from.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="kd">private</span><span class="w"> </span><span class="kd">val</span><span class="w"> </span><span class="nv">sink</span><span class="p">:</span><span class="w"> </span><span class="n">Many</span><span class="o">&lt;</span><span class="n">TextMessage</span><span class="o">&gt;</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Sinks</span><span class="p">.</span><span class="na">many</span><span class="p">().</span><span class="na">replay</span><span class="p">().</span><span class="na">latest</span><span class="p">()</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="kd">private</span><span class="w"> </span><span class="kd">val</span><span class="w"> </span><span class="nv">sink</span><span class="p">:</span><span class="w"> </span><span class="n">Many</span><span class="o">&lt;</span><span class="n">TextMessage</span><span class="o">&gt;</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Sinks</span><span class="p">.</span><span class="na">many</span><span class="p">().</span><span class="na">replay</span><span class="p">().</span><span class="na">limit</span><span class="p">(</span><span class="m">100</span><span class="p">)</span>
 </code></pre></div>
 <p>Three parts, each doing a job:</p>
 <ul>
@@ -1752,10 +1810,11 @@ reactive code reads from.</p>
 <li><code>.replay()</code> buffers emitted values so that a subscriber joining later
   still receives them. Without replay, a client that opens the page after
   the conversation started would see nothing until the next message.</li>
-<li><code>.latest()</code> replays only the most recent value. The WebSocket variant
-  uses <code>.limit(100)</code> instead, replaying the last hundred values to a client
-  that reconnects; SSE keeps only the latest because its stream is short
-  lived and reconnecting frequently.</li>
+<li><code>.limit(100)</code> replays the last hundred values to a subscriber that joins
+  late or reconnects. A WebSocket connection is long-lived, so a client
+  that was briefly disconnected can catch up in one burst instead of
+  missing the conversation. Step 7 narrows this to the latest message only,
+  because an SSE stream is short-lived and reconnects often.</li>
 </ul>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="n">sink</span><span class="p">.</span><span class="na">emitNext</span><span class="p">(</span><span class="n">msg</span><span class="p">,</span><span class="w"> </span><span class="n">Sinks</span><span class="p">.</span><span class="na">EmitFailureHandler</span><span class="p">.</span><span class="na">FAIL_FAST</span><span class="p">)</span>
 </code></pre></div>
@@ -1827,30 +1886,35 @@ production. Restrict it to the origins you actually serve, for example
 <p>Create <code>src/main/resources/application.properties</code>:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="na">logging.level.com.example</span><span class="o">=</span><span class="s">DEBUG</span>
 <a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a><span class="na">logging.level.web</span><span class="o">=</span><span class="s">DEBUG</span>
-<a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a><span class="na">logging.level.com.netflix.graphql.dgs</span><span class="o">=</span><span class="s">TRACE</span>
+<a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a><span class="na">logging.level.reactor.core.publisher</span><span class="o">=</span><span class="s">TRACE</span>
 <a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a>
-<a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a><span class="na">spring.mvc.async.request-timeout</span><span class="o">=</span><span class="s">45000</span>
+<a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a><span class="na">spring.graphql.websocket.path</span><span class="o">=</span><span class="s">/graphql</span>
+<a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a><span class="na">spring.graphql.websocket.connection-init-timeout</span><span class="o">=</span><span class="s">30s</span>
+<a id="__codelineno-9-7" name="__codelineno-9-7" href="#__codelineno-9-7"></a><span class="na">spring.graphql.websocket.keep-alive</span><span class="o">=</span><span class="s">60s</span>
 </code></pre></div>
-<p>The last property is the one that matters for SSE. An SSE response is an
-asynchronous servlet request that stays open for the whole life of the
-subscription, and <code>spring.mvc.async.request-timeout</code> bounds it: after 45
-seconds the server ends the stream.</p>
-<p>The <code>graphql-sse</code> client treats that as a retryable disconnect and reconnects
-on its own — five attempts with a randomised exponential backoff by default,
-tunable through the <code>retryAttempts</code> and <code>retry</code> options. A client that
-reconnects picks up the most recent message from the sink's replay buffer.
-The WebSocket variant later widens that buffer to the last hundred messages.</p>
+<p>The three <code>spring.graphql.websocket.*</code> properties enable and tune the
+WebSocket endpoint:</p>
+<ul>
+<li><code>spring.graphql.websocket.path</code> turns the endpoint on and gives it a
+  path. It is the same <code>/graphql</code> path as the HTTP endpoint — the upgrade
+  request header tells the server which protocol to speak.</li>
+<li><code>connection-init-timeout</code> bounds how long the server waits for the
+  client's <code>connection_init</code> message before closing the socket.</li>
+<li><code>keep-alive</code> makes the server send a <code>ping</code> frame when the connection
+  has been idle. Without it, a chat that nobody is talking in is exactly
+  the case a proxy is most likely to drop.</li>
+</ul>
 <h2 id="step-5-build-the-angular-client">Step 5: Build the Angular client<a class="headerlink" href="#step-5-build-the-angular-client" title="Permanent link">&para;</a></h2>
 <p>The client is a single-page chat: a list of messages, a text field, and a
-send button. It uses <strong>Apollo Client</strong> through <strong>apollo-angular</strong>, with a
-custom transport link for the subscription.</p>
+send button. It uses <strong>Apollo Client</strong> through <strong>apollo-angular</strong>, with the
+subscription routed to a WebSocket transport link.</p>
 <h3 id="create-the-project">Create the project<a class="headerlink" href="#create-the-project" title="Permanent link">&para;</a></h3>
 <p>Generate the Angular application with the CLI:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>ng<span class="w"> </span>new<span class="w"> </span>dgs-subscription-ui-sse<span class="w"> </span>--style<span class="o">=</span>scss<span class="w"> </span>--routing<span class="o">=</span><span class="nb">false</span><span class="w"> </span>--skip-git
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>ng<span class="w"> </span>new<span class="w"> </span>dgs-subscription-ui<span class="w"> </span>--style<span class="o">=</span>scss<span class="w"> </span>--routing<span class="o">=</span><span class="nb">false</span><span class="w"> </span>--skip-git
 </code></pre></div>
 <p>Add Angular Material for the form controls, then install the GraphQL
 dependencies:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>npm<span class="w"> </span>install<span class="w"> </span>@apollo/client<span class="w"> </span>apollo-angular<span class="w"> </span>graphql<span class="w"> </span>graphql-sse
+<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>npm<span class="w"> </span>install<span class="w"> </span>@apollo/client<span class="w"> </span>apollo-angular<span class="w"> </span>graphql<span class="w"> </span>graphql-ws
 </code></pre></div>
 <table>
 <thead>
@@ -1873,17 +1937,19 @@ dependencies:</p>
 <td>The document AST that the links print</td>
 </tr>
 <tr>
-<td><code>graphql-sse</code></td>
-<td>The GraphQL over SSE client</td>
+<td><code>graphql-ws</code></td>
+<td>The GraphQL over WebSocket client</td>
 </tr>
 </tbody>
 </table>
 <h3 id="the-endpoint-configuration">The endpoint configuration<a class="headerlink" href="#the-endpoint-configuration" title="Permanent link">&para;</a></h3>
 <p>Create <code>src/app/config.ts</code>:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="k">export</span><span class="w"> </span><span class="kd">const</span><span class="w"> </span><span class="nx">GRAPHQL_HTTP_URL</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'http://localhost:8080/graphql'</span><span class="p">;</span>
+<a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a><span class="k">export</span><span class="w"> </span><span class="kd">const</span><span class="w"> </span><span class="nx">GRAPHQL_WS_URL</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'ws://localhost:8080/graphql'</span><span class="p">;</span>
 </code></pre></div>
-<p>One URL serves everything. The SSE transport is distinguished by the
-<code>Accept: text/event-stream</code> header, not by a different address.</p>
+<p>Two URLs, because two protocols. Queries and mutations go over HTTP, and
+the subscription goes over the socket. The paths are identical — the scheme
+and the upgrade header are what differ.</p>
 <h3 id="the-graphql-documents">The GraphQL documents<a class="headerlink" href="#the-graphql-documents" title="Permanent link">&para;</a></h3>
 <p>Create <code>src/app/graphql/messages.ts</code>:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">gql</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">'apollo-angular'</span><span class="p">;</span>
@@ -1964,78 +2030,37 @@ dependencies:</p>
 function that stitches the subscription into the query result, and
 <code>describeError</code> turns the many shapes Apollo errors take into one line of
 text for the banner.</p>
-<h3 id="the-sse-transport-link">The SSE transport link<a class="headerlink" href="#the-sse-transport-link" title="Permanent link">&para;</a></h3>
-<p>Apollo ships a WebSocket subscription link, but there is no first-party
-Apollo link for SSE. Wrap the <code>graphql-sse</code> client in an <code>ApolloLink</code>
-instead. Create <code>src/app/transport/sse-link.ts</code>:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">ApolloLink</span><span class="p">,</span><span class="w"> </span><span class="kr">type</span><span class="w"> </span><span class="nx">FetchResult</span><span class="p">,</span><span class="w"> </span><span class="kr">type</span><span class="w"> </span><span class="nx">Operation</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">'@apollo/client'</span><span class="p">;</span>
-<a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">print</span><span class="p">,</span><span class="w"> </span><span class="kr">type</span><span class="w"> </span><span class="nx">DocumentNode</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">'graphql'</span><span class="p">;</span>
-<a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">createClient</span><span class="p">,</span><span class="w"> </span><span class="kr">type</span><span class="w"> </span><span class="nx">Client</span><span class="p">,</span><span class="w"> </span><span class="kr">type</span><span class="w"> </span><span class="nx">ClientOptions</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">'graphql-sse'</span><span class="p">;</span>
-<a id="__codelineno-14-4" name="__codelineno-14-4" href="#__codelineno-14-4"></a><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">BehaviorSubject</span><span class="p">,</span><span class="w"> </span><span class="nx">Observable</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">'rxjs'</span><span class="p">;</span>
-<a id="__codelineno-14-5" name="__codelineno-14-5" href="#__codelineno-14-5"></a>
-<a id="__codelineno-14-6" name="__codelineno-14-6" href="#__codelineno-14-6"></a><span class="k">export</span><span class="w"> </span><span class="kr">type</span><span class="w"> </span><span class="nx">ConnectionState</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'idle'</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s1">'connecting'</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s1">'open'</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s1">'closed'</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s1">'error'</span><span class="p">;</span>
-<a id="__codelineno-14-7" name="__codelineno-14-7" href="#__codelineno-14-7"></a>
-<a id="__codelineno-14-8" name="__codelineno-14-8" href="#__codelineno-14-8"></a><span class="c1">// A dropped stream does not surface through QueryRef.valueChanges, so the transport</span>
-<a id="__codelineno-14-9" name="__codelineno-14-9" href="#__codelineno-14-9"></a><span class="c1">// publishes its own state for the component to render as a banner.</span>
-<a id="__codelineno-14-10" name="__codelineno-14-10" href="#__codelineno-14-10"></a><span class="k">export</span><span class="w"> </span><span class="kd">const</span><span class="w"> </span><span class="nx">connectionState$</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">BehaviorSubject</span><span class="o">&lt;</span><span class="nx">ConnectionState</span><span class="o">&gt;</span><span class="p">(</span><span class="s1">'idle'</span><span class="p">);</span>
-<a id="__codelineno-14-11" name="__codelineno-14-11" href="#__codelineno-14-11"></a>
-<a id="__codelineno-14-12" name="__codelineno-14-12" href="#__codelineno-14-12"></a><span class="c1">// graphql-sse exposes only connecting/message/connected at client level. The closed</span>
-<a id="__codelineno-14-13" name="__codelineno-14-13" href="#__codelineno-14-13"></a><span class="c1">// and error transitions are detected in the link's sink instead, see request() below.</span>
-<a id="__codelineno-14-14" name="__codelineno-14-14" href="#__codelineno-14-14"></a><span class="k">export</span><span class="w"> </span><span class="kd">const</span><span class="w"> </span><span class="nx">sseClientListeners</span><span class="o">:</span><span class="w"> </span><span class="kt">NonNullable</span><span class="o">&lt;</span><span class="nx">ClientOptions</span><span class="o">&lt;</span><span class="kc">false</span><span class="o">&gt;</span><span class="p">[</span><span class="s1">'on'</span><span class="p">]</span><span class="o">&gt;</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-14-15" name="__codelineno-14-15" href="#__codelineno-14-15"></a><span class="w">  </span><span class="nx">connecting</span><span class="o">:</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">connectionState$</span><span class="p">.</span><span class="nx">next</span><span class="p">(</span><span class="s1">'connecting'</span><span class="p">),</span>
-<a id="__codelineno-14-16" name="__codelineno-14-16" href="#__codelineno-14-16"></a><span class="w">  </span><span class="nx">connected</span><span class="o">:</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">connectionState$</span><span class="p">.</span><span class="nx">next</span><span class="p">(</span><span class="s1">'open'</span><span class="p">),</span>
-<a id="__codelineno-14-17" name="__codelineno-14-17" href="#__codelineno-14-17"></a><span class="p">};</span>
-<a id="__codelineno-14-18" name="__codelineno-14-18" href="#__codelineno-14-18"></a>
-<a id="__codelineno-14-19" name="__codelineno-14-19" href="#__codelineno-14-19"></a><span class="k">export</span><span class="w"> </span><span class="kd">function</span><span class="w"> </span><span class="nx">createSseClient</span><span class="p">(</span><span class="nx">url</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="nx">Client</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-14-20" name="__codelineno-14-20" href="#__codelineno-14-20"></a><span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="nx">createClient</span><span class="p">({</span><span class="w"> </span><span class="nx">url</span><span class="p">,</span><span class="w"> </span><span class="nx">on</span><span class="o">:</span><span class="w"> </span><span class="kt">sseClientListeners</span><span class="w"> </span><span class="p">});</span>
-<a id="__codelineno-14-21" name="__codelineno-14-21" href="#__codelineno-14-21"></a><span class="p">}</span>
-<a id="__codelineno-14-22" name="__codelineno-14-22" href="#__codelineno-14-22"></a>
-<a id="__codelineno-14-23" name="__codelineno-14-23" href="#__codelineno-14-23"></a><span class="k">export</span><span class="w"> </span><span class="kd">class</span><span class="w"> </span><span class="nx">GraphQLSSELink</span><span class="w"> </span><span class="k">extends</span><span class="w"> </span><span class="nx">ApolloLink</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-14-24" name="__codelineno-14-24" href="#__codelineno-14-24"></a><span class="w">  </span><span class="kr">constructor</span><span class="p">(</span><span class="k">private</span><span class="w"> </span><span class="k">readonly</span><span class="w"> </span><span class="nx">client</span><span class="o">:</span><span class="w"> </span><span class="kt">Client</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-14-25" name="__codelineno-14-25" href="#__codelineno-14-25"></a><span class="w">    </span><span class="k">super</span><span class="p">();</span>
-<a id="__codelineno-14-26" name="__codelineno-14-26" href="#__codelineno-14-26"></a><span class="w">  </span><span class="p">}</span>
-<a id="__codelineno-14-27" name="__codelineno-14-27" href="#__codelineno-14-27"></a>
-<a id="__codelineno-14-28" name="__codelineno-14-28" href="#__codelineno-14-28"></a><span class="w">  </span><span class="kd">override</span><span class="w"> </span><span class="nx">request</span><span class="p">(</span><span class="nx">operation</span><span class="o">:</span><span class="w"> </span><span class="kt">Operation</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="nx">Observable</span><span class="o">&lt;</span><span class="nx">FetchResult</span><span class="o">&gt;</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-14-29" name="__codelineno-14-29" href="#__codelineno-14-29"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">Observable</span><span class="o">&lt;</span><span class="nx">FetchResult</span><span class="o">&gt;</span><span class="p">(</span><span class="nx">observer</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-14-30" name="__codelineno-14-30" href="#__codelineno-14-30"></a><span class="w">      </span><span class="kd">const</span><span class="w"> </span><span class="nx">dispose</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">client</span><span class="p">.</span><span class="nx">subscribe</span><span class="p">(</span>
-<a id="__codelineno-14-31" name="__codelineno-14-31" href="#__codelineno-14-31"></a><span class="w">        </span><span class="p">{</span>
-<a id="__codelineno-14-32" name="__codelineno-14-32" href="#__codelineno-14-32"></a><span class="w">          </span><span class="nx">query</span><span class="o">:</span><span class="w"> </span><span class="kt">print</span><span class="p">(</span><span class="nx">operation</span><span class="p">.</span><span class="nx">query</span><span class="w"> </span><span class="kr">as</span><span class="w"> </span><span class="nx">DocumentNode</span><span class="p">),</span>
-<a id="__codelineno-14-33" name="__codelineno-14-33" href="#__codelineno-14-33"></a><span class="w">          </span><span class="nx">variables</span><span class="o">:</span><span class="w"> </span><span class="kt">operation.variables</span><span class="p">,</span>
-<a id="__codelineno-14-34" name="__codelineno-14-34" href="#__codelineno-14-34"></a><span class="w">          </span><span class="nx">operationName</span><span class="o">:</span><span class="w"> </span><span class="kt">operation.operationName</span><span class="p">,</span>
-<a id="__codelineno-14-35" name="__codelineno-14-35" href="#__codelineno-14-35"></a><span class="w">          </span><span class="nx">extensions</span><span class="o">:</span><span class="w"> </span><span class="kt">operation.extensions</span><span class="p">,</span>
-<a id="__codelineno-14-36" name="__codelineno-14-36" href="#__codelineno-14-36"></a><span class="w">        </span><span class="p">},</span>
-<a id="__codelineno-14-37" name="__codelineno-14-37" href="#__codelineno-14-37"></a><span class="w">        </span><span class="p">{</span>
-<a id="__codelineno-14-38" name="__codelineno-14-38" href="#__codelineno-14-38"></a><span class="w">          </span><span class="nx">next</span><span class="o">:</span><span class="w"> </span><span class="kt">result</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">observer</span><span class="p">.</span><span class="nx">next</span><span class="p">(</span><span class="nx">result</span><span class="w"> </span><span class="kr">as</span><span class="w"> </span><span class="nx">unknown</span><span class="w"> </span><span class="kr">as</span><span class="w"> </span><span class="nx">FetchResult</span><span class="p">),</span>
-<a id="__codelineno-14-39" name="__codelineno-14-39" href="#__codelineno-14-39"></a><span class="w">          </span><span class="nx">error</span><span class="o">:</span><span class="w"> </span><span class="kt">err</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-14-40" name="__codelineno-14-40" href="#__codelineno-14-40"></a><span class="w">            </span><span class="nx">connectionState$</span><span class="p">.</span><span class="nx">next</span><span class="p">(</span><span class="s1">'error'</span><span class="p">);</span>
-<a id="__codelineno-14-41" name="__codelineno-14-41" href="#__codelineno-14-41"></a><span class="w">            </span><span class="nx">observer</span><span class="p">.</span><span class="nx">error</span><span class="p">(</span><span class="nb">Array</span><span class="p">.</span><span class="nx">isArray</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="nx">err</span><span class="p">]);</span>
-<a id="__codelineno-14-42" name="__codelineno-14-42" href="#__codelineno-14-42"></a><span class="w">          </span><span class="p">},</span>
-<a id="__codelineno-14-43" name="__codelineno-14-43" href="#__codelineno-14-43"></a><span class="w">          </span><span class="nx">complete</span><span class="o">:</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-14-44" name="__codelineno-14-44" href="#__codelineno-14-44"></a><span class="w">            </span><span class="nx">connectionState$</span><span class="p">.</span><span class="nx">next</span><span class="p">(</span><span class="s1">'closed'</span><span class="p">);</span>
-<a id="__codelineno-14-45" name="__codelineno-14-45" href="#__codelineno-14-45"></a><span class="w">            </span><span class="nx">observer</span><span class="p">.</span><span class="nx">complete</span><span class="p">();</span>
-<a id="__codelineno-14-46" name="__codelineno-14-46" href="#__codelineno-14-46"></a><span class="w">          </span><span class="p">},</span>
-<a id="__codelineno-14-47" name="__codelineno-14-47" href="#__codelineno-14-47"></a><span class="w">        </span><span class="p">},</span>
-<a id="__codelineno-14-48" name="__codelineno-14-48" href="#__codelineno-14-48"></a><span class="w">      </span><span class="p">);</span>
-<a id="__codelineno-14-49" name="__codelineno-14-49" href="#__codelineno-14-49"></a>
-<a id="__codelineno-14-50" name="__codelineno-14-50" href="#__codelineno-14-50"></a><span class="w">      </span><span class="k">return</span><span class="w"> </span><span class="nx">dispose</span><span class="p">;</span>
-<a id="__codelineno-14-51" name="__codelineno-14-51" href="#__codelineno-14-51"></a><span class="w">    </span><span class="p">});</span>
-<a id="__codelineno-14-52" name="__codelineno-14-52" href="#__codelineno-14-52"></a><span class="w">  </span><span class="p">}</span>
-<a id="__codelineno-14-53" name="__codelineno-14-53" href="#__codelineno-14-53"></a><span class="p">}</span>
+<h3 id="the-websocket-transport-link">The WebSocket transport link<a class="headerlink" href="#the-websocket-transport-link" title="Permanent link">&para;</a></h3>
+<p>Apollo ships a subscription link for WebSocket, so the transport is about
+ten lines. Create <code>src/app/transport/ws-link.ts</code>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">GraphQLWsLink</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">'@apollo/client/link/subscriptions'</span><span class="p">;</span>
+<a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">createClient</span><span class="p">,</span><span class="w"> </span><span class="kr">type</span><span class="w"> </span><span class="nx">ClientOptions</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">'graphql-ws'</span><span class="p">;</span>
+<a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">BehaviorSubject</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">'rxjs'</span><span class="p">;</span>
+<a id="__codelineno-14-4" name="__codelineno-14-4" href="#__codelineno-14-4"></a>
+<a id="__codelineno-14-5" name="__codelineno-14-5" href="#__codelineno-14-5"></a><span class="k">export</span><span class="w"> </span><span class="kr">type</span><span class="w"> </span><span class="nx">ConnectionState</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'idle'</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s1">'connecting'</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s1">'open'</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s1">'closed'</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s1">'error'</span><span class="p">;</span>
+<a id="__codelineno-14-6" name="__codelineno-14-6" href="#__codelineno-14-6"></a>
+<a id="__codelineno-14-7" name="__codelineno-14-7" href="#__codelineno-14-7"></a><span class="c1">// A dropped socket does not surface through QueryRef.valueChanges, so the transport</span>
+<a id="__codelineno-14-8" name="__codelineno-14-8" href="#__codelineno-14-8"></a><span class="c1">// publishes its own state for the component to render as a banner.</span>
+<a id="__codelineno-14-9" name="__codelineno-14-9" href="#__codelineno-14-9"></a><span class="k">export</span><span class="w"> </span><span class="kd">const</span><span class="w"> </span><span class="nx">connectionState$</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">BehaviorSubject</span><span class="o">&lt;</span><span class="nx">ConnectionState</span><span class="o">&gt;</span><span class="p">(</span><span class="s1">'idle'</span><span class="p">);</span>
+<a id="__codelineno-14-10" name="__codelineno-14-10" href="#__codelineno-14-10"></a>
+<a id="__codelineno-14-11" name="__codelineno-14-11" href="#__codelineno-14-11"></a><span class="k">export</span><span class="w"> </span><span class="kd">const</span><span class="w"> </span><span class="nx">wsClientListeners</span><span class="o">:</span><span class="w"> </span><span class="kt">NonNullable</span><span class="o">&lt;</span><span class="nx">ClientOptions</span><span class="p">[</span><span class="s1">'on'</span><span class="p">]</span><span class="o">&gt;</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-14-12" name="__codelineno-14-12" href="#__codelineno-14-12"></a><span class="w">  </span><span class="nx">connecting</span><span class="o">:</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">connectionState$</span><span class="p">.</span><span class="nx">next</span><span class="p">(</span><span class="s1">'connecting'</span><span class="p">),</span>
+<a id="__codelineno-14-13" name="__codelineno-14-13" href="#__codelineno-14-13"></a><span class="w">  </span><span class="nx">connected</span><span class="o">:</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">connectionState$</span><span class="p">.</span><span class="nx">next</span><span class="p">(</span><span class="s1">'open'</span><span class="p">),</span>
+<a id="__codelineno-14-14" name="__codelineno-14-14" href="#__codelineno-14-14"></a><span class="w">  </span><span class="nx">closed</span><span class="o">:</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">connectionState$</span><span class="p">.</span><span class="nx">next</span><span class="p">(</span><span class="s1">'closed'</span><span class="p">),</span>
+<a id="__codelineno-14-15" name="__codelineno-14-15" href="#__codelineno-14-15"></a><span class="w">  </span><span class="nx">error</span><span class="o">:</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">connectionState$</span><span class="p">.</span><span class="nx">next</span><span class="p">(</span><span class="s1">'error'</span><span class="p">),</span>
+<a id="__codelineno-14-16" name="__codelineno-14-16" href="#__codelineno-14-16"></a><span class="p">};</span>
+<a id="__codelineno-14-17" name="__codelineno-14-17" href="#__codelineno-14-17"></a>
+<a id="__codelineno-14-18" name="__codelineno-14-18" href="#__codelineno-14-18"></a><span class="k">export</span><span class="w"> </span><span class="kd">function</span><span class="w"> </span><span class="nx">createWsLink</span><span class="p">(</span><span class="nx">url</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="nx">GraphQLWsLink</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-14-19" name="__codelineno-14-19" href="#__codelineno-14-19"></a><span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">GraphQLWsLink</span><span class="p">(</span>
+<a id="__codelineno-14-20" name="__codelineno-14-20" href="#__codelineno-14-20"></a><span class="w">    </span><span class="nx">createClient</span><span class="p">({</span><span class="w"> </span><span class="nx">url</span><span class="p">,</span><span class="w"> </span><span class="nx">on</span><span class="o">:</span><span class="w"> </span><span class="kt">wsClientListeners</span><span class="w"> </span><span class="p">}),</span>
+<a id="__codelineno-14-21" name="__codelineno-14-21" href="#__codelineno-14-21"></a><span class="w">  </span><span class="p">);</span>
+<a id="__codelineno-14-22" name="__codelineno-14-22" href="#__codelineno-14-22"></a><span class="p">}</span>
 </code></pre></div>
-<p>Three things happen here:</p>
-<ul>
-<li>The link translates an Apollo operation into the request object the
-  <code>graphql-sse</code> client expects, printing the document AST back into a
-  query string.</li>
-<li>The <code>next</code>, <code>error</code>, and <code>complete</code> callbacks of the SSE sink are
-  forwarded to the RxJS observer, which is what makes the link a normal
-  Apollo link.</li>
-<li>The returned dispose function is the observable's teardown, so
-  unsubscribing closes the SSE stream.</li>
-</ul>
-<p>The <code>connectionState$</code> subject answers user story 4. The <code>graphql-sse</code>
-client only reports <code>connecting</code> and <code>connected</code>, so the link detects
-<code>closed</code> and <code>error</code> itself from the sink.</p>
+<p><code>createClient</code> from <code>graphql-ws</code> opens the socket, performs the
+<code>graphql-transport-ws</code> handshake, and handles the <code>ping</code>/<code>pong</code> heartbeats.
+The four listeners publish the connection state so the component can render
+a banner — that is user story 4, and it is the reason this file exists at
+all.</p>
 <h3 id="wire-up-apollo">Wire up Apollo<a class="headerlink" href="#wire-up-apollo" title="Permanent link">&para;</a></h3>
 <p>Create <code>src/app/app.config.ts</code>:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">provideHttpClient</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">'@angular/common/http'</span><span class="p">;</span>
@@ -2045,8 +2070,8 @@ client only reports <code>connecting</code> and <code>connected</code>, so the l
 <a id="__codelineno-15-5" name="__codelineno-15-5" href="#__codelineno-15-5"></a><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">getMainDefinition</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">'@apollo/client/utilities'</span><span class="p">;</span>
 <a id="__codelineno-15-6" name="__codelineno-15-6" href="#__codelineno-15-6"></a><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">provideApollo</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">'apollo-angular'</span><span class="p">;</span>
 <a id="__codelineno-15-7" name="__codelineno-15-7" href="#__codelineno-15-7"></a><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">HttpLink</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">'apollo-angular/http'</span><span class="p">;</span>
-<a id="__codelineno-15-8" name="__codelineno-15-8" href="#__codelineno-15-8"></a><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">GRAPHQL_HTTP_URL</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">'./config'</span><span class="p">;</span>
-<a id="__codelineno-15-9" name="__codelineno-15-9" href="#__codelineno-15-9"></a><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">GraphQLSSELink</span><span class="p">,</span><span class="w"> </span><span class="nx">createSseClient</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">'./transport/sse-link'</span><span class="p">;</span>
+<a id="__codelineno-15-8" name="__codelineno-15-8" href="#__codelineno-15-8"></a><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">GRAPHQL_HTTP_URL</span><span class="p">,</span><span class="w"> </span><span class="nx">GRAPHQL_WS_URL</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">'./config'</span><span class="p">;</span>
+<a id="__codelineno-15-9" name="__codelineno-15-9" href="#__codelineno-15-9"></a><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">createWsLink</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">'./transport/ws-link'</span><span class="p">;</span>
 <a id="__codelineno-15-10" name="__codelineno-15-10" href="#__codelineno-15-10"></a>
 <a id="__codelineno-15-11" name="__codelineno-15-11" href="#__codelineno-15-11"></a><span class="k">export</span><span class="w"> </span><span class="kd">function</span><span class="w"> </span><span class="nx">appProviders</span><span class="p">()</span><span class="o">:</span><span class="w"> </span><span class="p">(</span><span class="nx">Provider</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="nx">EnvironmentProviders</span><span class="p">)[]</span><span class="w"> </span><span class="p">{</span>
 <a id="__codelineno-15-12" name="__codelineno-15-12" href="#__codelineno-15-12"></a><span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="p">[</span>
@@ -2055,7 +2080,7 @@ client only reports <code>connecting</code> and <code>connected</code>, so the l
 <a id="__codelineno-15-15" name="__codelineno-15-15" href="#__codelineno-15-15"></a><span class="w">    </span><span class="nx">provideHttpClient</span><span class="p">(),</span>
 <a id="__codelineno-15-16" name="__codelineno-15-16" href="#__codelineno-15-16"></a><span class="w">    </span><span class="nx">provideApollo</span><span class="p">(()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
 <a id="__codelineno-15-17" name="__codelineno-15-17" href="#__codelineno-15-17"></a><span class="w">      </span><span class="kd">const</span><span class="w"> </span><span class="nx">httpLink</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">inject</span><span class="p">(</span><span class="nx">HttpLink</span><span class="p">).</span><span class="nx">create</span><span class="p">({</span><span class="w"> </span><span class="nx">uri</span><span class="o">:</span><span class="w"> </span><span class="kt">GRAPHQL_HTTP_URL</span><span class="w"> </span><span class="p">});</span>
-<a id="__codelineno-15-18" name="__codelineno-15-18" href="#__codelineno-15-18"></a><span class="w">      </span><span class="kd">const</span><span class="w"> </span><span class="nx">sseLink</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">GraphQLSSELink</span><span class="p">(</span><span class="nx">createSseClient</span><span class="p">(</span><span class="nx">GRAPHQL_HTTP_URL</span><span class="p">));</span>
+<a id="__codelineno-15-18" name="__codelineno-15-18" href="#__codelineno-15-18"></a><span class="w">      </span><span class="kd">const</span><span class="w"> </span><span class="nx">wsLink</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">createWsLink</span><span class="p">(</span><span class="nx">GRAPHQL_WS_URL</span><span class="p">);</span>
 <a id="__codelineno-15-19" name="__codelineno-15-19" href="#__codelineno-15-19"></a>
 <a id="__codelineno-15-20" name="__codelineno-15-20" href="#__codelineno-15-20"></a><span class="w">      </span><span class="k">return</span><span class="w"> </span><span class="p">{</span>
 <a id="__codelineno-15-21" name="__codelineno-15-21" href="#__codelineno-15-21"></a><span class="w">        </span><span class="nx">link</span><span class="o">:</span><span class="w"> </span><span class="kt">split</span><span class="p">(</span>
@@ -2066,7 +2091,7 @@ client only reports <code>connecting</code> and <code>connected</code>, so the l
 <a id="__codelineno-15-26" name="__codelineno-15-26" href="#__codelineno-15-26"></a><span class="w">              </span><span class="nx">definition</span><span class="p">.</span><span class="nx">operation</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s1">'subscription'</span>
 <a id="__codelineno-15-27" name="__codelineno-15-27" href="#__codelineno-15-27"></a><span class="w">            </span><span class="p">);</span>
 <a id="__codelineno-15-28" name="__codelineno-15-28" href="#__codelineno-15-28"></a><span class="w">          </span><span class="p">},</span>
-<a id="__codelineno-15-29" name="__codelineno-15-29" href="#__codelineno-15-29"></a><span class="w">          </span><span class="nx">sseLink</span><span class="p">,</span>
+<a id="__codelineno-15-29" name="__codelineno-15-29" href="#__codelineno-15-29"></a><span class="w">          </span><span class="nx">wsLink</span><span class="p">,</span>
 <a id="__codelineno-15-30" name="__codelineno-15-30" href="#__codelineno-15-30"></a><span class="w">          </span><span class="nx">httpLink</span><span class="p">,</span>
 <a id="__codelineno-15-31" name="__codelineno-15-31" href="#__codelineno-15-31"></a><span class="w">        </span><span class="p">),</span>
 <a id="__codelineno-15-32" name="__codelineno-15-32" href="#__codelineno-15-32"></a><span class="w">        </span><span class="nx">cache</span><span class="o">:</span><span class="w"> </span><span class="kt">new</span><span class="w"> </span><span class="nx">InMemoryCache</span><span class="p">(),</span>
@@ -2076,8 +2101,8 @@ client only reports <code>connecting</code> and <code>connected</code>, so the l
 <a id="__codelineno-15-36" name="__codelineno-15-36" href="#__codelineno-15-36"></a><span class="p">}</span>
 </code></pre></div>
 <p>The <strong>split link</strong> is the heart of the setup. It inspects each operation and
-routes subscriptions to the SSE link and everything else to the HTTP link.
-One Apollo client, two transports, and the routing decision made per
+routes subscriptions to the WebSocket link and everything else to the HTTP
+link. One Apollo client, two transports, and the routing decision made per
 operation rather than per endpoint.</p>
 <h3 id="the-chat-component">The chat component<a class="headerlink" href="#the-chat-component" title="Permanent link">&para;</a></h3>
 <p>Create <code>src/app/app.component.ts</code>:</p>
@@ -2101,7 +2126,7 @@ operation rather than per endpoint.</p>
 <a id="__codelineno-16-18" name="__codelineno-16-18" href="#__codelineno-16-18"></a><span class="w">  </span><span class="kr">type</span><span class="w"> </span><span class="nx">SendMessageData</span><span class="p">,</span>
 <a id="__codelineno-16-19" name="__codelineno-16-19" href="#__codelineno-16-19"></a><span class="w">  </span><span class="kr">type</span><span class="w"> </span><span class="nx">TextMessage</span><span class="p">,</span>
 <a id="__codelineno-16-20" name="__codelineno-16-20" href="#__codelineno-16-20"></a><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">'./graphql/messages'</span><span class="p">;</span>
-<a id="__codelineno-16-21" name="__codelineno-16-21" href="#__codelineno-16-21"></a><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">connectionState$</span><span class="p">,</span><span class="w"> </span><span class="kr">type</span><span class="w"> </span><span class="nx">ConnectionState</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">'./transport/sse-link'</span><span class="p">;</span>
+<a id="__codelineno-16-21" name="__codelineno-16-21" href="#__codelineno-16-21"></a><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">connectionState$</span><span class="p">,</span><span class="w"> </span><span class="kr">type</span><span class="w"> </span><span class="nx">ConnectionState</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">'./transport/ws-link'</span><span class="p">;</span>
 <a id="__codelineno-16-22" name="__codelineno-16-22" href="#__codelineno-16-22"></a>
 <a id="__codelineno-16-23" name="__codelineno-16-23" href="#__codelineno-16-23"></a><span class="kd">interface</span><span class="w"> </span><span class="nx">QueryState</span><span class="w"> </span><span class="p">{</span>
 <a id="__codelineno-16-24" name="__codelineno-16-24" href="#__codelineno-16-24"></a><span class="w">  </span><span class="nx">loading</span><span class="o">:</span><span class="w"> </span><span class="kt">boolean</span><span class="p">;</span>
@@ -2228,11 +2253,11 @@ operation rather than per endpoint.</p>
   response is used only to clear the form and to report errors.</li>
 </ul>
 <p>The <code>subscribeToMore</code> subscription is stopped in <code>ngOnDestroy</code>, which
-closes the SSE stream when the component is destroyed. Without that, the
-stream would leak for the lifetime of the page.</p>
+closes the socket when the component is destroyed. Without that, the
+connection would leak for the lifetime of the page.</p>
 <p>Create <code>src/app/app.component.html</code>:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a><span class="p">&lt;</span><span class="nt">main</span> <span class="na">class</span><span class="o">=</span><span class="s">"container"</span><span class="p">&gt;</span>
-<a id="__codelineno-17-2" name="__codelineno-17-2" href="#__codelineno-17-2"></a>  <span class="p">&lt;</span><span class="nt">h1</span><span class="p">&gt;</span>DGS Subscription — SSE<span class="p">&lt;/</span><span class="nt">h1</span><span class="p">&gt;</span>
+<a id="__codelineno-17-2" name="__codelineno-17-2" href="#__codelineno-17-2"></a>  <span class="p">&lt;</span><span class="nt">h1</span><span class="p">&gt;</span>DGS Subscription — WebSocket<span class="p">&lt;/</span><span class="nt">h1</span><span class="p">&gt;</span>
 <a id="__codelineno-17-3" name="__codelineno-17-3" href="#__codelineno-17-3"></a>
 <a id="__codelineno-17-4" name="__codelineno-17-4" href="#__codelineno-17-4"></a>  @if (connectionState$ | async; as state) {
 <a id="__codelineno-17-5" name="__codelineno-17-5" href="#__codelineno-17-5"></a>    @if (state !== 'open' <span class="err">&amp;&amp;</span> state !== 'idle') {
@@ -2290,16 +2315,16 @@ the page says so.</p>
 <h2 id="step-6-run-the-server-and-the-client">Step 6: Run the server and the client<a class="headerlink" href="#step-6-run-the-server-and-the-client" title="Permanent link">&para;</a></h2>
 <p>Now run both halves and use the chat.</p>
 <h3 id="start-the-server">Start the server<a class="headerlink" href="#start-the-server" title="Permanent link">&para;</a></h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a><span class="nb">cd</span><span class="w"> </span>dgs-subscription-sse
+<div class="highlight"><pre><span></span><code><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a><span class="nb">cd</span><span class="w"> </span>dgs-subscription-ws
 <a id="__codelineno-18-2" name="__codelineno-18-2" href="#__codelineno-18-2"></a>./mvnw<span class="w"> </span>spring-boot:run
 </code></pre></div>
-<p>On Windows, run <code>mvnw.cmd spring-boot:run</code> from the <code>dgs-subscription-sse</code>
+<p>On Windows, run <code>mvnw.cmd spring-boot:run</code> from the <code>dgs-subscription-ws</code>
 directory. The chat server needs no database, so there is no Docker step
 here.</p>
 <p>When the <code>Started DemoApplication</code> log line appears, the server is ready
 at <code>http://localhost:8080</code>.</p>
 <h3 id="start-the-client">Start the client<a class="headerlink" href="#start-the-client" title="Permanent link">&para;</a></h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-19-1" name="__codelineno-19-1" href="#__codelineno-19-1"></a><span class="nb">cd</span><span class="w"> </span>dgs-subscription-ui-sse
+<div class="highlight"><pre><span></span><code><a id="__codelineno-19-1" name="__codelineno-19-1" href="#__codelineno-19-1"></a><span class="nb">cd</span><span class="w"> </span>dgs-subscription-ui
 <a id="__codelineno-19-2" name="__codelineno-19-2" href="#__codelineno-19-2"></a>npm<span class="w"> </span>install
 <a id="__codelineno-19-3" name="__codelineno-19-3" href="#__codelineno-19-3"></a>npm<span class="w"> </span>start
 </code></pre></div>
@@ -2314,11 +2339,11 @@ message list and a text field.</p>
    its job: the server pushed the message to every connected subscriber,
    and neither tab asked for it.</li>
 <li>Stop the server. The connection banner appears in both tabs once the
-   client has exhausted its reconnect attempts. Restart the server and
-   reload the page to pick the stream back up.</li>
+   socket closes. Restart the server and reload the page to pick the
+   connection back up.</li>
 </ol>
-<p>The same operations are available from the command line. List the stored
-messages:</p>
+<p>The query and the mutation are available from the command line, because they
+are ordinary HTTP requests to the same endpoint. List the stored messages:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-20-1" name="__codelineno-20-1" href="#__codelineno-20-1"></a>curl<span class="w"> </span>http://localhost:8080/graphql<span class="w"> </span><span class="se">\</span>
 <a id="__codelineno-20-2" name="__codelineno-20-2" href="#__codelineno-20-2"></a><span class="w">  </span>-H<span class="w"> </span><span class="s2">"Content-Type: application/json"</span><span class="w"> </span><span class="se">\</span>
 <a id="__codelineno-20-3" name="__codelineno-20-3" href="#__codelineno-20-3"></a><span class="w">  </span>-d<span class="w"> </span><span class="s1">'{"query": "{ messages { id body sentAt } }"}'</span>
@@ -2331,186 +2356,265 @@ messages:</p>
 <a id="__codelineno-21-5" name="__codelineno-21-5" href="#__codelineno-21-5"></a><span class="s1">    "variables": { "message": { "body": "Hello from curl" } }</span>
 <a id="__codelineno-21-6" name="__codelineno-21-6" href="#__codelineno-21-6"></a><span class="s1">  }'</span>
 </code></pre></div>
-<p>Watch the subscription stream. The <code>-N</code> flag disables curl's output
-buffering, and the <code>Accept: text/event-stream</code> header is what selects the
-SSE transport on the server:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-22-1" name="__codelineno-22-1" href="#__codelineno-22-1"></a>curl<span class="w"> </span>-N<span class="w"> </span>http://localhost:8080/graphql<span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-22-2" name="__codelineno-22-2" href="#__codelineno-22-2"></a><span class="w">  </span>-H<span class="w"> </span><span class="s2">"Content-Type: application/json"</span><span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-22-3" name="__codelineno-22-3" href="#__codelineno-22-3"></a><span class="w">  </span>-H<span class="w"> </span><span class="s2">"Accept: text/event-stream"</span><span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-22-4" name="__codelineno-22-4" href="#__codelineno-22-4"></a><span class="w">  </span>-d<span class="w"> </span><span class="s1">'{"query": "subscription { messageSent { id body sentAt } }"}'</span>
+<p>A subscription over WebSocket is harder to inspect from the command line,
+because the <code>graphql-transport-ws</code> protocol starts with a
+<code>connection_init</code> handshake before any operation can be sent. The browser
+DevTools network tab shows the socket and its frames, the server integration
+test in Step 9 exercises the full handshake, and a tool such as
+<code>websocat</code> lets you drive the protocol by hand if you want to look at the
+raw frames. The SSE version in Step 7 is the one that a single <code>curl</code>
+command can watch.</p>
+<p>GraphiQL is available at <code>http://localhost:8080/graphiql</code>. Use it to run
+the query and the mutation with completion and schema documentation.</p>
+<h2 id="step-7-switch-to-sse-subscriptions">Step 7: Switch to SSE subscriptions<a class="headerlink" href="#step-7-switch-to-sse-subscriptions" title="Permanent link">&para;</a></h2>
+<p>The WebSocket version works, and it is the richer protocol: the socket is
+bidirectional, so the client could push over the same connection later. But
+it is also the heavier one to operate. A WebSocket is not an ordinary HTTP
+request, which means every proxy, load balancer, and corporate firewall
+between the browser and the server has to cooperate with the upgrade
+handshake. When they do not, the chat silently stops receiving messages.</p>
+<p><strong>Server-Sent Events</strong> remove that whole class of problem. An SSE
+subscription is a normal HTTP request whose response stays open, and the
+server writes one event per message. Nothing upgrades, nothing negotiates a
+second protocol, and the same HTTP infrastructure you already run handles
+it.</p>
+<p>The server changes are small. The client changes are the interesting part,
+because Apollo has no SSE link and you write one.</p>
+<h3 id="the-server">The server<a class="headerlink" href="#the-server" title="Permanent link">&para;</a></h3>
+<p>The SSE subscription is served by the HTTP endpoint, so the WebSocket
+starter is no longer needed. Remove it from the POM:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-22-1" name="__codelineno-22-1" href="#__codelineno-22-1"></a><span class="nt">&lt;dependency&gt;</span>
+<a id="__codelineno-22-2" name="__codelineno-22-2" href="#__codelineno-22-2"></a><span class="w">    </span><span class="nt">&lt;groupId&gt;</span>org.springframework.boot<span class="nt">&lt;/groupId&gt;</span>
+<a id="__codelineno-22-3" name="__codelineno-22-3" href="#__codelineno-22-3"></a><span class="w">    </span><span class="nt">&lt;artifactId&gt;</span>spring-boot-starter-websocket<span class="nt">&lt;/artifactId&gt;</span>
+<a id="__codelineno-22-4" name="__codelineno-22-4" href="#__codelineno-22-4"></a><span class="nt">&lt;/dependency&gt;</span>
+</code></pre></div>
+<p>Leaving it in place does no harm — the WebSocket endpoint simply goes
+unused — but the <code>dgs-subscription-sse</code> sample module drops it, and so
+should you.</p>
+<p>Replace the WebSocket properties with the one that bounds the SSE response:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-23-1" name="__codelineno-23-1" href="#__codelineno-23-1"></a><span class="na">logging.level.com.example</span><span class="o">=</span><span class="s">DEBUG</span>
+<a id="__codelineno-23-2" name="__codelineno-23-2" href="#__codelineno-23-2"></a><span class="na">logging.level.web</span><span class="o">=</span><span class="s">DEBUG</span>
+<a id="__codelineno-23-3" name="__codelineno-23-3" href="#__codelineno-23-3"></a><span class="na">logging.level.com.netflix.graphql.dgs</span><span class="o">=</span><span class="s">TRACE</span>
+<a id="__codelineno-23-4" name="__codelineno-23-4" href="#__codelineno-23-4"></a>
+<a id="__codelineno-23-5" name="__codelineno-23-5" href="#__codelineno-23-5"></a><span class="na">spring.mvc.async.request-timeout</span><span class="o">=</span><span class="s">45000</span>
+</code></pre></div>
+<p>An SSE response is an asynchronous servlet request that stays open for the
+whole life of the subscription, and <code>spring.mvc.async.request-timeout</code>
+bounds it: after 45 seconds the server ends the stream.</p>
+<p>The <code>graphql-sse</code> client treats that as a retryable disconnect and
+reconnects on its own — five attempts with a randomised exponential backoff
+by default, tunable through the <code>retryAttempts</code> and <code>retry</code> options. A
+client that reconnects picks up the most recent message from the sink's
+replay buffer, so narrow the buffer to match the shorter stream:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-24-1" name="__codelineno-24-1" href="#__codelineno-24-1"></a><span class="kd">private</span><span class="w"> </span><span class="kd">val</span><span class="w"> </span><span class="nv">sink</span><span class="p">:</span><span class="w"> </span><span class="n">Many</span><span class="o">&lt;</span><span class="n">TextMessage</span><span class="o">&gt;</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Sinks</span><span class="p">.</span><span class="na">many</span><span class="p">().</span><span class="na">replay</span><span class="p">().</span><span class="na">latest</span><span class="p">()</span>
+</code></pre></div>
+<p>Keeping a hundred messages in the buffer for a connection that lives 45
+seconds would be wasted memory, and replaying a hundred messages to every
+reconnecting client would be wasted traffic. The latest message is enough to
+show that the stream is alive again.</p>
+<h3 id="the-client">The client<a class="headerlink" href="#the-client" title="Permanent link">&para;</a></h3>
+<p>Swap the transport package:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-25-1" name="__codelineno-25-1" href="#__codelineno-25-1"></a>npm<span class="w"> </span>uninstall<span class="w"> </span>graphql-ws
+<a id="__codelineno-25-2" name="__codelineno-25-2" href="#__codelineno-25-2"></a>npm<span class="w"> </span>install<span class="w"> </span>graphql-sse
+</code></pre></div>
+<p>Update <code>src/app/config.ts</code> — the WebSocket URL is gone, because the SSE
+subscription uses the HTTP endpoint:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-26-1" name="__codelineno-26-1" href="#__codelineno-26-1"></a><span class="k">export</span><span class="w"> </span><span class="kd">const</span><span class="w"> </span><span class="nx">GRAPHQL_HTTP_URL</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'http://localhost:8080/graphql'</span><span class="p">;</span>
+</code></pre></div>
+<p>Now the interesting part. Apollo has no SSE subscription link, so you write
+one: an <code>ApolloLink</code> that translates an Apollo operation into a request for
+the <code>graphql-sse</code> client and forwards the results back. Create
+<code>src/app/transport/sse-link.ts</code>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-27-1" name="__codelineno-27-1" href="#__codelineno-27-1"></a><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">ApolloLink</span><span class="p">,</span><span class="w"> </span><span class="kr">type</span><span class="w"> </span><span class="nx">FetchResult</span><span class="p">,</span><span class="w"> </span><span class="kr">type</span><span class="w"> </span><span class="nx">Operation</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">'@apollo/client'</span><span class="p">;</span>
+<a id="__codelineno-27-2" name="__codelineno-27-2" href="#__codelineno-27-2"></a><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">print</span><span class="p">,</span><span class="w"> </span><span class="kr">type</span><span class="w"> </span><span class="nx">DocumentNode</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">'graphql'</span><span class="p">;</span>
+<a id="__codelineno-27-3" name="__codelineno-27-3" href="#__codelineno-27-3"></a><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">createClient</span><span class="p">,</span><span class="w"> </span><span class="kr">type</span><span class="w"> </span><span class="nx">Client</span><span class="p">,</span><span class="w"> </span><span class="kr">type</span><span class="w"> </span><span class="nx">ClientOptions</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">'graphql-sse'</span><span class="p">;</span>
+<a id="__codelineno-27-4" name="__codelineno-27-4" href="#__codelineno-27-4"></a><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">BehaviorSubject</span><span class="p">,</span><span class="w"> </span><span class="nx">Observable</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">'rxjs'</span><span class="p">;</span>
+<a id="__codelineno-27-5" name="__codelineno-27-5" href="#__codelineno-27-5"></a>
+<a id="__codelineno-27-6" name="__codelineno-27-6" href="#__codelineno-27-6"></a><span class="k">export</span><span class="w"> </span><span class="kr">type</span><span class="w"> </span><span class="nx">ConnectionState</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'idle'</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s1">'connecting'</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s1">'open'</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s1">'closed'</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s1">'error'</span><span class="p">;</span>
+<a id="__codelineno-27-7" name="__codelineno-27-7" href="#__codelineno-27-7"></a>
+<a id="__codelineno-27-8" name="__codelineno-27-8" href="#__codelineno-27-8"></a><span class="c1">// A dropped stream does not surface through QueryRef.valueChanges, so the transport</span>
+<a id="__codelineno-27-9" name="__codelineno-27-9" href="#__codelineno-27-9"></a><span class="c1">// publishes its own state for the component to render as a banner.</span>
+<a id="__codelineno-27-10" name="__codelineno-27-10" href="#__codelineno-27-10"></a><span class="k">export</span><span class="w"> </span><span class="kd">const</span><span class="w"> </span><span class="nx">connectionState$</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">BehaviorSubject</span><span class="o">&lt;</span><span class="nx">ConnectionState</span><span class="o">&gt;</span><span class="p">(</span><span class="s1">'idle'</span><span class="p">);</span>
+<a id="__codelineno-27-11" name="__codelineno-27-11" href="#__codelineno-27-11"></a>
+<a id="__codelineno-27-12" name="__codelineno-27-12" href="#__codelineno-27-12"></a><span class="c1">// graphql-sse exposes only connecting/message/connected at client level. The closed</span>
+<a id="__codelineno-27-13" name="__codelineno-27-13" href="#__codelineno-27-13"></a><span class="c1">// and error transitions are detected in the link's sink instead, see request() below.</span>
+<a id="__codelineno-27-14" name="__codelineno-27-14" href="#__codelineno-27-14"></a><span class="k">export</span><span class="w"> </span><span class="kd">const</span><span class="w"> </span><span class="nx">sseClientListeners</span><span class="o">:</span><span class="w"> </span><span class="kt">NonNullable</span><span class="o">&lt;</span><span class="nx">ClientOptions</span><span class="o">&lt;</span><span class="kc">false</span><span class="o">&gt;</span><span class="p">[</span><span class="s1">'on'</span><span class="p">]</span><span class="o">&gt;</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-27-15" name="__codelineno-27-15" href="#__codelineno-27-15"></a><span class="w">  </span><span class="nx">connecting</span><span class="o">:</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">connectionState$</span><span class="p">.</span><span class="nx">next</span><span class="p">(</span><span class="s1">'connecting'</span><span class="p">),</span>
+<a id="__codelineno-27-16" name="__codelineno-27-16" href="#__codelineno-27-16"></a><span class="w">  </span><span class="nx">connected</span><span class="o">:</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">connectionState$</span><span class="p">.</span><span class="nx">next</span><span class="p">(</span><span class="s1">'open'</span><span class="p">),</span>
+<a id="__codelineno-27-17" name="__codelineno-27-17" href="#__codelineno-27-17"></a><span class="p">};</span>
+<a id="__codelineno-27-18" name="__codelineno-27-18" href="#__codelineno-27-18"></a>
+<a id="__codelineno-27-19" name="__codelineno-27-19" href="#__codelineno-27-19"></a><span class="k">export</span><span class="w"> </span><span class="kd">function</span><span class="w"> </span><span class="nx">createSseClient</span><span class="p">(</span><span class="nx">url</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="nx">Client</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-27-20" name="__codelineno-27-20" href="#__codelineno-27-20"></a><span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="nx">createClient</span><span class="p">({</span><span class="w"> </span><span class="nx">url</span><span class="p">,</span><span class="w"> </span><span class="nx">on</span><span class="o">:</span><span class="w"> </span><span class="kt">sseClientListeners</span><span class="w"> </span><span class="p">});</span>
+<a id="__codelineno-27-21" name="__codelineno-27-21" href="#__codelineno-27-21"></a><span class="p">}</span>
+<a id="__codelineno-27-22" name="__codelineno-27-22" href="#__codelineno-27-22"></a>
+<a id="__codelineno-27-23" name="__codelineno-27-23" href="#__codelineno-27-23"></a><span class="k">export</span><span class="w"> </span><span class="kd">class</span><span class="w"> </span><span class="nx">GraphQLSSELink</span><span class="w"> </span><span class="k">extends</span><span class="w"> </span><span class="nx">ApolloLink</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-27-24" name="__codelineno-27-24" href="#__codelineno-27-24"></a><span class="w">  </span><span class="kr">constructor</span><span class="p">(</span><span class="k">private</span><span class="w"> </span><span class="k">readonly</span><span class="w"> </span><span class="nx">client</span><span class="o">:</span><span class="w"> </span><span class="kt">Client</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-27-25" name="__codelineno-27-25" href="#__codelineno-27-25"></a><span class="w">    </span><span class="k">super</span><span class="p">();</span>
+<a id="__codelineno-27-26" name="__codelineno-27-26" href="#__codelineno-27-26"></a><span class="w">  </span><span class="p">}</span>
+<a id="__codelineno-27-27" name="__codelineno-27-27" href="#__codelineno-27-27"></a>
+<a id="__codelineno-27-28" name="__codelineno-27-28" href="#__codelineno-27-28"></a><span class="w">  </span><span class="kd">override</span><span class="w"> </span><span class="nx">request</span><span class="p">(</span><span class="nx">operation</span><span class="o">:</span><span class="w"> </span><span class="kt">Operation</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="nx">Observable</span><span class="o">&lt;</span><span class="nx">FetchResult</span><span class="o">&gt;</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-27-29" name="__codelineno-27-29" href="#__codelineno-27-29"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">Observable</span><span class="o">&lt;</span><span class="nx">FetchResult</span><span class="o">&gt;</span><span class="p">(</span><span class="nx">observer</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-27-30" name="__codelineno-27-30" href="#__codelineno-27-30"></a><span class="w">      </span><span class="kd">const</span><span class="w"> </span><span class="nx">dispose</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">client</span><span class="p">.</span><span class="nx">subscribe</span><span class="p">(</span>
+<a id="__codelineno-27-31" name="__codelineno-27-31" href="#__codelineno-27-31"></a><span class="w">        </span><span class="p">{</span>
+<a id="__codelineno-27-32" name="__codelineno-27-32" href="#__codelineno-27-32"></a><span class="w">          </span><span class="nx">query</span><span class="o">:</span><span class="w"> </span><span class="kt">print</span><span class="p">(</span><span class="nx">operation</span><span class="p">.</span><span class="nx">query</span><span class="w"> </span><span class="kr">as</span><span class="w"> </span><span class="nx">DocumentNode</span><span class="p">),</span>
+<a id="__codelineno-27-33" name="__codelineno-27-33" href="#__codelineno-27-33"></a><span class="w">          </span><span class="nx">variables</span><span class="o">:</span><span class="w"> </span><span class="kt">operation.variables</span><span class="p">,</span>
+<a id="__codelineno-27-34" name="__codelineno-27-34" href="#__codelineno-27-34"></a><span class="w">          </span><span class="nx">operationName</span><span class="o">:</span><span class="w"> </span><span class="kt">operation.operationName</span><span class="p">,</span>
+<a id="__codelineno-27-35" name="__codelineno-27-35" href="#__codelineno-27-35"></a><span class="w">          </span><span class="nx">extensions</span><span class="o">:</span><span class="w"> </span><span class="kt">operation.extensions</span><span class="p">,</span>
+<a id="__codelineno-27-36" name="__codelineno-27-36" href="#__codelineno-27-36"></a><span class="w">        </span><span class="p">},</span>
+<a id="__codelineno-27-37" name="__codelineno-27-37" href="#__codelineno-27-37"></a><span class="w">        </span><span class="p">{</span>
+<a id="__codelineno-27-38" name="__codelineno-27-38" href="#__codelineno-27-38"></a><span class="w">          </span><span class="nx">next</span><span class="o">:</span><span class="w"> </span><span class="kt">result</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">observer</span><span class="p">.</span><span class="nx">next</span><span class="p">(</span><span class="nx">result</span><span class="w"> </span><span class="kr">as</span><span class="w"> </span><span class="nx">unknown</span><span class="w"> </span><span class="kr">as</span><span class="w"> </span><span class="nx">FetchResult</span><span class="p">),</span>
+<a id="__codelineno-27-39" name="__codelineno-27-39" href="#__codelineno-27-39"></a><span class="w">          </span><span class="nx">error</span><span class="o">:</span><span class="w"> </span><span class="kt">err</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-27-40" name="__codelineno-27-40" href="#__codelineno-27-40"></a><span class="w">            </span><span class="nx">connectionState$</span><span class="p">.</span><span class="nx">next</span><span class="p">(</span><span class="s1">'error'</span><span class="p">);</span>
+<a id="__codelineno-27-41" name="__codelineno-27-41" href="#__codelineno-27-41"></a><span class="w">            </span><span class="nx">observer</span><span class="p">.</span><span class="nx">error</span><span class="p">(</span><span class="nb">Array</span><span class="p">.</span><span class="nx">isArray</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="nx">err</span><span class="p">]);</span>
+<a id="__codelineno-27-42" name="__codelineno-27-42" href="#__codelineno-27-42"></a><span class="w">          </span><span class="p">},</span>
+<a id="__codelineno-27-43" name="__codelineno-27-43" href="#__codelineno-27-43"></a><span class="w">          </span><span class="nx">complete</span><span class="o">:</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-27-44" name="__codelineno-27-44" href="#__codelineno-27-44"></a><span class="w">            </span><span class="nx">connectionState$</span><span class="p">.</span><span class="nx">next</span><span class="p">(</span><span class="s1">'closed'</span><span class="p">);</span>
+<a id="__codelineno-27-45" name="__codelineno-27-45" href="#__codelineno-27-45"></a><span class="w">            </span><span class="nx">observer</span><span class="p">.</span><span class="nx">complete</span><span class="p">();</span>
+<a id="__codelineno-27-46" name="__codelineno-27-46" href="#__codelineno-27-46"></a><span class="w">          </span><span class="p">},</span>
+<a id="__codelineno-27-47" name="__codelineno-27-47" href="#__codelineno-27-47"></a><span class="w">        </span><span class="p">},</span>
+<a id="__codelineno-27-48" name="__codelineno-27-48" href="#__codelineno-27-48"></a><span class="w">      </span><span class="p">);</span>
+<a id="__codelineno-27-49" name="__codelineno-27-49" href="#__codelineno-27-49"></a>
+<a id="__codelineno-27-50" name="__codelineno-27-50" href="#__codelineno-27-50"></a><span class="w">      </span><span class="k">return</span><span class="w"> </span><span class="nx">dispose</span><span class="p">;</span>
+<a id="__codelineno-27-51" name="__codelineno-27-51" href="#__codelineno-27-51"></a><span class="w">    </span><span class="p">});</span>
+<a id="__codelineno-27-52" name="__codelineno-27-52" href="#__codelineno-27-52"></a><span class="w">  </span><span class="p">}</span>
+<a id="__codelineno-27-53" name="__codelineno-27-53" href="#__codelineno-27-53"></a><span class="p">}</span>
+</code></pre></div>
+<p>Three things happen here:</p>
+<ul>
+<li>The link translates an Apollo operation into the request object the
+  <code>graphql-sse</code> client expects, printing the document AST back into a
+  query string.</li>
+<li>The <code>next</code>, <code>error</code>, and <code>complete</code> callbacks of the SSE sink are
+  forwarded to the RxJS observer, which is what makes the link a normal
+  Apollo link.</li>
+<li>The returned dispose function is the observable's teardown, so
+  unsubscribing closes the SSE stream.</li>
+</ul>
+<p>Compare it with the WebSocket link. There, Apollo did the translation and
+the <code>graphql-ws</code> package reported all four connection transitions. Here,
+the <code>graphql-sse</code> package only reports <code>connecting</code> and <code>connected</code>, so
+the link detects <code>closed</code> and <code>error</code> itself from the sink. That is the
+price of not having a first-party Apollo link — and it is roughly forty
+lines.</p>
+<p>Update <code>src/app/app.config.ts</code> to use the new link:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-28-1" name="__codelineno-28-1" href="#__codelineno-28-1"></a><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">GRAPHQL_HTTP_URL</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">'./config'</span><span class="p">;</span>
+<a id="__codelineno-28-2" name="__codelineno-28-2" href="#__codelineno-28-2"></a><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">GraphQLSSELink</span><span class="p">,</span><span class="w"> </span><span class="nx">createSseClient</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">'./transport/sse-link'</span><span class="p">;</span>
+<a id="__codelineno-28-3" name="__codelineno-28-3" href="#__codelineno-28-3"></a>
+<a id="__codelineno-28-4" name="__codelineno-28-4" href="#__codelineno-28-4"></a><span class="k">export</span><span class="w"> </span><span class="kd">function</span><span class="w"> </span><span class="nx">appProviders</span><span class="p">()</span><span class="o">:</span><span class="w"> </span><span class="p">(</span><span class="nx">Provider</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="nx">EnvironmentProviders</span><span class="p">)[]</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-28-5" name="__codelineno-28-5" href="#__codelineno-28-5"></a><span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="p">[</span>
+<a id="__codelineno-28-6" name="__codelineno-28-6" href="#__codelineno-28-6"></a><span class="w">    </span><span class="nx">provideZonelessChangeDetection</span><span class="p">(),</span>
+<a id="__codelineno-28-7" name="__codelineno-28-7" href="#__codelineno-28-7"></a><span class="w">    </span><span class="nx">provideAnimationsAsync</span><span class="p">(),</span>
+<a id="__codelineno-28-8" name="__codelineno-28-8" href="#__codelineno-28-8"></a><span class="w">    </span><span class="nx">provideHttpClient</span><span class="p">(),</span>
+<a id="__codelineno-28-9" name="__codelineno-28-9" href="#__codelineno-28-9"></a><span class="w">    </span><span class="nx">provideApollo</span><span class="p">(()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-28-10" name="__codelineno-28-10" href="#__codelineno-28-10"></a><span class="w">      </span><span class="kd">const</span><span class="w"> </span><span class="nx">httpLink</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">inject</span><span class="p">(</span><span class="nx">HttpLink</span><span class="p">).</span><span class="nx">create</span><span class="p">({</span><span class="w"> </span><span class="nx">uri</span><span class="o">:</span><span class="w"> </span><span class="kt">GRAPHQL_HTTP_URL</span><span class="w"> </span><span class="p">});</span>
+<a id="__codelineno-28-11" name="__codelineno-28-11" href="#__codelineno-28-11"></a><span class="w">      </span><span class="kd">const</span><span class="w"> </span><span class="nx">sseLink</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">GraphQLSSELink</span><span class="p">(</span><span class="nx">createSseClient</span><span class="p">(</span><span class="nx">GRAPHQL_HTTP_URL</span><span class="p">));</span>
+<a id="__codelineno-28-12" name="__codelineno-28-12" href="#__codelineno-28-12"></a>
+<a id="__codelineno-28-13" name="__codelineno-28-13" href="#__codelineno-28-13"></a><span class="w">      </span><span class="k">return</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-28-14" name="__codelineno-28-14" href="#__codelineno-28-14"></a><span class="w">        </span><span class="nx">link</span><span class="o">:</span><span class="w"> </span><span class="kt">split</span><span class="p">(</span>
+<a id="__codelineno-28-15" name="__codelineno-28-15" href="#__codelineno-28-15"></a><span class="w">          </span><span class="p">({</span><span class="w"> </span><span class="nx">query</span><span class="w"> </span><span class="p">})</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-28-16" name="__codelineno-28-16" href="#__codelineno-28-16"></a><span class="w">            </span><span class="kd">const</span><span class="w"> </span><span class="nx">definition</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">getMainDefinition</span><span class="p">(</span><span class="nx">query</span><span class="p">);</span>
+<a id="__codelineno-28-17" name="__codelineno-28-17" href="#__codelineno-28-17"></a><span class="w">            </span><span class="k">return</span><span class="w"> </span><span class="p">(</span>
+<a id="__codelineno-28-18" name="__codelineno-28-18" href="#__codelineno-28-18"></a><span class="w">              </span><span class="nx">definition</span><span class="p">.</span><span class="nx">kind</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s1">'OperationDefinition'</span><span class="w"> </span><span class="o">&amp;&amp;</span>
+<a id="__codelineno-28-19" name="__codelineno-28-19" href="#__codelineno-28-19"></a><span class="w">              </span><span class="nx">definition</span><span class="p">.</span><span class="nx">operation</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s1">'subscription'</span>
+<a id="__codelineno-28-20" name="__codelineno-28-20" href="#__codelineno-28-20"></a><span class="w">            </span><span class="p">);</span>
+<a id="__codelineno-28-21" name="__codelineno-28-21" href="#__codelineno-28-21"></a><span class="w">          </span><span class="p">},</span>
+<a id="__codelineno-28-22" name="__codelineno-28-22" href="#__codelineno-28-22"></a><span class="w">          </span><span class="nx">sseLink</span><span class="p">,</span>
+<a id="__codelineno-28-23" name="__codelineno-28-23" href="#__codelineno-28-23"></a><span class="w">          </span><span class="nx">httpLink</span><span class="p">,</span>
+<a id="__codelineno-28-24" name="__codelineno-28-24" href="#__codelineno-28-24"></a><span class="w">        </span><span class="p">),</span>
+<a id="__codelineno-28-25" name="__codelineno-28-25" href="#__codelineno-28-25"></a><span class="w">        </span><span class="nx">cache</span><span class="o">:</span><span class="w"> </span><span class="kt">new</span><span class="w"> </span><span class="nx">InMemoryCache</span><span class="p">(),</span>
+<a id="__codelineno-28-26" name="__codelineno-28-26" href="#__codelineno-28-26"></a><span class="w">      </span><span class="p">};</span>
+<a id="__codelineno-28-27" name="__codelineno-28-27" href="#__codelineno-28-27"></a><span class="w">    </span><span class="p">}),</span>
+<a id="__codelineno-28-28" name="__codelineno-28-28" href="#__codelineno-28-28"></a><span class="w">  </span><span class="p">];</span>
+<a id="__codelineno-28-29" name="__codelineno-28-29" href="#__codelineno-28-29"></a><span class="p">}</span>
+</code></pre></div>
+<p>The component does not change at all. The split link still routes
+subscriptions to the transport link, and the split link is now an SSE link.
+This is the payoff of putting the transport behind a link: the UI is
+independent of the protocol.</p>
+<h3 id="try-it-again">Try it again<a class="headerlink" href="#try-it-again" title="Permanent link">&para;</a></h3>
+<p>Stop the WebSocket server, start the SSE server, and restart the client:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-29-1" name="__codelineno-29-1" href="#__codelineno-29-1"></a><span class="nb">cd</span><span class="w"> </span>dgs-subscription-sse
+<a id="__codelineno-29-2" name="__codelineno-29-2" href="#__codelineno-29-2"></a>./mvnw<span class="w"> </span>spring-boot:run
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-30-1" name="__codelineno-30-1" href="#__codelineno-30-1"></a><span class="nb">cd</span><span class="w"> </span>dgs-subscription-ui-sse
+<a id="__codelineno-30-2" name="__codelineno-30-2" href="#__codelineno-30-2"></a>npm<span class="w"> </span>install
+<a id="__codelineno-30-3" name="__codelineno-30-3" href="#__codelineno-30-3"></a>npm<span class="w"> </span>start
+</code></pre></div>
+<p>The chat behaves the same. The difference shows up in the network tab: the
+browser now holds an event-stream response open instead of a WebSocket.</p>
+<p>And now the subscription is easy to watch from the command line. The
+<code>-N</code> flag disables curl's output buffering, and the
+<code>Accept: text/event-stream</code> header is what selects the SSE transport on the
+server:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-31-1" name="__codelineno-31-1" href="#__codelineno-31-1"></a>curl<span class="w"> </span>-N<span class="w"> </span>http://localhost:8080/graphql<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-31-2" name="__codelineno-31-2" href="#__codelineno-31-2"></a><span class="w">  </span>-H<span class="w"> </span><span class="s2">"Content-Type: application/json"</span><span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-31-3" name="__codelineno-31-3" href="#__codelineno-31-3"></a><span class="w">  </span>-H<span class="w"> </span><span class="s2">"Accept: text/event-stream"</span><span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-31-4" name="__codelineno-31-4" href="#__codelineno-31-4"></a><span class="w">  </span>-d<span class="w"> </span><span class="s1">'{"query": "subscription { messageSent { id body sentAt } }"}'</span>
 </code></pre></div>
 <p>The response stays open and prints one event per message. The framing
 follows the
 <a href="https://github.com/enisdenjo/graphql-sse/blob/master/PROTOCOL.md">GraphQL over SSE protocol</a>:
-a <code>next</code> event whose <code>data:</code> line carries the execution result, followed by
-a <code>complete</code> event when the stream ends.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-23-1" name="__codelineno-23-1" href="#__codelineno-23-1"></a>event:next
-<a id="__codelineno-23-2" name="__codelineno-23-2" href="#__codelineno-23-2"></a>data:{"data":{"messageSent":{"id":"3a2f...","body":"Hello from curl","sentAt":"2026-11-15T09:30:00.123"}}}
+a <code>next</code> event whose <code>data:</code> line carries the execution result, followed
+by a <code>complete</code> event when the stream ends.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-32-1" name="__codelineno-32-1" href="#__codelineno-32-1"></a>event:next
+<a id="__codelineno-32-2" name="__codelineno-32-2" href="#__codelineno-32-2"></a>data:{"data":{"messageSent":{"id":"3a2f...","body":"Hello from curl","sentAt":"2026-11-15T09:30:00.123"}}}
 </code></pre></div>
 <p>Run the send mutation from another terminal while the subscription is open,
 and the event appears immediately. Stop the subscription with <code>Ctrl+C</code>.</p>
-<p>GraphiQL is available at <code>http://localhost:8080/graphiql</code>. Use it to run
-the query and the mutation with completion and schema documentation; the
-subscription is easiest to watch in the Angular client or with the <code>curl -N</code>
-command above.</p>
-<h2 id="step-7-switch-to-websocket-subscriptions">Step 7: Switch to WebSocket subscriptions<a class="headerlink" href="#step-7-switch-to-websocket-subscriptions" title="Permanent link">&para;</a></h2>
-<p>SSE works, and it is the simpler transport: no upgrade handshake, no extra
-dependency, ordinary HTTP all the way. But SSE is one-directional. If you
-later want the client to push over the same connection — presence, typing
-indicators, client-side cancellation — or if your infrastructure terminates
-WebSocket connections, you need the WebSocket transport.</p>
-<p>The good news is that the server-side code barely changes. The subscription
-fetcher, the sink, and the schema are identical.</p>
-<h3 id="the-server">The server<a class="headerlink" href="#the-server" title="Permanent link">&para;</a></h3>
-<p>Add the WebSocket starter to the POM:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-24-1" name="__codelineno-24-1" href="#__codelineno-24-1"></a><span class="nt">&lt;dependency&gt;</span>
-<a id="__codelineno-24-2" name="__codelineno-24-2" href="#__codelineno-24-2"></a><span class="w">    </span><span class="nt">&lt;groupId&gt;</span>org.springframework.boot<span class="nt">&lt;/groupId&gt;</span>
-<a id="__codelineno-24-3" name="__codelineno-24-3" href="#__codelineno-24-3"></a><span class="w">    </span><span class="nt">&lt;artifactId&gt;</span>spring-boot-starter-websocket<span class="nt">&lt;/artifactId&gt;</span>
-<a id="__codelineno-24-4" name="__codelineno-24-4" href="#__codelineno-24-4"></a><span class="nt">&lt;/dependency&gt;</span>
-</code></pre></div>
-<p>The WebSocket endpoint is disabled by default in Spring GraphQL, so you also
-have to give it a path in <code>application.properties</code>:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-25-1" name="__codelineno-25-1" href="#__codelineno-25-1"></a><span class="na">spring.graphql.websocket.path</span><span class="o">=</span><span class="s">/graphql</span>
-<a id="__codelineno-25-2" name="__codelineno-25-2" href="#__codelineno-25-2"></a><span class="na">spring.graphql.websocket.connection-init-timeout</span><span class="o">=</span><span class="s">30s</span>
-<a id="__codelineno-25-3" name="__codelineno-25-3" href="#__codelineno-25-3"></a><span class="na">spring.graphql.websocket.keep-alive</span><span class="o">=</span><span class="s">60s</span>
-</code></pre></div>
-<ul>
-<li><code>spring.graphql.websocket.path</code> enables the endpoint. It is the same
-  <code>/graphql</code> path as the HTTP endpoint — the upgrade request header tells
-  the server which protocol to speak.</li>
-<li><code>connection-init-timeout</code> bounds how long the server waits for the
-  client's <code>connection_init</code> message.</li>
-<li><code>keep-alive</code> makes the server send a <code>ping</code> frame when the connection
-  has been idle, so that proxies do not drop a quiet chat.</li>
-</ul>
-<p>Change the sink so that a reconnecting client catches up on more than the
-last message:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-26-1" name="__codelineno-26-1" href="#__codelineno-26-1"></a><span class="kd">private</span><span class="w"> </span><span class="kd">val</span><span class="w"> </span><span class="nv">sink</span><span class="p">:</span><span class="w"> </span><span class="n">Many</span><span class="o">&lt;</span><span class="n">TextMessage</span><span class="o">&gt;</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Sinks</span><span class="p">.</span><span class="na">many</span><span class="p">().</span><span class="na">replay</span><span class="p">().</span><span class="na">limit</span><span class="p">(</span><span class="m">100</span><span class="p">)</span>
-</code></pre></div>
-<p>Now a client that reconnects receives the last hundred messages instead of
-only the most recent one. That is the right trade-off for a long-lived
-socket: the client catches up in one burst, and it does not miss the
-messages sent while it was away.</p>
-<h3 id="the-client">The client<a class="headerlink" href="#the-client" title="Permanent link">&para;</a></h3>
-<p>Swap the transport package:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-27-1" name="__codelineno-27-1" href="#__codelineno-27-1"></a>npm<span class="w"> </span>uninstall<span class="w"> </span>graphql-sse
-<a id="__codelineno-27-2" name="__codelineno-27-2" href="#__codelineno-27-2"></a>npm<span class="w"> </span>install<span class="w"> </span>graphql-ws
-</code></pre></div>
-<p>Update <code>src/app/config.ts</code>:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-28-1" name="__codelineno-28-1" href="#__codelineno-28-1"></a><span class="k">export</span><span class="w"> </span><span class="kd">const</span><span class="w"> </span><span class="nx">GRAPHQL_HTTP_URL</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'http://localhost:8080/graphql'</span><span class="p">;</span>
-<a id="__codelineno-28-2" name="__codelineno-28-2" href="#__codelineno-28-2"></a><span class="k">export</span><span class="w"> </span><span class="kd">const</span><span class="w"> </span><span class="nx">GRAPHQL_WS_URL</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'ws://localhost:8080/graphql'</span><span class="p">;</span>
-</code></pre></div>
-<p>Replace <code>src/app/transport/sse-link.ts</code> with <code>src/app/transport/ws-link.ts</code>:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-29-1" name="__codelineno-29-1" href="#__codelineno-29-1"></a><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">GraphQLWsLink</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">'@apollo/client/link/subscriptions'</span><span class="p">;</span>
-<a id="__codelineno-29-2" name="__codelineno-29-2" href="#__codelineno-29-2"></a><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">createClient</span><span class="p">,</span><span class="w"> </span><span class="kr">type</span><span class="w"> </span><span class="nx">ClientOptions</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">'graphql-ws'</span><span class="p">;</span>
-<a id="__codelineno-29-3" name="__codelineno-29-3" href="#__codelineno-29-3"></a><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">BehaviorSubject</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">'rxjs'</span><span class="p">;</span>
-<a id="__codelineno-29-4" name="__codelineno-29-4" href="#__codelineno-29-4"></a>
-<a id="__codelineno-29-5" name="__codelineno-29-5" href="#__codelineno-29-5"></a><span class="k">export</span><span class="w"> </span><span class="kr">type</span><span class="w"> </span><span class="nx">ConnectionState</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'idle'</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s1">'connecting'</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s1">'open'</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s1">'closed'</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s1">'error'</span><span class="p">;</span>
-<a id="__codelineno-29-6" name="__codelineno-29-6" href="#__codelineno-29-6"></a>
-<a id="__codelineno-29-7" name="__codelineno-29-7" href="#__codelineno-29-7"></a><span class="c1">// A dropped socket does not surface through QueryRef.valueChanges, so the transport</span>
-<a id="__codelineno-29-8" name="__codelineno-29-8" href="#__codelineno-29-8"></a><span class="c1">// publishes its own state for the component to render as a banner.</span>
-<a id="__codelineno-29-9" name="__codelineno-29-9" href="#__codelineno-29-9"></a><span class="k">export</span><span class="w"> </span><span class="kd">const</span><span class="w"> </span><span class="nx">connectionState$</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">BehaviorSubject</span><span class="o">&lt;</span><span class="nx">ConnectionState</span><span class="o">&gt;</span><span class="p">(</span><span class="s1">'idle'</span><span class="p">);</span>
-<a id="__codelineno-29-10" name="__codelineno-29-10" href="#__codelineno-29-10"></a>
-<a id="__codelineno-29-11" name="__codelineno-29-11" href="#__codelineno-29-11"></a><span class="k">export</span><span class="w"> </span><span class="kd">const</span><span class="w"> </span><span class="nx">wsClientListeners</span><span class="o">:</span><span class="w"> </span><span class="kt">NonNullable</span><span class="o">&lt;</span><span class="nx">ClientOptions</span><span class="p">[</span><span class="s1">'on'</span><span class="p">]</span><span class="o">&gt;</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-29-12" name="__codelineno-29-12" href="#__codelineno-29-12"></a><span class="w">  </span><span class="nx">connecting</span><span class="o">:</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">connectionState$</span><span class="p">.</span><span class="nx">next</span><span class="p">(</span><span class="s1">'connecting'</span><span class="p">),</span>
-<a id="__codelineno-29-13" name="__codelineno-29-13" href="#__codelineno-29-13"></a><span class="w">  </span><span class="nx">connected</span><span class="o">:</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">connectionState$</span><span class="p">.</span><span class="nx">next</span><span class="p">(</span><span class="s1">'open'</span><span class="p">),</span>
-<a id="__codelineno-29-14" name="__codelineno-29-14" href="#__codelineno-29-14"></a><span class="w">  </span><span class="nx">closed</span><span class="o">:</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">connectionState$</span><span class="p">.</span><span class="nx">next</span><span class="p">(</span><span class="s1">'closed'</span><span class="p">),</span>
-<a id="__codelineno-29-15" name="__codelineno-29-15" href="#__codelineno-29-15"></a><span class="w">  </span><span class="nx">error</span><span class="o">:</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">connectionState$</span><span class="p">.</span><span class="nx">next</span><span class="p">(</span><span class="s1">'error'</span><span class="p">),</span>
-<a id="__codelineno-29-16" name="__codelineno-29-16" href="#__codelineno-29-16"></a><span class="p">};</span>
-<a id="__codelineno-29-17" name="__codelineno-29-17" href="#__codelineno-29-17"></a>
-<a id="__codelineno-29-18" name="__codelineno-29-18" href="#__codelineno-29-18"></a><span class="k">export</span><span class="w"> </span><span class="kd">function</span><span class="w"> </span><span class="nx">createWsLink</span><span class="p">(</span><span class="nx">url</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="nx">GraphQLWsLink</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-29-19" name="__codelineno-29-19" href="#__codelineno-29-19"></a><span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">GraphQLWsLink</span><span class="p">(</span>
-<a id="__codelineno-29-20" name="__codelineno-29-20" href="#__codelineno-29-20"></a><span class="w">    </span><span class="nx">createClient</span><span class="p">({</span><span class="w"> </span><span class="nx">url</span><span class="p">,</span><span class="w"> </span><span class="nx">on</span><span class="o">:</span><span class="w"> </span><span class="kt">wsClientListeners</span><span class="w"> </span><span class="p">}),</span>
-<a id="__codelineno-29-21" name="__codelineno-29-21" href="#__codelineno-29-21"></a><span class="w">  </span><span class="p">);</span>
-<a id="__codelineno-29-22" name="__codelineno-29-22" href="#__codelineno-29-22"></a><span class="p">}</span>
-</code></pre></div>
-<p>This is much shorter than the SSE link, because Apollo ships the WebSocket
-link. The <code>graphql-ws</code> client reports all four transitions — connecting,
-connected, closed, and error — so the link only forwards them.</p>
-<p>Update <code>src/app/app.config.ts</code> to use it:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-30-1" name="__codelineno-30-1" href="#__codelineno-30-1"></a><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">GRAPHQL_HTTP_URL</span><span class="p">,</span><span class="w"> </span><span class="nx">GRAPHQL_WS_URL</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">'./config'</span><span class="p">;</span>
-<a id="__codelineno-30-2" name="__codelineno-30-2" href="#__codelineno-30-2"></a><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">createWsLink</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">'./transport/ws-link'</span><span class="p">;</span>
-<a id="__codelineno-30-3" name="__codelineno-30-3" href="#__codelineno-30-3"></a>
-<a id="__codelineno-30-4" name="__codelineno-30-4" href="#__codelineno-30-4"></a><span class="k">export</span><span class="w"> </span><span class="kd">function</span><span class="w"> </span><span class="nx">appProviders</span><span class="p">()</span><span class="o">:</span><span class="w"> </span><span class="p">(</span><span class="nx">Provider</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="nx">EnvironmentProviders</span><span class="p">)[]</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-30-5" name="__codelineno-30-5" href="#__codelineno-30-5"></a><span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="p">[</span>
-<a id="__codelineno-30-6" name="__codelineno-30-6" href="#__codelineno-30-6"></a><span class="w">    </span><span class="nx">provideZonelessChangeDetection</span><span class="p">(),</span>
-<a id="__codelineno-30-7" name="__codelineno-30-7" href="#__codelineno-30-7"></a><span class="w">    </span><span class="nx">provideAnimationsAsync</span><span class="p">(),</span>
-<a id="__codelineno-30-8" name="__codelineno-30-8" href="#__codelineno-30-8"></a><span class="w">    </span><span class="nx">provideHttpClient</span><span class="p">(),</span>
-<a id="__codelineno-30-9" name="__codelineno-30-9" href="#__codelineno-30-9"></a><span class="w">    </span><span class="nx">provideApollo</span><span class="p">(()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-30-10" name="__codelineno-30-10" href="#__codelineno-30-10"></a><span class="w">      </span><span class="kd">const</span><span class="w"> </span><span class="nx">httpLink</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">inject</span><span class="p">(</span><span class="nx">HttpLink</span><span class="p">).</span><span class="nx">create</span><span class="p">({</span><span class="w"> </span><span class="nx">uri</span><span class="o">:</span><span class="w"> </span><span class="kt">GRAPHQL_HTTP_URL</span><span class="w"> </span><span class="p">});</span>
-<a id="__codelineno-30-11" name="__codelineno-30-11" href="#__codelineno-30-11"></a><span class="w">      </span><span class="kd">const</span><span class="w"> </span><span class="nx">wsLink</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">createWsLink</span><span class="p">(</span><span class="nx">GRAPHQL_WS_URL</span><span class="p">);</span>
-<a id="__codelineno-30-12" name="__codelineno-30-12" href="#__codelineno-30-12"></a>
-<a id="__codelineno-30-13" name="__codelineno-30-13" href="#__codelineno-30-13"></a><span class="w">      </span><span class="k">return</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-30-14" name="__codelineno-30-14" href="#__codelineno-30-14"></a><span class="w">        </span><span class="nx">link</span><span class="o">:</span><span class="w"> </span><span class="kt">split</span><span class="p">(</span>
-<a id="__codelineno-30-15" name="__codelineno-30-15" href="#__codelineno-30-15"></a><span class="w">          </span><span class="p">({</span><span class="w"> </span><span class="nx">query</span><span class="w"> </span><span class="p">})</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-30-16" name="__codelineno-30-16" href="#__codelineno-30-16"></a><span class="w">            </span><span class="kd">const</span><span class="w"> </span><span class="nx">definition</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">getMainDefinition</span><span class="p">(</span><span class="nx">query</span><span class="p">);</span>
-<a id="__codelineno-30-17" name="__codelineno-30-17" href="#__codelineno-30-17"></a><span class="w">            </span><span class="k">return</span><span class="w"> </span><span class="p">(</span>
-<a id="__codelineno-30-18" name="__codelineno-30-18" href="#__codelineno-30-18"></a><span class="w">              </span><span class="nx">definition</span><span class="p">.</span><span class="nx">kind</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s1">'OperationDefinition'</span><span class="w"> </span><span class="o">&amp;&amp;</span>
-<a id="__codelineno-30-19" name="__codelineno-30-19" href="#__codelineno-30-19"></a><span class="w">              </span><span class="nx">definition</span><span class="p">.</span><span class="nx">operation</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s1">'subscription'</span>
-<a id="__codelineno-30-20" name="__codelineno-30-20" href="#__codelineno-30-20"></a><span class="w">            </span><span class="p">);</span>
-<a id="__codelineno-30-21" name="__codelineno-30-21" href="#__codelineno-30-21"></a><span class="w">          </span><span class="p">},</span>
-<a id="__codelineno-30-22" name="__codelineno-30-22" href="#__codelineno-30-22"></a><span class="w">          </span><span class="nx">wsLink</span><span class="p">,</span>
-<a id="__codelineno-30-23" name="__codelineno-30-23" href="#__codelineno-30-23"></a><span class="w">          </span><span class="nx">httpLink</span><span class="p">,</span>
-<a id="__codelineno-30-24" name="__codelineno-30-24" href="#__codelineno-30-24"></a><span class="w">        </span><span class="p">),</span>
-<a id="__codelineno-30-25" name="__codelineno-30-25" href="#__codelineno-30-25"></a><span class="w">        </span><span class="nx">cache</span><span class="o">:</span><span class="w"> </span><span class="kt">new</span><span class="w"> </span><span class="nx">InMemoryCache</span><span class="p">(),</span>
-<a id="__codelineno-30-26" name="__codelineno-30-26" href="#__codelineno-30-26"></a><span class="w">      </span><span class="p">};</span>
-<a id="__codelineno-30-27" name="__codelineno-30-27" href="#__codelineno-30-27"></a><span class="w">    </span><span class="p">}),</span>
-<a id="__codelineno-30-28" name="__codelineno-30-28" href="#__codelineno-30-28"></a><span class="w">  </span><span class="p">];</span>
-<a id="__codelineno-30-29" name="__codelineno-30-29" href="#__codelineno-30-29"></a><span class="p">}</span>
-</code></pre></div>
-<p>The component does not change at all. The split link still routes
-subscriptions to the transport link, and the split link is now a WebSocket
-link. This is the payoff of putting the transport behind a link: the UI is
-independent of the protocol.</p>
 <h3 id="what-changed-and-what-did-not">What changed, and what did not<a class="headerlink" href="#what-changed-and-what-did-not" title="Permanent link">&para;</a></h3>
 <table>
 <thead>
 <tr>
 <th></th>
-<th>SSE</th>
 <th>WebSocket</th>
+<th>SSE</th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td>Protocol</td>
-<td>GraphQL over SSE</td>
 <td><code>graphql-transport-ws</code></td>
+<td>GraphQL over SSE</td>
 </tr>
 <tr>
 <td>Direction</td>
-<td>server to client only</td>
 <td>both directions</td>
+<td>server to client only</td>
 </tr>
 <tr>
 <td>Subscription URL</td>
-<td><code>http://localhost:8080/graphql</code></td>
 <td><code>ws://localhost:8080/graphql</code></td>
+<td><code>http://localhost:8080/graphql</code></td>
 </tr>
 <tr>
 <td>Client library</td>
-<td><code>graphql-sse</code></td>
 <td><code>graphql-ws</code></td>
+<td><code>graphql-sse</code></td>
 </tr>
 <tr>
 <td>Server dependency</td>
-<td><code>spring-boot-starter-webmvc</code></td>
-<td>plus <code>spring-boot-starter-websocket</code></td>
+<td><code>spring-boot-starter-websocket</code></td>
+<td>none beyond <code>spring-boot-starter-webmvc</code></td>
 </tr>
 <tr>
 <td>Server configuration</td>
-<td><code>spring.mvc.async.request-timeout</code></td>
 <td><code>spring.graphql.websocket.*</code></td>
+<td><code>spring.mvc.async.request-timeout</code></td>
 </tr>
 <tr>
 <td>Replay on reconnect</td>
-<td>latest message</td>
 <td>last 100 messages</td>
+<td>the latest message</td>
 </tr>
 <tr>
 <td>Client link code</td>
-<td>hand-written <code>ApolloLink</code></td>
-<td>Apollo's <code>GraphQLWsLink</code></td>
+<td>Apollo's <code>GraphQLWsLink</code>, about 10 lines</td>
+<td>a hand-written <code>ApolloLink</code>, about 40 lines</td>
+</tr>
+<tr>
+<td>Proxy and firewall</td>
+<td>needs the upgrade handshake</td>
+<td>ordinary HTTP</td>
 </tr>
 </tbody>
 </table>
@@ -2522,18 +2626,6 @@ older <code>subscriptions-transport-ws</code> protocol is not. A client speaking
 one cannot talk to a server speaking the other, so migrate the client
 and the server together.</p>
 </div>
-<h3 id="try-it-again">Try it again<a class="headerlink" href="#try-it-again" title="Permanent link">&para;</a></h3>
-<p>Stop the SSE server, start the WebSocket server, and restart the client:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-31-1" name="__codelineno-31-1" href="#__codelineno-31-1"></a><span class="nb">cd</span><span class="w"> </span>dgs-subscription-ws
-<a id="__codelineno-31-2" name="__codelineno-31-2" href="#__codelineno-31-2"></a>./mvnw<span class="w"> </span>spring-boot:run
-</code></pre></div>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-32-1" name="__codelineno-32-1" href="#__codelineno-32-1"></a><span class="nb">cd</span><span class="w"> </span>dgs-subscription-ui
-<a id="__codelineno-32-2" name="__codelineno-32-2" href="#__codelineno-32-2"></a>npm<span class="w"> </span>install
-<a id="__codelineno-32-3" name="__codelineno-32-3" href="#__codelineno-32-3"></a>npm<span class="w"> </span>start
-</code></pre></div>
-<p>The chat behaves the same. The difference shows up in the network tab: the
-browser now opens a WebSocket to <code>ws://localhost:8080/graphql</code> instead of
-holding an event-stream response open.</p>
 <h2 id="step-8-switch-the-angular-client-to-signals">Step 8: Switch the Angular client to signals<a class="headerlink" href="#step-8-switch-the-angular-client-to-signals" title="Permanent link">&para;</a></h2>
 <p>The components version works, but it threads state through RxJS observables
 and <code>async</code> pipes. The signals version expresses the same UI with signals
@@ -2563,7 +2655,8 @@ and the <code>rxResource</code> interop API.</p>
 <a id="__codelineno-33-20" name="__codelineno-33-20" href="#__codelineno-33-20"></a><span class="p">}</span>
 </code></pre></div>
 <p>A <code>WritableSignal</code> replaces the <code>BehaviorSubject</code>. The SSE variant of the
-signals application makes the same change in its <code>sse-link.ts</code>.</p>
+signals application makes the same change in its <code>sse-link.ts</code>, and its
+<code>GraphQLSSELink</code> is unchanged apart from the state holder.</p>
 <h3 id="the-component">The component<a class="headerlink" href="#the-component" title="Permanent link">&para;</a></h3>
 <p>Create <code>src/app/app.component.ts</code> in the signals application:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-34-1" name="__codelineno-34-1" href="#__codelineno-34-1"></a><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">Component</span><span class="p">,</span><span class="w"> </span><span class="nx">computed</span><span class="p">,</span><span class="w"> </span><span class="nx">inject</span><span class="p">,</span><span class="w"> </span><span class="nx">signal</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">'@angular/core'</span><span class="p">;</span>
@@ -2809,7 +2902,8 @@ array only carries what arrived over the subscription since the page loaded.</p>
 on the server.</p>
 <h3 id="test-the-subscription-stream">Test the subscription stream<a class="headerlink" href="#test-the-subscription-stream" title="Permanent link">&para;</a></h3>
 <p>The <code>DgsQueryExecutor</code> runs a subscription and hands back the publisher,
-which Reactor's <code>StepVerifier</code> can assert against. Create a
+which Reactor's <code>StepVerifier</code> can assert against. This test is transport
+agnostic — it exercises the fetcher, not the protocol. Create a
 <code>SubscriptionTest</code> class in <code>src/test/kotlin/com/example/demo</code>:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-37-1" name="__codelineno-37-1" href="#__codelineno-37-1"></a><span class="nd">@SpringBootTest</span>
 <a id="__codelineno-37-2" name="__codelineno-37-2" href="#__codelineno-37-2"></a><span class="nd">@EnableDgsTest</span>
@@ -2864,71 +2958,97 @@ registered before the mutations run, otherwise the first message is emitted
 before anybody is listening.</p>
 <h3 id="test-over-the-transport">Test over the transport<a class="headerlink" href="#test-over-the-transport" title="Permanent link">&para;</a></h3>
 <p>The <code>DgsQueryExecutor</code> test never touches the network, so it says nothing
-about the transport. The integration tests do. For SSE, DGS ships a client
-for the GraphQL over SSE protocol:</p>
+about the protocol. The integration tests do.</p>
+<p>For WebSocket, Spring GraphQL ships its own <code>WebSocketGraphQlClient</code>:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-38-1" name="__codelineno-38-1" href="#__codelineno-38-1"></a><span class="nd">@SpringBootTest</span><span class="p">(</span><span class="n">webEnvironment</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">SpringBootTest</span><span class="p">.</span><span class="na">WebEnvironment</span><span class="p">.</span><span class="na">RANDOM_PORT</span><span class="p">)</span>
 <a id="__codelineno-38-2" name="__codelineno-38-2" href="#__codelineno-38-2"></a><span class="kd">class</span><span class="w"> </span><span class="nc">IntegrationTests</span><span class="w"> </span><span class="p">{</span>
 <a id="__codelineno-38-3" name="__codelineno-38-3" href="#__codelineno-38-3"></a>
 <a id="__codelineno-38-4" name="__codelineno-38-4" href="#__codelineno-38-4"></a><span class="w">    </span><span class="nd">@LocalServerPort</span>
 <a id="__codelineno-38-5" name="__codelineno-38-5" href="#__codelineno-38-5"></a><span class="w">    </span><span class="kd">var</span><span class="w"> </span><span class="nv">port</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">0</span>
 <a id="__codelineno-38-6" name="__codelineno-38-6" href="#__codelineno-38-6"></a>
-<a id="__codelineno-38-7" name="__codelineno-38-7" href="#__codelineno-38-7"></a><span class="w">    </span><span class="kd">lateinit</span><span class="w"> </span><span class="kd">var</span><span class="w"> </span><span class="nv">sseClient</span><span class="p">:</span><span class="w"> </span><span class="n">DgsGraphqlSSESubscriptionGraphQLClient</span>
-<a id="__codelineno-38-8" name="__codelineno-38-8" href="#__codelineno-38-8"></a><span class="w">    </span><span class="kd">lateinit</span><span class="w"> </span><span class="kd">var</span><span class="w"> </span><span class="nv">webClient</span><span class="p">:</span><span class="w"> </span><span class="n">DgsWebClientGraphQLClient</span>
+<a id="__codelineno-38-7" name="__codelineno-38-7" href="#__codelineno-38-7"></a><span class="w">    </span><span class="kd">lateinit</span><span class="w"> </span><span class="kd">var</span><span class="w"> </span><span class="nv">webClient</span><span class="p">:</span><span class="w"> </span><span class="n">DgsWebClientGraphQLClient</span>
+<a id="__codelineno-38-8" name="__codelineno-38-8" href="#__codelineno-38-8"></a><span class="w">    </span><span class="kd">lateinit</span><span class="w"> </span><span class="kd">var</span><span class="w"> </span><span class="nv">socketClient</span><span class="p">:</span><span class="w"> </span><span class="n">WebSocketGraphQlClient</span>
 <a id="__codelineno-38-9" name="__codelineno-38-9" href="#__codelineno-38-9"></a>
 <a id="__codelineno-38-10" name="__codelineno-38-10" href="#__codelineno-38-10"></a><span class="w">    </span><span class="nd">@BeforeEach</span>
 <a id="__codelineno-38-11" name="__codelineno-38-11" href="#__codelineno-38-11"></a><span class="w">    </span><span class="kd">fun</span><span class="w"> </span><span class="nf">setup</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
 <a id="__codelineno-38-12" name="__codelineno-38-12" href="#__codelineno-38-12"></a><span class="w">        </span><span class="kd">val</span><span class="w"> </span><span class="nv">baseUrl</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"http://localhost:</span><span class="si">$</span><span class="n">port</span><span class="s">/graphql"</span>
-<a id="__codelineno-38-13" name="__codelineno-38-13" href="#__codelineno-38-13"></a><span class="w">        </span><span class="n">sseClient</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">DgsGraphqlSSESubscriptionGraphQLClient</span><span class="p">(</span>
-<a id="__codelineno-38-14" name="__codelineno-38-14" href="#__codelineno-38-14"></a><span class="w">            </span><span class="n">baseUrl</span><span class="p">,</span>
-<a id="__codelineno-38-15" name="__codelineno-38-15" href="#__codelineno-38-15"></a><span class="w">            </span><span class="n">WebClient</span><span class="p">.</span><span class="na">create</span><span class="p">(</span><span class="n">baseUrl</span><span class="p">)</span>
-<a id="__codelineno-38-16" name="__codelineno-38-16" href="#__codelineno-38-16"></a><span class="w">        </span><span class="p">)</span>
-<a id="__codelineno-38-17" name="__codelineno-38-17" href="#__codelineno-38-17"></a><span class="w">        </span><span class="n">webClient</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">DgsWebClientGraphQLClient</span><span class="p">(</span><span class="n">WebClient</span><span class="p">.</span><span class="na">create</span><span class="p">(</span><span class="n">baseUrl</span><span class="p">))</span>
-<a id="__codelineno-38-18" name="__codelineno-38-18" href="#__codelineno-38-18"></a><span class="w">    </span><span class="p">}</span>
-<a id="__codelineno-38-19" name="__codelineno-38-19" href="#__codelineno-38-19"></a>
-<a id="__codelineno-38-20" name="__codelineno-38-20" href="#__codelineno-38-20"></a><span class="w">    </span><span class="nd">@Test</span>
-<a id="__codelineno-38-21" name="__codelineno-38-21" href="#__codelineno-38-21"></a><span class="w">    </span><span class="kd">fun</span><span class="w"> </span><span class="nf">testMessages</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-38-22" name="__codelineno-38-22" href="#__codelineno-38-22"></a><span class="w">        </span><span class="kd">val</span><span class="w"> </span><span class="nv">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">sseClient</span><span class="p">.</span><span class="na">reactiveExecuteQuery</span><span class="p">(</span>
-<a id="__codelineno-38-23" name="__codelineno-38-23" href="#__codelineno-38-23"></a><span class="w">            </span><span class="s">"subscription { messageSent { body } }"</span><span class="p">,</span>
-<a id="__codelineno-38-24" name="__codelineno-38-24" href="#__codelineno-38-24"></a><span class="w">            </span><span class="n">emptyMap</span><span class="o">&lt;</span><span class="kt">String</span><span class="p">,</span><span class="w"> </span><span class="kt">Any</span><span class="o">&gt;</span><span class="p">()</span>
-<a id="__codelineno-38-25" name="__codelineno-38-25" href="#__codelineno-38-25"></a><span class="w">        </span><span class="p">)</span>
-<a id="__codelineno-38-26" name="__codelineno-38-26" href="#__codelineno-38-26"></a>
-<a id="__codelineno-38-27" name="__codelineno-38-27" href="#__codelineno-38-27"></a><span class="w">        </span><span class="kd">val</span><span class="w"> </span><span class="nv">verifier</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">StepVerifier</span><span class="p">.</span><span class="na">create</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
-<a id="__codelineno-38-28" name="__codelineno-38-28" href="#__codelineno-38-28"></a><span class="w">            </span><span class="p">.</span><span class="na">consumeNextWith</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">assertThat</span><span class="p">(</span><span class="nb">it</span><span class="p">).</span><span class="na">isEqualTo</span><span class="p">(</span><span class="s">"text1 message"</span><span class="p">)</span><span class="w"> </span><span class="p">}</span>
-<a id="__codelineno-38-29" name="__codelineno-38-29" href="#__codelineno-38-29"></a><span class="w">            </span><span class="p">.</span><span class="na">consumeNextWith</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">assertThat</span><span class="p">(</span><span class="nb">it</span><span class="p">).</span><span class="na">isEqualTo</span><span class="p">(</span><span class="s">"text2 message"</span><span class="p">)</span><span class="w"> </span><span class="p">}</span>
-<a id="__codelineno-38-30" name="__codelineno-38-30" href="#__codelineno-38-30"></a><span class="w">            </span><span class="p">.</span><span class="na">thenCancel</span><span class="p">()</span>
-<a id="__codelineno-38-31" name="__codelineno-38-31" href="#__codelineno-38-31"></a><span class="w">            </span><span class="p">.</span><span class="na">verifyLater</span><span class="p">()</span>
-<a id="__codelineno-38-32" name="__codelineno-38-32" href="#__codelineno-38-32"></a>
-<a id="__codelineno-38-33" name="__codelineno-38-33" href="#__codelineno-38-33"></a><span class="w">        </span><span class="c1">// send the messages, then</span>
-<a id="__codelineno-38-34" name="__codelineno-38-34" href="#__codelineno-38-34"></a><span class="w">        </span><span class="n">verifier</span><span class="p">.</span><span class="na">verify</span><span class="p">()</span>
-<a id="__codelineno-38-35" name="__codelineno-38-35" href="#__codelineno-38-35"></a><span class="w">    </span><span class="p">}</span>
-<a id="__codelineno-38-36" name="__codelineno-38-36" href="#__codelineno-38-36"></a><span class="p">}</span>
+<a id="__codelineno-38-13" name="__codelineno-38-13" href="#__codelineno-38-13"></a><span class="w">        </span><span class="k">this</span><span class="p">.</span><span class="na">webClient</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">DgsWebClientGraphQLClient</span><span class="p">(</span><span class="n">WebClient</span><span class="p">.</span><span class="na">create</span><span class="p">(</span><span class="n">baseUrl</span><span class="p">))</span>
+<a id="__codelineno-38-14" name="__codelineno-38-14" href="#__codelineno-38-14"></a>
+<a id="__codelineno-38-15" name="__codelineno-38-15" href="#__codelineno-38-15"></a><span class="w">        </span><span class="kd">val</span><span class="w"> </span><span class="nv">subscriptionUrl</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"ws://localhost:</span><span class="si">$</span><span class="n">port</span><span class="s">/graphql"</span>
+<a id="__codelineno-38-16" name="__codelineno-38-16" href="#__codelineno-38-16"></a><span class="w">        </span><span class="k">this</span><span class="p">.</span><span class="na">socketClient</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">WebSocketGraphQlClient</span><span class="p">.</span><span class="na">create</span><span class="p">(</span>
+<a id="__codelineno-38-17" name="__codelineno-38-17" href="#__codelineno-38-17"></a><span class="w">            </span><span class="n">URI</span><span class="p">.</span><span class="na">create</span><span class="p">(</span><span class="n">subscriptionUrl</span><span class="p">),</span>
+<a id="__codelineno-38-18" name="__codelineno-38-18" href="#__codelineno-38-18"></a><span class="w">            </span><span class="n">ReactorNettyWebSocketClient</span><span class="p">()</span>
+<a id="__codelineno-38-19" name="__codelineno-38-19" href="#__codelineno-38-19"></a><span class="w">        </span><span class="p">)</span>
+<a id="__codelineno-38-20" name="__codelineno-38-20" href="#__codelineno-38-20"></a><span class="w">        </span><span class="k">this</span><span class="p">.</span><span class="na">socketClient</span><span class="p">.</span><span class="na">start</span><span class="p">().</span><span class="na">subscribe</span><span class="p">()</span>
+<a id="__codelineno-38-21" name="__codelineno-38-21" href="#__codelineno-38-21"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-38-22" name="__codelineno-38-22" href="#__codelineno-38-22"></a>
+<a id="__codelineno-38-23" name="__codelineno-38-23" href="#__codelineno-38-23"></a><span class="w">    </span><span class="nd">@AfterEach</span>
+<a id="__codelineno-38-24" name="__codelineno-38-24" href="#__codelineno-38-24"></a><span class="w">    </span><span class="kd">fun</span><span class="w"> </span><span class="nf">teardown</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-38-25" name="__codelineno-38-25" href="#__codelineno-38-25"></a><span class="w">        </span><span class="k">this</span><span class="p">.</span><span class="na">socketClient</span><span class="p">.</span><span class="na">stop</span><span class="p">().</span><span class="na">subscribe</span><span class="p">()</span>
+<a id="__codelineno-38-26" name="__codelineno-38-26" href="#__codelineno-38-26"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-38-27" name="__codelineno-38-27" href="#__codelineno-38-27"></a>
+<a id="__codelineno-38-28" name="__codelineno-38-28" href="#__codelineno-38-28"></a><span class="w">    </span><span class="nd">@Test</span>
+<a id="__codelineno-38-29" name="__codelineno-38-29" href="#__codelineno-38-29"></a><span class="w">    </span><span class="kd">fun</span><span class="w"> </span><span class="nf">testMessages</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-38-30" name="__codelineno-38-30" href="#__codelineno-38-30"></a><span class="w">        </span><span class="kd">val</span><span class="w"> </span><span class="nv">executionResult</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">socketClient</span><span class="p">.</span><span class="na">document</span><span class="p">(</span><span class="s">"subscription { messageSent { body } }"</span><span class="p">)</span>
+<a id="__codelineno-38-31" name="__codelineno-38-31" href="#__codelineno-38-31"></a><span class="w">            </span><span class="p">.</span><span class="na">executeSubscription</span><span class="p">()</span>
+<a id="__codelineno-38-32" name="__codelineno-38-32" href="#__codelineno-38-32"></a><span class="w">            </span><span class="p">.</span><span class="na">map</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-38-33" name="__codelineno-38-33" href="#__codelineno-38-33"></a><span class="w">                </span><span class="kd">val</span><span class="w"> </span><span class="nv">messageSent</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">it</span><span class="p">.</span><span class="na">getData</span><span class="o">&lt;</span><span class="n">Map</span><span class="o">&lt;</span><span class="kt">String</span><span class="p">,</span><span class="w"> </span><span class="kt">Any</span><span class="o">&gt;&gt;</span><span class="p">()</span><span class="o">!![</span><span class="s">"messageSent"</span><span class="o">]!!</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="n">Map</span><span class="o">&lt;</span><span class="kt">String</span><span class="p">,</span><span class="w"> </span><span class="kt">Any</span><span class="o">&gt;</span>
+<a id="__codelineno-38-34" name="__codelineno-38-34" href="#__codelineno-38-34"></a><span class="w">                </span><span class="n">messageSent</span><span class="o">[</span><span class="s">"body"</span><span class="o">]</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="kt">String</span>
+<a id="__codelineno-38-35" name="__codelineno-38-35" href="#__codelineno-38-35"></a><span class="w">            </span><span class="p">}</span>
+<a id="__codelineno-38-36" name="__codelineno-38-36" href="#__codelineno-38-36"></a>
+<a id="__codelineno-38-37" name="__codelineno-38-37" href="#__codelineno-38-37"></a><span class="w">        </span><span class="kd">val</span><span class="w"> </span><span class="nv">verifier</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">StepVerifier</span><span class="p">.</span><span class="na">create</span><span class="p">(</span><span class="n">executionResult</span><span class="p">)</span>
+<a id="__codelineno-38-38" name="__codelineno-38-38" href="#__codelineno-38-38"></a><span class="w">            </span><span class="p">.</span><span class="na">thenAwait</span><span class="p">(</span><span class="n">Duration</span><span class="p">.</span><span class="na">ofMillis</span><span class="p">(</span><span class="m">1500</span><span class="p">))</span>
+<a id="__codelineno-38-39" name="__codelineno-38-39" href="#__codelineno-38-39"></a><span class="w">            </span><span class="p">.</span><span class="na">consumeNextWith</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">assertThat</span><span class="p">(</span><span class="nb">it</span><span class="p">).</span><span class="na">isEqualTo</span><span class="p">(</span><span class="s">"text1"</span><span class="p">)</span><span class="w"> </span><span class="p">}</span>
+<a id="__codelineno-38-40" name="__codelineno-38-40" href="#__codelineno-38-40"></a><span class="w">            </span><span class="p">.</span><span class="na">consumeNextWith</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">assertThat</span><span class="p">(</span><span class="nb">it</span><span class="p">).</span><span class="na">isEqualTo</span><span class="p">(</span><span class="s">"text2"</span><span class="p">)</span><span class="w"> </span><span class="p">}</span>
+<a id="__codelineno-38-41" name="__codelineno-38-41" href="#__codelineno-38-41"></a><span class="w">            </span><span class="p">.</span><span class="na">thenCancel</span><span class="p">()</span>
+<a id="__codelineno-38-42" name="__codelineno-38-42" href="#__codelineno-38-42"></a><span class="w">            </span><span class="p">.</span><span class="na">verifyLater</span><span class="p">()</span>
+<a id="__codelineno-38-43" name="__codelineno-38-43" href="#__codelineno-38-43"></a>
+<a id="__codelineno-38-44" name="__codelineno-38-44" href="#__codelineno-38-44"></a><span class="w">        </span><span class="c1">// give the websocket subscription time to register on the server before sending,</span>
+<a id="__codelineno-38-45" name="__codelineno-38-45" href="#__codelineno-38-45"></a><span class="w">        </span><span class="c1">// otherwise the first message may be emitted before the subscription is active</span>
+<a id="__codelineno-38-46" name="__codelineno-38-46" href="#__codelineno-38-46"></a><span class="w">        </span><span class="n">Thread</span><span class="p">.</span><span class="na">sleep</span><span class="p">(</span><span class="m">1000</span><span class="p">)</span>
+<a id="__codelineno-38-47" name="__codelineno-38-47" href="#__codelineno-38-47"></a>
+<a id="__codelineno-38-48" name="__codelineno-38-48" href="#__codelineno-38-48"></a><span class="w">        </span><span class="c1">// send the messages over HTTP, then</span>
+<a id="__codelineno-38-49" name="__codelineno-38-49" href="#__codelineno-38-49"></a><span class="w">        </span><span class="n">verifier</span><span class="p">.</span><span class="na">verify</span><span class="p">()</span>
+<a id="__codelineno-38-50" name="__codelineno-38-50" href="#__codelineno-38-50"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-38-51" name="__codelineno-38-51" href="#__codelineno-38-51"></a><span class="p">}</span>
 </code></pre></div>
-<p>For WebSocket, the same test uses Spring GraphQL's own
-<code>WebSocketGraphQlClient</code>:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-39-1" name="__codelineno-39-1" href="#__codelineno-39-1"></a><span class="kd">val</span><span class="w"> </span><span class="nv">subscriptionUrl</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"ws://localhost:</span><span class="si">$</span><span class="n">port</span><span class="s">/graphql"</span>
-<a id="__codelineno-39-2" name="__codelineno-39-2" href="#__codelineno-39-2"></a><span class="k">this</span><span class="p">.</span><span class="na">socketClient</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">WebSocketGraphQlClient</span><span class="p">.</span><span class="na">create</span><span class="p">(</span>
-<a id="__codelineno-39-3" name="__codelineno-39-3" href="#__codelineno-39-3"></a><span class="w">    </span><span class="n">URI</span><span class="p">.</span><span class="na">create</span><span class="p">(</span><span class="n">subscriptionUrl</span><span class="p">),</span>
-<a id="__codelineno-39-4" name="__codelineno-39-4" href="#__codelineno-39-4"></a><span class="w">    </span><span class="n">ReactorNettyWebSocketClient</span><span class="p">()</span>
-<a id="__codelineno-39-5" name="__codelineno-39-5" href="#__codelineno-39-5"></a><span class="p">)</span>
-<a id="__codelineno-39-6" name="__codelineno-39-6" href="#__codelineno-39-6"></a><span class="k">this</span><span class="p">.</span><span class="na">socketClient</span><span class="p">.</span><span class="na">start</span><span class="p">().</span><span class="na">subscribe</span><span class="p">()</span>
-<a id="__codelineno-39-7" name="__codelineno-39-7" href="#__codelineno-39-7"></a>
-<a id="__codelineno-39-8" name="__codelineno-39-8" href="#__codelineno-39-8"></a><span class="kd">val</span><span class="w"> </span><span class="nv">executionResult</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">socketClient</span><span class="p">.</span><span class="na">document</span><span class="p">(</span><span class="s">"subscription { messageSent { body } }"</span><span class="p">)</span>
-<a id="__codelineno-39-9" name="__codelineno-39-9" href="#__codelineno-39-9"></a><span class="w">    </span><span class="p">.</span><span class="na">executeSubscription</span><span class="p">()</span>
-<a id="__codelineno-39-10" name="__codelineno-39-10" href="#__codelineno-39-10"></a><span class="w">    </span><span class="p">.</span><span class="na">map</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="p">(</span><span class="nb">it</span><span class="p">.</span><span class="na">getData</span><span class="o">&lt;</span><span class="n">Map</span><span class="o">&lt;</span><span class="kt">String</span><span class="p">,</span><span class="w"> </span><span class="kt">Any</span><span class="o">&gt;&gt;</span><span class="p">()</span><span class="o">!![</span><span class="s">"messageSent"</span><span class="o">]!!</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="n">Map</span><span class="o">&lt;</span><span class="kt">String</span><span class="p">,</span><span class="w"> </span><span class="kt">Any</span><span class="o">&gt;</span><span class="p">)</span><span class="o">[</span><span class="s">"body"</span><span class="o">]</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="kt">String</span><span class="w"> </span><span class="p">}</span>
-<a id="__codelineno-39-11" name="__codelineno-39-11" href="#__codelineno-39-11"></a>
-<a id="__codelineno-39-12" name="__codelineno-39-12" href="#__codelineno-39-12"></a><span class="kd">val</span><span class="w"> </span><span class="nv">verifier</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">StepVerifier</span><span class="p">.</span><span class="na">create</span><span class="p">(</span><span class="n">executionResult</span><span class="p">)</span>
-<a id="__codelineno-39-13" name="__codelineno-39-13" href="#__codelineno-39-13"></a><span class="w">    </span><span class="p">.</span><span class="na">thenAwait</span><span class="p">(</span><span class="n">Duration</span><span class="p">.</span><span class="na">ofMillis</span><span class="p">(</span><span class="m">1500</span><span class="p">))</span>
-<a id="__codelineno-39-14" name="__codelineno-39-14" href="#__codelineno-39-14"></a><span class="w">    </span><span class="p">.</span><span class="na">consumeNextWith</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">assertThat</span><span class="p">(</span><span class="nb">it</span><span class="p">).</span><span class="na">isEqualTo</span><span class="p">(</span><span class="s">"text1"</span><span class="p">)</span><span class="w"> </span><span class="p">}</span>
-<a id="__codelineno-39-15" name="__codelineno-39-15" href="#__codelineno-39-15"></a><span class="w">    </span><span class="p">.</span><span class="na">consumeNextWith</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">assertThat</span><span class="p">(</span><span class="nb">it</span><span class="p">).</span><span class="na">isEqualTo</span><span class="p">(</span><span class="s">"text2"</span><span class="p">)</span><span class="w"> </span><span class="p">}</span>
-<a id="__codelineno-39-16" name="__codelineno-39-16" href="#__codelineno-39-16"></a><span class="w">    </span><span class="p">.</span><span class="na">thenCancel</span><span class="p">()</span>
-<a id="__codelineno-39-17" name="__codelineno-39-17" href="#__codelineno-39-17"></a><span class="w">    </span><span class="p">.</span><span class="na">verifyLater</span><span class="p">()</span>
-<a id="__codelineno-39-18" name="__codelineno-39-18" href="#__codelineno-39-18"></a>
-<a id="__codelineno-39-19" name="__codelineno-39-19" href="#__codelineno-39-19"></a><span class="c1">// give the websocket subscription time to register on the server before sending,</span>
-<a id="__codelineno-39-20" name="__codelineno-39-20" href="#__codelineno-39-20"></a><span class="c1">// otherwise the first message may be emitted before the subscription is active</span>
-<a id="__codelineno-39-21" name="__codelineno-39-21" href="#__codelineno-39-21"></a><span class="n">Thread</span><span class="p">.</span><span class="na">sleep</span><span class="p">(</span><span class="m">1000</span><span class="p">)</span>
-<a id="__codelineno-39-22" name="__codelineno-39-22" href="#__codelineno-39-22"></a>
-<a id="__codelineno-39-23" name="__codelineno-39-23" href="#__codelineno-39-23"></a><span class="c1">// send the messages, then</span>
-<a id="__codelineno-39-24" name="__codelineno-39-24" href="#__codelineno-39-24"></a><span class="n">verifier</span><span class="p">.</span><span class="na">verify</span><span class="p">()</span>
+<p>For SSE, DGS ships a client for the GraphQL over SSE protocol:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-39-1" name="__codelineno-39-1" href="#__codelineno-39-1"></a><span class="nd">@SpringBootTest</span><span class="p">(</span><span class="n">webEnvironment</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">SpringBootTest</span><span class="p">.</span><span class="na">WebEnvironment</span><span class="p">.</span><span class="na">RANDOM_PORT</span><span class="p">)</span>
+<a id="__codelineno-39-2" name="__codelineno-39-2" href="#__codelineno-39-2"></a><span class="kd">class</span><span class="w"> </span><span class="nc">IntegrationTests</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-39-3" name="__codelineno-39-3" href="#__codelineno-39-3"></a>
+<a id="__codelineno-39-4" name="__codelineno-39-4" href="#__codelineno-39-4"></a><span class="w">    </span><span class="nd">@LocalServerPort</span>
+<a id="__codelineno-39-5" name="__codelineno-39-5" href="#__codelineno-39-5"></a><span class="w">    </span><span class="kd">var</span><span class="w"> </span><span class="nv">port</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">0</span>
+<a id="__codelineno-39-6" name="__codelineno-39-6" href="#__codelineno-39-6"></a>
+<a id="__codelineno-39-7" name="__codelineno-39-7" href="#__codelineno-39-7"></a><span class="w">    </span><span class="kd">lateinit</span><span class="w"> </span><span class="kd">var</span><span class="w"> </span><span class="nv">sseClient</span><span class="p">:</span><span class="w"> </span><span class="n">DgsGraphqlSSESubscriptionGraphQLClient</span>
+<a id="__codelineno-39-8" name="__codelineno-39-8" href="#__codelineno-39-8"></a><span class="w">    </span><span class="kd">lateinit</span><span class="w"> </span><span class="kd">var</span><span class="w"> </span><span class="nv">webClient</span><span class="p">:</span><span class="w"> </span><span class="n">DgsWebClientGraphQLClient</span>
+<a id="__codelineno-39-9" name="__codelineno-39-9" href="#__codelineno-39-9"></a>
+<a id="__codelineno-39-10" name="__codelineno-39-10" href="#__codelineno-39-10"></a><span class="w">    </span><span class="nd">@BeforeEach</span>
+<a id="__codelineno-39-11" name="__codelineno-39-11" href="#__codelineno-39-11"></a><span class="w">    </span><span class="kd">fun</span><span class="w"> </span><span class="nf">setup</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-39-12" name="__codelineno-39-12" href="#__codelineno-39-12"></a><span class="w">        </span><span class="kd">val</span><span class="w"> </span><span class="nv">baseUrl</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"http://localhost:</span><span class="si">$</span><span class="n">port</span><span class="s">/graphql"</span>
+<a id="__codelineno-39-13" name="__codelineno-39-13" href="#__codelineno-39-13"></a><span class="w">        </span><span class="n">sseClient</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">DgsGraphqlSSESubscriptionGraphQLClient</span><span class="p">(</span>
+<a id="__codelineno-39-14" name="__codelineno-39-14" href="#__codelineno-39-14"></a><span class="w">            </span><span class="n">baseUrl</span><span class="p">,</span>
+<a id="__codelineno-39-15" name="__codelineno-39-15" href="#__codelineno-39-15"></a><span class="w">            </span><span class="n">WebClient</span><span class="p">.</span><span class="na">create</span><span class="p">(</span><span class="n">baseUrl</span><span class="p">)</span>
+<a id="__codelineno-39-16" name="__codelineno-39-16" href="#__codelineno-39-16"></a><span class="w">        </span><span class="p">)</span>
+<a id="__codelineno-39-17" name="__codelineno-39-17" href="#__codelineno-39-17"></a><span class="w">        </span><span class="n">webClient</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">DgsWebClientGraphQLClient</span><span class="p">(</span><span class="n">WebClient</span><span class="p">.</span><span class="na">create</span><span class="p">(</span><span class="n">baseUrl</span><span class="p">))</span>
+<a id="__codelineno-39-18" name="__codelineno-39-18" href="#__codelineno-39-18"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-39-19" name="__codelineno-39-19" href="#__codelineno-39-19"></a>
+<a id="__codelineno-39-20" name="__codelineno-39-20" href="#__codelineno-39-20"></a><span class="w">    </span><span class="nd">@Test</span>
+<a id="__codelineno-39-21" name="__codelineno-39-21" href="#__codelineno-39-21"></a><span class="w">    </span><span class="kd">fun</span><span class="w"> </span><span class="nf">testMessages</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-39-22" name="__codelineno-39-22" href="#__codelineno-39-22"></a><span class="w">        </span><span class="kd">val</span><span class="w"> </span><span class="nv">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">sseClient</span><span class="p">.</span><span class="na">reactiveExecuteQuery</span><span class="p">(</span>
+<a id="__codelineno-39-23" name="__codelineno-39-23" href="#__codelineno-39-23"></a><span class="w">            </span><span class="s">"subscription { messageSent { body } }"</span><span class="p">,</span>
+<a id="__codelineno-39-24" name="__codelineno-39-24" href="#__codelineno-39-24"></a><span class="w">            </span><span class="n">emptyMap</span><span class="o">&lt;</span><span class="kt">String</span><span class="p">,</span><span class="w"> </span><span class="kt">Any</span><span class="o">&gt;</span><span class="p">()</span>
+<a id="__codelineno-39-25" name="__codelineno-39-25" href="#__codelineno-39-25"></a><span class="w">        </span><span class="p">)</span>
+<a id="__codelineno-39-26" name="__codelineno-39-26" href="#__codelineno-39-26"></a>
+<a id="__codelineno-39-27" name="__codelineno-39-27" href="#__codelineno-39-27"></a><span class="w">        </span><span class="kd">val</span><span class="w"> </span><span class="nv">verifier</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">StepVerifier</span><span class="p">.</span><span class="na">create</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
+<a id="__codelineno-39-28" name="__codelineno-39-28" href="#__codelineno-39-28"></a><span class="w">            </span><span class="p">.</span><span class="na">consumeNextWith</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">assertThat</span><span class="p">(</span><span class="nb">it</span><span class="p">).</span><span class="na">isEqualTo</span><span class="p">(</span><span class="s">"text1 message"</span><span class="p">)</span><span class="w"> </span><span class="p">}</span>
+<a id="__codelineno-39-29" name="__codelineno-39-29" href="#__codelineno-39-29"></a><span class="w">            </span><span class="p">.</span><span class="na">consumeNextWith</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">assertThat</span><span class="p">(</span><span class="nb">it</span><span class="p">).</span><span class="na">isEqualTo</span><span class="p">(</span><span class="s">"text2 message"</span><span class="p">)</span><span class="w"> </span><span class="p">}</span>
+<a id="__codelineno-39-30" name="__codelineno-39-30" href="#__codelineno-39-30"></a><span class="w">            </span><span class="p">.</span><span class="na">thenCancel</span><span class="p">()</span>
+<a id="__codelineno-39-31" name="__codelineno-39-31" href="#__codelineno-39-31"></a><span class="w">            </span><span class="p">.</span><span class="na">verifyLater</span><span class="p">()</span>
+<a id="__codelineno-39-32" name="__codelineno-39-32" href="#__codelineno-39-32"></a>
+<a id="__codelineno-39-33" name="__codelineno-39-33" href="#__codelineno-39-33"></a><span class="w">        </span><span class="c1">// send the messages over HTTP, then</span>
+<a id="__codelineno-39-34" name="__codelineno-39-34" href="#__codelineno-39-34"></a><span class="w">        </span><span class="n">verifier</span><span class="p">.</span><span class="na">verify</span><span class="p">()</span>
+<a id="__codelineno-39-35" name="__codelineno-39-35" href="#__codelineno-39-35"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-39-36" name="__codelineno-39-36" href="#__codelineno-39-36"></a><span class="p">}</span>
 </code></pre></div>
 <p>Both transports have the same race: the subscription must be active on the
 server before the mutation runs. The WebSocket test waits for it explicitly,
@@ -2937,13 +3057,13 @@ not have.</p>
 <h3 id="test-the-client">Test the client<a class="headerlink" href="#test-the-client" title="Permanent link">&para;</a></h3>
 <p>The Angular applications have unit tests for the transport link and the
 merge logic. Run them with:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-40-1" name="__codelineno-40-1" href="#__codelineno-40-1"></a><span class="nb">cd</span><span class="w"> </span>dgs-subscription-ui-sse
+<div class="highlight"><pre><span></span><code><a id="__codelineno-40-1" name="__codelineno-40-1" href="#__codelineno-40-1"></a><span class="nb">cd</span><span class="w"> </span>dgs-subscription-ui
 <a id="__codelineno-40-2" name="__codelineno-40-2" href="#__codelineno-40-2"></a>npm<span class="w"> </span><span class="nb">test</span><span class="w"> </span>--<span class="w"> </span>--watch<span class="o">=</span><span class="nb">false</span>
 </code></pre></div>
-<p>The transport tests drive the SSE sink directly with a fake client, so they
-assert the state transitions, the forwarding of results, and the disposal of
-the stream on unsubscribe — all without a server. The <code>messages.spec.ts</code>
-test covers <code>mergeNewMessage</code> and <code>describeError</code>.</p>
+<p>The transport tests drive the transport sink directly with a fake client, so
+they assert the state transitions, the forwarding of results, and the
+disposal of the stream on unsubscribe — all without a server. The
+<code>messages.spec.ts</code> test covers <code>mergeNewMessage</code> and <code>describeError</code>.</p>
 <h2 id="conclusion">Conclusion<a class="headerlink" href="#conclusion" title="Permanent link">&para;</a></h2>
 <p>You now have a working chat application built on Netflix DGS and Angular,
 and you have seen the whole path from user story to running system:</p>
@@ -2955,19 +3075,22 @@ and you have seen the whole path from user story to running system:</p>
   channel, a custom scalar, and CORS for the browser.</li>
 <li>The client is an Apollo cache with a split link that routes subscriptions
   to the transport and everything else to HTTP.</li>
-<li>SSE and WebSocket are interchangeable behind that link, and the server
-  changes by two properties and one dependency.</li>
+<li>WebSocket and SSE are interchangeable behind that link: the WebSocket
+  version needed Apollo's ready-made link, and the SSE version needed a
+  hand-written one, but the component never changed.</li>
 <li>Signals replace the observables in the UI without changing what the
   transport does.</li>
 </ul>
-<p>Four modules in the
+<p>Six modules in the
 <a href="https://github.com/hantsy/spring-graphql-sample">spring-graphql-sample repository</a>
 implement exactly this:
-<a href="https://github.com/hantsy/spring-graphql-sample/tree/master/dgs-subscription-sse"><code>dgs-subscription-sse</code></a>,
 <a href="https://github.com/hantsy/spring-graphql-sample/tree/master/dgs-subscription-ws"><code>dgs-subscription-ws</code></a>,
-<a href="https://github.com/hantsy/spring-graphql-sample/tree/master/dgs-subscription-ui-sse"><code>dgs-subscription-ui-sse</code></a>,
 <a href="https://github.com/hantsy/spring-graphql-sample/tree/master/dgs-subscription-ui"><code>dgs-subscription-ui</code></a>,
-and their <code>-signals</code> counterparts.</p>
+<a href="https://github.com/hantsy/spring-graphql-sample/tree/master/dgs-subscription-ui-signals"><code>dgs-subscription-ui-signals</code></a>,
+<a href="https://github.com/hantsy/spring-graphql-sample/tree/master/dgs-subscription-sse"><code>dgs-subscription-sse</code></a>,
+<a href="https://github.com/hantsy/spring-graphql-sample/tree/master/dgs-subscription-ui-sse"><code>dgs-subscription-ui-sse</code></a>,
+and
+<a href="https://github.com/hantsy/spring-graphql-sample/tree/master/dgs-subscription-ui-sse-signals"><code>dgs-subscription-ui-sse-signals</code></a>.</p>
 <p>From here:</p>
 <ul>
 <li>Read <a href="../start/">Building GraphQL APIs with Netflix DGS</a> for the rest of
