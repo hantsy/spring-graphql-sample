@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 950 422" width="950" height="422" role="img" aria-label="Comparison of the component-based and signal-based Angular implementations">
+  <defs>
+    <filter id="cardShadow" x="-10%" y="-10%" width="120%" height="120%" color-interpolation-filters="sRGB">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="10" result="blur"/>
+      <feOffset in="blur" dx="0" dy="6" result="offsetBlur"/>
+      <feFlood flood-color="#0f172a" flood-opacity="0.22" result="shadowColor"/>
+      <feComposite in="shadowColor" in2="offsetBlur" operator="in" result="shadow"/>
+      <feMerge>
+        <feMergeNode in="shadow"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    <clipPath id="cardClip">
+      <rect x="40" y="30" width="870" height="352" rx="12" ry="12"/>
+    </clipPath>
+  </defs>
+  <style>
+    .label-head { fill: #eef2f7; }
+    .label-col { fill: #f8fafc; }
+    .label { font-family: "Segoe UI", Arial, Helvetica, sans-serif; font-size: 13px; font-weight: 600; fill: #475569; }
+    .sans { font-family: "Segoe UI", Arial, Helvetica, sans-serif; font-size: 13px; font-weight: 400; fill: #1e293b; }
+    .mono { font-family: Consolas, "DejaVu Sans Mono", "Courier New", monospace; font-size: 12.5px; font-weight: 400; fill: #1e293b; }
+    .rule { stroke: #e2e8f0; stroke-width: 1; }
+    .cmp-head { fill: #0f766e; }
+    .cmp-col { fill: #f0fdfa; }
+    .sig-head { fill: #6d28d9; }
+    .sig-col { fill: #f5f3ff; }
+    .head-text { font-family: "Segoe UI", Arial, Helvetica, sans-serif; font-size: 19px; font-weight: 700; fill: #ffffff; }
+  </style>
+  <rect x="40" y="30" width="870" height="352" rx="12" ry="12" fill="#ffffff" filter="url(#cardShadow)"/>
+  <g clip-path="url(#cardClip)">
+    <rect class="label-head" x="40" y="30" width="210" height="58"/>
+    <rect class="label-col" x="40" y="88" width="210" height="294"/>
+    <rect class="cmp-head" x="250" y="30" width="330" height="58"/>
+    <rect class="cmp-col" x="250" y="88" width="330" height="294"/>
+    <rect class="sig-head" x="580" y="30" width="330" height="58"/>
+    <rect class="sig-col" x="580" y="88" width="330" height="294"/>
+<line class="rule" x1="40" y1="137" x2="250" y2="137"/><line class="rule" x1="250" y1="137" x2="580" y2="137"/><line class="rule" x1="580" y1="137" x2="910" y2="137"/><line class="rule" x1="40" y1="186" x2="250" y2="186"/><line class="rule" x1="250" y1="186" x2="580" y2="186"/><line class="rule" x1="580" y1="186" x2="910" y2="186"/><line class="rule" x1="40" y1="235" x2="250" y2="235"/><line class="rule" x1="250" y1="235" x2="580" y2="235"/><line class="rule" x1="580" y1="235" x2="910" y2="235"/><line class="rule" x1="40" y1="284" x2="250" y2="284"/><line class="rule" x1="250" y1="284" x2="580" y2="284"/><line class="rule" x1="580" y1="284" x2="910" y2="284"/><line class="rule" x1="40" y1="333" x2="250" y2="333"/><line class="rule" x1="250" y1="333" x2="580" y2="333"/><line class="rule" x1="580" y1="333" x2="910" y2="333"/><text class="label" x="60" y="117">Query result</text><text y="117"><tspan class="mono" x="268">watchQuery</tspan><tspan class="sans"> + </tspan><tspan class="mono">valueChanges</tspan></text><text y="117"><tspan class="sans" x="598">rxResource</tspan><tspan class="sans"> with </tspan><tspan class="mono">stream</tspan></text><text class="label" x="60" y="166">Subscription</text><text y="166"><tspan class="mono" x="268">subscribeToMore</tspan><tspan class="sans"> merged into cache</tspan></text><text y="166"><tspan class="sans" x="598">rxResource</tspan><tspan class="sans"> with </tspan><tspan class="mono">stream</tspan></text><text class="label" x="60" y="215">Derived list</text><text y="215"><tspan class="mono" x="268">map</tspan><tspan class="sans"> in an RxJS pipeline</tspan></text><text y="215"><tspan class="mono" x="598">computed</tspan></text><text class="label" x="60" y="264">Connection state</text><text y="264"><tspan class="mono" x="268">BehaviorSubject</tspan><tspan class="sans"> + </tspan><tspan class="mono">async</tspan><tspan class="sans"> pipe</tspan></text><text y="264"><tspan class="mono" x="598">WritableSignal</tspan></text><text class="label" x="60" y="313">Transient UI state</text><text y="313"><tspan class="mono" x="268">BehaviorSubject</tspan></text><text y="313"><tspan class="mono" x="598">signal</tspan></text><text class="label" x="60" y="362">Template access</text><text y="362"><tspan class="mono" x="268">messages$ | async</tspan></text><text y="362"><tspan class="mono" x="598">messages()</tspan></text>
+    <text class="label" x="60" y="63.5">Concern</text>
+    <text class="head-text" x="415" y="66" text-anchor="middle">Components</text>
+    <text class="head-text" x="745" y="66" text-anchor="middle">Signals</text>
+  </g>
+</svg>

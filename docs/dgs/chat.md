@@ -1356,14 +1356,7 @@ The template keeps the same structure and replaces pipe syntax with signal calls
 
 The component-based and signal-based implementations differ in these areas:
 
-| Concern | Components | Signals |
-| ------- | ---------- | ------- |
-| Query result | `watchQuery` + `valueChanges` | `rxResource` with `stream` |
-| Subscription | `subscribeToMore` merged into cache | `rxResource` with `stream` |
-| Derived list | `map` in an RxJS pipeline | `computed` |
-| Connection state | `BehaviorSubject` + `async` pipe | `WritableSignal` |
-| Transient UI state | `BehaviorSubject` | `signal` |
-| Template access | `messages$ \| async` | `messages()` |
+![Comparison of the component-based and signal-based Angular implementations across query result, subscription, derived list, connection state, transient UI state and template access](components-vs-signals.png)
 
 !!! note
     Behavior differs in one important way. The component-based version merges every pushed message into the query result, so the list grows over time. The signal-based version appends only the latest pushed message to the initial list because a resource stores only the most recent stream value. To accumulate all pushed messages, store them in a signal array and append in the stream pipeline:
