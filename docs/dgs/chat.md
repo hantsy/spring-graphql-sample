@@ -446,14 +446,6 @@ while nobody is listening.
 The `DgsQueryExecutor` test never touches the network, so it says nothing
 about the protocol. The integration tests do.
 
-The DGS client library ships two generations of every client. The
-`Dgs`-prefixed names — `DgsRestClientGraphQLClient`,
-`DgsWebClientGraphQLClient`, and `DgsGraphqlSSESubscriptionGraphQLClient` —
-are the Jackson 3 variants that match DGS 12 and Spring Boot 4. The
-unprefixed names — `RestClientGraphQLClient`, `WebClientGraphQLClient`,
-and `GraphqlSSESubscriptionGraphQLClient` — are their Jackson 2
-predecessors. Use the prefixed ones in new code.
-
 For WebSocket, Spring GraphQL ships its own `WebSocketGraphQlClient`:
 
 ```kotlin

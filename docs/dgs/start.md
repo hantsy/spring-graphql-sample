@@ -1426,6 +1426,15 @@ For a runnable example, explore the repository's
 a separate command-line application that declares the same schema and
 exercises the generated client.
 
+!!! warning
+    The DGS client library ships two generations of every client. The
+    `Dgs`-prefixed names — `DgsRestClientGraphQLClient`,
+    `DgsWebClientGraphQLClient`, and `DgsGraphqlSSESubscriptionGraphQLClient` —
+    are the Jackson 3 variants that match DGS 12 and Spring Boot 4. The
+    unprefixed names — `RestClientGraphQLClient`, `WebClientGraphQLClient`,
+    and `GraphqlSSESubscriptionGraphQLClient` — are their Jackson 2
+    predecessors. Use the prefixed ones in new code.
+
 ## File upload
 
 **File upload** is not defined by the GraphQL specification, so applications
