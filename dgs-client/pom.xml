@@ -15,7 +15,7 @@
 	<description>dgs-client</description>
 	<properties>
 		<java.version>25</java.version>
-		<dgs-platform.version>12.1.0</dgs-platform.version>
+		<dgs-platform.version>12.1.1</dgs-platform.version>
 		<dgs-codegen-plugin.version>3.10.2</dgs-codegen-plugin.version>
 		<dgs-codegen-core.version>8.8.0</dgs-codegen-core.version>
 		<!-- DGS 12 needs the Jackson 3 JsonProvider added in json-path 3.0 -->
