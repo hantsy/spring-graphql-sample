@@ -2506,47 +2506,7 @@
 <a id="__codelineno-39-47" name="__codelineno-39-47" href="#__codelineno-39-47"></a><span class="p">&lt;/</span><span class="nt">main</span><span class="p">&gt;</span>
 </code></pre></div>
 <p>The component-based and signal-based implementations differ in these areas:</p>
-<table>
-<thead>
-<tr>
-<th>Concern</th>
-<th>Components</th>
-<th>Signals</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>Query result</td>
-<td><code>watchQuery</code> + <code>valueChanges</code></td>
-<td><code>rxResource</code> with <code>stream</code></td>
-</tr>
-<tr>
-<td>Subscription</td>
-<td><code>subscribeToMore</code> merged into cache</td>
-<td><code>rxResource</code> with <code>stream</code></td>
-</tr>
-<tr>
-<td>Derived list</td>
-<td><code>map</code> in an RxJS pipeline</td>
-<td><code>computed</code></td>
-</tr>
-<tr>
-<td>Connection state</td>
-<td><code>BehaviorSubject</code> + <code>async</code> pipe</td>
-<td><code>WritableSignal</code></td>
-</tr>
-<tr>
-<td>Transient UI state</td>
-<td><code>BehaviorSubject</code></td>
-<td><code>signal</code></td>
-</tr>
-<tr>
-<td>Template access</td>
-<td><code>messages$ \| async</code></td>
-<td><code>messages()</code></td>
-</tr>
-</tbody>
-</table>
+<p><img alt="Comparison of the component-based and signal-based Angular implementations across query result, subscription, derived list, connection state, transient UI state and template access" src="../components-vs-signals.png" /></p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>Behavior differs in one important way. The component-based version merges every pushed message into the query result, so the list grows over time. The signal-based version appends only the latest pushed message to the initial list because a resource stores only the most recent stream value. To accumulate all pushed messages, store them in a signal array and append in the stream pipeline:</p>
