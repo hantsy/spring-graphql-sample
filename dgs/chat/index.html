@@ -1700,32 +1700,6 @@
 <p>Then install GraphQL dependencies:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a>npm<span class="w"> </span>install<span class="w"> </span>@apollo/client<span class="w"> </span>apollo-angular<span class="w"> </span>graphql<span class="w"> </span>graphql-ws
 </code></pre></div>
-<table>
-<thead>
-<tr>
-<th>Package</th>
-<th>Role</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>@apollo/client</code></td>
-<td>Provides cache and link infrastructure</td>
-</tr>
-<tr>
-<td><code>apollo-angular</code></td>
-<td>Integrates Apollo with Angular and provides the <code>gql</code> tag</td>
-</tr>
-<tr>
-<td><code>graphql</code></td>
-<td>Provides document AST utilities used by links</td>
-</tr>
-<tr>
-<td><code>graphql-ws</code></td>
-<td>Implements GraphQL over WebSocket client protocol</td>
-</tr>
-</tbody>
-</table>
 <h3 id="define-endpoint-configuration">Define endpoint configuration<a class="headerlink" href="#define-endpoint-configuration" title="Permanent link">&para;</a></h3>
 <p>Define endpoint constants in <code>src/app/config.ts</code>:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a><span class="k">export</span><span class="w"> </span><span class="kd">const</span><span class="w"> </span><span class="nx">GRAPHQL_HTTP_URL</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'http://localhost:8080/graphql'</span><span class="p">;</span>
