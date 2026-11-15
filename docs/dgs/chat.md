@@ -3,36 +3,36 @@
 Real-time chat is the smallest application that needs all three GraphQL
 operation types: a **query** to load the history, a **mutation** to send a
 message, and a **subscription** to push new messages to every connected
-client. In this tutorial you build exactly that application with the Netflix
-DGS framework on the server and Angular on the client.
+client. In this tutorial you build exactly that with the Netflix DGS
+framework on the server and Angular on the client.
 
-You will build it twice. First over **WebSocket**, where the subscription
-rides a persistent socket. Then over **Server-Sent Events (SSE)**, where the
-subscription is an ordinary HTTP response that stays open. On the client
-side you will build the UI twice as well: once with the classic Angular
-component API, and once with **signals**.
+The application gets built twice. The first version runs its subscription
+over a **WebSocket**; the second swaps in **Server-Sent Events (SSE)**. The
+UI is written twice as well — first with the classic Angular component API,
+then again with **signals**.
 
 ## Why WebSocket first
 
 The two transports are not equally hard, and the difference shows up mostly
-on the client:
+on the client.
 
-- **WebSocket** is the transport Apollo Client ships a link for. The
-  `GraphQLWsLink` from `@apollo/client/link/subscriptions` is about ten
-  lines, and the `graphql-ws` package handles the handshake, the heartbeats,
-  and the reconnection for you.
-- **SSE** has no first-party Apollo link. The server side is arguably
-  simpler — an SSE subscription is just a long-lived HTTP response, so the
-  server needs no extra dependency at all — but the client has to wrap the
-  `graphql-sse` package in a hand-written `ApolloLink` that translates
-  Apollo operations into SSE requests.
+Apollo Client ships a ready-made link for WebSocket. `GraphQLWsLink` from
+`@apollo/client/link/subscriptions` is a handful of lines, and the
+`graphql-ws` package underneath it takes care of the handshake, the
+heartbeats, and the reconnection.
 
-Starting with WebSocket gets you a working chat before you write any
-transport plumbing. The SSE switch that follows is then a short, focused
-exercise: swap one link for another, and watch the browser hold an
-event-stream response open instead of a socket.
+SSE has no equivalent. The server side is arguably the simpler of the two —
+an SSE subscription is just a long-lived HTTP response, so the server needs
+no extra dependency at all — but on the client you have to wrap the
+`graphql-sse` package in a hand-written `ApolloLink` that translates
+Apollo operations into SSE requests.
 
-The examples correspond to working modules in the
+Building the WebSocket version first gets you a working chat before you
+write a line of transport plumbing. The SSE switch afterwards is then a
+small, focused exercise: swap one link for another, and watch the browser
+hold an event-stream response open instead of a socket.
+
+Every step below maps onto a module in the
 [spring-graphql-sample repository](https://github.com/hantsy/spring-graphql-sample):
 
 | Module | Role |
@@ -44,58 +44,58 @@ The examples correspond to working modules in the
 | [`dgs-subscription-ui-sse`](https://github.com/hantsy/spring-graphql-sample/tree/master/dgs-subscription-ui-sse) | Angular client, components, SSE transport |
 | [`dgs-subscription-ui-sse-signals`](https://github.com/hantsy/spring-graphql-sample/tree/master/dgs-subscription-ui-sse-signals) | Angular client, signals, SSE transport |
 
-Code excerpts omit package declarations and imports when they are not needed
-to understand the step.
+Import lines and package declarations are left out where they would only
+pad the example.
 
 ## Prerequisites
 
-Before you begin, install or prepare the following:
+You need a few tools on your machine:
 
-- Java 25. The examples target Spring Boot 4.1.2 and Kotlin 2.4.x.
-- Node.js 24 and npm. The Angular clients use Angular 22 and the Vitest
-  test runner.
-- Git, if you want to clone and run the sample repository.
+| Tool | Version | Why |
+| ---- | ------- | --- |
+| JDK | 25 | The samples run on Spring Boot 4.1.2 and Kotlin 2.4.x |
+| Node.js | 24 | The Angular clients use Angular 22 and the Vitest test runner |
+| Git | any | Only if you plan to clone the sample repository |
 
-You do not need to install Maven separately; Spring Initializr generates a
-Maven Wrapper with the project.
+Maven does not have to be installed separately — Spring Initializr drops a
+wrapper script (`mvnw`, or `mvnw.cmd` on Windows) into the generated
+project.
 
-If you have not built a DGS application before, read
-[Building GraphQL APIs with Netflix DGS](./start.md) first. That guide
-explains the DGS programming model, the schema-first workflow, data fetchers,
-DataLoaders, and error handling. This tutorial assumes you know those ideas
-and reuses the same project layout, so the steps here stay focused on
+New to DGS? Read
+[Building GraphQL APIs with Netflix DGS](./start.md) first. It covers the
+programming model, the schema-first workflow, data fetchers, DataLoaders,
+and error handling. This tutorial picks up from there and stays focused on
 subscriptions and the client.
 
 ## Step 1: Define the use cases
 
-Start with the users, not the schema. A chat application is small enough to
-reason about completely, and the use cases tell you which GraphQL operations
-you actually need.
+Start with the users rather than the schema. Chat is small enough to reason
+about end to end, and the use cases tell you which operations you actually
+need.
 
 ### User stories
 
 **Story 1 — catch up on the conversation.** As a visitor, I want to see the
-recent messages when I open the chat, so that I can follow the conversation
-without asking anyone to repeat it.
+recent messages as soon as I open the chat, so I can follow along without
+asking anyone to repeat themselves.
 
 **Story 2 — send a message.** As a visitor, I want to type a message and
-send it, so that I can take part in the conversation.
+send it, so I can take part in the conversation.
 
-**Story 3 — see messages arrive.** As a visitor, I want messages sent by
-other people to appear without refreshing the page, so that the chat feels
-alive.
+**Story 3 — see messages arrive.** As a visitor, I want messages from other
+people to show up without a page refresh, so the chat feels alive.
 
-**Story 4 — know when the live feed breaks.** As a visitor, I want to see
-when the live connection drops, so that I do not sit in front of a list that
-silently stopped updating.
+**Story 4 — know when the live feed breaks.** As a visitor, I want to be
+told when the live connection drops, so I do not sit in front of a list
+that quietly stopped updating.
 
 **Story 5 — one contract.** As an operator, I want reads, writes, and live
-updates served from a single endpoint against a single schema, so that the
+updates served from a single endpoint against a single schema, so the
 client needs no second API and no second contract to maintain.
 
 ### From stories to operations
 
-Map each story onto the operation type that satisfies it:
+Each story lands on one operation type:
 
 | Story | Operation | Field |
 | ----- | --------- | ----- |
@@ -105,35 +105,34 @@ Map each story onto the operation type that satisfies it:
 | 4 — connection state | — | transport level, outside the schema |
 | 5 — one contract | All three | the same `/graphql` endpoint |
 
-Three observations shape the rest of the tutorial:
+Three things fall out of this table.
 
-- Stories 1 and 2 are ordinary GraphQL operations. They work over plain HTTP
-  and need no special server setup.
-- Story 3 is the only one that needs a **long-lived connection**. This is
-  where the transport decision — WebSocket or SSE — actually matters.
-- Story 4 cannot be expressed in the schema. A subscription that silently
-  dies looks exactly like a chat room where nobody is talking. The client
-  therefore has to observe the transport directly, and every client in this
-  tutorial renders a connection banner.
+Stories 1 and 2 are ordinary GraphQL operations. They go over plain HTTP
+and need no special server setup.
 
-Because stories 1, 2, and 5 map onto the three root types, the chat schema
-needs exactly one query, one mutation, and one subscription. Everything else
-is detail.
+Story 3 is the only one that needs a **long-lived connection**, and that is
+where the transport choice — WebSocket or SSE — actually bites.
+
+Story 4 cannot be expressed in the schema at all. A subscription that dies
+silently is indistinguishable from a chat room where nobody is talking, so
+the client has to watch the transport directly. Every client in this
+tutorial renders a connection banner for exactly that reason.
+
+Since stories 1, 2, and 5 map onto the three root types, the chat schema
+needs exactly one query, one mutation, and one subscription. Everything
+else is detail.
 
 ## Step 2: Create the project
 
 The chat server is the DGS application from
 [Building GraphQL APIs with Netflix DGS](./start.md), with two differences:
-it is written in Kotlin, and it has no database — the message history lives
-in memory, which keeps the focus on the subscription stream.
+it is written in Kotlin, and it keeps the message history in memory instead
+of a database — which keeps the focus on the subscription stream.
 
-Generate the project with [Spring Initializr](https://start.spring.io/):
-
-1. Select Kotlin and Spring Boot 4.1.2.
-2. Set the group to `com.example` and the artifact to `demo` to match the
-   package names in the examples.
-3. Add Spring Web and the DGS dependency. The generated POM needs the DGS
-   BOM, the starter, and the code generation plugin:
+Start from [Spring Initializr](https://start.spring.io/): pick Kotlin and
+Spring Boot 4.1.2, use `com.example` as the group and `demo` as the
+artifact, and add Spring Web plus the DGS starter. The POM that comes out
+needs the DGS BOM, the starter, and the code generation plugin:
 
 ```xml
 <properties>
@@ -183,23 +182,22 @@ Generate the project with [Spring Initializr](https://start.spring.io/):
 </dependencies>
 ```
 
-The dependencies serve these roles:
+The dependencies each do a specific job:
 
-- `dgs-starter` configures DGS and its GraphQL execution support.
-- `spring-boot-starter-webmvc` provides the HTTP endpoint.
-- `spring-boot-starter-websocket` enables the WebSocket transport. The
-  GraphQL WebSocket endpoint is disabled by default in Spring GraphQL, and
-  for a servlet application this starter is what turns it on.
-- `reactor-core` supplies the reactive types the subscription returns.
+- `dgs-starter` wires up DGS and its GraphQL execution support.
+- `spring-boot-starter-webmvc` serves the HTTP endpoint.
+- `spring-boot-starter-websocket` turns on the WebSocket transport. The
+  GraphQL WebSocket endpoint is off by default in Spring GraphQL, and for a
+  servlet application this starter is what enables it.
+- `reactor-core` provides the reactive types the subscription returns.
 
-The WebSocket starter is only needed for the WebSocket transport. When you
-switch to SSE in Step 7, the server does not need it at all — the SSE
-subscription is served by the HTTP endpoint.
+Only the WebSocket starter is transport-specific. When you move to SSE in
+Step 7 the server does not need it at all, because an SSE subscription is
+served by the HTTP endpoint.
 
-Configure the Kotlin compiler and the DGS code generation plugin in the
-build section. The code generator reads the SDL and produces Kotlin data
-classes and a typed Java client API, so the fetchers do not hand-write
-types:
+Configure the Kotlin compiler and the code generation plugin next. The
+generator reads the SDL and emits Kotlin data classes plus a typed Java
+client API, so the fetchers never have to hand-write types:
 
 ```xml
 <build>
@@ -239,21 +237,17 @@ types:
 </build>
 ```
 
-Running `mvnw generate-sources` (or `mvnw.cmd generate-sources` on Windows)
-generates the types from the schema. The plugin writes the data classes into
-`com.example.demo.gql.types` and the typed client API into
-`com.example.demo.gql.client`; the examples use the former, and the latter
-is what you would use when writing a Java or Kotlin client against this
-schema.
+`mvnw generate-sources` (or `mvnw.cmd generate-sources` on Windows) runs
+the generator. The data classes land in `com.example.demo.gql.types` and
+the typed client API in `com.example.demo.gql.client`. The examples below
+use the former; the latter is what you would reach for when writing a Java
+or Kotlin client against this schema.
 
 ## Step 3: Define the chat schema
 
-**A GraphQL schema** is the contract that describes which data clients can
-read or change and what each operation returns. DGS is schema-first: you
-write that contract in the GraphQL Schema Definition Language (SDL), then
-connect Kotlin code to its fields.
-
-Create a `schema.graphql` file in `src/main/resources/schema`:
+DGS is schema-first. The SDL file is the contract, and the Kotlin code
+afterwards only fills in the behaviour. Put `schema.graphql` under
+`src/main/resources/schema`:
 
 ```graphql
 type TextMessage {
@@ -281,39 +275,34 @@ type Subscription {
 scalar LocalDateTime
 ```
 
-The schema follows directly from the user stories:
+Everything in there traces back to the stories above. `TextMessage` is the
+message type: `id` and `body` are required, while `sentAt` is a
+`LocalDateTime` — a **custom scalar** the server supplies for ISO-8601
+timestamps. `Query.messages` serves the catch-up story, `Mutation.send`
+serves sending, and `Subscription.messageSent` pushes new messages to
+every member of the room.
 
-- `TextMessage` is the message type. `id` and `body` are required;
-  `sentAt` is a `LocalDateTime`, a **custom scalar** the server defines
-  for ISO-8601 timestamps.
-- `Query.messages` serves story 1 and returns the whole history.
-- `Mutation.send` serves story 2 and takes a `TextMessageInput`. The
-  client sends only the body; the server assigns the id and the timestamp.
-- `Subscription.messageSent` serves story 3. It takes no arguments, because
-  a chat room delivers every message to every member.
+Two details deserve a second look. `send` returns the stored message, but
+the client does not need that response to draw the new message — the
+subscription delivers it. The response matters for correctness and for
+error reporting, not for the happy path. And `messageSent` returns one
+message per event rather than a list: a subscription delivers a single
+result at a time, and the stream of events is what forms the list.
 
-Two details are worth pausing on. First, `send` returns the stored message,
-but the client does not need that response to render the new message — the
-subscription delivers it. The mutation response exists for correctness and
-for error reporting, not for the happy path. Second, `messageSent` returns
-a single message per event, not a list: a subscription delivers one result
-at a time, and the stream of events is the list.
-
-Notice also that nothing in the schema mentions the transport. The same
-schema serves the WebSocket version and the SSE version, and the same
-`@DgsSubscription` method backs both. That is the payoff of keeping the
-transport out of the schema — and the reason the SSE switch later is a
-client-side change plus two properties.
+Nothing in the schema mentions the transport. The same file serves the
+WebSocket version and the SSE version, and the same `@DgsSubscription`
+method backs both. That is why the SSE switch later comes down to a
+client-side change and a couple of properties.
 
 ## Step 4: Implement the DGS data fetchers
 
-**A data fetcher** resolves a GraphQL schema field. Mark the containing class
-with `@DgsComponent`, then bind methods to schema fields with DGS
-annotations. A **subscription** fetcher returns a reactive `Publisher`
-rather than a value, and the transport forwards each emitted item to the
-client.
+Data fetchers are where the schema meets the code. A `@DgsComponent` class
+holds the methods, and DGS annotations say which schema field each method
+answers. Subscription fetchers differ from the rest in one respect: they
+return a reactive `Publisher` instead of a value, and the transport
+forwards every item that publisher emits.
 
-Create a `MessagesDataFetcher` class in package `com.example.demo`:
+In package `com.example.demo`:
 
 ```kotlin
 @DgsComponent
@@ -345,49 +334,43 @@ class MessagesDataFetcher {
 }
 ```
 
-The annotations map directly onto the schema:
-
-- `@DgsQuery` binds `messages()` to the `Query.messages` field.
-- `@DgsMutation` binds `send(...)` to the `Mutation.send` field, and
-  `@InputArgument("message")` binds the GraphQL argument to the parameter.
-  The name is given explicitly because the parameter is `message` while the
-  generated input type is `TextMessageInput`.
-- `@DgsSubscription` binds `messageSent()` to the `Subscription.messageSent`
-  field.
+The annotations line up with the schema without any extra configuration.
+`@DgsQuery` binds `messages()` to `Query.messages`, `@DgsMutation`
+binds `send(...)` to `Mutation.send`, and `@DgsSubscription` binds
+`messageSent()` to `Subscription.messageSent`. On the mutation,
+`@InputArgument("message")` wires the GraphQL argument to the parameter —
+the name is spelled out because the parameter is `message` while the
+generated input type is `TextMessageInput`.
 
 ### The event stream
 
-The heart of a chat server is the **sink** — a Reactor `Sinks.Many`, which
-is a broadcasting channel that your imperative code pushes into and your
-reactive code reads from.
+The centre of a chat server is a **sink**: a Reactor `Sinks.Many`, which is
+a broadcasting channel that imperative code pushes into and reactive code
+reads from.
 
 ```kotlin
 private val sink: Many<TextMessage> = Sinks.many().replay().limit(100)
 ```
 
-Three parts, each doing a job:
-
-- `Sinks.many()` creates a multi-subscriber sink. Every connected browser
-  gets its own subscription to the same stream.
-- `.replay()` buffers emitted values so that a subscriber joining later
-  still receives them. Without replay, a client that opens the page after
-  the conversation started would see nothing until the next message.
-- `.limit(100)` replays the last hundred values to a subscriber that joins
-  late or reconnects. A WebSocket connection is long-lived, so a client
-  that was briefly disconnected can catch up in one burst instead of
-  missing the conversation. Step 7 narrows this to the latest message only,
-  because an SSE stream is short-lived and reconnects often.
+`Sinks.many()` creates a multi-subscriber sink — every open browser tab
+gets its own subscription to the same stream. `.replay()` buffers what has
+been emitted, so a client that joins late still receives the recent
+messages instead of waiting for the next one to arrive. `.limit(100)` caps
+that buffer at a hundred messages: a WebSocket connection is long-lived, so
+a client that dropped briefly can catch up in one burst rather than miss
+the conversation. Step 7 narrows the buffer once the stream turns out to be
+short-lived.
 
 ```kotlin
 sink.emitNext(msg, Sinks.EmitFailureHandler.FAIL_FAST)
 ```
 
-The mutation emits the new message into the sink. Every subscriber — every
-open browser tab — receives it. `FAIL_FAST` means the emission fails
-immediately if the sink is closed or terminated, rather than buffering a
+The mutation emits into the sink, and every subscriber receives the message
+— nobody had to ask for it. `FAIL_FAST` means that if the sink is already
+closed or terminated the emission fails immediately, instead of queueing a
 message that will never be delivered.
 
-The subscription fetcher simply exposes the sink as a `Flux`:
+The subscription fetcher just hands the sink out as a `Flux`:
 
 ```kotlin
 @DgsSubscription
@@ -396,15 +379,14 @@ fun messageSent(): Publisher<TextMessage> = sink.asFlux()
 
 !!! note
     The `STORE` companion object is a plain `mutableMapOf`, which is not
-    thread-safe. That is fine for a local sample, where the traffic is a
-    handful of browser tabs. In a real server, use a
-    `ConcurrentHashMap` or a database.
+    thread-safe. That is fine for a local sample where the traffic is a
+    handful of browser tabs. A real server wants a `ConcurrentHashMap` or
+    an actual database.
 
 ### The LocalDateTime scalar
 
-The schema declares a custom scalar, so the server needs a matching
-implementation. Create a `LocalDateTimeScalar` class in package
-`com.example.demo`:
+A custom scalar needs a matching implementation on the server. Create a
+`LocalDateTimeScalar` class in package `com.example.demo`:
 
 ```kotlin
 @DgsScalar(name = "LocalDateTime")
@@ -429,19 +411,19 @@ class LocalDateTimeScalar : Coercing<LocalDateTime, String> {
 }
 ```
 
-`@DgsScalar` registers the implementation with the schema. The three
-`Coercing` methods are the three places a scalar is touched: turning a
-server value into a response value, turning a client variable into a server
-value, and turning a literal written in the document into a server value.
-The example serializes to ISO-8601, so the Angular client receives a string
-such as `"2026-11-15T09:30:00.123"`.
+`@DgsScalar` registers it with the schema. A `Coercing` implementation has
+three jobs, and this class covers all of them: `serialize` turns a server
+value into a response value, `parseValue` turns a client variable into a
+server value, and `parseLiteral` does the same for a literal written
+inside the document. Formatting through `DateTimeFormatter.ISO_DATE_TIME`
+means the Angular client receives a plain string such as
+`"2026-11-15T09:30:00.123"`.
 
-### Allow the browser to call the server
+### Let the browser reach the server
 
-The Angular development server runs on port 4200 and the GraphQL server on
-port 8080. That makes every request **cross-origin**, and the browser
-blocks the response unless the server opts in. Add a `WebMvcConfigurer` to
-the application:
+The Angular dev server runs on port 4200 and the GraphQL server on 8080,
+so every request the browser makes is cross-origin — and the browser
+blocks the response unless the server opts in. Add a `WebMvcConfigurer`:
 
 ```kotlin
 @Configuration
@@ -453,13 +435,14 @@ class WebConfig : WebMvcConfigurer {
 ```
 
 !!! note
-    This mapping allows any origin, which is convenient locally and wrong in
-    production. Restrict it to the origins you actually serve, for example
+    This mapping allows any origin, which is convenient locally and wrong
+    in production. Narrow it to the origins you actually serve, for
+    example
     `registry.addMapping("/graphql").allowedOrigins("http://localhost:4200")`.
 
 ### Configure the application
 
-Create `src/main/resources/application.properties`:
+`src/main/resources/application.properties`:
 
 ```properties
 logging.level.com.example=DEBUG
@@ -472,22 +455,18 @@ spring.graphql.websocket.keep-alive=60s
 ```
 
 The three `spring.graphql.websocket.*` properties enable and tune the
-WebSocket endpoint:
-
-- `spring.graphql.websocket.path` turns the endpoint on and gives it a
-  path. It is the same `/graphql` path as the HTTP endpoint — the upgrade
-  request header tells the server which protocol to speak.
-- `connection-init-timeout` bounds how long the server waits for the
-  client's `connection_init` message before closing the socket.
-- `keep-alive` makes the server send a `ping` frame when the connection
-  has been idle. Without it, a chat that nobody is talking in is exactly
-  the case a proxy is most likely to drop.
+WebSocket endpoint. `path` switches it on and gives it an address — the
+same `/graphql` path as the HTTP endpoint, since the upgrade header is
+what tells the server which protocol to speak. `connection-init-timeout`
+caps how long the server waits for the client's `connection_init` message
+before hanging up. `keep-alive` has the server send a `ping` frame on an
+idle connection, which is exactly the case a proxy is most likely to drop.
 
 ## Step 5: Build the Angular client
 
-The client is a single-page chat: a list of messages, a text field, and a
-send button. It uses **Apollo Client** through **apollo-angular**, with the
-subscription routed to a WebSocket transport link.
+One page: a list of messages, a text field, and a send button. Under the
+hood it is **Apollo Client** wired into Angular through **apollo-angular**,
+with the subscription routed to a WebSocket transport link.
 
 ### Create the project
 
@@ -497,7 +476,7 @@ Generate the Angular application with the CLI:
 ng new dgs-subscription-ui --style=scss --routing=false --skip-git
 ```
 
-Add Angular Material for the form controls, then install the GraphQL
+Add Angular Material for the form controls, then pull in the GraphQL
 dependencies:
 
 ```bash
@@ -513,20 +492,20 @@ npm install @apollo/client apollo-angular graphql graphql-ws
 
 ### The endpoint configuration
 
-Create `src/app/config.ts`:
+`src/app/config.ts`:
 
 ```typescript
 export const GRAPHQL_HTTP_URL = 'http://localhost:8080/graphql';
 export const GRAPHQL_WS_URL = 'ws://localhost:8080/graphql';
 ```
 
-Two URLs, because two protocols. Queries and mutations go over HTTP, and
-the subscription goes over the socket. The paths are identical — the scheme
-and the upgrade header are what differ.
+Two URLs, because there are two protocols. Queries and mutations travel
+over HTTP; the subscription travels over the socket. The paths are
+identical — the scheme and the upgrade header are what tell them apart.
 
 ### The GraphQL documents
 
-Create `src/app/graphql/messages.ts`:
+`src/app/graphql/messages.ts`:
 
 ```typescript
 import { gql } from 'apollo-angular';
@@ -604,15 +583,15 @@ export function describeError(err: unknown): string {
 }
 ```
 
-The three documents map onto the three operations. `mergeNewMessage` is the
-function that stitches the subscription into the query result, and
-`describeError` turns the many shapes Apollo errors take into one line of
-text for the banner.
+One document per operation. `mergeNewMessage` is the function that folds
+subscription results into the query result, and `describeError` flattens
+the several shapes an Apollo error can take into a single line of text for
+the banner.
 
 ### The WebSocket transport link
 
-Apollo ships a subscription link for WebSocket, so the transport is about
-ten lines. Create `src/app/transport/ws-link.ts`:
+Apollo ships a subscription link for WebSocket, so the transport comes down
+to a few lines. `src/app/transport/ws-link.ts`:
 
 ```typescript
 import { GraphQLWsLink } from '@apollo/client/link/subscriptions';
@@ -640,14 +619,14 @@ export function createWsLink(url: string): GraphQLWsLink {
 ```
 
 `createClient` from `graphql-ws` opens the socket, performs the
-`graphql-transport-ws` handshake, and handles the `ping`/`pong` heartbeats.
-The four listeners publish the connection state so the component can render
-a banner — that is user story 4, and it is the reason this file exists at
-all.
+`graphql-transport-ws` handshake, and deals with the `ping`/`pong`
+heartbeats. The four listeners publish the connection state so the
+component can render a banner — that is user story 4, and it is the only
+reason this file exists.
 
 ### Wire up Apollo
 
-Create `src/app/app.config.ts`:
+`src/app/app.config.ts`:
 
 ```typescript
 import { provideHttpClient } from '@angular/common/http';
@@ -688,14 +667,14 @@ export function appProviders(): (Provider | EnvironmentProviders)[] {
 }
 ```
 
-The **split link** is the heart of the setup. It inspects each operation and
-routes subscriptions to the WebSocket link and everything else to the HTTP
-link. One Apollo client, two transports, and the routing decision made per
-operation rather than per endpoint.
+The **split link** does the routing. It inspects every incoming operation
+and sends subscriptions down the WebSocket link while everything else goes
+over HTTP. One Apollo client, two transports, and the decision made per
+operation instead of per endpoint.
 
 ### The chat component
 
-Create `src/app/app.component.ts`:
+`src/app/app.component.ts`:
 
 ```typescript
 import { AsyncPipe } from '@angular/common';
@@ -833,23 +812,21 @@ export class AppComponent implements OnInit, OnDestroy {
 }
 ```
 
-The component has three moving parts:
+Three moving parts. The **query** is watched with `watchQuery`, so Apollo
+keeps it subscribed and re-reads it whenever the cache changes. The
+**subscription** hangs off that query with `subscribeToMore`: each pushed
+message is merged into the query result by `mergeNewMessage`, and the
+cache broadcast is what re-renders the list — the component never renders
+a separate stream of its own. The **mutation** sends the message, and
+notice that it does not add anything to the list; the subscription does
+that. The mutation response is used only to clear the form and to surface
+errors.
 
-- The **query** is watched with `watchQuery`, so Apollo keeps it subscribed
-  and re-reads it whenever the cache changes.
-- The **subscription** is attached to that query with `subscribeToMore`.
-  Every pushed message is merged into the query result by `mergeNewMessage`,
-  and the cache broadcast is what re-renders the list. The component never
-  renders a separate stream.
-- The **mutation** sends the message. Notice that it does not add the
-  message to the list itself — the subscription does that. The mutation
-  response is used only to clear the form and to report errors.
+`subscribeToMore` hands back a teardown function, and `ngOnDestroy` calls
+it so the socket closes along with the component. Skip that and the
+connection leaks for the rest of the page's life.
 
-The `subscribeToMore` subscription is stopped in `ngOnDestroy`, which
-closes the socket when the component is destroyed. Without that, the
-connection would leak for the lifetime of the page.
-
-Create `src/app/app.component.html`:
+The template:
 
 ```html
 <main class="container">
@@ -907,12 +884,12 @@ Create `src/app/app.component.html`:
 </main>
 ```
 
-The banner is user story 4 in the UI: whenever the transport is not open,
-the page says so.
+The banner at the top is user story 4 in the UI: whenever the transport is
+not open, the page says so.
 
 ## Step 6: Run the server and the client
 
-Now run both halves and use the chat.
+Time to use the thing.
 
 ### Start the server
 
@@ -921,12 +898,11 @@ cd dgs-subscription-ws
 ./mvnw spring-boot:run
 ```
 
-On Windows, run `mvnw.cmd spring-boot:run` from the `dgs-subscription-ws`
-directory. The chat server needs no database, so there is no Docker step
-here.
+On Windows use `mvnw.cmd spring-boot:run` instead. The chat server has no
+database, so there is no Docker step to worry about.
 
-When the `Started DemoApplication` log line appears, the server is ready
-at `http://localhost:8080`.
+Once the log shows `Started DemoApplication`, the server is listening on
+`http://localhost:8080`.
 
 ### Start the client
 
@@ -936,23 +912,24 @@ npm install
 npm start
 ```
 
-Open `http://localhost:4200` in your browser. The page shows an empty
-message list and a text field.
+Open `http://localhost:4200` and you should see an empty message list
+above the text field.
 
 ### Try it
 
-1. Type a message and press the send button. It appears in the list, and
-   the text field is cleared.
-2. Open a second browser tab on `http://localhost:4200`. Send a message in
-   one tab and watch it appear in the other. That is the subscription doing
-   its job: the server pushed the message to every connected subscriber,
-   and neither tab asked for it.
-3. Stop the server. The connection banner appears in both tabs once the
-   socket closes. Restart the server and reload the page to pick the
-   connection back up.
+1. Type something and hit send. It shows up in the list and the field
+   clears.
+2. Open a second tab on `http://localhost:4200`. Send a message in one tab
+   and it appears in the other. That is the subscription at work — the
+   server pushed the message to every connected subscriber, and neither
+   tab asked for it.
+3. Kill the server. The connection banner appears once the socket closes.
+   Bring the server back and reload the page to pick the connection up
+   again.
 
-The query and the mutation are available from the command line, because they
-are ordinary HTTP requests to the same endpoint. List the stored messages:
+The query and the mutation are ordinary HTTP requests to the same
+endpoint, so `curl` handles them without ceremony. List the stored
+messages:
 
 ```bash
 curl http://localhost:8080/graphql \
@@ -971,34 +948,33 @@ curl http://localhost:8080/graphql \
   }'
 ```
 
-A subscription over WebSocket is harder to inspect from the command line,
-because the `graphql-transport-ws` protocol starts with a
-`connection_init` handshake before any operation can be sent. The browser
-DevTools network tab shows the socket and its frames, the server integration
-test in Step 9 exercises the full handshake, and a tool such as
-`websocat` lets you drive the protocol by hand if you want to look at the
-raw frames. The SSE version in Step 7 is the one that a single `curl`
-command can watch.
+A WebSocket subscription is harder to inspect from a shell, because the
+`graphql-transport-ws` protocol opens with a `connection_init` handshake
+before any operation can be sent. The browser's network tab shows the
+socket and its frames, the integration test in Step 9 exercises the full
+handshake, and a tool such as `websocat` lets you drive the protocol by
+hand if you want to read the raw frames. The SSE version in Step 7 is the
+one that a single `curl` command can watch.
 
-GraphiQL is available at `http://localhost:8080/graphiql`. Use it to run
-the query and the mutation with completion and schema documentation.
+GraphiQL lives at `http://localhost:8080/graphiql` — handy for the query
+and the mutation, with completion and schema documentation.
 
 ## Step 7: Switch to SSE subscriptions
 
-The WebSocket version works, and it is the richer protocol: the socket is
-bidirectional, so the client could push over the same connection later. But
-it is also the heavier one to operate. A WebSocket is not an ordinary HTTP
-request, which means every proxy, load balancer, and corporate firewall
-between the browser and the server has to cooperate with the upgrade
-handshake. When they do not, the chat silently stops receiving messages.
+The WebSocket version works, and it is the richer protocol — the socket is
+bidirectional, so the client could push over the same connection later. It
+is also the heavier one to operate. A WebSocket is not an ordinary HTTP
+request, so every proxy, load balancer, and corporate firewall between the
+browser and the server has to cooperate with the upgrade handshake. When
+one of them does not, the chat quietly stops receiving messages.
 
-**Server-Sent Events** remove that whole class of problem. An SSE
+**Server-Sent Events** remove that whole category of problem. An SSE
 subscription is a normal HTTP request whose response stays open, and the
-server writes one event per message. Nothing upgrades, nothing negotiates a
-second protocol, and the same HTTP infrastructure you already run handles
-it.
+server writes one event per message. Nothing upgrades and nothing
+negotiates a second protocol, so the HTTP infrastructure you already run
+handles it as-is.
 
-The server changes are small. The client changes are the interesting part,
+The server changes are minor. The client changes are the interesting part,
 because Apollo has no SSE link and you write one.
 
 ### The server
@@ -1017,7 +993,7 @@ Leaving it in place does no harm — the WebSocket endpoint simply goes
 unused — but the `dgs-subscription-sse` sample module drops it, and so
 should you.
 
-Replace the WebSocket properties with the one that bounds the SSE response:
+The WebSocket properties give way to the one that bounds an SSE response:
 
 ```properties
 logging.level.com.example=DEBUG
@@ -1027,8 +1003,8 @@ logging.level.com.netflix.graphql.dgs=TRACE
 spring.mvc.async.request-timeout=45000
 ```
 
-An SSE response is an asynchronous servlet request that stays open for the
-whole life of the subscription, and `spring.mvc.async.request-timeout`
+An SSE response is an asynchronous servlet request that stays open for as
+long as the subscription lives, and `spring.mvc.async.request-timeout`
 bounds it: after 45 seconds the server ends the stream.
 
 The `graphql-sse` client treats that as a retryable disconnect and
@@ -1041,10 +1017,10 @@ replay buffer, so narrow the buffer to match the shorter stream:
 private val sink: Many<TextMessage> = Sinks.many().replay().latest()
 ```
 
-Keeping a hundred messages in the buffer for a connection that lives 45
-seconds would be wasted memory, and replaying a hundred messages to every
-reconnecting client would be wasted traffic. The latest message is enough to
-show that the stream is alive again.
+Holding a hundred messages for a connection that lives 45 seconds wastes
+memory, and replaying a hundred messages to every reconnecting client
+wastes traffic. The latest message is enough to show that the stream is
+alive again.
 
 ### The client
 
@@ -1055,16 +1031,16 @@ npm uninstall graphql-ws
 npm install graphql-sse
 ```
 
-Update `src/app/config.ts` — the WebSocket URL is gone, because the SSE
-subscription uses the HTTP endpoint:
+The WebSocket URL is gone, because the SSE subscription uses the HTTP
+endpoint. `src/app/config.ts`:
 
 ```typescript
 export const GRAPHQL_HTTP_URL = 'http://localhost:8080/graphql';
 ```
 
-Now the interesting part. Apollo has no SSE subscription link, so you write
-one: an `ApolloLink` that translates an Apollo operation into a request for
-the `graphql-sse` client and forwards the results back. Create
+Now the interesting part. Apollo has no SSE subscription link, so you
+write one: an `ApolloLink` that turns an Apollo operation into a request
+for the `graphql-sse` client and feeds the results back.
 `src/app/transport/sse-link.ts`:
 
 ```typescript
@@ -1123,27 +1099,29 @@ export class GraphQLSSELink extends ApolloLink {
 }
 ```
 
-Three things happen here:
-
-- The link translates an Apollo operation into the request object the
-  `graphql-sse` client expects, printing the document AST back into a
-  query string.
-- The `next`, `error`, and `complete` callbacks of the SSE sink are
-  forwarded to the RxJS observer, which is what makes the link a normal
-  Apollo link.
-- The returned dispose function is the observable's teardown, so
-  unsubscribing closes the SSE stream.
+Three jobs. The link converts an Apollo operation into the request object
+`graphql-sse` expects, printing the document AST back into a query string.
+The `next`, `error`, and `complete` callbacks of the SSE sink are
+forwarded to the RxJS observer, which is what makes this an ordinary
+Apollo link. And the dispose function that comes back is the observable's
+teardown, so unsubscribing closes the stream.
 
 Compare it with the WebSocket link. There, Apollo did the translation and
-the `graphql-ws` package reported all four connection transitions. Here,
-the `graphql-sse` package only reports `connecting` and `connected`, so
-the link detects `closed` and `error` itself from the sink. That is the
-price of not having a first-party Apollo link — and it is roughly forty
-lines.
+the `graphql-ws` package reported all four connection transitions. Here the
+`graphql-sse` package only reports `connecting` and `connected`, so the
+link has to spot `closed` and `error` itself in the sink. That is the
+price of having no first-party Apollo link — roughly forty lines.
 
-Update `src/app/app.config.ts` to use the new link:
+Point the application config at the new link:
 
 ```typescript
+import { provideHttpClient } from '@angular/common/http';
+import { inject, provideZonelessChangeDetection, type EnvironmentProviders, type Provider } from '@angular/core';
+import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
+import { InMemoryCache, split } from '@apollo/client';
+import { getMainDefinition } from '@apollo/client/utilities';
+import { provideApollo } from 'apollo-angular';
+import { HttpLink } from 'apollo-angular/http';
 import { GRAPHQL_HTTP_URL } from './config';
 import { GraphQLSSELink, createSseClient } from './transport/sse-link';
 
@@ -1176,13 +1154,13 @@ export function appProviders(): (Provider | EnvironmentProviders)[] {
 ```
 
 The component does not change at all. The split link still routes
-subscriptions to the transport link, and the split link is now an SSE link.
-This is the payoff of putting the transport behind a link: the UI is
-independent of the protocol.
+subscriptions to the transport link; the transport link just happens to be
+an SSE link now. That is the payoff of hiding the transport behind a link:
+the UI does not know or care which protocol carries the subscription.
 
 ### Try it again
 
-Stop the WebSocket server, start the SSE server, and restart the client:
+Stop the WebSocket server, start the SSE one, and restart the client:
 
 ```bash
 cd dgs-subscription-sse
@@ -1198,10 +1176,9 @@ npm start
 The chat behaves the same. The difference shows up in the network tab: the
 browser now holds an event-stream response open instead of a WebSocket.
 
-And now the subscription is easy to watch from the command line. The
-`-N` flag disables curl's output buffering, and the
-`Accept: text/event-stream` header is what selects the SSE transport on the
-server:
+The subscription is also much easier to watch from a shell now. `-N`
+turns off curl's output buffering, and the `Accept: text/event-stream`
+header is what selects the SSE transport on the server:
 
 ```bash
 curl -N http://localhost:8080/graphql \
@@ -1221,8 +1198,8 @@ event:next
 data:{"data":{"messageSent":{"id":"3a2f...","body":"Hello from curl","sentAt":"2026-11-15T09:30:00.123"}}}
 ```
 
-Run the send mutation from another terminal while the subscription is open,
-and the event appears immediately. Stop the subscription with `Ctrl+C`.
+Run the send mutation from another terminal while the subscription is open
+and the event shows up right away. `Ctrl+C` ends the subscription.
 
 ### What changed, and what did not
 
@@ -1247,14 +1224,14 @@ and the event appears immediately. Stop the subscription with `Ctrl+C`.
 
 ## Step 8: Switch the Angular client to signals
 
-The components version works, but it threads state through RxJS observables
-and `async` pipes. The signals version expresses the same UI with signals
+The component version works, but it threads state through RxJS observables
+and `async` pipes. The signals version says the same thing with signals
 and the `rxResource` interop API.
 
 ### The transport publishes a signal
 
-The only change in the transport is the state holder. Create
-`src/app/transport/ws-link.ts` in the signals application:
+The only change in the transport is the state holder.
+`src/app/transport/ws-link.ts`:
 
 ```typescript
 import { signal, type WritableSignal } from '@angular/core';
@@ -1279,13 +1256,13 @@ export function createWsLink(url: string): GraphQLWsLink {
 }
 ```
 
-A `WritableSignal` replaces the `BehaviorSubject`. The SSE variant of the
-signals application makes the same change in its `sse-link.ts`, and its
-`GraphQLSSELink` is unchanged apart from the state holder.
+A `WritableSignal` takes the place of the `BehaviorSubject`. The SSE
+variant of the signals application makes the same swap in its
+`sse-link.ts`, and its `GraphQLSSELink` is otherwise unchanged.
 
 ### The component
 
-Create `src/app/app.component.ts` in the signals application:
+`src/app/app.component.ts`:
 
 ```typescript
 import { Component, computed, inject, signal } from '@angular/core';
@@ -1403,8 +1380,8 @@ export class AppComponent {
 }
 ```
 
-The template follows the same shape, with the call syntax instead of the
-pipe syntax:
+The template keeps the same shape and swaps the pipe syntax for call
+syntax:
 
 ```html
 <main class="container">
@@ -1456,7 +1433,7 @@ pipe syntax:
 </main>
 ```
 
-Compare the two versions:
+Side by side, the two versions differ in four places:
 
 | Concern | Components | Signals |
 | ------- | ---------- | ------- |
@@ -1465,16 +1442,15 @@ Compare the two versions:
 | Derived list | `map` in an RxJS pipeline | `computed` |
 | Connection state | `BehaviorSubject` + `async` pipe | `WritableSignal` |
 | Transient UI state | `BehaviorSubject` | `signal` |
-| Reading in the template | `messages$ | async` | `messages()` |
+| Reading in the template | `messages$ \| async` | `messages()` |
 
 !!! note
-    There is one behavioral difference worth knowing. The components version
-    merges every pushed message into the query result, so the list grows.
-    The signals version as written above appends the **latest** pushed
-    message to the initial list, because a resource holds only the most
-    recent value of its stream. To accumulate every message, keep the
-    pushed messages in a signal array and append to it in the stream
-    pipeline:
+    One behaviour differs, and it is worth knowing about. The components
+    version merges every pushed message into the query result, so the list
+    keeps growing. The signals version appends only the **latest** pushed
+    message to the initial list, because a resource holds just the most
+    recent value of its stream. To accumulate everything, keep the pushed
+    messages in a signal array and append to it inside the stream pipeline:
 
     ```typescript
     readonly pushed = signal<TextMessage[]>([]);
@@ -1498,18 +1474,19 @@ Compare the two versions:
     ]);
     ```
 
-The Apollo cache is still the source of truth for the query; the signal
-array only carries what arrived over the subscription since the page loaded.
+    The Apollo cache stays the source of truth for the query; the signal
+    array only carries what has arrived over the subscription since the
+    page loaded.
 
 ## Step 9: Test the subscriptions
 
-A subscription is hard to test by clicking around, so the samples test it
-on the server.
+Clicking around is a poor way to test a subscription. The samples test it
+on the server instead.
 
 ### Test the subscription stream
 
-The `DgsQueryExecutor` runs a subscription and hands back the publisher,
-which Reactor's `StepVerifier` can assert against. This test is transport
+`DgsQueryExecutor` runs a subscription and hands back the publisher, which
+Reactor's `StepVerifier` can assert against. This test is transport
 agnostic — it exercises the fetcher, not the protocol. Create a
 `SubscriptionTest` class in `src/test/kotlin/com/example/demo`:
 
@@ -1543,14 +1520,14 @@ class SubscriptionTest {
             .verifyLater()
 
         val sendText1 = dgsQueryExecutor.executeAndExtractJsonPath<String>(
-            "mutation sendMessage($msg: TextMessageInput!) { send(message:$msg) { body}}",
+            "mutation sendMessage(\$msg: TextMessageInput!) { send(message:\$msg) { body}}",
             "data.send.body",
             mapOf("msg" to (mapOf("body" to "text1 message")))
         )
         assertThat(sendText1).contains("text1")
 
         val sendText2 = dgsQueryExecutor.executeAndExtractJsonPath<String>(
-            "mutation sendMessage($msg: TextMessageInput!) { send(message:$msg) { body}}",
+            "mutation sendMessage(\$msg: TextMessageInput!) { send(message:\$msg) { body}}",
             "data.send.body",
             mapOf("msg" to (mapOf("body" to "text2 message")))
         )
@@ -1562,10 +1539,10 @@ class SubscriptionTest {
 }
 ```
 
-The pattern matters: start the verifier with `verifyLater()`, send the
-messages, and only then call `verify()`. The subscription has to be
-registered before the mutations run, otherwise the first message is emitted
-before anybody is listening.
+The ordering is the whole trick. Start the verifier with `verifyLater()`,
+send the messages, and only then call `verify()`: the subscription has to
+be registered before the mutations run, or the first message is emitted
+while nobody is listening.
 
 ### Test over the transport
 
@@ -1576,9 +1553,9 @@ The DGS client library ships two generations of every client. The
 `Dgs`-prefixed names — `DgsRestClientGraphQLClient`,
 `DgsWebClientGraphQLClient`, and `DgsGraphqlSSESubscriptionGraphQLClient` —
 are the Jackson 3 variants that match DGS 12 and Spring Boot 4. The
-unprefixed names — `RestClientGraphQLClient`, `WebClientGraphQLClient`, and
-`GraphqlSSESubscriptionGraphQLClient` — are their Jackson 2 predecessors.
-Use the prefixed ones in new code.
+unprefixed names — `RestClientGraphQLClient`, `WebClientGraphQLClient`,
+and `GraphqlSSESubscriptionGraphQLClient` — are their Jackson 2
+predecessors. Use the prefixed ones in new code.
 
 For WebSocket, Spring GraphQL ships its own `WebSocketGraphQlClient`:
 
@@ -1715,9 +1692,9 @@ class IntegrationTests {
 ```
 
 Both transports have the same race: the subscription must be active on the
-server before the mutation runs. The WebSocket test waits for it explicitly,
-because the socket handshake adds a round trip that the in-process test does
-not have.
+server before the mutation runs. The WebSocket test waits for it
+explicitly, because the socket handshake adds a round trip that the
+in-process test does not have.
 
 ### Test the client
 
@@ -1729,28 +1706,32 @@ cd dgs-subscription-ui
 npm test -- --watch=false
 ```
 
-The transport tests drive the transport sink directly with a fake client, so
-they assert the state transitions, the forwarding of results, and the
+The transport tests drive the transport sink directly with a fake client,
+so they assert the state transitions, the forwarding of results, and the
 disposal of the stream on unsubscribe — all without a server. The
 `messages.spec.ts` test covers `mergeNewMessage` and `describeError`.
 
 ## Conclusion
 
-You now have a working chat application built on Netflix DGS and Angular,
-and you have seen the whole path from user story to running system:
+You now have a working chat application on Netflix DGS and Angular, and you
+have walked the whole path from user story to running system.
 
-- The use cases mapped onto three GraphQL operations — a query, a mutation,
-  and a subscription — and the connection state turned out not to belong in
-  the schema at all.
-- The DGS side is a `@DgsComponent` class with a `Sinks.Many` broadcast
-  channel, a custom scalar, and CORS for the browser.
-- The client is an Apollo cache with a split link that routes subscriptions
-  to the transport and everything else to HTTP.
-- WebSocket and SSE are interchangeable behind that link: the WebSocket
-  version needed Apollo's ready-made link, and the SSE version needed a
-  hand-written one, but the component never changed.
-- Signals replace the observables in the UI without changing what the
-  transport does.
+The use cases mapped onto three GraphQL operations — a query, a mutation,
+and a subscription — and the connection state turned out to belong outside
+the schema entirely.
+
+On the server, a `@DgsComponent` class with a `Sinks.Many` broadcast
+channel, a custom scalar, and a CORS mapping for the browser.
+
+On the client, an Apollo cache with a split link that sends subscriptions
+to the transport and everything else to HTTP.
+
+WebSocket and SSE turn out to be interchangeable behind that link. The
+WebSocket version needed Apollo's ready-made link; the SSE version needed
+a hand-written one; the component never changed either way.
+
+And signals replace the observables in the UI without touching what the
+transport does.
 
 Six modules in the
 [spring-graphql-sample repository](https://github.com/hantsy/spring-graphql-sample)
@@ -1763,15 +1744,14 @@ implement exactly this:
 and
 [`dgs-subscription-ui-sse-signals`](https://github.com/hantsy/spring-graphql-sample/tree/master/dgs-subscription-ui-sse-signals).
 
-From here:
+Where to go next:
 
-- Read [Building GraphQL APIs with Netflix DGS](./start.md) for the rest of
-  the DGS programming model, including DataLoaders, code generation, and
-  error handling.
-- Read [An introduction to GraphQL and Spring](../intro.md) for the protocol
+- [Building GraphQL APIs with Netflix DGS](./start.md) covers the rest of
+  the DGS programming model — DataLoaders, code generation, error handling.
+- [An introduction to GraphQL and Spring](../intro.md) has the protocol
   details behind the two WebSocket protocols and the SSE specification.
 
-Related examples: [dgs-webflux](https://github.com/hantsy/spring-graphql-sample/tree/master/dgs-webflux)
+Two related examples in the same repository: [dgs-webflux](https://github.com/hantsy/spring-graphql-sample/tree/master/dgs-webflux)
 runs the same subscription on the reactive stack, and
 [spring-graphql-webmvc-http](https://github.com/hantsy/spring-graphql-sample/tree/master/spring-graphql-webmvc-http)
 serves the same schema with Spring GraphQL instead of DGS.
