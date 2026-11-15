@@ -1062,7 +1062,7 @@ Send a mutation from another terminal while the subscription is open to see even
 
 The two transports differ far less on the server than on the client:
 
-![Comparison of WebSocket and SSE subscriptions across protocol, direction, subscription URL, client library, server dependency, server configuration, replay on reconnect, client link code and proxy behavior](websocket-vs-sse.svg)
+![Comparison of WebSocket and SSE subscriptions across protocol, direction, subscription URL, client library, server dependency, server configuration, replay on reconnect, client link code and proxy behavior](websocket-vs-sse.png)
 
 !!! warning
     The two WebSocket protocols are not interchangeable. This tutorial uses the maintained `graphql-transport-ws` subprotocol, not the deprecated `subscriptions-transport-ws` protocol. Client and server must use the same protocol.

@@ -1,40 +1,43 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1080 500" width="1080" height="500" role="img" aria-label="Comparison of WebSocket and SSE subscriptions">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1160 569" width="1160" height="569" role="img" aria-label="Comparison of WebSocket and SSE subscriptions">
+  <defs>
+    <filter id="cardShadow" x="-10%" y="-10%" width="120%" height="120%" color-interpolation-filters="sRGB">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="10" result="blur"/>
+      <feOffset in="blur" dx="0" dy="6" result="offsetBlur"/>
+      <feFlood flood-color="#0f172a" flood-opacity="0.22" result="shadowColor"/>
+      <feComposite in="shadowColor" in2="offsetBlur" operator="in" result="shadow"/>
+      <feMerge>
+        <feMergeNode in="shadow"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    <clipPath id="cardClip">
+      <rect x="40" y="30" width="1080" height="499" rx="12" ry="12"/>
+    </clipPath>
+  </defs>
   <style>
-    .bg { fill: #ffffff; }
-    .label-col { fill: #f8fafc; stroke: #e2e8f0; }
     .label-head { fill: #eef2f7; }
-    .label { font: 600 13px "Helvetica Neue", Helvetica, Arial, sans-serif; fill: #475569; }
-    .sans { font: 400 13px "Helvetica Neue", Helvetica, Arial, sans-serif; fill: #1e293b; }
-    .mono { font: 400 12.5px ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace; fill: #1e293b; }
+    .label-col { fill: #f8fafc; }
+    .label { font-family: "Segoe UI", Arial, Helvetica, sans-serif; font-size: 13px; font-weight: 600; fill: #475569; }
+    .sans { font-family: "Segoe UI", Arial, Helvetica, sans-serif; font-size: 13px; font-weight: 400; fill: #1e293b; }
+    .mono { font-family: Consolas, "DejaVu Sans Mono", "Courier New", monospace; font-size: 12.5px; font-weight: 400; fill: #1e293b; }
     .rule { stroke: #e2e8f0; stroke-width: 1; }
     .ws-head { fill: #1d4ed8; }
-    .ws-col { fill: #eff6ff; stroke: #bfdbfe; }
+    .ws-col { fill: #eff6ff; }
     .sse-head { fill: #c2410c; }
-    .sse-col { fill: #fff7ed; stroke: #fed7aa; }
-    .head-text { font: 700 19px "Helvetica Neue", Helvetica, Arial, sans-serif; fill: #ffffff; }
-    @media (prefers-color-scheme: dark) {
-      .bg { fill: #0f172a; }
-      .label-col { fill: #1e293b; stroke: #334155; }
-      .label-head { fill: #263449; }
-      .label { fill: #94a3b8; }
-      .sans { fill: #e2e8f0; }
-      .mono { fill: #e2e8f0; }
-      .rule { stroke: #334155; }
-      .ws-head { fill: #3b82f6; }
-      .ws-col { fill: #172554; stroke: #1e40af; }
-      .sse-head { fill: #ea580c; }
-      .sse-col { fill: #431407; stroke: #9a3412; }
-    }
+    .sse-col { fill: #fff7ed; }
+    .head-text { font-family: "Segoe UI", Arial, Helvetica, sans-serif; font-size: 19px; font-weight: 700; fill: #ffffff; }
   </style>
-  <rect class="bg" x="0" y="0" width="1080" height="500"/>
-  <rect class="label-head" x="0" y="14" width="250" height="58"/>
-  <rect class="label-col" x="0" y="72" width="250" height="414"/>
-  <rect class="ws-head" x="258" y="14" width="400" height="58"/>
-  <rect class="ws-col" x="258" y="72" width="400" height="414"/>
-  <rect class="sse-head" x="666" y="14" width="400" height="58"/>
-  <rect class="sse-col" x="666" y="72" width="400" height="414"/>
-  <text class="label" x="20" y="47.5">Concern</text>
-  <text class="head-text" x="458" y="50" text-anchor="middle">WebSocket</text>
-  <text class="head-text" x="866" y="50" text-anchor="middle">SSE</text>
-<line class="rule" x1="0" y1="118" x2="250" y2="118"/><line class="rule" x1="258" y1="118" x2="658" y2="118"/><line class="rule" x1="666" y1="118" x2="1066" y2="118"/><line class="rule" x1="0" y1="164" x2="250" y2="164"/><line class="rule" x1="258" y1="164" x2="658" y2="164"/><line class="rule" x1="666" y1="164" x2="1066" y2="164"/><line class="rule" x1="0" y1="210" x2="250" y2="210"/><line class="rule" x1="258" y1="210" x2="658" y2="210"/><line class="rule" x1="666" y1="210" x2="1066" y2="210"/><line class="rule" x1="0" y1="256" x2="250" y2="256"/><line class="rule" x1="258" y1="256" x2="658" y2="256"/><line class="rule" x1="666" y1="256" x2="1066" y2="256"/><line class="rule" x1="0" y1="302" x2="250" y2="302"/><line class="rule" x1="258" y1="302" x2="658" y2="302"/><line class="rule" x1="666" y1="302" x2="1066" y2="302"/><line class="rule" x1="0" y1="348" x2="250" y2="348"/><line class="rule" x1="258" y1="348" x2="658" y2="348"/><line class="rule" x1="666" y1="348" x2="1066" y2="348"/><line class="rule" x1="0" y1="394" x2="250" y2="394"/><line class="rule" x1="258" y1="394" x2="658" y2="394"/><line class="rule" x1="666" y1="394" x2="1066" y2="394"/><line class="rule" x1="0" y1="440" x2="250" y2="440"/><line class="rule" x1="258" y1="440" x2="658" y2="440"/><line class="rule" x1="666" y1="440" x2="1066" y2="440"/><text class="label" x="20" y="99.5">Protocol</text><text y="99.5"><tspan class="mono" x="276">graphql-transport-ws</tspan></text><text y="99.5"><tspan class="sans" x="684">GraphQL over SSE</tspan></text><text class="label" x="20" y="145.5">Direction</text><text y="145.5"><tspan class="sans" x="276">Bidirectional</tspan></text><text y="145.5"><tspan class="sans" x="684">Server to client only</tspan></text><text class="label" x="20" y="191.5">Subscription URL</text><text y="191.5"><tspan class="mono" x="276">ws://localhost:8080/graphql</tspan></text><text y="191.5"><tspan class="mono" x="684">http://localhost:8080/graphql</tspan></text><text class="label" x="20" y="237.5">Client library</text><text y="237.5"><tspan class="mono" x="276">graphql-ws</tspan></text><text y="237.5"><tspan class="mono" x="684">graphql-sse</tspan></text><text class="label" x="20" y="283.5">Server dependency</text><text y="283.5"><tspan class="mono" x="276">spring-boot-starter-websocket</tspan></text><text y="283.5"><tspan class="sans" x="684">None beyond </tspan><tspan class="mono">spring-boot-starter-webmvc</tspan></text><text class="label" x="20" y="329.5">Server configuration</text><text y="329.5"><tspan class="mono" x="276">spring.graphql.websocket.*</tspan></text><text y="329.5"><tspan class="mono" x="684">spring.mvc.async.request-timeout</tspan></text><text class="label" x="20" y="375.5">Replay on reconnect</text><text y="375.5"><tspan class="sans" x="276">Latest 100 messages</tspan></text><text y="375.5"><tspan class="sans" x="684">Latest 100 messages</tspan></text><text class="label" x="20" y="421.5">Client link code</text><text y="421.5"><tspan class="sans" x="276">Apollo </tspan><tspan class="mono">GraphQLWsLink</tspan><tspan class="sans"> (~10 lines)</tspan></text><text y="421.5"><tspan class="sans" x="684">Custom </tspan><tspan class="mono">ApolloLink</tspan><tspan class="sans"> (~40 lines)</tspan></text><text class="label" x="20" y="467.5">Proxy and firewall behavior</text><text y="467.5"><tspan class="sans" x="276">Requires upgrade handshake</tspan></text><text y="467.5"><tspan class="sans" x="684">Uses standard HTTP</tspan></text>
+  <rect class="card" x="40" y="30" width="1080" height="499" rx="12" ry="12" fill="#ffffff" filter="url(#cardShadow)"/>
+  <g clip-path="url(#cardClip)">
+    <rect class="label-head" x="40" y="30" width="250" height="58"/>
+    <rect class="label-col" x="40" y="88" width="250" height="441"/>
+    <rect class="ws-head" x="290" y="30" width="415" height="58"/>
+    <rect class="ws-col" x="290" y="88" width="415" height="441"/>
+    <rect class="sse-head" x="705" y="30" width="415" height="58"/>
+    <rect class="sse-col" x="705" y="88" width="415" height="441"/>
+<line class="rule" x1="40" y1="137" x2="290" y2="137"/><line class="rule" x1="290" y1="137" x2="705" y2="137"/><line class="rule" x1="705" y1="137" x2="1120" y2="137"/><line class="rule" x1="40" y1="186" x2="290" y2="186"/><line class="rule" x1="290" y1="186" x2="705" y2="186"/><line class="rule" x1="705" y1="186" x2="1120" y2="186"/><line class="rule" x1="40" y1="235" x2="290" y2="235"/><line class="rule" x1="290" y1="235" x2="705" y2="235"/><line class="rule" x1="705" y1="235" x2="1120" y2="235"/><line class="rule" x1="40" y1="284" x2="290" y2="284"/><line class="rule" x1="290" y1="284" x2="705" y2="284"/><line class="rule" x1="705" y1="284" x2="1120" y2="284"/><line class="rule" x1="40" y1="333" x2="290" y2="333"/><line class="rule" x1="290" y1="333" x2="705" y2="333"/><line class="rule" x1="705" y1="333" x2="1120" y2="333"/><line class="rule" x1="40" y1="382" x2="290" y2="382"/><line class="rule" x1="290" y1="382" x2="705" y2="382"/><line class="rule" x1="705" y1="382" x2="1120" y2="382"/><line class="rule" x1="40" y1="431" x2="290" y2="431"/><line class="rule" x1="290" y1="431" x2="705" y2="431"/><line class="rule" x1="705" y1="431" x2="1120" y2="431"/><line class="rule" x1="40" y1="480" x2="290" y2="480"/><line class="rule" x1="290" y1="480" x2="705" y2="480"/><line class="rule" x1="705" y1="480" x2="1120" y2="480"/><text class="label" x="60" y="117">Protocol</text><text y="117"><tspan class="mono" x="308">graphql-transport-ws</tspan></text><text y="117"><tspan class="sans" x="723">GraphQL over SSE</tspan></text><text class="label" x="60" y="166">Direction</text><text y="166"><tspan class="sans" x="308">Bidirectional</tspan></text><text y="166"><tspan class="sans" x="723">Server to client only</tspan></text><text class="label" x="60" y="215">Subscription URL</text><text y="215"><tspan class="mono" x="308">ws://localhost:8080/graphql</tspan></text><text y="215"><tspan class="mono" x="723">http://localhost:8080/graphql</tspan></text><text class="label" x="60" y="264">Client library</text><text y="264"><tspan class="mono" x="308">graphql-ws</tspan></text><text y="264"><tspan class="mono" x="723">graphql-sse</tspan></text><text class="label" x="60" y="313">Server dependency</text><text y="313"><tspan class="mono" x="308">spring-boot-starter-websocket</tspan></text><text y="313"><tspan class="sans" x="723">None beyond </tspan><tspan class="mono">spring-boot-starter-webmvc</tspan></text><text class="label" x="60" y="362">Server configuration</text><text y="362"><tspan class="mono" x="308">spring.graphql.websocket.*</tspan></text><text y="362"><tspan class="mono" x="723">spring.mvc.async.request-timeout</tspan></text><text class="label" x="60" y="411">Replay on reconnect</text><text y="411"><tspan class="sans" x="308">Latest 100 messages</tspan></text><text y="411"><tspan class="sans" x="723">Latest 100 messages</tspan></text><text class="label" x="60" y="460">Client link code</text><text y="460"><tspan class="sans" x="308">Apollo </tspan><tspan class="mono">GraphQLWsLink</tspan><tspan class="sans"> (~10 lines)</tspan></text><text y="460"><tspan class="sans" x="723">Custom </tspan><tspan class="mono">ApolloLink</tspan><tspan class="sans"> (~40 lines)</tspan></text><text class="label" x="60" y="509">Proxy and firewall behavior</text><text y="509"><tspan class="sans" x="308">Requires upgrade handshake</tspan></text><text y="509"><tspan class="sans" x="723">Uses standard HTTP</tspan></text>
+    <text class="label" x="60" y="63.5">Concern</text>
+    <text class="head-text" x="497.5" y="66" text-anchor="middle">WebSocket</text>
+    <text class="head-text" x="912.5" y="66" text-anchor="middle">SSE</text>
+  </g>
 </svg>
