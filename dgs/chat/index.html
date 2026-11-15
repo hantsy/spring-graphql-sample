@@ -1755,13 +1755,6 @@ while nobody is listening.</p>
 <h3 id="test-over-the-websocket-transport">Test over the WebSocket transport<a class="headerlink" href="#test-over-the-websocket-transport" title="Permanent link">&para;</a></h3>
 <p>The <code>DgsQueryExecutor</code> test never touches the network, so it says nothing
 about the protocol. The integration tests do.</p>
-<p>The DGS client library ships two generations of every client. The
-<code>Dgs</code>-prefixed names — <code>DgsRestClientGraphQLClient</code>,
-<code>DgsWebClientGraphQLClient</code>, and <code>DgsGraphqlSSESubscriptionGraphQLClient</code> —
-are the Jackson 3 variants that match DGS 12 and Spring Boot 4. The
-unprefixed names — <code>RestClientGraphQLClient</code>, <code>WebClientGraphQLClient</code>,
-and <code>GraphqlSSESubscriptionGraphQLClient</code> — are their Jackson 2
-predecessors. Use the prefixed ones in new code.</p>
 <p>For WebSocket, Spring GraphQL ships its own <code>WebSocketGraphQlClient</code>:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="nd">@SpringBootTest</span><span class="p">(</span><span class="n">webEnvironment</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">SpringBootTest</span><span class="p">.</span><span class="na">WebEnvironment</span><span class="p">.</span><span class="na">RANDOM_PORT</span><span class="p">)</span>
 <a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a><span class="kd">class</span><span class="w"> </span><span class="nc">IntegrationTests</span><span class="w"> </span><span class="p">{</span>

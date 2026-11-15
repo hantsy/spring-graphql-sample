@@ -2553,6 +2553,16 @@ request body semantically, so the client is exercised without a running server.<
 <a href="https://github.com/hantsy/spring-graphql-sample/tree/master/dgs-client"><code>dgs-client</code> module</a>,
 a separate command-line application that declares the same schema and
 exercises the generated client.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>The DGS client library ships two generations of every client. The
+<code>Dgs</code>-prefixed names — <code>DgsRestClientGraphQLClient</code>,
+<code>DgsWebClientGraphQLClient</code>, and <code>DgsGraphqlSSESubscriptionGraphQLClient</code> —
+are the Jackson 3 variants that match DGS 12 and Spring Boot 4. The
+unprefixed names — <code>RestClientGraphQLClient</code>, <code>WebClientGraphQLClient</code>,
+and <code>GraphqlSSESubscriptionGraphQLClient</code> — are their Jackson 2
+predecessors. Use the prefixed ones in new code.</p>
+</div>
 <h2 id="file-upload">File upload<a class="headerlink" href="#file-upload" title="Permanent link">&para;</a></h2>
 <p><strong>File upload</strong> is not defined by the GraphQL specification, so applications
 need a transport convention to send files alongside GraphQL operations. The
