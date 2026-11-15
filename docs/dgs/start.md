@@ -1787,6 +1787,10 @@ uploads.
 
 From here:
 
+- Build a real-time application with
+  [Create a Chat Application with Netflix DGS](./chat.md): subscriptions over
+  Server-Sent Events and WebSocket, with Angular clients built on the
+  component API and on signals.
 - Read the [DGS documentation](https://netflix.github.io/dgs/) for federation,
   testing, and the full annotation reference.
 - See [DGS or Spring GraphQL?](../intro.md#how-dgs-adopted-spring-graphql) for

@@ -32,6 +32,12 @@ why you would use it instead of REST, the schema language and the
 request/response protocol, the HTTP and WebSocket transports, the GraphQL Java
 execution engine, and the Netflix DGS and Spring GraphQL frameworks.
 
+If you want to build a real-time application, follow
+[Create a Chat Application with Netflix DGS](./dgs/chat.md): it starts from
+user stories and builds a DGS server and an Angular client, first with
+Server-Sent Events subscriptions and then with WebSocket subscriptions,
+using both the classic component API and signals.
+
 ## Contribute
 
 Report an issue or propose a change through a pull request in the
