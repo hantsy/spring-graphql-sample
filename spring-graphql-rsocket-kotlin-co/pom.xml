@@ -16,7 +16,7 @@
 	<properties>
 		<java.version>25</java.version>
 		<kotlin.version>2.4.21</kotlin.version>
-		<mockk.version>1.14.11</mockk.version>
+		<mockk.version>1.14.12</mockk.version>
 		<springmockk.version>5.0.1</springmockk.version>
 		<kotest.version>6.2.6</kotest.version>
 	</properties>
