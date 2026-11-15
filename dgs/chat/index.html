@@ -1356,33 +1356,12 @@
 <p>In this tutorial, you will build the same chat application with two key differences: the server exposes a GraphQL API through Netflix DGS, and the client communicates with it using <a href="https://www.apollographql.com/docs/angular/">Apollo Client</a> instead of hand-written HTTP calls.</p>
 <p>A chat application has three core responsibilities: load message history, send new messages, and receive messages in real time. GraphQL supports all three through its operation types: a <strong>query</strong> loads history, a <strong>mutation</strong> sends a message, and a <strong>subscription</strong> pushes new messages to connected clients.</p>
 <h2 id="prepare-prerequisites">Prepare prerequisites<a class="headerlink" href="#prepare-prerequisites" title="Permanent link">&para;</a></h2>
-<p>Before you begin, install the following tools:</p>
-<table>
-<thead>
-<tr>
-<th>Tool</th>
-<th>Version</th>
-<th>Purpose</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>JDK</td>
-<td>25</td>
-<td>Runs samples on Spring Boot 4.1.2 and Kotlin 2.4.x</td>
-</tr>
-<tr>
-<td>Node.js</td>
-<td>24</td>
-<td>Runs Angular 22 clients and the Vitest test runner</td>
-</tr>
-<tr>
-<td>Git</td>
-<td>Any</td>
-<td>Required only if you plan to clone the sample repository</td>
-</tr>
-</tbody>
-</table>
+<p>Before you begin, install or prepare the following:</p>
+<ul>
+<li>JDK 25. The samples target Spring Boot 4.1.2 and Kotlin 2.4.x.</li>
+<li>Node.js 24. The Angular clients use Angular 22 and the Vitest test runner.</li>
+<li>Git, if you want to clone and run the sample repository.</li>
+</ul>
 <p>You do not need to install Maven separately. Spring Initializr generates a wrapper script (<code>mvnw</code>, or <code>mvnw.cmd</code> on Windows) in the project.</p>
 <p>If you are new to DGS, read <a href="../start/">Building GraphQL APIs with Netflix DGS</a> first. That guide introduces core concepts and walks through creating a GraphQL API from scratch.</p>
 <h2 id="step-1-generate-project-skeleton">Step 1: Generate project skeleton<a class="headerlink" href="#step-1-generate-project-skeleton" title="Permanent link">&para;</a></h2>
@@ -2675,40 +2654,20 @@
 </div>
 <h2 id="explore-example-projects">Explore example projects<a class="headerlink" href="#explore-example-projects" title="Permanent link">&para;</a></h2>
 <p>Each step in this tutorial maps to a module in the <a href="https://github.com/hantsy/spring-graphql-sample">spring-graphql-sample repository</a>:</p>
-<table>
-<thead>
-<tr>
-<th>Module</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><a href="https://github.com/hantsy/spring-graphql-sample/tree/master/dgs-subscription-ws"><code>dgs-subscription-ws</code></a></td>
-<td>DGS server with WebSocket subscriptions</td>
-</tr>
-<tr>
-<td><a href="https://github.com/hantsy/spring-graphql-sample/tree/master/dgs-subscription-ui"><code>dgs-subscription-ui</code></a></td>
-<td>Angular component-based client with WebSocket transport</td>
-</tr>
-<tr>
-<td><a href="https://github.com/hantsy/spring-graphql-sample/tree/master/dgs-subscription-ui-signals"><code>dgs-subscription-ui-signals</code></a></td>
-<td>Angular signals-based client with WebSocket transport</td>
-</tr>
-<tr>
-<td><a href="https://github.com/hantsy/spring-graphql-sample/tree/master/dgs-subscription-sse"><code>dgs-subscription-sse</code></a></td>
-<td>DGS server with SSE subscriptions</td>
-</tr>
-<tr>
-<td><a href="https://github.com/hantsy/spring-graphql-sample/tree/master/dgs-subscription-ui-sse"><code>dgs-subscription-ui-sse</code></a></td>
-<td>Angular component-based client with SSE transport</td>
-</tr>
-<tr>
-<td><a href="https://github.com/hantsy/spring-graphql-sample/tree/master/dgs-subscription-ui-sse-signals"><code>dgs-subscription-ui-sse-signals</code></a></td>
-<td>Angular signals-based client with SSE transport</td>
-</tr>
-</tbody>
-</table>
+<ul>
+<li><a href="https://github.com/hantsy/spring-graphql-sample/tree/master/dgs-subscription-ws"><code>dgs-subscription-ws</code></a>
+  implements the DGS server with WebSocket subscriptions.</li>
+<li><a href="https://github.com/hantsy/spring-graphql-sample/tree/master/dgs-subscription-ui"><code>dgs-subscription-ui</code></a>
+  provides the Angular component-based client with WebSocket transport.</li>
+<li><a href="https://github.com/hantsy/spring-graphql-sample/tree/master/dgs-subscription-ui-signals"><code>dgs-subscription-ui-signals</code></a>
+  provides the Angular signals-based client with WebSocket transport.</li>
+<li><a href="https://github.com/hantsy/spring-graphql-sample/tree/master/dgs-subscription-sse"><code>dgs-subscription-sse</code></a>
+  implements the DGS server with SSE subscriptions.</li>
+<li><a href="https://github.com/hantsy/spring-graphql-sample/tree/master/dgs-subscription-ui-sse"><code>dgs-subscription-ui-sse</code></a>
+  provides the Angular component-based client with SSE transport.</li>
+<li><a href="https://github.com/hantsy/spring-graphql-sample/tree/master/dgs-subscription-ui-sse-signals"><code>dgs-subscription-ui-sse-signals</code></a>
+  provides the Angular signals-based client with SSE transport.</li>
+</ul>
 <p>For broader DGS coverage, see <a href="../start/">Building GraphQL APIs with Netflix DGS</a>. For protocol details behind WebSocket and SSE subscriptions, see <a href="../../intro/">An introduction to GraphQL and Spring</a>.</p>
 
 
