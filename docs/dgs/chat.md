@@ -238,7 +238,7 @@ class MessagesDataFetcher {
     @DgsSubscription
     fun messageSent(): Publisher<TextMessage> = sink.asFlux()
 
-    private val sink: Many<TextMessage> = Sinks.many().replay().latest()
+    private val sink: Many<TextMessage> = Sinks.many().replay().limit(100)
 
     companion object {
         val STORE = mutableMapOf<String, TextMessage>()
@@ -261,17 +261,17 @@ a broadcasting channel that imperative code pushes into and reactive code
 reads from.
 
 ```kotlin
-private val sink: Many<TextMessage> = Sinks.many().replay().latest()
+private val sink: Many<TextMessage> = Sinks.many().replay().limit(100)
 ```
 
 `Sinks.many()` creates a multi-subscriber sink — every open browser tab
 gets its own subscription to the same stream. `.replay()` buffers what has
 been emitted, so a client that joins late still receives the recent
-messages instead of waiting for the next one to arrive. `.latest()` replays
-just the most recent message, which is enough for a WebSocket client: the
-socket stays open, so a reconnecting client only needs the last message
-before it catches up live. The SSE variant widens the buffer later, because
-its stream is short-lived and reconnects often.
+messages instead of waiting for the next one to arrive. `.limit(100)` caps
+that buffer at the last 100 messages: a late or reconnecting client catches
+up with the recent history and then follows the live stream. One buffer
+serves both transports, so a WebSocket client and an SSE client see the
+same history.
 
 ```kotlin
 sink.emitNext(msg, Sinks.EmitFailureHandler.FAIL_FAST)
@@ -356,15 +356,17 @@ class WebConfig : WebMvcConfigurer {
     example
     `registry.addMapping("/graphql").allowedOrigins("http://localhost:4200")`.
 
-### Configure the WebSocket endpoint
+### Configure the transports
 
-The GraphQL WebSocket endpoint is configured in
+Both transports are configured in
 `src/main/resources/application.properties`:
 
 ```properties
 spring.graphql.websocket.path=/graphql
 spring.graphql.websocket.connection-init-timeout=30s
 spring.graphql.websocket.keep-alive=60s
+
+spring.mvc.async.request-timeout=45000
 ```
 
 The `spring.graphql.websocket.*` properties enable and tune the
@@ -374,6 +376,12 @@ what tells the server which protocol to speak. `connection-init-timeout`
 caps how long the server waits for the client's `connection_init` message
 before hanging up. `keep-alive` has the server send a `ping` frame on an
 idle connection, which is exactly the case a proxy is most likely to drop.
+
+`spring.mvc.async.request-timeout` bounds the SSE response. An SSE
+response is an asynchronous servlet request that stays open for as long as
+the subscription lives, and this property ends the stream after 45
+seconds. The `graphql-sse` client reconnects on its own afterwards, and
+the sink hands the reconnected client the messages it missed.
 
 ## Step 4: Test the subscriptions
 
@@ -400,39 +408,35 @@ class SubscriptionTest {
         val executionResult = dgsQueryExecutor.execute("subscription { messageSent { body } }")
         val publisher = executionResult.getData<Publisher<ExecutionResult>>()
 
-        val verifier = StepVerifier.create(publisher)
-            .consumeNextWith {
-                assertThat(
-                    it.getData<Map<String, Map<String, Any>>>()["messageSent"]
-                        ?.get("body") as String
-                ).contains("text1")
-            }
-            .consumeNextWith {
-                assertThat(
-                    it.getData<Map<String, Map<String, Any>>>()["messageSent"]
-                        ?.get("body") as String
-                ).contains("text2")
-            }
+        // the sink replays the last 100 messages to every new subscriber, so the
+        // stream is filtered down to the messages this test sent itself
+        val verifier = StepVerifier.create(Flux.from(publisher).filter { body(it).startsWith("sub-") })
+            .consumeNextWith { assertThat(body(it)).isEqualTo("sub-text1 message") }
+            .consumeNextWith { assertThat(body(it)).isEqualTo("sub-text2 message") }
             .thenCancel()
             .verifyLater()
 
         val sendText1 = dgsQueryExecutor.executeAndExtractJsonPath<String>(
             "mutation sendMessage(\$msg: TextMessageInput!) { send(message:\$msg) { body}}",
             "data.send.body",
-            mapOf("msg" to (mapOf("body" to "text1 message")))
+            mapOf("msg" to (mapOf("body" to "sub-text1 message")))
         )
-        assertThat(sendText1).contains("text1")
+        assertThat(sendText1).contains("sub-text1")
 
         val sendText2 = dgsQueryExecutor.executeAndExtractJsonPath<String>(
             "mutation sendMessage(\$msg: TextMessageInput!) { send(message:\$msg) { body}}",
             "data.send.body",
-            mapOf("msg" to (mapOf("body" to "text2 message")))
+            mapOf("msg" to (mapOf("body" to "sub-text2 message")))
         )
-        assertThat(sendText2).contains("text2")
+        assertThat(sendText2).contains("sub-text2")
 
         // verify it now.
         verifier.verify()
     }
+
+    private fun body(result: ExecutionResult): String =
+        result.getData<Map<String, Map<String, Any>>>()["messageSent"]
+            ?.get("body") as String
 }
 ```
 
@@ -440,6 +444,11 @@ The ordering is the whole trick. Start the verifier with `verifyLater()`,
 send the messages, and only then call `verify()`: the subscription has to
 be registered before the mutations run, or the first message is emitted
 while nobody is listening.
+
+The `filter` is there because the sink replays the last 100 messages to
+every new subscriber. Each test prefixes its own messages and filters the
+stream down to them, so tests that share a server do not trip over each
+other's traffic.
 
 ### Test over the WebSocket transport
 
@@ -492,11 +501,14 @@ class IntegrationTests {
                 val messageSent = it.getData<Map<String, Any>>()!!["messageSent"]!! as Map<String, Any>
                 messageSent["body"] as String
             }
+            // the sink replays the last 100 messages to every new subscriber, so the
+            // stream is filtered down to the messages this test sent itself
+            .filter { it.startsWith("ws-") }
 
         val verifier = StepVerifier.create(executionResult)
             .thenAwait(Duration.ofMillis(1500))
-            .consumeNextWith { assertThat(it).isEqualTo("text1") }
-            .consumeNextWith { assertThat(it).isEqualTo("text2") }
+            .consumeNextWith { assertThat(it).isEqualTo("ws-text1 message") }
+            .consumeNextWith { assertThat(it).isEqualTo("ws-text2 message") }
             .thenCancel()
             .verifyLater()
 
@@ -513,6 +525,11 @@ class IntegrationTests {
 The subscription must be active on the server before the mutation runs.
 This test waits for it explicitly, because the socket handshake adds a
 round trip that the in-process test does not have.
+
+The `ws-` prefix is test hygiene, not protocol. The sink replays the
+last 100 messages to every new subscriber, so a test sharing a server
+with another one would otherwise receive the other test's messages
+first.
 
 ## Step 5: Build the Angular client
 
@@ -957,7 +974,7 @@ works as expected. They live in separate folders and run independently.
 Enter the server project folder and run the Spring Boot application:
 
 ```bash
-cd dgs-subscription-ws
+cd dgs-subscription
 ./mvnw spring-boot:run
 ```
 
@@ -1042,26 +1059,20 @@ server writes one event per message. Nothing upgrades and nothing
 negotiates a second protocol, so the HTTP infrastructure you already run
 handles it as-is.
 
-The server changes are minor. The client changes are the interesting part,
-because Apollo has no SSE link and you write one.
+The server does not change at all: the same application already serves
+both transports. The client changes are the interesting part, because
+Apollo has no SSE link and you write one.
 
-### Change the server to use SSE
+### The server needs no change
 
-The SSE subscription is served by the HTTP endpoint, so the WebSocket
-starter is no longer needed. Remove it from the POM:
+The SSE subscription is served by the HTTP endpoint that is already there,
+and the WebSocket endpoint keeps serving the other transport: one
+application, both transports, the same `dgs-subscription` sample module.
+The `spring-boot-starter-websocket` dependency stays in the POM because
+it is what enables the socket.
 
-```xml
-<dependency>
-    <groupId>org.springframework.boot</groupId>
-    <artifactId>spring-boot-starter-websocket</artifactId>
-</dependency>
-```
-
-Leaving it in place does no harm — the WebSocket endpoint simply goes
-unused — but the `dgs-subscription-sse` sample module drops it, and so
-should you.
-
-You can adjust the Web MVC properties that bound an SSE response:
+The one property that matters for SSE is the Web MVC property that
+bounds an asynchronous response:
 
 ```properties
 spring.mvc.async.request-timeout=45000
@@ -1071,17 +1082,12 @@ An SSE response is an asynchronous servlet request that stays open for as
 long as the subscription lives, and `spring.mvc.async.request-timeout`
 bounds it: after 45 seconds the server ends the stream.
 
-The SSE transport keeps a larger buffer, because its stream is short-lived
-and the client reconnects often:
-
-```kotlin
-private val sink: Many<TextMessage> = Sinks.many().replay().limit(100)
-```
-
-With `spring.mvc.async.request-timeout=45000` the server ends the stream
-every 45 seconds and the `graphql-sse` client reconnects on its own. A
-client that missed a few messages in between catches up in one burst
-instead of losing them.
+With that property in place the server ends the stream every 45 seconds
+and the `graphql-sse` client reconnects on its own. A client that missed
+a few messages in between catches up in one burst instead of losing
+them — the sink replays the last 100 messages to every new subscriber, so
+the reconnected client is handed the recent history before it follows the
+live stream again.
 
 ### Change the client to use SSE
 
@@ -1225,16 +1231,8 @@ the UI does not know or care which protocol carries the subscription.
 
 ### Try it again
 
-Similarly, start the SSE variants of the server and the client.
-
-Start the server:
-
-```bash
-cd dgs-subscription-sse
-./mvnw spring-boot:run
-```
-
-Start the client:
+The server keeps running — it is the same server — so only the client
+changes. Stop the WebSocket client and start the SSE one:
 
 ```bash
 cd dgs-subscription-ui-sse
@@ -1272,15 +1270,19 @@ and the event shows up right away. `Ctrl+C` ends the subscription.
 
 ### What changed, and what did not
 
+Look at the two columns and notice that only the client side moves. The
+same `dgs-subscription` server serves both transports, with the same
+dependency set, the same configuration file and the same replay buffer.
+
 | | WebSocket | SSE |
 | - | --- | --- |
 | Protocol | `graphql-transport-ws` | GraphQL over SSE |
 | Direction | both directions | server to client only |
 | Subscription URL | `ws://localhost:8080/graphql` | `http://localhost:8080/graphql` |
 | Client library | `graphql-ws` | `graphql-sse` |
-| Server dependency | `spring-boot-starter-websocket` | none beyond `spring-boot-starter-webmvc` |
+| Server dependency | `spring-boot-starter-websocket` | `spring-boot-starter-websocket` |
 | Server configuration | `spring.graphql.websocket.*` | `spring.mvc.async.request-timeout` |
-| Replay on reconnect | the latest message | the last 100 messages |
+| Replay on reconnect | latest 100 messages | latest 100 messages |
 | Client link code | Apollo's `GraphQLWsLink`, about 10 lines | a hand-written `ApolloLink`, about 40 lines |
 | Proxy and firewall | needs the upgrade handshake | ordinary HTTP |
 
@@ -1312,10 +1314,10 @@ import org.springframework.web.reactive.function.client.WebClient
 import reactor.test.StepVerifier
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-class IntegrationTests {
+class SseIntegrationTests {
 
     @LocalServerPort
-    var port = 0;
+    var port = 0
 
     // The Dgs-prefixed clients are the Jackson 3 variants; GraphqlSSESubscriptionGraphQLClient and
     // RestClientGraphQLClient are their Jackson 2 predecessors.
@@ -1336,13 +1338,19 @@ class IntegrationTests {
     fun testMessages() {
         val subscriptionQuery = "subscription { messageSent { body } }"
         val variables = emptyMap<String, Any>()
-        val result = sseClient.reactiveExecuteQuery(subscriptionQuery, variables).map {
-            it.extractValueAsObject("data.messageSent", object : TypeRef<Map<String, Any>>() {})["body"] as String
-        }
+        val result = sseClient.reactiveExecuteQuery(subscriptionQuery, variables)
+            .map {
+                it.extractValueAsObject("data.messageSent", object : TypeRef<Map<String, Any>>() {})["body"] as String
+            }
+            // the sink replays the last 100 messages to every new subscriber, so the
+            // stream is filtered down to the messages this test sent itself
+            .filter { it.startsWith("sse-") }
 
+        val message1 = "sse-text1 message"
+        val message2 = "sse-text2 message"
         val verifier = StepVerifier.create(result)
-            .consumeNextWith { assertThat(it).isEqualTo("text1 message") }
-            .consumeNextWith { assertThat(it).isEqualTo("text2 message") }
+            .consumeNextWith { assertThat(it).isEqualTo(message1) }
+            .consumeNextWith { assertThat(it).isEqualTo(message2) }
             .thenCancel()
             .verifyLater()
 
@@ -1350,15 +1358,15 @@ class IntegrationTests {
 
         val sendText1 = restClient.executeQuery(
             sendMessageQuery,
-            mapOf("msg" to (mapOf("body" to "text1 message")))
+            mapOf("msg" to (mapOf("body" to message1)))
         ).extractValueAsObject("data.send.body", String::class.java)
-        assertThat(sendText1).isEqualTo("text1 message")
+        assertThat(sendText1).isEqualTo(message1)
 
         val sendText2 = restClient.executeQuery(
             sendMessageQuery,
-            mapOf("msg" to (mapOf("body" to "text2 message")))
+            mapOf("msg" to (mapOf("body" to message2)))
         ).extractValueAsObject("data.send.body", String::class.java)
-        assertThat(sendText2).isEqualTo("text2 message")
+        assertThat(sendText2).isEqualTo(message2)
 
         //verify it now.
         verifier.verify();
@@ -1367,13 +1375,18 @@ class IntegrationTests {
 
         val allMessages = restClient.executeQuery(allMessagesQuery, emptyMap<String, Any>())
             .extractValueAsObject("data.messages[*].body", object : TypeRef<List<String>>() {})
-        assertThat(allMessages).allMatch { s: String -> s.contains("message") }
+        // the in-memory store is shared with the other tests in this JVM, so only assert
+        // that the messages sent by this test are persisted
+        assertThat(allMessages).containsAll(listOf(message1, message2))
     }
 }
 ```
 
 The SSE test has the same race as the WebSocket one: the subscription must
-be active on the server before the mutation runs.
+be active on the server before the mutation runs. The replay buffer is
+what saves it — a subscription that connects late is handed the messages
+it missed, so the `filter` is enough to keep the two transports' tests
+apart.
 
 ## Switch the Angular client to signals
 
@@ -1639,10 +1652,9 @@ Every step above maps onto a module in the
 
 | Module | Role |
 | ------ | ---- |
-| [`dgs-subscription-ws`](https://github.com/hantsy/spring-graphql-sample/tree/master/dgs-subscription-ws) | DGS server, subscriptions over WebSocket |
+| [`dgs-subscription`](https://github.com/hantsy/spring-graphql-sample/tree/master/dgs-subscription) | DGS server, subscriptions over WebSocket or SSE |
 | [`dgs-subscription-ui`](https://github.com/hantsy/spring-graphql-sample/tree/master/dgs-subscription-ui) | Angular client, components, WebSocket transport |
 | [`dgs-subscription-ui-signals`](https://github.com/hantsy/spring-graphql-sample/tree/master/dgs-subscription-ui-signals) | Angular client, signals, WebSocket transport |
-| [`dgs-subscription-sse`](https://github.com/hantsy/spring-graphql-sample/tree/master/dgs-subscription-sse) | DGS server, subscriptions over SSE |
 | [`dgs-subscription-ui-sse`](https://github.com/hantsy/spring-graphql-sample/tree/master/dgs-subscription-ui-sse) | Angular client, components, SSE transport |
 | [`dgs-subscription-ui-sse-signals`](https://github.com/hantsy/spring-graphql-sample/tree/master/dgs-subscription-ui-sse-signals) | Angular client, signals, SSE transport |
 

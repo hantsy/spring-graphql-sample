@@ -9,10 +9,10 @@
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.example</groupId>
-	<artifactId>dgs-subscription-ws</artifactId>
+	<artifactId>dgs-subscription</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>dgs-subscription-ws</name>
-	<description>dgs-subscription-ws</description>
+	<name>dgs-subscription</name>
+	<description>dgs-subscription</description>
 	<properties>
 		<java.version>25</java.version>
 		<kotlin.version>2.4.21</kotlin.version>

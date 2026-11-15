@@ -8,6 +8,7 @@ import org.junit.jupiter.api.Test
 import org.reactivestreams.Publisher
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
+import reactor.core.publisher.Flux
 import reactor.test.StepVerifier
 
 @SpringBootTest
@@ -19,39 +20,30 @@ class SubscriptionTest {
 
     @Test
     fun testMessages() {
-        //Hooks.onOperatorDebug();
         val executionResult = dgsQueryExecutor.execute("subscription { messageSent { body } }")
         val publisher = executionResult.getData<Publisher<ExecutionResult>>()
 
-        val verifier = StepVerifier.create(publisher)
-            .consumeNextWith {
-                assertThat(
-                    it.getData<Map<String, Map<String, Any>>>()["messageSent"]
-                        ?.get("body") as String
-                ).contains("text1")
-            }
-            .consumeNextWith {
-                assertThat(
-                    it.getData<Map<String, Map<String, Any>>>()["messageSent"]
-                        ?.get("body") as String
-                ).contains("text2")
-            }
+        // the sink replays the last 100 messages to every new subscriber, so the stream
+        // is filtered down to the messages this test sent itself
+        val verifier = StepVerifier.create(Flux.from(publisher).filter { body(it).startsWith("sub-") })
+            .consumeNextWith { assertThat(body(it)).isEqualTo("sub-text1 message") }
+            .consumeNextWith { assertThat(body(it)).isEqualTo("sub-text2 message") }
             .thenCancel()
             .verifyLater()
 
         val sendText1 = dgsQueryExecutor.executeAndExtractJsonPath<String>(
             "mutation sendMessage(\$msg: TextMessageInput!) { send(message:\$msg) { body}}",
             "data.send.body",
-            mapOf("msg" to (mapOf("body" to "text1 message")))
+            mapOf("msg" to (mapOf("body" to "sub-text1 message")))
         )
-        assertThat(sendText1).contains("text1");
+        assertThat(sendText1).contains("sub-text1")
 
         val sendText2 = dgsQueryExecutor.executeAndExtractJsonPath<String>(
             "mutation sendMessage(\$msg: TextMessageInput!) { send(message:\$msg) { body}}",
             "data.send.body",
-            mapOf("msg" to (mapOf("body" to "text2 message")))
+            mapOf("msg" to (mapOf("body" to "sub-text2 message")))
         )
-        assertThat(sendText2).contains("text2");
+        assertThat(sendText2).contains("sub-text2")
 
         //verify it now.
         verifier.verify();
@@ -60,8 +52,12 @@ class SubscriptionTest {
             " { messages { body }}",
             "data.messages[*].body"
         )
-        assertThat(msgs).allMatch { s: String ->
-            s.contains("message")
-        }
+        // the in-memory store is shared with the other tests in this JVM, so only assert
+        // that the messages sent by this test are persisted
+        assertThat(msgs).contains("sub-text1 message", "sub-text2 message")
     }
+
+    private fun body(result: ExecutionResult): String =
+        result.getData<Map<String, Map<String, Any>>>()["messageSent"]
+            ?.get("body") as String
 }
