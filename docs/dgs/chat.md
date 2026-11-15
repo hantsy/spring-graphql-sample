@@ -425,13 +425,6 @@ Then install GraphQL dependencies:
 npm install @apollo/client apollo-angular graphql graphql-ws
 ```
 
-| Package | Role |
-| ------- | ---- |
-| `@apollo/client` | Provides cache and link infrastructure |
-| `apollo-angular` | Integrates Apollo with Angular and provides the `gql` tag |
-| `graphql` | Provides document AST utilities used by links |
-| `graphql-ws` | Implements GraphQL over WebSocket client protocol |
-
 ### Define endpoint configuration
 
 Define endpoint constants in `src/app/config.ts`:
