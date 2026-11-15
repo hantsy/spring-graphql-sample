@@ -101,6 +101,13 @@ class SubscriptionTests {
                 message: TextMessage
             ) {
                 log.debug("handling message: {}", message)
+                // The graphql-transport-ws protocol also sends control frames such as the
+                // "connection_ack"; only "next" frames carry subscription data.
+                val messageType = runCatching { JsonPath.read<String>(message.payload, "$.type") }.getOrNull()
+                if (messageType != "next") {
+                    log.debug("ignoring {} message: {}", messageType, message)
+                    return
+                }
                 val comment = dgsJsonMapper.convertValue(
                     JsonPath.read(message.payload, "$.payload.data.commentAdded"),
                     Comment::class.java
