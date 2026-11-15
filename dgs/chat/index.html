@@ -2231,62 +2231,8 @@
 </code></pre></div>
 <p>Send a mutation from another terminal while the subscription is open to see events arrive immediately. Press <code>Ctrl+C</code> to close the stream.</p>
 <h3 id="compare-websocket-and-sse">Compare WebSocket and SSE<a class="headerlink" href="#compare-websocket-and-sse" title="Permanent link">&para;</a></h3>
-<table>
-<thead>
-<tr>
-<th>Concern</th>
-<th>WebSocket</th>
-<th>SSE</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>Protocol</td>
-<td><code>graphql-transport-ws</code></td>
-<td>GraphQL over SSE</td>
-</tr>
-<tr>
-<td>Direction</td>
-<td>Bidirectional</td>
-<td>Server to client only</td>
-</tr>
-<tr>
-<td>Subscription URL</td>
-<td><code>ws://localhost:8080/graphql</code></td>
-<td><code>http://localhost:8080/graphql</code></td>
-</tr>
-<tr>
-<td>Client library</td>
-<td><code>graphql-ws</code></td>
-<td><code>graphql-sse</code></td>
-</tr>
-<tr>
-<td>Server dependency</td>
-<td><code>spring-boot-starter-websocket</code></td>
-<td>None beyond <code>spring-boot-starter-webmvc</code></td>
-</tr>
-<tr>
-<td>Server configuration</td>
-<td><code>spring.graphql.websocket.*</code></td>
-<td><code>spring.mvc.async.request-timeout</code></td>
-</tr>
-<tr>
-<td>Replay on reconnect</td>
-<td>Latest 100 messages</td>
-<td>Latest 100 messages</td>
-</tr>
-<tr>
-<td>Client link code</td>
-<td>Apollo <code>GraphQLWsLink</code> (~10 lines)</td>
-<td>Custom <code>ApolloLink</code> (~40 lines)</td>
-</tr>
-<tr>
-<td>Proxy and firewall behavior</td>
-<td>Requires upgrade handshake</td>
-<td>Uses standard HTTP</td>
-</tr>
-</tbody>
-</table>
+<p>The two transports differ far less on the server than on the client:</p>
+<p><img alt="Comparison of WebSocket and SSE subscriptions across protocol, direction, subscription URL, client library, server dependency, server configuration, replay on reconnect, client link code and proxy behavior" src="../websocket-vs-sse.svg" /></p>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
 <p>The two WebSocket protocols are not interchangeable. This tutorial uses the maintained <code>graphql-transport-ws</code> subprotocol, not the deprecated <code>subscriptions-transport-ws</code> protocol. Client and server must use the same protocol.</p>
