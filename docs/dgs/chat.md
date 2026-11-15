@@ -1060,17 +1060,9 @@ Send a mutation from another terminal while the subscription is open to see even
 
 ### Compare WebSocket and SSE
 
-| Concern | WebSocket | SSE |
-| - | --- | --- |
-| Protocol | `graphql-transport-ws` | GraphQL over SSE |
-| Direction | Bidirectional | Server to client only |
-| Subscription URL | `ws://localhost:8080/graphql` | `http://localhost:8080/graphql` |
-| Client library | `graphql-ws` | `graphql-sse` |
-| Server dependency | `spring-boot-starter-websocket` | None beyond `spring-boot-starter-webmvc` |
-| Server configuration | `spring.graphql.websocket.*` | `spring.mvc.async.request-timeout` |
-| Replay on reconnect | Latest 100 messages | Latest 100 messages |
-| Client link code | Apollo `GraphQLWsLink` (~10 lines) | Custom `ApolloLink` (~40 lines) |
-| Proxy and firewall behavior | Requires upgrade handshake | Uses standard HTTP |
+The two transports differ far less on the server than on the client:
+
+![Comparison of WebSocket and SSE subscriptions across protocol, direction, subscription URL, client library, server dependency, server configuration, replay on reconnect, client link code and proxy behavior](websocket-vs-sse.svg)
 
 !!! warning
     The two WebSocket protocols are not interchangeable. This tutorial uses the maintained `graphql-transport-ws` subprotocol, not the deprecated `subscriptions-transport-ws` protocol. Client and server must use the same protocol.
