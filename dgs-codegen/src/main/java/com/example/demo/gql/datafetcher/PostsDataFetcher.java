@@ -4,6 +4,7 @@ import com.example.demo.gql.DgsConstants;
 import com.example.demo.gql.dataloaders.CommentsDataLoader;
 import com.example.demo.gql.types.Author;
 import com.example.demo.gql.types.Comment;
+import com.example.demo.gql.types.CommentInput;
 import com.example.demo.gql.types.CreatePostInput;
 import com.example.demo.gql.types.Post;
 import com.example.demo.service.PostService;
@@ -11,6 +12,7 @@ import com.netflix.graphql.dgs.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.dataloader.DataLoader;
+import org.reactivestreams.Publisher;
 
 import java.util.List;
 import java.util.UUID;
@@ -84,6 +86,16 @@ public class PostsDataFetcher {
     @DgsMutation
     public UUID createPost(@InputArgument("createPostInput") CreatePostInput input) {
         return this.postService.createPost(input);
+    }
+
+    @DgsMutation
+    public Comment addComment(@InputArgument("commentInput") CommentInput input) {
+        return this.postService.addComment(input);
+    }
+
+    @DgsSubscription
+    public Publisher<Comment> commentAdded() {
+        return this.postService.commentAdded();
     }
 
 //    @SneakyThrows

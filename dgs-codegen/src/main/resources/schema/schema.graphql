@@ -51,7 +51,12 @@ type Query {
 
 type Mutation {
     createPost(createPostInput: CreatePostInput!): UUID!
+    addComment(commentInput: CommentInput!): Comment!
     #    upload(file: Upload!): Boolean
+}
+
+type Subscription {
+    commentAdded: Comment!
 }
 
 enum PostStatus {

@@ -1,6 +1,7 @@
 package com.example.demo.service;
 
 import com.example.demo.gql.types.Comment;
+import com.example.demo.gql.types.CommentInput;
 import com.example.demo.gql.types.CreatePostInput;
 import com.example.demo.gql.types.Post;
 import com.example.demo.gql.types.PostStatus;
@@ -12,7 +13,10 @@ import com.example.demo.repository.PostRepository;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.Validate;
 import org.springframework.stereotype.Service;
+import org.reactivestreams.Publisher;
+import reactor.core.publisher.Sinks;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -39,6 +43,9 @@ public class PostService {
     final PostRepository posts;
     final CommentRepository comments;
     final AuthorRepository authors;
+
+    // the sink the `commentAdded` subscription is fed from.
+    private final Sinks.Many<Comment> commentSink = Sinks.many().replay().latest();
 
 
     public List<Post> getAllPosts() {
@@ -70,6 +77,23 @@ public class PostService {
         var authorId = this.authors.findAll().get(0).id();
         UUID id = this.posts.create(postInput.getTitle(), postInput.getContent(), "DRAFT", authorId);
         return id;
+    }
+
+    public Comment addComment(CommentInput commentInput) {
+        var postId = UUID.fromString(commentInput.getPostId());
+        var commentId = this.comments.create(commentInput.getContent(), postId);
+        var comment = Comment.newBuilder()
+                .id(commentId.toString())
+                .content(commentInput.getContent())
+                .createdAt(LocalDateTime.now())
+                .postId(postId.toString())
+                .build();
+        this.commentSink.emitNext(comment, Sinks.EmitFailureHandler.FAIL_FAST);
+        return comment;
+    }
+
+    public Publisher<Comment> commentAdded() {
+        return this.commentSink.asFlux();
     }
 
     public List<Comment> getCommentsByPostId(String id) {

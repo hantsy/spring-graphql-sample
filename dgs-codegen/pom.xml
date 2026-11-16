@@ -82,6 +82,11 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-webmvc</artifactId>
 		</dependency>
+		<!-- the `commentAdded` subscription publishes its events through a Reactor `Sinks` -->
+		<dependency>
+			<groupId>io.projectreactor</groupId>
+			<artifactId>reactor-core</artifactId>
+		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-data-jdbc</artifactId>
@@ -128,6 +133,23 @@
 			<artifactId>dgs-starter-test</artifactId>
 			<scope>test</scope>
 		</dependency>
+		<!-- the DGS SSE subscription client needs the reactive `WebClient`; the application
+		     itself is a servlet app, so the reactive stack is only used by the tests -->
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-webflux</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>io.projectreactor.netty</groupId>
+			<artifactId>reactor-netty-http</artifactId>
+			<scope>test</scope>
+	</dependency>
+		<dependency>
+			<groupId>io.projectreactor</groupId>
+			<artifactId>reactor-test</artifactId>
+			<scope>test</scope>
+	</dependency>
 	</dependencies>
 
 	<build>
