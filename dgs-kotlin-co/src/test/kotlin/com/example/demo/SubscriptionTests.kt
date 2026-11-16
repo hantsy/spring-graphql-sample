@@ -17,7 +17,7 @@ import tools.jackson.databind.json.JsonMapper
 import com.netflix.graphql.dgs.reactive.DgsReactiveQueryExecutor
 import com.netflix.graphql.dgs.test.EnableDgsTest
 import com.ninjasquad.springmockk.MockkBean
-import org.springframework.test.context.bean.override.mockito.MockitoSpyBean
+import com.ninjasquad.springmockk.MockkSpyBean
 import graphql.ExecutionResult
 import graphql.schema.GraphQLScalarType
 import graphql.schema.idl.RuntimeWiring
@@ -103,7 +103,7 @@ class SubscriptionTests {
     @MockkBean
     lateinit var commentRepository: CommentRepository
 
-    @MockitoSpyBean
+    @MockkSpyBean
     lateinit var postService: PostService
 
     @MockkBean
@@ -172,7 +172,7 @@ class SubscriptionTests {
         comments.size shouldBe 2
 
         // verify mock callings
-        // postService is a Mockito spy (SpringMockK 5 dropped @SpykBean), so mockk coVerify cannot assert on it
+        coVerify(exactly = 2) { postService.addComment(any()) }
         coVerify(exactly = 2) { postRepository.existsById(any()) }
         coVerify(exactly = 2) { commentRepository.save(any()) }
     }

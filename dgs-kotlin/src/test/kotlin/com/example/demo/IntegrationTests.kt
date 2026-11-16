@@ -89,6 +89,8 @@ class IntegrationTests {
 
     lateinit var restClient: DgsRestClientGraphQLClient
 
+    lateinit var authenticatedRestClient: DgsRestClientGraphQLClient
+
     lateinit var sseClient: DgsGraphqlSSESubscriptionGraphQLClient
 
     lateinit var socketClient: WebSocketGraphQlClient
@@ -99,6 +101,26 @@ class IntegrationTests {
 
         restClient = DgsRestClientGraphQLClient(
             RestClient.builder().baseUrl(graphqlUrl).build()
+        )
+
+        // the session token of the `signIn` mutation is sent back in the `X-Auth-Token` header.
+        val token = restClient
+            .executeQuery(
+                SIGN_IN_MUTATION,
+                mapOf(
+                    "input" to mapOf(
+                        "username" to "user",
+                        "password" to "password"
+                    )
+                )
+            )
+            .extractValueAsObject("data.signIn.token", String::class.java)
+
+        authenticatedRestClient = DgsRestClientGraphQLClient(
+            RestClient.builder()
+                .baseUrl(graphqlUrl)
+                .defaultHeaders { it.set("X-Auth-Token", token) }
+                .build()
         )
 
         sseClient = DgsGraphqlSSESubscriptionGraphQLClient(graphqlUrl, WebClient.create(graphqlUrl))
@@ -140,7 +162,7 @@ class IntegrationTests {
 
     @Test
     fun `create a post with auth over REST`() {
-        val client = authenticatedClient()
+        val client = authenticatedRestClient
 
         val postId = client
             .executeQuery(CREATE_POST_MUTATION, CREATE_POST_VARIABLES)
@@ -151,7 +173,7 @@ class IntegrationTests {
 
     @Test
     fun `subscribe to the comments over SSE`() {
-        val client = authenticatedClient()
+        val client = authenticatedRestClient
 
         // create the post the comment is added to.
         val postId = client
@@ -185,28 +207,4 @@ class IntegrationTests {
         verifier.verify()
     }
 
-    /**
-     * Signs in with the `user`/`password` account seeded by `DataInitializer` and returns a
-     * client that authenticates with the session token.
-     */
-    private fun authenticatedClient(): DgsRestClientGraphQLClient {
-        val token = restClient
-            .executeQuery(
-                SIGN_IN_MUTATION,
-                mapOf(
-                    "input" to mapOf(
-                        "username" to "user",
-                        "password" to "password"
-                    )
-                )
-            )
-            .extractValueAsObject("data.signIn.token", String::class.java)
-
-        return DgsRestClientGraphQLClient(
-            RestClient.builder()
-                .baseUrl("http://localhost:$port/graphql")
-                .defaultHeaders { it.set("X-Auth-Token", token) }
-                .build()
-        )
-    }
 }

@@ -13,6 +13,7 @@ import com.example.demo.service.PostService
 import com.netflix.graphql.dgs.DgsQueryExecutor
 import com.netflix.graphql.dgs.test.EnableDgsTest
 import com.ninjasquad.springmockk.MockkBean
+import com.ninjasquad.springmockk.MockkSpyBean
 import graphql.ExecutionResult
 import io.kotest.matchers.shouldBe
 import io.mockk.every
@@ -25,7 +26,6 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Import
-import org.springframework.test.context.bean.override.mockito.MockitoSpyBean
 import java.time.LocalDateTime
 import java.util.*
 import java.util.concurrent.CopyOnWriteArrayList
@@ -59,8 +59,8 @@ class SubscriptionTests {
     @MockkBean
     lateinit var commentRepository: CommentRepository
 
-    // `PostService` is a Mockito spy, so the real implementation runs against the mocked repositories.
-    @MockitoSpyBean
+    // `PostService` is a spy, so the real implementation runs against the mocked repositories.
+    @MockkSpyBean
     lateinit var postService: PostService
 
     @Test
@@ -125,6 +125,7 @@ class SubscriptionTests {
         comments.map { it["content"] } shouldBe listOf("Comment 1", "Comment 2")
 
         // verify the invocation of the mocks.
+        verify(exactly = 2) { postService.addComment(any()) }
         verify(exactly = 2) { postRepository.findById(postId) }
         verify(exactly = 2) { commentRepository.save(any()) }
     }

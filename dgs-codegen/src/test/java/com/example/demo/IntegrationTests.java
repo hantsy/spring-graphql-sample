@@ -4,6 +4,7 @@ import com.netflix.graphql.dgs.client.DgsGraphQLClient;
 import com.netflix.graphql.dgs.client.DgsGraphQLResponse;
 import com.netflix.graphql.dgs.client.DgsGraphqlSSESubscriptionGraphQLClient;
 import com.netflix.graphql.dgs.client.DgsRestClientGraphQLClient;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
@@ -26,15 +27,22 @@ class IntegrationTests {
     @LocalServerPort
     int port;
 
-    private DgsGraphQLClient client() {
-        return new DgsRestClientGraphQLClient(
-                RestClient.builder().baseUrl("http://localhost:" + port + "/graphql").build());
+    private DgsGraphQLClient client;
+
+    private DgsGraphqlSSESubscriptionGraphQLClient sseClient;
+
+    @BeforeEach
+    void setup() {
+        String baseUrl = "http://localhost:" + port + "/graphql";
+
+        client = new DgsRestClientGraphQLClient(
+                RestClient.builder().baseUrl(baseUrl).build());
+
+        sseClient = new DgsGraphqlSSESubscriptionGraphQLClient(baseUrl, WebClient.create(baseUrl));
     }
 
     @Test
     void createPostAndQueryIt() {
-        var client = client();
-
         var mutation = """
                 mutation createPost($input: CreatePostInput!) {
                     createPost(createPostInput: $input)
@@ -63,10 +71,6 @@ class IntegrationTests {
      */
     @Test
     void subscribeToTheCommentsOverSse() {
-        var client = client();
-        var baseUrl = "http://localhost:" + port + "/graphql";
-        var sseClient = new DgsGraphqlSSESubscriptionGraphQLClient(baseUrl, WebClient.create(baseUrl));
-
         // create the post the comment is added to.
         var createPostMutation = """
                 mutation createPost($input: CreatePostInput!) {
