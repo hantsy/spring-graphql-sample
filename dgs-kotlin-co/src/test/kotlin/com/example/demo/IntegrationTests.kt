@@ -1,22 +1,19 @@
 package com.example.demo
 
 import com.example.demo.gql.types.Comment
-import com.example.demo.gql.types.Post
+import com.netflix.graphql.dgs.client.DgsGraphqlSSESubscriptionGraphQLClient
 import com.netflix.graphql.dgs.client.DgsWebClientGraphQLClient
-import io.kotest.common.ExperimentalKotest
 import io.kotest.matchers.shouldBe
-import io.kotest.matchers.shouldNotBe
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.reactor.awaitSingle
-import kotlinx.coroutines.reactor.awaitSingleOrNull
 import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.slf4j.LoggerFactory
 import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.context.annotation.Import
 import org.springframework.boot.test.web.server.LocalServerPort
+import org.springframework.context.annotation.Import
 import org.springframework.graphql.client.WebSocketGraphQlClient
 import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.reactive.socket.client.ReactorNettyWebSocketClient
@@ -25,12 +22,65 @@ import java.net.URI
 import java.time.Duration
 import java.util.UUID
 
-@OptIn(ExperimentalCoroutinesApi::class, ExperimentalKotest::class)
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+/**
+ * Transport level behaviour of the GraphQL endpoint, exercised through the GraphQL client
+ * libraries: the DGS WebClient, the DGS SSE subscription client and Spring GraphQL's
+ * built-in WebSocket client.
+ * See `WebClient_IntegrationTests` for the same behaviour seen without any client library.
+ */
+@OptIn(ExperimentalCoroutinesApi::class)
+@SpringBootTest(
+    classes = [DemoApplication::class],
+    webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT
+)
 @Import(TestcontainersConfiguration::class)
 class IntegrationTests {
+
     companion object {
         private val log = LoggerFactory.getLogger(IntegrationTests::class.java)
+
+        private const val CREATE_POST_MUTATION = """
+            mutation createPost(${'$'}input: CreatePostInput!){
+                createPost(createPostInput:${'$'}input){
+                    id
+                    title
+                }
+            }
+        """
+
+        private const val ADD_COMMENT_MUTATION = """
+            mutation addComment(${'$'}input: CommentInput!){
+                addComment(commentInput:${'$'}input){
+                    id
+                    postId
+                    content
+                }
+            }
+        """
+
+        private const val COMMENT_ADDED_SUBSCRIPTION = """
+            subscription onCommentAdded {
+                commentAdded {
+                    id
+                    postId
+                    content
+                }
+            }
+        """
+
+        private val CREATE_POST_VARIABLES = mapOf(
+            "input" to mapOf(
+                "title" to "test title",
+                "content" to "test content"
+            )
+        )
+
+        // The service publishes the comments through a `SharedFlow` with a replay buffer, so a
+        // subscriber that connects later on also receives the comment of a previously executed
+        // test. The contents are therefore unique per test and the foreign ones are filtered out.
+        private const val COMMENT_1 = "comment1"
+        private const val COMMENT_2 = "comment2"
+        private const val SSE_COMMENT = "sse comment"
     }
 
     @LocalServerPort
@@ -38,153 +88,127 @@ class IntegrationTests {
 
     lateinit var client: DgsWebClientGraphQLClient
 
+    lateinit var sseClient: DgsGraphqlSSESubscriptionGraphQLClient
+
     lateinit var socketClient: WebSocketGraphQlClient
 
     @BeforeEach
     fun setup() {
-        val webClient = WebClient.builder()
-            .defaultHeaders { it.setBasicAuth("user", "password") }
-            .baseUrl("http://localhost:$port/graphql")
-            .build()
+        val graphqlUrl = "http://localhost:$port/graphql"
 
-        client = DgsWebClientGraphQLClient(webClient)
+        client = DgsWebClientGraphQLClient(
+            WebClient.builder()
+                .defaultHeaders { it.setBasicAuth("user", "password") }
+                .baseUrl(graphqlUrl)
+                .build()
+        )
+
+        sseClient = DgsGraphqlSSESubscriptionGraphQLClient(graphqlUrl, WebClient.create(graphqlUrl))
+
         socketClient = WebSocketGraphQlClient.create(
             URI.create("ws://localhost:$port/graphql"),
             ReactorNettyWebSocketClient()
         )
-        this.socketClient.start().subscribe()
+        socketClient.start().block(Duration.ofSeconds(30))
     }
 
     @AfterEach
     fun teardown() {
-        this.socketClient.stop().subscribe()
+        socketClient.stop().block(Duration.ofSeconds(30))
     }
 
     @Test
-    fun `create a post and comment`() = runTest {
-
-        //create a new post
+    fun `create a post and comment over the websocket subscription`() = runTest {
+        // create a new post
         val postId = createPost()
 
-        // get post by id.
-        getPostById(postId)
-
         // subscribe to `commentAdded`
-        val commentAddedSubscriptionQuery =
-            """
-            subscription onCommentAdded
-            { 
-                commentAdded
-                { 
-                    id 
-                    postId  
-                    content
-                }
-            }
-            """.trimIndent()
         val verifier = socketClient
-            .document(commentAddedSubscriptionQuery).executeSubscription()
+            .document(COMMENT_ADDED_SUBSCRIPTION)
+            .executeSubscription()
             .mapNotNull {
-                log.debug("WebSocket client response: $it")
+                log.debug("WebSocket client response: {}", it)
                 it.getData<Map<String, Map<String, Any>>>()!!["commentAdded"]
             }
-            .doOnNext {
-                log.debug("doOnNext: $it")
-            }
-            //.subscribe { it -> comments.add(it) }
-
+            // ignore the comments that were published by the other tests
+            .filter { it["content"] == COMMENT_1 || it["content"] == COMMENT_2 }
             .`as` { StepVerifier.create(it) }
             .thenAwait(Duration.ofMillis(1000))
-            .consumeNextWith {                it!!["content"]!! shouldBe "comment1"            }
-            .consumeNextWith {                it!!["content"]!! shouldBe "comment2"            }
+            .consumeNextWith { it!!["content"] shouldBe COMMENT_1 }
+            .consumeNextWith { it!!["content"] shouldBe COMMENT_2 }
             .thenCancel()
-            .verifyLater() // delay to verify later
+            .verifyLater()
 
-        // add comments to post
-        addComment(postId, "comment1")
-        addComment(postId, "comment2")
-        //addComment(postId, "comment3 ")
+        // The subscription has to be established on the server before the comments are added,
+        // otherwise the first comment would be replaced in the replay buffer of the `SharedFlow`.
+        Thread.sleep(1000)
+
+        // add comments to the post
+        addComment(postId, COMMENT_1)
+        // a short delay, so that the first comment is delivered before the second one is published
+        Thread.sleep(500)
+        addComment(postId, COMMENT_2)
 
         // verify the result now.
-        verifier.verify()
+        verifier.verify(Duration.ofSeconds(30))
     }
 
-    private suspend fun addComment(postId: UUID, comment: String) {
-        val commentQuery =
-            """
-                mutation addComment(${'$'}input: CommentInput!) 
-                { 
-                    addComment(commentInput:${'$'}input) 
-                    { 
-                        id 
-                        postId 
-                        content
-                    }
-                }
-            """.trimIndent()
-        val comment1Variables = mapOf(
-            "input" to mapOf(
-                "postId" to postId,
-                "content" to comment
-            )
-        )
+    @Test
+    fun `subscribe to the comments over SSE`() = runTest {
+        val postId = createPost()
 
-        val addedComment = client.reactiveExecuteQuery(commentQuery, comment1Variables)
-            .map { it.extractValueAsObject("addComment", Comment::class.java) }
-            .awaitSingle()
-        addedComment.content shouldBe comment
-    }
-
-    private suspend fun getPostById(postId: UUID) {
-        val postByIdQuery = """
-            query postById(${'$'}id: UUID!)
-            {
-                postById(postId:${'$'}id)
-                { 
-                    id 
-                    title 
-                }
+        val comments = sseClient
+            .reactiveExecuteQuery(COMMENT_ADDED_SUBSCRIPTION, emptyMap<String, Any>())
+            .map { response ->
+                response.extractValueAsObject("data.commentAdded", Map::class.java)
             }
-        """.trimIndent()
-        val postByIdVariables = mapOf(
-            "id" to postId as Any
-        )
+            // ignore the comments that were published by the other tests
+            .filter { it["content"] == SSE_COMMENT }
 
-        val postByIdResult = client.reactiveExecuteQuery(postByIdQuery, postByIdVariables)
-            .map { it.extractValueAsObject("postById", Post::class.java) }
-            .awaitSingleOrNull()
-        log.debug("postByIdResult: $postByIdResult")
-        postByIdResult shouldNotBe null
-        postByIdResult?.title shouldBe "test title"
+        val verifier = StepVerifier.create(comments)
+            .consumeNextWith { comment ->
+                comment["content"] shouldBe SSE_COMMENT
+            }
+            .thenCancel()
+            .verifyLater()
+
+        // The subscription has to be established on the server before the comment is added,
+        // otherwise it would be lost - the replay buffer only keeps the last published comment.
+        Thread.sleep(1000)
+
+        addComment(postId, SSE_COMMENT)
+
+        verifier.verify(Duration.ofSeconds(30))
     }
 
     private suspend fun createPost(): UUID {
-        val createPostQuery =
-            """
-                mutation createPost(${'$'}input: CreatePostInput!)
-                { 
-                    createPost(createPostInput:${'$'}input) 
-                    {
-                        id 
-                        title
-                    } 
-                }
-            """.trimIndent()
-        val createPostQueryVariables = mapOf(
-            "input" to mapOf(
-                "title" to "test title",
-                "content" to "test content"
+        val createPostResult = client
+            .reactiveExecuteQuery(CREATE_POST_MUTATION, CREATE_POST_VARIABLES)
+            .map { it.extractValueAsObject("createPost", Map::class.java) }
+            .awaitSingle()
+        log.debug("createPostResult: {}", createPostResult)
+
+        val postId = createPostResult["id"] as String
+        postId.isNotBlank() shouldBe true
+        createPostResult["title"] shouldBe "test title"
+
+        return UUID.fromString(postId)
+    }
+
+    private suspend fun addComment(postId: UUID, comment: String) {
+        val addedComment = client
+            .reactiveExecuteQuery(
+                ADD_COMMENT_MUTATION,
+                mapOf(
+                    "input" to mapOf(
+                        "postId" to postId,
+                        "content" to comment
+                    )
+                )
             )
-        )
-        val createPostResult =
-            client.reactiveExecuteQuery(createPostQuery, createPostQueryVariables)
-                .map { it.extractValueAsObject("createPost", Post::class.java) }
-                .awaitSingle()
-        log.debug("createPostResult: $createPostResult")
-        createPostResult shouldNotBe null
-        val postId = createPostResult?.id
-        postId!! shouldNotBe null
-        createPostResult.title shouldBe "test title"
-        return postId
+            .map { it.extractValueAsObject("addComment", Comment::class.java) }
+            .awaitSingle()
+
+        addedComment.content shouldBe comment
     }
 }

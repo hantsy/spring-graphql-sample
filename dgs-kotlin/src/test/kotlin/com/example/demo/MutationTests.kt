@@ -1,158 +1,119 @@
 package com.example.demo
 
-import com.example.demo.gql.types.AuthResult
+import com.example.demo.gql.ExceptionHandlers
+import com.example.demo.gql.datafetchers.PostsDataFetcher
+import com.example.demo.gql.scalars.LocalDateTimeScalar
+import com.example.demo.gql.scalars.UUIDScalar
+import com.example.demo.gql.types.Comment
+import com.example.demo.gql.types.CommentInput
 import com.example.demo.gql.types.Post
-import org.assertj.core.api.Assertions.assertThat
-import org.junit.jupiter.api.BeforeEach
+import com.example.demo.service.PostService
+import com.netflix.graphql.dgs.DgsQueryExecutor
+import com.netflix.graphql.dgs.test.EnableDgsTest
+import com.ninjasquad.springmockk.MockkBean
+import io.kotest.matchers.shouldBe
+import io.mockk.every
+import io.mockk.verify
 import org.junit.jupiter.api.Test
-import org.slf4j.LoggerFactory
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.boot.test.web.server.LocalServerPort
+import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Import
-import org.springframework.core.ParameterizedTypeReference
-import org.springframework.http.MediaType
-import org.springframework.test.web.servlet.client.RestTestClient
+import java.util.*
 
-@SpringBootTest(
-    classes = [DemoApplication::class],
-    webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT
-)
-@Import(TestcontainersConfiguration::class)
+/**
+ * GraphQL execution behaviour of the mutations, executed in-process through `DgsQueryExecutor`
+ * with the services mocked out. See `IntegrationTests` for the transport level behaviour.
+ */
+@SpringBootTest(classes = [MutationTests.TestConfig::class])
+@EnableDgsTest
 class MutationTests {
-    private val log = LoggerFactory.getLogger(MutationTests::class.java)
 
-    @LocalServerPort
-    var port: Int = 8080
+    @Configuration
+    @Import(
+        value = [
+            PostsDataFetcher::class,
+            ExceptionHandlers::class,
+            UUIDScalar::class,
+            LocalDateTimeScalar::class,
+        ]
+    )
+    class TestConfig
 
-    lateinit var restTestClient: RestTestClient
+    @Autowired
+    lateinit var dgsQueryExecutor: DgsQueryExecutor
 
-    @BeforeEach
-    fun setup() {
-        restTestClient = RestTestClient.bindToServer()
-            .baseUrl("http://localhost:$port")
-            .build()
-    }
+    @MockkBean
+    lateinit var postService: PostService
 
     @Test
-    fun `create new post without auth`() {
+    fun `create a new post`() {
+        val post = Post(id = UUID.randomUUID(), title = "test title", content = "test content")
+        every { postService.createPost(any()) } returns post
 
         val query = """
-            mutation createPost(${'$'}input: CreatePostInput!){ 
-                createPost(createPostInput:${'$'}input) {
+            mutation createPost(${'$'}input: CreatePostInput!){
+                createPost(createPostInput:${'$'}input){
                     id
                     title
                 }
             }
         """.trimIndent()
-        val requestData = mapOf(
-            "query" to query,
-            "variables" to mapOf(
-                "input" to mapOf(
-                    "title" to "test title",
-                    "content" to "test content"
-                )
+
+        val variables = mapOf(
+            "input" to mapOf(
+                "title" to "test title",
+                "content" to "test content"
             )
         )
 
-        val body = restTestClient.post().uri("graphql")
-            .accept(MediaType.APPLICATION_JSON)
-            // .header("X-Auth-Token", token)
-            .body(requestData)
-            .exchange()
-            .expectStatus().isOk()
-            .expectBody(object : ParameterizedTypeReference<HashMap<String, List<Any>>>() {})
-            .returnResult().getResponseBody()!!
+        val title = dgsQueryExecutor.executeAndExtractJsonPath<String>(
+            query,
+            "data.createPost.title",
+            variables
+        )
 
-        val errors = body["errors"]
-        log.debug("errors: {}", errors)
-        // Over HTTP the request goes through the Spring Security filter chain, which puts an
-        // anonymous `Authentication` into the `SecurityContext`. Method security (`@Secured`) then
-        // rejects the call with an `AccessDeniedException`, which DGS maps to PERMISSION_DENIED:
-        // errors: [{message=org.springframework.security.authorization.AuthorizationDeniedException: Access Denied,
-        // path=[createPost], extensions={errorType=PERMISSION_DENIED}}]
-        assertThat(errors).isNotEmpty
-        // if pr https://github.com/Netflix/dgs-framework/pull/556 is merged.
-        //assertThat(errors!![0].extensions["errorType"]).isEqualTo("PERMISSION_DENIED")
-        //
-        // The in-process `DgsQueryExecutor` (see `QueryTests`) does not go through that filter
-        // chain, so the `SecurityContext` stays empty and Spring Security throws
-        // `AuthenticationCredentialsNotFoundException` instead. DGS' default exception handler only
-        // recognises `AccessDeniedException`, so that path reports the error as INTERNAL:
-        // errors: [{message='org.springframework.security.authentication.AuthenticationCredentialsNotFoundException:
-        // An Authentication object was not found in the SecurityContext', path=[createPost],
-        // extensions={errorType=INTERNAL}}]
-        // see `IntegrationTests` for the behaviour a real client sees.
+        title shouldBe post.title
+
+        // verify
+        verify(exactly = 1) { postService.createPost(any()) }
     }
 
-    // 1. sign in with user/password
-    // 2. extract the token and put to http header and send request to create a post
     @Test
-    fun `create new post`() {
+    fun `add a comment to a post`() {
+        val comment = Comment(
+            id = UUID.randomUUID(),
+            content = "test comment",
+            postId = UUID.randomUUID()
+        )
+        every { postService.addComment(any()) } returns comment
 
         val query = """
-            mutation signIn(${'$'}input: Credentials!){
-                signIn(credentials:${'$'}input) {
-                    name
-                    roles
-                    token
-                } 
+            mutation addComment(${'$'}input: CommentInput!){
+                addComment(commentInput:${'$'}input){
+                    id
+                    postId
+                    content
+                }
             }
         """.trimIndent()
-        val signinData = mapOf(
-            "query" to query,
-            "variables" to mapOf(
-                "input" to mapOf(
-                    "username" to "user",
-                    "password" to "password"
-                )
+
+        val variables = mapOf(
+            "input" to mapOf(
+                "postId" to comment.postId,
+                "content" to comment.content
             )
         )
 
-        val signinBody = restTestClient.post().uri("graphql")
-            .accept(MediaType.APPLICATION_JSON)
-            .body(signinData)
-            .exchange()
-            .expectStatus().isOk()
-            .expectBody(object : ParameterizedTypeReference<HashMap<String, HashMap<String, AuthResult>>>() {})
-            .returnResult().getResponseBody()!!
-
-        assertThat(signinBody["data"]!!["signIn"]!!.name).isEqualTo("user")
-        assertThat(signinBody["data"]!!["signIn"]!!.roles).contains("ROLE_USER")
-
-        val token = signinBody["data"]!!["signIn"]!!.token
-
-        assertThat(token).isNotNull
-
-        val queryOfCreatingPost = """
-            mutation createPost(${'$'}input: CreatePostInput!){ 
-                createPost(createPostInput:${'$'}input) {
-                    id, 
-                    title
-                } 
-            }
-        """.trimIndent()
-        val requestData = mapOf(
-            "query" to queryOfCreatingPost,
-            "variables" to mapOf(
-                "input" to mapOf(
-                    "title" to "test title",
-                    "content" to "test content"
-                )
-            )
+        val content = dgsQueryExecutor.executeAndExtractJsonPath<String>(
+            query,
+            "data.addComment.content",
+            variables
         )
 
-        val body = restTestClient.post().uri("graphql")
-            .accept(MediaType.APPLICATION_JSON)
-            .header("X-Auth-Token", token)
-            .body(requestData)
-            .exchange()
-            .expectStatus().isOk()
-            .expectBody(object : ParameterizedTypeReference<HashMap<String, HashMap<String, Post>>>() {})
-            .returnResult().getResponseBody()!!
+        content shouldBe comment.content
 
-        val post = body["data"]!!["createPost"]
-        assertThat(post).isNotNull
-        assertThat(post!!.id).isNotNull
-        assertThat(post.title).isEqualTo("test title")
+        // verify
+        verify(exactly = 1) { postService.addComment(any()) }
     }
 }

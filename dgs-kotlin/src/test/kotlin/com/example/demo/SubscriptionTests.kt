@@ -1,260 +1,131 @@
 package com.example.demo
 
-import com.example.demo.gql.types.AuthResult
-import com.example.demo.gql.types.Comment
-import com.example.demo.gql.types.Post
-import com.jayway.jsonpath.JsonPath
-import com.netflix.graphql.dgs.internal.Jackson3DgsJsonMapper
-import com.netflix.graphql.dgs.json.DgsJsonMapper
-import org.assertj.core.api.Assertions.assertThat
-import org.junit.jupiter.api.BeforeEach
+import com.example.demo.gql.ExceptionHandlers
+import com.example.demo.gql.datafetchers.PostsDataFetcher
+import com.example.demo.gql.scalars.LocalDateTimeScalar
+import com.example.demo.gql.scalars.UUIDScalar
+import com.example.demo.gql.types.CommentInput
+import com.example.demo.model.CommentEntity
+import com.example.demo.model.PostEntity
+import com.example.demo.repository.CommentRepository
+import com.example.demo.repository.PostRepository
+import com.example.demo.service.PostService
+import com.netflix.graphql.dgs.DgsQueryExecutor
+import com.netflix.graphql.dgs.test.EnableDgsTest
+import com.ninjasquad.springmockk.MockkBean
+import graphql.ExecutionResult
+import io.kotest.matchers.shouldBe
+import io.mockk.every
+import io.mockk.verify
 import org.junit.jupiter.api.Test
-import org.slf4j.LoggerFactory
+import org.reactivestreams.Publisher
+import org.reactivestreams.Subscriber
+import org.reactivestreams.Subscription
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.boot.test.web.server.LocalServerPort
+import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Import
-import org.springframework.core.ParameterizedTypeReference
-import org.springframework.http.MediaType
-import org.springframework.test.web.servlet.client.RestTestClient
-import org.springframework.web.socket.*
-import org.springframework.web.socket.client.standard.StandardWebSocketClient
-import org.springframework.web.socket.handler.TextWebSocketHandler
-import java.net.URI
-import java.util.UUID
+import org.springframework.test.context.bean.override.mockito.MockitoSpyBean
+import java.time.LocalDateTime
+import java.util.*
+import java.util.concurrent.CopyOnWriteArrayList
 
-@SpringBootTest(
-    classes = [DemoApplication::class],
-    webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT
-)
-@Import(TestcontainersConfiguration::class)
+/**
+ * GraphQL execution behaviour of the subscription, executed in-process through `DgsQueryExecutor`
+ * with the repositories mocked out. See `IntegrationTests` for the transport level behaviour.
+ */
+@SpringBootTest(classes = [SubscriptionTests.SubscriptionTestsConfig::class])
+@EnableDgsTest
 class SubscriptionTests {
 
-    private val log = LoggerFactory.getLogger(SubscriptionTests::class.java)
+    @Configuration
+    @Import(
+        value = [
+            PostsDataFetcher::class,
+            PostService::class,
+            ExceptionHandlers::class,
+            UUIDScalar::class,
+            LocalDateTimeScalar::class,
+        ]
+    )
+    class SubscriptionTestsConfig
 
-    @LocalServerPort
-    var port: Int = 8080
+    @Autowired
+    lateinit var dgsQueryExecutor: DgsQueryExecutor
 
-    lateinit var restTestClient: RestTestClient
+    @MockkBean
+    lateinit var postRepository: PostRepository
 
-    @BeforeEach
-    fun setup() {
-        restTestClient = RestTestClient.bindToServer()
-            .baseUrl("http://localhost:$port")
-            .build()
-    }
+    @MockkBean
+    lateinit var commentRepository: CommentRepository
+
+    // `PostService` is a Mockito spy, so the real implementation runs against the mocked repositories.
+    @MockitoSpyBean
+    lateinit var postService: PostService
 
     @Test
-    fun `sign in and create a post and comment`() {
-        // logged in
-        val token = signIn()
-
-        // create a post
-        val postId = createPost(token)
-
-        // add comments
-        addComment(postId, "comment1", token)
-        addComment(postId, "comment2", token)
-
-        val socketClient = StandardWebSocketClient()
-        val commentsReplay = ArrayList<String>(2)
-
-        val query = """
-            subscription onCommentAdded { 
-                commentAdded { 
-                    id 
-                    postId 
-                    content 
-                } 
-            }
-        """.trimIndent()
-        val subscriptionsQuery = mapOf(
-            "query" to query,
-            "variables" to emptyMap<String, Any>()// have to add this to avoid a NPE exception.
-        )
-
-        // The original Dgs webmvc subscription handling is based on  Apollo subscription websocket protocol.
-        // see: https://github.com/apollographql/subscriptions-transport-ws/blob/master/PROTOCOL.md
-        // now it is switched to GraphQL WS protocol.
-        // see: https://github.com/enisdenjo/graphql-ws/blob/master/PROTOCOL.md
-        val socketHandler: WebSocketHandler = object : TextWebSocketHandler() {
-            override fun afterConnectionEstablished(session: WebSocketSession) {
-                log.debug("after connection established: $session")
-
-                val initMessage = mapOf(
-                    "payload" to emptyMap<String, Any>(),
-                    "type" to "connection_init"
-                )
-                val subscribeMessage = mapOf(
-                    "payload" to subscriptionsQuery,
-                    "type" to "subscribe",
-                    "id" to "1"
-                )
-
-                session.sendMessage(TextMessage(initMessage.toJson()))
-                session.sendMessage(TextMessage(subscribeMessage.toJson()))
-            }
-
-            override fun handleTextMessage(
-                session: WebSocketSession,
-                message: TextMessage
-            ) {
-                log.debug("handling message: {}", message)
-                // The graphql-transport-ws protocol also sends control frames such as the
-                // "connection_ack"; only "next" frames carry subscription data.
-                val messageType = runCatching { JsonPath.read<String>(message.payload, "$.type") }.getOrNull()
-                if (messageType != "next") {
-                    log.debug("ignoring {} message: {}", messageType, message)
-                    return
-                }
-                val comment = dgsJsonMapper.convertValue(
-                    JsonPath.read(message.payload, "$.payload.data.commentAdded"),
-                    Comment::class.java
-                )
-                log.debug("received comments: {}", comment)
-                commentsReplay.add(comment.content)
-            }
-
-            override fun handleTransportError(session: WebSocketSession, exception: Throwable) {
-                log.debug("handling errors: $session, $exception")
-            }
-
-            override fun afterConnectionClosed(session: WebSocketSession, status: CloseStatus) {
-                log.debug("afterConnectionClosed: $session, $status")
-            }
-        }
-
-        // do shakehands
-        val uri: URI = URI.create("ws://localhost:$port/subscriptions")
-
-        // see: https://github.com/Netflix/dgs-framework/discussions/1399
-        // add header to use graphql-transport-ws
-        // https://github.com/enisdenjo/graphql-ws/blob/master/PROTOCOL.md#successful-connection-initialisation
-        val headers: WebSocketHttpHeaders = WebSocketHttpHeaders().apply {
-            secWebSocketProtocol = listOf("graphql-transport-ws")
-        }
-
-        val clientSession = socketClient.execute(socketHandler, headers, uri)
-            .thenApply { session ->
-                log.debug("connected session: $session")
-                session
-            }
-            .join()
-
-        Thread.sleep(1000L)
-        clientSession.close()
-
-        log.debug("comment replay: {}", commentsReplay)
-        // limit to the `latest` item in the `Sinks.replay`
-        assertThat(commentsReplay).isEqualTo(arrayListOf("comment2"))
-    }
-
-    private fun addComment(postId: UUID, comment: String, token: String) {
-        log.debug("add comment:[$comment] to post:[$postId]")
-        val query = """
-            mutation addComment(${'$'}input: CommentInput!) { 
-                addComment(commentInput:${'$'}input) { 
-                    id 
-                    postId 
+    fun `test subscriptions`() {
+        val subscriptionQuery = """
+            subscription onCommentAdded {
+                commentAdded {
+                    id
+                    postId
                     content
                 }
             }
         """.trimIndent()
-        val requestData = mapOf(
-            "query" to query,
-            "variables" to mapOf(
-                "input" to mapOf(
-                    "postId" to postId,
-                    "content" to comment
-                )
-            )
-        )
 
-        val body = restTestClient.post().uri("graphql")
-            .accept(MediaType.APPLICATION_JSON)
-            .header("X-Auth-Token", token)
-            .body(requestData)
-            .exchange()
-            .expectBody(object : ParameterizedTypeReference<HashMap<String, HashMap<String, Comment>>>() {})
-            .returnResult().getResponseBody()!!
+        val subscription = dgsQueryExecutor.execute(subscriptionQuery, emptyMap())
+        val commentsPublisher = subscription.getData<Publisher<ExecutionResult>>()
 
-        assertThat(body["data"]!!["addComment"]!!.content).isEqualTo(comment)
-    }
-
-    private fun createPost(token: String): UUID {
-        val query = """
-            mutation createPost(${'$'}input: CreatePostInput!){
-                createPost(createPostInput:${'$'}input) {
-                    id
-                    title
-                } 
+        val comments = CopyOnWriteArrayList<Map<String, Any>>()
+        commentsPublisher.subscribe(object : Subscriber<ExecutionResult> {
+            override fun onSubscribe(s: Subscription) {
+                s.request(2)
             }
-        """.trimIndent()
-        val requestData = mapOf(
-            "query" to query,
-            "variables" to mapOf(
-                "input" to mapOf(
-                    "title" to "test title",
-                    "content" to "test content"
-                )
-            )
-        )
 
-        val body = restTestClient.post().uri("graphql")
-            .accept(MediaType.APPLICATION_JSON)
-            .header("X-Auth-Token", token)
-            .body(requestData)
-            .exchange()
-            .expectStatus().isOk()
-            .expectBody(object : ParameterizedTypeReference<HashMap<String, HashMap<String, Post>>>() {})
-            .returnResult().getResponseBody()!!
-
-        val post = body["data"]!!["createPost"]
-        assertThat(post).isNotNull
-        val postId = post!!.id
-        assertThat(postId).isNotNull
-        assertThat(post.title).isEqualTo("test title")
-        return postId
-    }
-
-    private fun signIn(): String {
-        val query = """
-            mutation signIn(${'$'}input: Credentials!){ 
-                signIn(credentials:${'$'}input) {
-                    name 
-                    roles 
-                    token
-                } 
+            override fun onNext(t: ExecutionResult) {
+                val data = t.getData<Map<String, Any>>()
+                comments.add(data["commentAdded"] as Map<String, Any>)
             }
-            """.trimIndent()
-        val signinData = mapOf<String, Any>(
-            "query" to query,
-            "variables" to mapOf(
-                "input" to mapOf(
-                    "username" to "user",
-                    "password" to "password"
-                )
+
+            override fun onError(t: Throwable) {
+                throw t
+            }
+
+            override fun onComplete() {
+                // no-op
+            }
+        })
+
+        val postId = UUID.randomUUID()
+        every { postRepository.findById(postId) } returns Optional.of(
+            PostEntity(id = postId, title = "test title", content = "test content")
+        )
+        every { commentRepository.save(any()) } answers {
+            val comment = firstArg<CommentEntity>()
+            comment.copy(id = UUID.randomUUID(), createdAt = LocalDateTime.now())
+        }
+
+        postService.addComment(
+            CommentInput(
+                postId = postId,
+                content = "Comment 1"
             )
         )
 
-        val signinBody = restTestClient.post().uri("graphql")
-            .accept(MediaType.APPLICATION_JSON)
-            .body(signinData)
-            .exchange()
-            .expectStatus().isOk()
-            .expectBody(object : ParameterizedTypeReference<HashMap<String, HashMap<String, AuthResult>>>() {})
-            .returnResult().getResponseBody()!!
+        postService.addComment(
+            CommentInput(
+                postId = postId,
+                content = "Comment 2"
+            )
+        )
 
-        assertThat(signinBody["data"]!!["signIn"]!!.name).isEqualTo("user")
-        assertThat(signinBody["data"]!!["signIn"]!!.roles).contains("ROLE_USER")
+        comments.size shouldBe 2
+        comments.map { it["content"] } shouldBe listOf("Comment 1", "Comment 2")
 
-        val token = signinBody["data"]!!["signIn"]!!.token
-
-        assertThat(token).isNotNull
-        return token
+        // verify the invocation of the mocks.
+        verify(exactly = 2) { postRepository.findById(postId) }
+        verify(exactly = 2) { commentRepository.save(any()) }
     }
-
 }
-
-private val dgsJsonMapper: DgsJsonMapper = Jackson3DgsJsonMapper()
-
-private fun <K, V> Map<K, V>.toJson(): String = dgsJsonMapper.writeValueAsString(this)

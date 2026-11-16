@@ -22,6 +22,9 @@
 		<!-- DGS 12.x needs the Jackson3 provider that json-path 3.0.0 adds -->
 		<json-path.version>3.0.0</json-path.version>
 		<multipart-spring-graphql.version>2.1.0</multipart-spring-graphql.version>
+		<mockk.version>1.14.12</mockk.version>
+		<springmockk.version>5.0.1</springmockk.version>
+		<kotest.version>6.2.7</kotest.version>
 	</properties>
 	<repositories>
 		<repository>
@@ -186,6 +189,30 @@
 		<dependency>
 			<groupId>org.jetbrains.kotlin</groupId>
 			<artifactId>kotlin-test-junit5</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>io.mockk</groupId>
+			<artifactId>mockk-jvm</artifactId>
+			<version>${mockk.version}</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>com.ninja-squad</groupId>
+			<artifactId>springmockk</artifactId>
+			<version>${springmockk.version}</version>
+			<scope>test</scope>
+			<exclusions>
+				<exclusion>
+					<groupId>io.mockk</groupId>
+					<artifactId>mockk</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		<dependency>
+			<groupId>io.kotest</groupId>
+			<artifactId>kotest-assertions-core-jvm</artifactId>
+			<version>${kotest.version}</version>
 			<scope>test</scope>
 		</dependency>
 	</dependencies>

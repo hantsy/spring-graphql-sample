@@ -1,7 +1,10 @@
 package com.example.demo
 
+import com.jayway.jsonpath.TypeRef
+import com.netflix.graphql.dgs.client.DgsGraphqlSSESubscriptionGraphQLClient
 import com.netflix.graphql.dgs.client.DgsRestClientGraphQLClient
 import com.netflix.graphql.dgs.client.ErrorType
+import io.kotest.matchers.shouldBe
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
@@ -12,21 +15,17 @@ import org.springframework.boot.test.web.server.LocalServerPort
 import org.springframework.context.annotation.Import
 import org.springframework.graphql.client.WebSocketGraphQlClient
 import org.springframework.web.client.RestClient
+import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.reactive.socket.client.ReactorNettyWebSocketClient
+import reactor.test.StepVerifier
 import java.net.URI
 import java.time.Duration
 
 /**
- * Verifies the error type a client actually receives for an unauthenticated mutation.
- *
- * Over the wire the request goes through the Spring Security filter chain, which puts an
- * anonymous `Authentication` into the `SecurityContext`. Method security (`@Secured`) then
- * rejects the call with an `AccessDeniedException`, which DGS maps to PERMISSION_DENIED.
- *
- * The in-process `DgsQueryExecutor` (see `QueryTests`) skips that filter chain, so the
- * `SecurityContext` stays empty and Spring Security throws
- * `AuthenticationCredentialsNotFoundException` instead. DGS' default exception handler only
- * recognises `AccessDeniedException`, so that path reports the error as INTERNAL.
+ * Transport level behaviour of the GraphQL endpoint, exercised through the GraphQL client
+ * libraries: the DGS REST client, the DGS SSE subscription client and Spring GraphQL's
+ * built-in WebSocket client.
+ * See `RestClient_IntegrationTests` for the same behaviour seen without any client library.
  */
 @SpringBootTest(
     classes = [DemoApplication::class],
@@ -47,6 +46,36 @@ class IntegrationTests {
             }
         """
 
+        private const val ADD_COMMENT_MUTATION = """
+            mutation addComment(${'$'}input: CommentInput!){
+                addComment(commentInput:${'$'}input){
+                    id
+                    postId
+                    content
+                }
+            }
+        """
+
+        private const val SIGN_IN_MUTATION = """
+            mutation signIn(${'$'}input: Credentials!){
+                signIn(credentials:${'$'}input){
+                    name
+                    roles
+                    token
+                }
+            }
+        """
+
+        private const val COMMENT_ADDED_SUBSCRIPTION = """
+            subscription onCommentAdded {
+                commentAdded {
+                    id
+                    postId
+                    content
+                }
+            }
+        """
+
         private val CREATE_POST_VARIABLES = mapOf(
             "input" to mapOf(
                 "title" to "test title",
@@ -60,15 +89,19 @@ class IntegrationTests {
 
     lateinit var restClient: DgsRestClientGraphQLClient
 
+    lateinit var sseClient: DgsGraphqlSSESubscriptionGraphQLClient
+
     lateinit var socketClient: WebSocketGraphQlClient
 
     @BeforeEach
     fun setup() {
+        val graphqlUrl = "http://localhost:$port/graphql"
+
         restClient = DgsRestClientGraphQLClient(
-            RestClient.builder()
-                .baseUrl("http://localhost:$port/graphql")
-                .build()
+            RestClient.builder().baseUrl(graphqlUrl).build()
         )
+
+        sseClient = DgsGraphqlSSESubscriptionGraphQLClient(graphqlUrl, WebClient.create(graphqlUrl))
 
         socketClient = WebSocketGraphQlClient.create(
             URI.create("ws://localhost:$port/subscriptions"),
@@ -103,5 +136,77 @@ class IntegrationTests {
 
         assertThat(response.errors).isNotEmpty
         assertThat(response.errors[0].extensions["errorType"]).isEqualTo("PERMISSION_DENIED")
+    }
+
+    @Test
+    fun `create a post with auth over REST`() {
+        val client = authenticatedClient()
+
+        val postId = client
+            .executeQuery(CREATE_POST_MUTATION, CREATE_POST_VARIABLES)
+            .extractValueAsObject("data.createPost.id", String::class.java)
+
+        assertThat(postId).isNotBlank()
+    }
+
+    @Test
+    fun `subscribe to the comments over SSE`() {
+        val client = authenticatedClient()
+
+        // create the post the comment is added to.
+        val postId = client
+            .executeQuery(CREATE_POST_MUTATION, CREATE_POST_VARIABLES)
+            .extractValueAsObject("data.createPost.id", String::class.java)
+
+        val comments = sseClient
+            .reactiveExecuteQuery(COMMENT_ADDED_SUBSCRIPTION, emptyMap<String, Any>())
+            .map { response ->
+                response.extractValueAsObject("data.commentAdded", object : TypeRef<Map<String, Any>>() {})
+            }
+
+        val verifier = StepVerifier.create(comments)
+            .consumeNextWith { comment ->
+                comment["content"] shouldBe "test comment"
+            }
+            .thenCancel()
+            .verifyLater()
+
+        // add the comment, the subscription should receive it.
+        client.executeQuery(
+            ADD_COMMENT_MUTATION,
+            mapOf(
+                "input" to mapOf(
+                    "postId" to postId,
+                    "content" to "test comment"
+                )
+            )
+        )
+
+        verifier.verify()
+    }
+
+    /**
+     * Signs in with the `user`/`password` account seeded by `DataInitializer` and returns a
+     * client that authenticates with the session token.
+     */
+    private fun authenticatedClient(): DgsRestClientGraphQLClient {
+        val token = restClient
+            .executeQuery(
+                SIGN_IN_MUTATION,
+                mapOf(
+                    "input" to mapOf(
+                        "username" to "user",
+                        "password" to "password"
+                    )
+                )
+            )
+            .extractValueAsObject("data.signIn.token", String::class.java)
+
+        return DgsRestClientGraphQLClient(
+            RestClient.builder()
+                .baseUrl("http://localhost:$port/graphql")
+                .defaultHeaders { it.set("X-Auth-Token", token) }
+                .build()
+        )
     }
 }
