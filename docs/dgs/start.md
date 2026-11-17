@@ -808,7 +808,7 @@ public class CommentsDataLoader implements MappedBatchLoader<Long, List<Comment>
 ```
 
 To push live updates to the clients — new comments, for example — add a
-subscription; see [Subscription (with SSE, WebSocket)](#subscription-with-sse-websocket).
+subscription; see [Subscriptions](#subscriptions).
 
 ## Step 6: Handle errors
 
@@ -982,144 +982,6 @@ GraphiQL is enabled by default. To disable it, add
 spring.graphql.graphiql.enabled=false
 ```
 
-## Switch to WebFlux
-
-**WebFlux** is Spring's reactive web stack. **R2DBC** provides reactive
-relational database access, unlike the blocking JDBC API used above. The
-`dgs-webflux` module keeps the same domain and schema but replaces the
-servlet/JDBC dependencies with WebFlux and R2DBC. Replace the MVC and JDBC
-dependencies with these:
-
-```xml
-<dependency>
-    <groupId>org.springframework.boot</groupId>
-    <artifactId>spring-boot-starter-webflux</artifactId>
-</dependency>
-<dependency>
-    <groupId>org.springframework.boot</groupId>
-    <artifactId>spring-boot-starter-data-r2dbc</artifactId>
-</dependency>
-<dependency>
-    <groupId>org.postgresql</groupId>
-    <artifactId>r2dbc-postgresql</artifactId>
-    <scope>runtime</scope>
-</dependency>
-```
-
-Make the same change in your application: replace `webmvc` with `webflux` and
-JDBC with R2DBC. You must also update the repository and service layers to use
-reactive database operations; changing dependencies alone does not make
-blocking JDBC code reactive. Fetchers then return Reactor's `Mono` (zero or
-one value) or `Flux` (a stream of values); the DGS annotations stay the same.
-The fetcher methods then look like this:
-
-```java
-@DgsComponent
-@Validated
-public class PostsDataFetcher {
-    private final PostService postService;
-    private final AuthorService authorService;
-
-    @DgsQuery
-    public Flux<Post> allPosts() {
-        return this.postService.getAllPosts();
-    }
-
-    @DgsQuery
-    public Mono<Post> postById(@InputArgument Long postId) {
-        return this.postService.getPostById(postId);
-    }
-
-    @DgsMutation
-    public Mono<Post> createPost(@InputArgument("createPostInput") @Valid CreatePostInput input) {
-        return this.postService.createPost(input).flatMap(id -> this.postService.getPostById(id));
-    }
-
-    @DgsMutation
-    public Mono<Comment> addComment(@InputArgument("commentInput") @Valid CommentInput input) {
-        return this.postService.addComment(input);
-    }
-
-    @DgsSubscription
-    Publisher<Comment> commentAdded() {
-        return postService.commentAdded();
-    }
-}
-```
-
-This example adds input validation and a subscription:
-
-- `@Valid` on the argument turns on Bean Validation for `CreatePostInput`.
-- `@DgsSubscription` turns a method that returns a reactive `Publisher` into a
-  live subscription — a stream of results pushed to the client, here over
-  Server-Sent Events or WebSocket.
-
-This module also adds a second mutation (`addComment`) and demonstrates the
-subscription transport, so it is the one to copy when you need real-time
-updates.
-
-### Subscriptions over SSE and WebSocket
-
-The reactive module serves the subscription over both transports, on the same
-`/graphql` path as the ordinary HTTP endpoint. The service owns the event
-stream; the mutation publishes into a Reactor `Sinks.Many` and the
-subscription reads from it:
-
-```java
-@Service
-@RequiredArgsConstructor
-@Slf4j
-public class PostService {
-    ... // the repositories
-
-    private final Sinks.Many<Comment> sink = Sinks.many().replay().latest();
-
-    public Mono<Comment> addComment(CommentInput commentInput) {
-        var postId = Long.valueOf(commentInput.getPostId());
-        return this.posts.findById(postId)
-                .flatMap(p -> this.comments.create(commentInput.getContent(), postId))
-                .flatMap(id -> this.comments.findById(id))
-                .map(COMMENT_MAPPER)
-                .doOnNext(c -> sink.emitNext(c, Sinks.EmitFailureHandler.FAIL_FAST))
-                .switchIfEmpty(Mono.error(new PostNotFoundException(postId)));
-    }
-
-    public Flux<Comment> commentAdded() {
-        return sink.asFlux();
-    }
-}
-```
-
-The `doOnNext` matters: the event is published as a side effect of the
-successful mutation, so a subscriber only ever sees comments that were really
-stored.
-
-The WebSocket transport only needs the path, the SSE transport a timeout:
-
-```properties
-spring.graphql.websocket.path=/graphql
-spring.graphql.http.sse.timeout=45s
-```
-
-Both clients work as in the servlet module; the WebSocket one only needs a
-reactive `WebSocketClient`:
-
-```java
-// Server-Sent Events
-var sseClient = new DgsGraphqlSSESubscriptionGraphQLClient(baseUrl, WebClient.create(baseUrl));
-
-// WebSocket
-var socketClient = WebSocketGraphQlClient.create(
-        URI.create("ws://localhost:8080/graphql"),
-        new ReactorNettyWebSocketClient());
-```
-
-See [Subscription (with SSE, WebSocket)](#subscription-with-sse-websocket) for
-the whole picture.
-
-To explore the reactive version, see the
-[`dgs-webflux` module](https://github.com/hantsy/spring-graphql-sample/tree/master/dgs-webflux).
-
 ## Generate types from schema
 
 **Code generation** creates Java types and constants from the GraphQL schema,
@@ -1249,25 +1111,14 @@ a schema rename becomes a compile error rather than a silent typo.
 For a complete code-generation setup, explore the
 [`dgs-codegen` module](https://github.com/hantsy/spring-graphql-sample/tree/master/dgs-codegen).
 
-## Subscription (with SSE, WebSocket)
+## Subscriptions
 
 A **subscription** is a long-lived GraphQL operation. The client opens it
 once and the server keeps pushing results until the client goes away. DGS
 turns a method that returns a reactive `Publisher` into such a subscription
 with `@DgsSubscription`.
 
-Spring GraphQL serves the very same subscription over two transports:
-
-| Transport | How the client opens it |
-| --- | --- |
-| Server-Sent Events (SSE) | `POST /graphql` with `Accept: text/event-stream`; the response body is a stream of `data:` lines. |
-| WebSocket | `ws://localhost:8080/graphql` with the `graphql-transport-ws` sub-protocol. |
-
-Both live under the same path as the ordinary HTTP endpoint, so one GraphQL
-service serves queries, mutations and subscriptions over HTTP, over
-Server-Sent Events and over WebSocket at the same time.
-
-### Declare the subscription in the schema
+### Define Subscription Schema
 
 Add a root `Subscription` type and the mutation that produces the events:
 
@@ -1294,7 +1145,7 @@ type Subscription {
 }
 ```
 
-### Publish the events from the service
+### Publish Events to Clients
 
 The service owns the event stream. A Reactor `Sinks.Many` is the hot
 publisher the subscription is built on: the mutation emits into the sink, the
@@ -1333,8 +1184,6 @@ that subscribes a moment too late still receives it. Use
 `Sinks.many().multicast().directBestEffort()` instead when every subscriber
 should only see the events published *after* it subscribed.
 
-### Expose the subscription in a data fetcher
-
 The fetcher is a one-liner; DGS binds the method to the `commentAdded` field of
 the `Subscription` root type.
 
@@ -1358,40 +1207,58 @@ public class PostsDataFetcher {
 }
 ```
 
-### Serve both transports
-
-The Server-Sent-Events transport is part of `spring-boot-graphql`, so it needs
-no extra dependency. The WebSocket transport needs the WebSocket starter, and
-the reactive `Sinks` API comes from Reactor:
+The reactive `Sinks` API comes from Reactor:
 
 ```xml
-<dependency>
-    <groupId>org.springframework.boot</groupId>
-    <artifactId>spring-boot-starter-websocket</artifactId>
-</dependency>
 <dependency>
     <groupId>io.projectreactor</groupId>
     <artifactId>reactor-core</artifactId>
 </dependency>
 ```
 
-Point the WebSocket transport at the same path as the HTTP endpoint and give
-the SSE responses a sensible timeout:
+Spring GraphQL publishes the very same subscription over two transports, so
+one endpoint serves both of them:
+
+| Transport | How the client opens it |
+| --- | --- |
+| Server-Sent Events (SSE) | `POST /graphql` with `Accept: text/event-stream`; the response body is a stream of `data:` lines. |
+| WebSocket | `ws://localhost:8080/graphql` with the `graphql-transport-ws` sub-protocol. |
+
+#### Over HTTP/SSE
+
+The Server-Sent-Events transport is part of `spring-boot-graphql`, so it needs
+no extra dependency. Give the SSE responses a sensible timeout:
 
 ```properties
-spring.graphql.websocket.path=/graphql
-spring.graphql.websocket.connection-init-timeout=30s
-spring.graphql.websocket.keep-alive=60s
 spring.graphql.http.sse.timeout=45s
 # the servlet stack keeps the SSE request open through the async request timeout
 spring.mvc.async.request-timeout=45000
 ```
 
-The endpoint now serves three things: plain HTTP queries and mutations,
-Server-Sent-Events subscriptions and WebSocket subscriptions — all under
-`/graphql`.
+#### Over WebSocket
 
-### Connect a client
+The WebSocket transport needs the WebSocket starter:
+
+```xml
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-websocket</artifactId>
+</dependency>
+```
+
+Point it at the same path as the HTTP endpoint:
+
+```properties
+spring.graphql.websocket.path=/graphql
+spring.graphql.websocket.connection-init-timeout=30s
+spring.graphql.websocket.keep-alive=60s
+```
+
+Both live under the same path as the ordinary HTTP endpoint, so one GraphQL
+service serves queries, mutations and subscriptions over HTTP, over
+Server-Sent Events and over WebSocket at the same time.
+
+### Subscribe in Clients
 
 The DGS client libraries speak both transports. The SSE client opens a
 `text/event-stream` request, the WebSocket client speaks `graphql-transport-ws`:
@@ -1437,7 +1304,7 @@ socketClient.document("""
 For a complete implementation of both transports on one GraphQL path, explore
 the [`dgs-codegen` module](https://github.com/hantsy/spring-graphql-sample/tree/master/dgs-codegen).
 
-## Custom scalars
+## Scalars
 
 A **scalar** is a leaf value in a GraphQL response: clients select it directly
 but cannot request subfields from it. GraphQL has built-in scalars such as
@@ -1491,7 +1358,7 @@ See the
 [`dgs-codegen` module](https://github.com/hantsy/spring-graphql-sample/tree/master/dgs-codegen)
 for a working custom-scalar example.
 
-## Custom directives
+## Directives
 
 A **directive** is an annotation in the schema that adds behavior to a type,
 field, or argument. The schema already declares `@uppercase` for fields.
@@ -1524,6 +1391,98 @@ behavior without touching the fetcher.
 
 The [`dgs-codegen` module](https://github.com/hantsy/spring-graphql-sample/tree/master/dgs-codegen)
 also includes a working custom-directive example.
+
+## Switch to WebFlux
+
+**WebFlux** is Spring's reactive web stack. **R2DBC** provides reactive
+relational database access, unlike the blocking JDBC API used above. The
+`dgs-webflux` module keeps the same domain and schema but replaces the
+servlet/JDBC dependencies with WebFlux and R2DBC. Replace the MVC and JDBC
+dependencies with these:
+
+```xml
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-webflux</artifactId>
+</dependency>
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-data-r2dbc</artifactId>
+</dependency>
+<dependency>
+    <groupId>org.postgresql</groupId>
+    <artifactId>r2dbc-postgresql</artifactId>
+    <scope>runtime</scope>
+</dependency>
+```
+
+Make the same change in your application: replace `webmvc` with `webflux` and
+JDBC with R2DBC. You must also update the repository and service layers to
+use reactive database operations; changing dependencies alone does not make
+blocking JDBC code reactive.
+
+This module also adds a second mutation (`addComment`), so it is the one to
+copy when you need real-time updates.
+
+### Data Fetchers
+
+Fetchers then return Reactor's `Mono` (zero or one value) or `Flux` (a stream
+of values); the DGS annotations stay the same. The fetcher methods look like
+this:
+
+```java
+@DgsComponent
+@Validated
+public class PostsDataFetcher {
+    private final PostService postService;
+    private final AuthorService authorService;
+
+    @DgsQuery
+    public Flux<Post> allPosts() {
+        return this.postService.getAllPosts();
+    }
+
+    @DgsQuery
+    public Mono<Post> postById(@InputArgument Long postId) {
+        return this.postService.getPostById(postId);
+    }
+
+    @DgsMutation
+    public Mono<Post> createPost(@InputArgument("createPostInput") @Valid CreatePostInput input) {
+        return this.postService.createPost(input).flatMap(id -> this.postService.getPostById(id));
+    }
+
+    @DgsMutation
+    public Mono<Comment> addComment(@InputArgument("commentInput") @Valid CommentInput input) {
+        return this.postService.addComment(input);
+    }
+}
+```
+
+- `@Valid` on the argument turns on Bean Validation for `CreatePostInput`.
+- The `flatMap` in `createPost` chains the insert with the lookup of the
+  created post, so the mutation still returns the whole entity.
+
+### Subscriptions
+
+The subscription works the same way as in the
+[Subscriptions](#subscriptions) section — a `Sinks.Many` in the service, and a
+`@DgsSubscription` fetcher that returns the reactive `Publisher`:
+
+```java
+@DgsSubscription
+Publisher<Comment> commentAdded() {
+    return postService.commentAdded();
+}
+```
+
+The event is published as a side effect of the successful mutation, and the
+subscription is served over the same two transports, on the same `/graphql`
+path as the ordinary HTTP endpoint. The transport configuration and the
+client code are described in [Subscriptions](#subscriptions).
+
+To explore the reactive version, see the
+[`dgs-webflux` module](https://github.com/hantsy/spring-graphql-sample/tree/master/dgs-webflux).
 
 ## Typesafe client
 
