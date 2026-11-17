@@ -5,7 +5,7 @@
 #
 # The file has three update entries:
 #   1. Maven - all Java/Kotlin example projects, updates grouped by ecosystem:
-#      dgs, spring, kotlin, testing, apache-commons.
+#      dgs, spring, kotlin, testing, apache-commons, apache-maven.
 #   2. npm - the Angular subscription clients, updates grouped by angular,
 #      apollo-graphql, tooling.
 #   3. GitHub Actions workflows.
@@ -67,6 +67,9 @@ updates:
       apache-commons:
         patterns:
           - "org.apache.commons:*"
+      apache-maven:
+        patterns:
+          - "org.apache.maven:*"
 
   # Angular clients. Major and minor updates are ignored because they require a
   # coordinated migration of the whole Angular toolchain.
