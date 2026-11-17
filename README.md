@@ -34,12 +34,11 @@ mkdocs serve
 | ---- | ---- |
 |[dgs](./dgs)  | Simple Netflix DGS example|
 |[dgs-webflux](./dgs-webflux)| Simple Netflix DGS example with Spring WebFlux|
-|[dgs-subscription-ws](./dgs-subscription-ws) | Simple Netflix DGS Subscription example using WebSocket protocol|
-|[dgs-subscription-ui](./dgs-subscription-ui)  | Angular client (traditional RxJS) for dgs-subscription-ws|
-|[dgs-subscription-ui-signals](./dgs-subscription-ui-signals)  | Angular client (signals + rxResource API) for dgs-subscription-ws|
-|[dgs-subscription-ui-sse](./dgs-subscription-ui-sse)  | Angular client (traditional RxJS) for dgs-subscription-sse, consuming subscriptions over Server-Sent Events|
-|[dgs-subscription-ui-sse-signals](./dgs-subscription-ui-sse-signals)  | Angular client (signals + rxResource API) for dgs-subscription-sse, consuming subscriptions over Server-Sent Events|
-|[dgs-subscription-sse](./dgs-subscription-sse)  | Simple Netflix DGS Subscription example using Http/SSE protocol|
+|[dgs-subscription](./dgs-subscription) | Simple Netflix DGS Subscription example serving subscriptions over both the WebSocket and the Http/SSE transport|
+|[dgs-subscription-ui](./dgs-subscription-ui)  | Angular client (traditional RxJS) for dgs-subscription, using the WebSocket transport|
+|[dgs-subscription-ui-signals](./dgs-subscription-ui-signals)  | Angular client (signals + rxResource API) for dgs-subscription, using the WebSocket transport|
+|[dgs-subscription-ui-sse](./dgs-subscription-ui-sse)  | Angular client (traditional RxJS) for dgs-subscription, consuming subscriptions over Server-Sent Events|
+|[dgs-subscription-ui-sse-signals](./dgs-subscription-ui-sse-signals)  | Angular client (signals + rxResource API) for dgs-subscription, consuming subscriptions over Server-Sent Events|
 |[dgs-codegen](./dgs-codegen) | Netflix DGS example with Spring Jdbc and the DGS codegen plugin|
 |[dgs-fileupload](./dgs-fileupload) | Netflix DGS file upload example|
 |[dgs-client](./dgs-client) | Netflix DGS Typesafe Client example|
@@ -67,7 +66,7 @@ The Angular clients demonstrate two state management approaches:
 - **Traditional** (`dgs-subscription-ui`, `dgs-subscription-ui-sse`): RxJS Observables with `async` pipe and Apollo's `subscribeToMore` for real-time updates.
 - **Signals** (`dgs-subscription-ui-signals`, `dgs-subscription-ui-sse-signals`): `rxResource()` from `@angular/core/rxjs-interop` for queries and streaming subscriptions, with computed signals for derived state.
 
-All clients default to `http://localhost:8080/graphql`. Pair the WebSocket clients with the `dgs-subscription-ws` backend and the SSE clients with `dgs-subscription-sse`; running the wrong backend, or both at once, means the UI silently talks to the wrong transport.
+All clients default to `http://localhost:8080/graphql`. The `dgs-subscription` backend serves both transports on the same endpoint, so the WebSocket clients and the SSE clients can talk to the same server - the client picks the transport, the server offers both.
 
 ### Legacy Codes
 
