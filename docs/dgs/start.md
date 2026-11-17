@@ -1219,10 +1219,7 @@ The reactive `Sinks` API comes from Reactor:
 Spring GraphQL publishes the very same subscription over two transports, so
 one endpoint serves both of them:
 
-| Transport | How the client opens it |
-| --- | --- |
-| Server-Sent Events (SSE) | `POST /graphql` with `Accept: text/event-stream`; the response body is a stream of `data:` lines. |
-| WebSocket | `ws://localhost:8080/graphql` with the `graphql-transport-ws` sub-protocol. |
+![The Server-Sent-Events and the WebSocket transports, and how a client opens each of them](subscription-transports.png)
 
 #### Over HTTP/SSE
 
@@ -1778,7 +1775,7 @@ seeds sample data on startup, tests that read a whole table assert with
 has a single `RepositoryTests` class; the database-backed suites need Docker
 running.
 
-### Test queries with DgsQueryExecutor
+### Test Queries
 
 `@EnableDgsTest` enables DGS test support, and `DgsQueryExecutor` runs a
 GraphQL operation directly against the schema without starting an HTTP server.
@@ -1863,7 +1860,7 @@ The sample modules exercise this pattern in different ways:
 - [`dgs-webflux`](https://github.com/hantsy/spring-graphql-sample/tree/master/dgs-webflux)
   tests reactive fetchers and subscriptions with `DgsReactiveQueryExecutor`.
 
-### Test mutations with DgsQueryExecutor
+### Test Mutations
 
 A mutation is tested the same way: import the fetcher, mock the service, and
 run the mutation through the executor. Assert the returned data with
@@ -1936,7 +1933,7 @@ schema input — as in the
 [`dgs-codegen`](https://github.com/hantsy/spring-graphql-sample/tree/master/dgs-codegen)
 module.
 
-### Test subscriptions with DgsQueryExecutor
+### Test Subscriptions
 
 A subscription is executed the same way, but the result is a stream instead of
 a value. `executor.execute(...)` returns an `ExecutionResult` whose
@@ -2023,17 +2020,13 @@ The `request(2)` call is what makes the test deterministic: the subscription
 asks for two events, so the publisher delivers exactly the two comments the
 mutation published.
 
-### Test the API over the protocols with GraphQL clients
+### Test over transport protocols
 
 Component and repository tests never exercise the transport. To verify the
 GraphQL endpoint end to end, start the application on a random port and call
 `/graphql`. The DGS client libraries speak every transport the server offers:
 
-| Transport | Client | Used for |
-| --- | --- | --- |
-| HTTP | `DgsRestClientGraphQLClient` (blocking), `DgsWebClientGraphQLClient` (reactive) | queries and mutations |
-| Server-Sent Events | `DgsGraphqlSSESubscriptionGraphQLClient` | subscriptions |
-| WebSocket | `WebSocketGraphQlClient` | subscriptions |
+![The GraphQL clients of the HTTP, the Server-Sent-Events and the WebSocket transports, and what each of them is used for](transport-protocol-clients.png)
 
 The blocking `RestClient` based client sends the queries and the mutations:
 
