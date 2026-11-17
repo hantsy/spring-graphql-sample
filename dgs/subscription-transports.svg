@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1360" height="267" viewBox="0 0 1360 267">
+  <foreignObject x="0" y="0" width="1360" height="267">
+    <div xmlns="http://www.w3.org/1999/xhtml" class="page">
+      <style>
+        * { box-sizing: border-box; }
+        .page { margin: 0; padding: 28px; background: #ffffff;
+                font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif; }
+        .card { border-radius: 14px; overflow: hidden;
+                box-shadow: 0 6px 22px rgba(15, 30, 60, 0.14); }
+        table { width: 1304px; border-collapse: collapse; }
+        th { background: #2b3ecb; color: #ffffff; font-size: 24px; font-weight: 700;
+             text-align: left; padding: 18px 24px; }
+        td { padding: 18px 24px; font-size: 21px; color: #1f2933;
+             border-top: 1px solid #e4e7eb; vertical-align: top; line-height: 1.5; }
+        tr.alt td { background: #f7f9fc; }
+        td.key { font-weight: 700; color: #3f6ab5; }
+        code { font-family: Consolas, "Courier New", monospace; font-size: 20px;
+               color: #243b53; background: #eef2f8; border-radius: 5px;
+               padding: 2px 6px; }
+      </style>
+      <div class="card">
+        <table>
+          <tr>
+            <th style="width: 380px;">Transport</th>
+            <th>How the client opens it</th>
+          </tr>
+          <tr>
+            <td class="key">Server-Sent Events (SSE)</td>
+            <td><code>POST /graphql</code> with <code>Accept: text/event-stream</code>; the response body is a stream of <code>data:</code> lines.</td>
+          </tr>
+          <tr class="alt">
+            <td class="key">WebSocket</td>
+            <td><code>ws://localhost:8080/graphql</code> with the <code>graphql-transport-ws</code> sub-protocol.</td>
+          </tr>
+        </table>
+      </div>
+    </div>
+  </foreignObject>
+</svg>

@@ -871,10 +871,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#test-queries-with-dgsqueryexecutor" class="md-nav__link">
+  <a href="#test-queries" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Test queries with DgsQueryExecutor
+        Test Queries
       
     </span>
   </a>
@@ -882,10 +882,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#test-mutations-with-dgsqueryexecutor" class="md-nav__link">
+  <a href="#test-mutations" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Test mutations with DgsQueryExecutor
+        Test Mutations
       
     </span>
   </a>
@@ -893,10 +893,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#test-subscriptions-with-dgsqueryexecutor" class="md-nav__link">
+  <a href="#test-subscriptions" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Test subscriptions with DgsQueryExecutor
+        Test Subscriptions
       
     </span>
   </a>
@@ -904,10 +904,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#test-the-api-over-the-protocols-with-graphql-clients" class="md-nav__link">
+  <a href="#test-over-transport-protocols" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Test the API over the protocols with GraphQL clients
+        Test over transport protocols
       
     </span>
   </a>
@@ -1417,10 +1417,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#test-queries-with-dgsqueryexecutor" class="md-nav__link">
+  <a href="#test-queries" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Test queries with DgsQueryExecutor
+        Test Queries
       
     </span>
   </a>
@@ -1428,10 +1428,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#test-mutations-with-dgsqueryexecutor" class="md-nav__link">
+  <a href="#test-mutations" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Test mutations with DgsQueryExecutor
+        Test Mutations
       
     </span>
   </a>
@@ -1439,10 +1439,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#test-subscriptions-with-dgsqueryexecutor" class="md-nav__link">
+  <a href="#test-subscriptions" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Test subscriptions with DgsQueryExecutor
+        Test Subscriptions
       
     </span>
   </a>
@@ -1450,10 +1450,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#test-the-api-over-the-protocols-with-graphql-clients" class="md-nav__link">
+  <a href="#test-over-transport-protocols" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Test the API over the protocols with GraphQL clients
+        Test over transport protocols
       
     </span>
   </a>
@@ -2568,24 +2568,7 @@ the <code>Subscription</code> root type.</p>
 </code></pre></div>
 <p>Spring GraphQL publishes the very same subscription over two transports, so
 one endpoint serves both of them:</p>
-<table>
-<thead>
-<tr>
-<th>Transport</th>
-<th>How the client opens it</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>Server-Sent Events (SSE)</td>
-<td><code>POST /graphql</code> with <code>Accept: text/event-stream</code>; the response body is a stream of <code>data:</code> lines.</td>
-</tr>
-<tr>
-<td>WebSocket</td>
-<td><code>ws://localhost:8080/graphql</code> with the <code>graphql-transport-ws</code> sub-protocol.</td>
-</tr>
-</tbody>
-</table>
+<p><img alt="The Server-Sent-Events and the WebSocket transports, and how a client opens each of them" src="../subscription-transports.png" /></p>
 <h4 id="over-httpsse">Over HTTP/SSE<a class="headerlink" href="#over-httpsse" title="Permanent link">&para;</a></h4>
 <p>The Server-Sent-Events transport is part of <code>spring-boot-graphql</code>, so it needs
 no extra dependency. Give the SSE responses a sensible timeout:</p>
@@ -3052,7 +3035,7 @@ seeds sample data on startup, tests that read a whole table assert with
 <a href="https://github.com/hantsy/spring-graphql-sample/tree/master/dgs"><code>dgs</code></a> module
 has a single <code>RepositoryTests</code> class; the database-backed suites need Docker
 running.</p>
-<h3 id="test-queries-with-dgsqueryexecutor">Test queries with DgsQueryExecutor<a class="headerlink" href="#test-queries-with-dgsqueryexecutor" title="Permanent link">&para;</a></h3>
+<h3 id="test-queries">Test Queries<a class="headerlink" href="#test-queries" title="Permanent link">&para;</a></h3>
 <p><code>@EnableDgsTest</code> enables DGS test support, and <code>DgsQueryExecutor</code> runs a
 GraphQL operation directly against the schema without starting an HTTP server.
 Mock the service layer so the test focuses on the fetcher and its GraphQL
@@ -3126,7 +3109,7 @@ plain values, and assert the stream with <code>StepVerifier</code>:</p>
 <li><a href="https://github.com/hantsy/spring-graphql-sample/tree/master/dgs-webflux"><code>dgs-webflux</code></a>
   tests reactive fetchers and subscriptions with <code>DgsReactiveQueryExecutor</code>.</li>
 </ul>
-<h3 id="test-mutations-with-dgsqueryexecutor">Test mutations with DgsQueryExecutor<a class="headerlink" href="#test-mutations-with-dgsqueryexecutor" title="Permanent link">&para;</a></h3>
+<h3 id="test-mutations">Test Mutations<a class="headerlink" href="#test-mutations" title="Permanent link">&para;</a></h3>
 <p>A mutation is tested the same way: import the fetcher, mock the service, and
 run the mutation through the executor. Assert the returned data with
 <code>executeAndExtractJsonPath</code>, and inspect the errors of a rejected mutation
@@ -3194,7 +3177,7 @@ called at all. It needs the extended validation support — the
 schema input — as in the
 <a href="https://github.com/hantsy/spring-graphql-sample/tree/master/dgs-codegen"><code>dgs-codegen</code></a>
 module.</p>
-<h3 id="test-subscriptions-with-dgsqueryexecutor">Test subscriptions with DgsQueryExecutor<a class="headerlink" href="#test-subscriptions-with-dgsqueryexecutor" title="Permanent link">&para;</a></h3>
+<h3 id="test-subscriptions">Test Subscriptions<a class="headerlink" href="#test-subscriptions" title="Permanent link">&para;</a></h3>
 <p>A subscription is executed the same way, but the result is a stream instead of
 a value. <code>executor.execute(...)</code> returns an <code>ExecutionResult</code> whose
 <code>getData()</code> is a <code>Publisher&lt;ExecutionResult&gt;</code> — subscribe to it, request the
@@ -3275,36 +3258,11 @@ with has to be fed for real, so use a spy and mock only the repositories.</p>
 <p>The <code>request(2)</code> call is what makes the test deterministic: the subscription
 asks for two events, so the publisher delivers exactly the two comments the
 mutation published.</p>
-<h3 id="test-the-api-over-the-protocols-with-graphql-clients">Test the API over the protocols with GraphQL clients<a class="headerlink" href="#test-the-api-over-the-protocols-with-graphql-clients" title="Permanent link">&para;</a></h3>
+<h3 id="test-over-transport-protocols">Test over transport protocols<a class="headerlink" href="#test-over-transport-protocols" title="Permanent link">&para;</a></h3>
 <p>Component and repository tests never exercise the transport. To verify the
 GraphQL endpoint end to end, start the application on a random port and call
 <code>/graphql</code>. The DGS client libraries speak every transport the server offers:</p>
-<table>
-<thead>
-<tr>
-<th>Transport</th>
-<th>Client</th>
-<th>Used for</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>HTTP</td>
-<td><code>DgsRestClientGraphQLClient</code> (blocking), <code>DgsWebClientGraphQLClient</code> (reactive)</td>
-<td>queries and mutations</td>
-</tr>
-<tr>
-<td>Server-Sent Events</td>
-<td><code>DgsGraphqlSSESubscriptionGraphQLClient</code></td>
-<td>subscriptions</td>
-</tr>
-<tr>
-<td>WebSocket</td>
-<td><code>WebSocketGraphQlClient</code></td>
-<td>subscriptions</td>
-</tr>
-</tbody>
-</table>
+<p><img alt="The GraphQL clients of the HTTP, the Server-Sent-Events and the WebSocket transports, and what each of them is used for" src="../transport-protocol-clients.png" /></p>
 <p>The blocking <code>RestClient</code> based client sends the queries and the mutations:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-58-1" name="__codelineno-58-1" href="#__codelineno-58-1"></a><span class="nd">@SpringBootTest</span><span class="p">(</span><span class="n">webEnvironment</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">SpringBootTest</span><span class="p">.</span><span class="na">WebEnvironment</span><span class="p">.</span><span class="na">RANDOM_PORT</span><span class="p">)</span>
 <a id="__codelineno-58-2" name="__codelineno-58-2" href="#__codelineno-58-2"></a><span class="nd">@Import</span><span class="p">(</span><span class="n">TestcontainersConfiguration</span><span class="p">.</span><span class="na">class</span><span class="p">)</span>
