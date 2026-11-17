@@ -37,7 +37,7 @@ import static org.mockito.Mockito.when;
 /**
  * GraphQL execution behaviour of the `commentAdded` subscription, executed in-process through the
  * `DgsQueryExecutor` with the repositories mocked out.
- * See `IntegrationTests` for the transport level behaviour over SSE.
+ * See `IntegrationTests` for the transport level behaviour over SSE and WebSocket.
  */
 @SpringBootTest(classes = SubscriptionTests.SubscriptionTestsConfig.class)
 @EnableDgsTest

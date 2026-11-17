@@ -82,6 +82,12 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-webmvc</artifactId>
 		</dependency>
+		<!-- the WebSocket transport of the GraphQL endpoint; the Server-Sent-Events transport
+		     is part of spring-boot-graphql, so it needs no extra dependency -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-websocket</artifactId>
+		</dependency>
 		<!-- the `commentAdded` subscription publishes its events through a Reactor `Sinks` -->
 		<dependency>
 			<groupId>io.projectreactor</groupId>
