@@ -5,7 +5,8 @@
 #
 # The file has three update entries:
 #   1. Maven - all Java/Kotlin example projects, updates grouped by ecosystem:
-#      dgs, spring, kotlin, testing, apache-commons, apache-maven.
+#      dgs, spring, kotlin, testing, apache-commons, apache-maven,
+#      maven-plugins.
 #   2. npm - the Angular subscription clients, updates grouped by angular,
 #      apollo-graphql, tooling.
 #   3. GitHub Actions workflows.
@@ -13,7 +14,16 @@
 # Note: the DGS platform BOM (graphql-dgs-platform-dependencies) does NOT manage
 # the dgs-codegen shared-core or the dgs-codegen Maven plugin versions, so those
 # stay explicitly declared in each pom and are updated here like any other
-# dependency (they land in the "dgs" group).
+# dependency: the shared-core lands in the "dgs" group, the Maven plugin
+# (io.github.deweyjose:graphqlcodegen-maven-plugin) in the "maven-plugins" group.
+#
+# The Maven plugins are grouped by their groupId, not one group per plugin:
+# every plugin declared in the active projects falls into "maven-plugins", so a
+# plugin bump lands as one grouped pull request instead of one per module.
+# The kotlin-maven-plugin and spring-boot-maven-plugin are not listed there:
+# they inherit their version from the parent POM, so Dependabot never proposes
+# updates for them, and their groupIds are already covered by the "kotlin" and
+# "spring" groups.
 version: 2
 updates:
   # Java / Kotlin Maven projects
@@ -70,6 +80,11 @@ updates:
       apache-maven:
         patterns:
           - "org.apache.maven:*"
+      maven-plugins:
+        patterns:
+          - "org.apache.maven.plugins:*"
+          - "org.codehaus.mojo:*"
+          - "io.github.deweyjose:*"
 
   # Angular clients. Major and minor updates are ignored because they require a
   # coordinated migration of the whole Angular toolchain.
