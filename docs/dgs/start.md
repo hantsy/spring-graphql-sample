@@ -1712,13 +1712,73 @@ For a runnable upload example, explore the
 
 ## Testing
 
-Test a DGS application in layers, from fastest and most isolated to the full
-wire. First test the data fetchers in process with the service layer mocked,
-then the repositories against a real PostgreSQL, and finally the whole
-application over HTTP. A fourth technique — stubbing a remote endpoint with
-WireMock — tests your GraphQL *client*.
+Test a DGS application in layers, from the data access up to the full wire.
+First verify the repositories against a real PostgreSQL, then test the data
+fetchers in process with the service layer mocked, and finally the whole
+application over the wire. A fourth technique — stubbing a remote endpoint
+with WireMock — tests your GraphQL *client*.
 
-### Test data fetchers
+### Test repositories against a database
+
+The fetcher tests below mock the data access, so they never touch a database.
+To verify the repositories themselves, run them against a real PostgreSQL
+with Testcontainers. Use a full `@SpringBootTest` — it component-scans the
+repositories, so you can inject them directly — and add
+`@Import(TestcontainersConfiguration.class)` for the database connection:
+
+```java
+@SpringBootTest
+@Import(TestcontainersConfiguration.class)
+@Transactional
+class RepositoryTests {
+
+    @Autowired
+    PostRepository posts;
+
+    @Autowired
+    CommentRepository comments;
+
+    @Autowired
+    AuthorRepository authors;
+
+    private Long newAuthor() {
+        return authors.create("test user", "test@example.com");
+    }
+
+    private Long newPost(String title) {
+        return newPost(newAuthor(), title);
+    }
+
+    private Long newPost(Long authorId, String title) {
+        return posts.create(title, title + " content", "DRAFT", authorId);
+    }
+
+    private Long newComment(Long postId, String content) {
+        return comments.create(content, postId);
+    }
+
+    @Test
+    void createAndFindPostById() {
+        var postId = newPost("test title");
+
+        var post = posts.findById(postId);
+        assertThat(post.title()).isEqualTo("test title");
+    }
+}
+```
+
+The `newAuthor`, `newPost`, and `newComment` helpers make it easy to set up
+the foreign-key relations in each test. `TestcontainersConfiguration` is a
+`@TestConfiguration` whose `@Bean @ServiceConnection PostgreSQLContainer`
+supplies the `DataSource`; `spring.sql.init.mode=always` runs `schema.sql`
+against it, and `@Transactional` rolls back each test. Because the application
+seeds sample data on startup, tests that read a whole table assert with
+`contains` rather than an exact count. The
+[`dgs`](https://github.com/hantsy/spring-graphql-sample/tree/master/dgs) module
+has a single `RepositoryTests` class; the database-backed suites need Docker
+running.
+
+### Test queries with DgsQueryExecutor
 
 `@EnableDgsTest` enables DGS test support, and `DgsQueryExecutor` runs a
 GraphQL operation directly against the schema without starting an HTTP server.
@@ -1803,75 +1863,179 @@ The sample modules exercise this pattern in different ways:
 - [`dgs-webflux`](https://github.com/hantsy/spring-graphql-sample/tree/master/dgs-webflux)
   tests reactive fetchers and subscriptions with `DgsReactiveQueryExecutor`.
 
-### Test repositories against a database
+### Test mutations with DgsQueryExecutor
 
-Fetcher tests mock the data access, so they never touch a database. To verify
-the repositories themselves, run them against a real PostgreSQL with
-Testcontainers. Use a full `@SpringBootTest` — it component-scans the
-repositories, so you can inject them directly — and add
-`@Import(TestcontainersConfiguration.class)` for the database connection:
+A mutation is tested the same way: import the fetcher, mock the service, and
+run the mutation through the executor. Assert the returned data with
+`executeAndExtractJsonPath`, and inspect the errors of a rejected mutation
+with `execute(...)`:
 
 ```java
-@SpringBootTest
-@Import(TestcontainersConfiguration.class)
-@Transactional
-class RepositoryTests {
-
+@EnableDgsTest
+@SpringBootTest(classes = PostsMutationTest.TestConfig.class)
+class PostsMutationTest {
     @Autowired
-    PostRepository posts;
+    DgsQueryExecutor executor;
 
-    @Autowired
-    CommentRepository comments;
+    @MockitoBean
+    PostService postService;
 
-    @Autowired
-    AuthorRepository authors;
-
-    private Long newAuthor() {
-        return authors.create("test user", "test@example.com");
-    }
-
-    private Long newPost(String title) {
-        return newPost(newAuthor(), title);
-    }
-
-    private Long newPost(Long authorId, String title) {
-        return posts.create(title, title + " content", "DRAFT", authorId);
-    }
-
-    private Long newComment(Long postId, String content) {
-        return comments.create(content, postId);
+    @Configuration
+    @Import(PostsDataFetcher.class)
+    static class TestConfig {
     }
 
     @Test
-    void createAndFindPostById() {
-        var postId = newPost("test title");
+    void createPost() {
+        when(postService.createPost(any(CreatePostInput.class))).thenReturn(1L);
+        when(postService.getPostById(1L)).thenReturn(
+                Post.builder().id(1L).title("test title").build());
 
-        var post = posts.findById(postId);
-        assertThat(post.title()).isEqualTo("test title");
+        String title = executor.executeAndExtractJsonPath(
+                """
+                mutation createPost($input: CreatePostInput!) {
+                    createPost(createPostInput: $input) { title }
+                }
+                """,
+                "data.createPost.title",
+                Map.of("input", Map.of(
+                        "title", "test title",
+                        "content", "test content"
+                ))
+        );
+
+        assertThat(title).isEqualTo("test title");
+    }
+
+    @Test
+    void createPostRejectedByValidation() {
+        var result = executor.execute(
+                """
+                mutation createPost($input: CreatePostInput!) {
+                    createPost(createPostInput: $input) { title }
+                }
+                """,
+                Map.of("input", Map.of(
+                        "title", "too short",
+                        "content", "test content"
+                ))
+        );
+
+        assertThat(result.getErrors()).isNotEmpty();
+        // the fetcher is never reached
+        verifyNoInteractions(postService);
     }
 }
 ```
 
-The `newAuthor`, `newPost`, and `newComment` helpers make it easy to set up
-the foreign-key relations in each test. `TestcontainersConfiguration` is a
-`@TestConfiguration` whose `@Bean @ServiceConnection PostgreSQLContainer`
-supplies the `DataSource`; `spring.sql.init.mode=always` runs `schema.sql`
-against it, and `@Transactional` rolls back each test. Because the application
-seeds sample data on startup, tests that read a whole table assert with
-`contains` rather than an exact count. The
-[`dgs`](https://github.com/hantsy/spring-graphql-sample/tree/master/dgs) module
-has a single `RepositoryTests` class; the database-backed suites need Docker
-running.
+The second test shows why the whole result matters: the input validation runs
+before the fetcher, so the mutation is rejected and the service is never
+called at all. It needs the extended validation support — the
+`graphql-dgs-extended-validation` dependency and a `@Size` directive on the
+schema input — as in the
+[`dgs-codegen`](https://github.com/hantsy/spring-graphql-sample/tree/master/dgs-codegen)
+module.
 
-### Test over HTTP
+### Test subscriptions with DgsQueryExecutor
+
+A subscription is executed the same way, but the result is a stream instead of
+a value. `executor.execute(...)` returns an `ExecutionResult` whose
+`getData()` is a `Publisher<ExecutionResult>` — subscribe to it, request the
+number of events you expect, and then trigger them.
+
+The service cannot be mocked here: the `Sinks.Many` it publishes the comments
+with has to be fed for real, so use a spy and mock only the repositories.
+
+```java
+@EnableDgsTest
+@SpringBootTest(classes = SubscriptionTests.SubscriptionTestsConfig.class)
+class SubscriptionTests {
+
+    @Configuration
+    @Import({PostsDataFetcher.class, PostService.class})
+    static class SubscriptionTestsConfig {
+    }
+
+    @Autowired
+    DgsQueryExecutor executor;
+
+    // the real service, so the sink is fed the same way as in production
+    @MockitoSpyBean
+    PostService postService;
+
+    @MockitoBean
+    PostRepository postRepository;
+
+    @Test
+    void commentAddedSubscription() {
+        var comments = new CopyOnWriteArrayList<Map<String, Object>>();
+
+        var subscriptionQuery = """
+                subscription onCommentAdded {
+                    commentAdded {
+                        id
+                        postId
+                        content
+                    }
+                }
+                """;
+
+        ExecutionResult executionResult = executor.execute(subscriptionQuery, Map.of());
+        Publisher<ExecutionResult> publisher = executionResult.getData();
+
+        publisher.subscribe(new Subscriber<>() {
+            @Override
+            public void onSubscribe(Subscription subscription) {
+                subscription.request(2);
+            }
+
+            @Override
+            public void onNext(ExecutionResult result) {
+                Map<String, Object> data = result.getData();
+                comments.add((Map<String, Object>) data.get("commentAdded"));
+            }
+
+            @Override
+            public void onError(Throwable throwable) {
+                throw new AssertionError("subscription failed", throwable);
+            }
+
+            @Override
+            public void onComplete() {
+                // the subscription stays open
+            }
+        });
+
+        var postId = UUID.randomUUID();
+        postService.addComment(
+                CommentInput.newBuilder().postId(postId.toString()).content("Comment 1").build());
+        postService.addComment(
+                CommentInput.newBuilder().postId(postId.toString()).content("Comment 2").build());
+
+        assertThat(comments).hasSize(2);
+        assertThat(comments.stream().map(comment -> comment.get("content")).toList())
+                .containsExactly("Comment 1", "Comment 2");
+    }
+}
+```
+
+The `request(2)` call is what makes the test deterministic: the subscription
+asks for two events, so the publisher delivers exactly the two comments the
+mutation published.
+
+### Test the API over the protocols with GraphQL clients
 
 Component and repository tests never exercise the transport. To verify the
-GraphQL-over-HTTP endpoint, start the application on a random port and call
-`/graphql`. `DgsRestClientGraphQLClient` sends requests with Spring's blocking
-`RestClient`; the
-[`dgs`](https://github.com/hantsy/spring-graphql-sample/tree/master/dgs) and
-[`dgs-codegen`](https://github.com/hantsy/spring-graphql-sample/tree/master/dgs-codegen)
-integration tests use it:
+GraphQL endpoint end to end, start the application on a random port and call
+`/graphql`. The DGS client libraries speak every transport the server offers:
+
+| Transport | Client | Used for |
+| --- | --- | --- |
+| HTTP | `DgsRestClientGraphQLClient` (blocking), `DgsWebClientGraphQLClient` (reactive) | queries and mutations |
+| Server-Sent Events | `DgsGraphqlSSESubscriptionGraphQLClient` | subscriptions |
+| WebSocket | `WebSocketGraphQlClient` | subscriptions |
+
+The blocking `RestClient` based client sends the queries and the mutations:
 
 ```java
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -1917,9 +2081,46 @@ StepVerifier.create(result)
         .verifyComplete();
 ```
 
+A subscription is opened over the Server-Sent-Events transport with the SSE
+client:
+
+```java
+var baseUrl = "http://localhost:" + port + "/graphql";
+var sseClient = new DgsGraphqlSSESubscriptionGraphQLClient(baseUrl, WebClient.create(baseUrl));
+
+var content = sseClient.reactiveExecuteQuery(subscriptionQuery, Map.of())
+        .map(response -> response.extractValueAsObject("commentAdded.content", String.class))
+        .next()
+        .block(Duration.ofSeconds(30));
+
+assertThat(content).isEqualTo("test comment");
+```
+
+And over the WebSocket transport, which speaks the `graphql-transport-ws`
+sub-protocol:
+
+```java
+var socketClient = WebSocketGraphQlClient.create(
+        URI.create("ws://localhost:" + port + "/graphql"),
+        new ReactorNettyWebSocketClient());
+socketClient.start().subscribe();
+
+var content = socketClient.document(subscriptionQuery).executeSubscription()
+        .map(response -> response.<Map<String, Object>>getData())
+        .mapNotNull(data -> data.get("commentAdded"))
+        .map(comment -> ((Map<String, Object>) comment).get("content"))
+        .cast(String.class)
+        .next()
+        .block(Duration.ofSeconds(30));
+
+assertThat(content).isEqualTo("test comment");
+```
+
 The
 [`dgs-webflux`](https://github.com/hantsy/spring-graphql-sample/tree/master/dgs-webflux)
-integration test uses the reactive client.
+integration test uses the reactive client, and the
+[`dgs-codegen`](https://github.com/hantsy/spring-graphql-sample/tree/master/dgs-codegen)
+integration tests cover all three transports.
 
 ### Mock remote GraphQL APIs
 
