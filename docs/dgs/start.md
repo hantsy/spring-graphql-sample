@@ -807,6 +807,9 @@ public class CommentsDataLoader implements MappedBatchLoader<Long, List<Comment>
 }
 ```
 
+To push live updates to the clients — new comments, for example — add a
+subscription; see [Subscription (with SSE, WebSocket)](#subscription-with-sse-websocket).
+
 ## Step 6: Handle errors
 
 **Error handling** converts exceptions thrown during field resolution into
@@ -1055,6 +1058,65 @@ This module also adds a second mutation (`addComment`) and demonstrates the
 subscription transport, so it is the one to copy when you need real-time
 updates.
 
+### Subscriptions over SSE and WebSocket
+
+The reactive module serves the subscription over both transports, on the same
+`/graphql` path as the ordinary HTTP endpoint. The service owns the event
+stream; the mutation publishes into a Reactor `Sinks.Many` and the
+subscription reads from it:
+
+```java
+@Service
+@RequiredArgsConstructor
+@Slf4j
+public class PostService {
+    ... // the repositories
+
+    private final Sinks.Many<Comment> sink = Sinks.many().replay().latest();
+
+    public Mono<Comment> addComment(CommentInput commentInput) {
+        var postId = Long.valueOf(commentInput.getPostId());
+        return this.posts.findById(postId)
+                .flatMap(p -> this.comments.create(commentInput.getContent(), postId))
+                .flatMap(id -> this.comments.findById(id))
+                .map(COMMENT_MAPPER)
+                .doOnNext(c -> sink.emitNext(c, Sinks.EmitFailureHandler.FAIL_FAST))
+                .switchIfEmpty(Mono.error(new PostNotFoundException(postId)));
+    }
+
+    public Flux<Comment> commentAdded() {
+        return sink.asFlux();
+    }
+}
+```
+
+The `doOnNext` matters: the event is published as a side effect of the
+successful mutation, so a subscriber only ever sees comments that were really
+stored.
+
+The WebSocket transport only needs the path, the SSE transport a timeout:
+
+```properties
+spring.graphql.websocket.path=/graphql
+spring.graphql.http.sse.timeout=45s
+```
+
+Both clients work as in the servlet module; the WebSocket one only needs a
+reactive `WebSocketClient`:
+
+```java
+// Server-Sent Events
+var sseClient = new DgsGraphqlSSESubscriptionGraphQLClient(baseUrl, WebClient.create(baseUrl));
+
+// WebSocket
+var socketClient = WebSocketGraphQlClient.create(
+        URI.create("ws://localhost:8080/graphql"),
+        new ReactorNettyWebSocketClient());
+```
+
+See [Subscription (with SSE, WebSocket)](#subscription-with-sse-websocket) for
+the whole picture.
+
 To explore the reactive version, see the
 [`dgs-webflux` module](https://github.com/hantsy/spring-graphql-sample/tree/master/dgs-webflux).
 
@@ -1186,6 +1248,194 @@ a schema rename becomes a compile error rather than a silent typo.
 
 For a complete code-generation setup, explore the
 [`dgs-codegen` module](https://github.com/hantsy/spring-graphql-sample/tree/master/dgs-codegen).
+
+## Subscription (with SSE, WebSocket)
+
+A **subscription** is a long-lived GraphQL operation. The client opens it
+once and the server keeps pushing results until the client goes away. DGS
+turns a method that returns a reactive `Publisher` into such a subscription
+with `@DgsSubscription`.
+
+Spring GraphQL serves the very same subscription over two transports:
+
+| Transport | How the client opens it |
+| --- | --- |
+| Server-Sent Events (SSE) | `POST /graphql` with `Accept: text/event-stream`; the response body is a stream of `data:` lines. |
+| WebSocket | `ws://localhost:8080/graphql` with the `graphql-transport-ws` sub-protocol. |
+
+Both live under the same path as the ordinary HTTP endpoint, so one GraphQL
+service serves queries, mutations and subscriptions over HTTP, over
+Server-Sent Events and over WebSocket at the same time.
+
+### Declare the subscription in the schema
+
+Add a root `Subscription` type and the mutation that produces the events:
+
+```graphql
+type Comment {
+    id: ID!
+    content: String!
+    createdAt: LocalDateTime
+    postId: String!
+}
+
+input CommentInput {
+    postId: String!
+    content: String!
+}
+
+type Mutation {
+    createPost(createPostInput: CreatePostInput!): UUID!
+    addComment(commentInput: CommentInput!): Comment!
+}
+
+type Subscription {
+    commentAdded: Comment!
+}
+```
+
+### Publish the events from the service
+
+The service owns the event stream. A Reactor `Sinks.Many` is the hot
+publisher the subscription is built on: the mutation emits into the sink, the
+subscription reads from it.
+
+```java
+@Service
+@RequiredArgsConstructor
+public class PostService {
+    ... // the repositories
+
+    // the sink the `commentAdded` subscription is fed from.
+    private final Sinks.Many<Comment> commentSink = Sinks.many().replay().latest();
+
+    public Comment addComment(CommentInput commentInput) {
+        var postId = UUID.fromString(commentInput.getPostId());
+        var commentId = this.comments.create(commentInput.getContent(), postId);
+        var comment = Comment.newBuilder()
+                .id(commentId.toString())
+                .content(commentInput.getContent())
+                .createdAt(LocalDateTime.now())
+                .postId(postId.toString())
+                .build();
+        this.commentSink.emitNext(comment, Sinks.EmitFailureHandler.FAIL_FAST);
+        return comment;
+    }
+
+    public Publisher<Comment> commentAdded() {
+        return this.commentSink.asFlux();
+    }
+}
+```
+
+`Sinks.many().replay().latest()` keeps the last published comment, so a client
+that subscribes a moment too late still receives it. Use
+`Sinks.many().multicast().directBestEffort()` instead when every subscriber
+should only see the events published *after* it subscribed.
+
+### Expose the subscription in a data fetcher
+
+The fetcher is a one-liner; DGS binds the method to the `commentAdded` field of
+the `Subscription` root type.
+
+```java
+@DgsComponent
+@RequiredArgsConstructor
+public class PostsDataFetcher {
+    private final PostService postService;
+
+    ... // the query and the nested field fetchers
+
+    @DgsMutation
+    public Comment addComment(@InputArgument("commentInput") CommentInput input) {
+        return this.postService.addComment(input);
+    }
+
+    @DgsSubscription
+    public Publisher<Comment> commentAdded() {
+        return this.postService.commentAdded();
+    }
+}
+```
+
+### Serve both transports
+
+The Server-Sent-Events transport is part of `spring-boot-graphql`, so it needs
+no extra dependency. The WebSocket transport needs the WebSocket starter, and
+the reactive `Sinks` API comes from Reactor:
+
+```xml
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-websocket</artifactId>
+</dependency>
+<dependency>
+    <groupId>io.projectreactor</groupId>
+    <artifactId>reactor-core</artifactId>
+</dependency>
+```
+
+Point the WebSocket transport at the same path as the HTTP endpoint and give
+the SSE responses a sensible timeout:
+
+```properties
+spring.graphql.websocket.path=/graphql
+spring.graphql.websocket.connection-init-timeout=30s
+spring.graphql.websocket.keep-alive=60s
+spring.graphql.http.sse.timeout=45s
+# the servlet stack keeps the SSE request open through the async request timeout
+spring.mvc.async.request-timeout=45000
+```
+
+The endpoint now serves three things: plain HTTP queries and mutations,
+Server-Sent-Events subscriptions and WebSocket subscriptions — all under
+`/graphql`.
+
+### Connect a client
+
+The DGS client libraries speak both transports. The SSE client opens a
+`text/event-stream` request, the WebSocket client speaks `graphql-transport-ws`:
+
+```java
+var baseUrl = "http://localhost:8080/graphql";
+
+// Server-Sent Events
+var sseClient = new DgsGraphqlSSESubscriptionGraphQLClient(baseUrl, WebClient.create(baseUrl));
+sseClient.reactiveExecuteQuery("""
+        subscription onCommentAdded {
+            commentAdded {
+                id
+                postId
+                content
+            }
+        }
+        """, Map.of())
+        .map(response -> response.extractValueAsObject("commentAdded.content", String.class))
+        .subscribe(System.out::println);
+
+// WebSocket
+var socketClient = WebSocketGraphQlClient.create(
+        URI.create("ws://localhost:8080/graphql"),
+        new ReactorNettyWebSocketClient());
+socketClient.start().subscribe();
+socketClient.document("""
+        subscription onCommentAdded {
+            commentAdded {
+                id
+                postId
+                content
+            }
+        }
+        """).executeSubscription()
+        .map(response -> response.getData())
+        .subscribe(System.out::println);
+```
+
+`graphql-transport-ws` is the sub-protocol Spring GraphQL supports; the older
+`apollo/subscriptions-transport-ws` protocol is rejected.
+
+For a complete implementation of both transports on one GraphQL path, explore
+the [`dgs-codegen` module](https://github.com/hantsy/spring-graphql-sample/tree/master/dgs-codegen).
 
 ## Custom scalars
 
