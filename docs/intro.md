@@ -3,14 +3,10 @@
 GraphQL is more and more popular in developer communities. What began as an
 internal Facebook tool for mobile apps is now a cross-ecosystem standard, with
 servers and tooling for nearly every language and platform. On the JVM, that
-means one shared engine — GraphQL Java — and two Spring Boot frameworks built
-on top of it.
+means one shared engine — GraphQL Java — and a collection of integraitons with popular applicaiton frameworks, including Spring, Quarkus, Micronaut, etc.
 
 This chapter is for Java developers who know Spring and want to understand
-GraphQL and the frameworks that run it on the JVM. The examples use Java 25 and
-Spring Boot 4.1.2 / Spring Framework 7, with some written in Kotlin (Kotlin
-2.4.x). This chapter is not a Spring tutorial; it assumes you can already build
-a Spring Boot application.
+GraphQL and the frameworks that run it on the JVM.
 
 ## What is GraphQL
 
